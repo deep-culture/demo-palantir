@@ -1,0 +1,33 @@
+transaction_id,source_account_id,source_name,destination_account_id,destination_name,amount_usd,txn_type,merchant_or_bank,txn_ts,reference
+NTX-00023,ACCT-NC001,Keystone Trading Ltd,,Nova Telecom,3225.00,card_purchase,Nova Telecom,2026-04-01T08:33:00Z,settlement
+NTX-00018,ACCT-NP004,Tomas Orlov,ACCT-NP002,Clara Silva,72.20,transfer,Mediterranean Commerce Bank,2026-04-01T20:42:00Z,travel
+NTX-00011,ACCT-P005,Daniel Wu,,Cash withdrawal,118.00,cash_withdrawal,ATM-AE-80,2026-04-02T02:53:00Z,invoice
+TX-0008,ACCT-P005,Daniel Wu,,SkyJet Travel,1890.00,card_purchase,SkyJet Travel,2026-04-02T08:30:00Z,corporate itinerary
+NTX-00008,ACCT-NP010,Clara Nasser,,Metro Taxi,1250.00,card_purchase,Metro Taxi,2026-04-02T10:05:00Z,travel
+TX-0001,ACCT-P001,Kareem Haddad,ACCT-C101,Oriole Trading LLC,4800.00,transfer,Mediterranean Commerce Bank,2026-04-02T19:45:00Z,consulting retainer
+NTX-00003,ACCT-P005,Daniel Wu,,Hotel Azure,72.20,card_purchase,Hotel Azure,2026-04-02T19:56:00Z,travel
+NTX-00002,ACCT-C102,North Quay Logistics FZE,,Cash withdrawal,880.00,cash_withdrawal,ATM-CY-74,2026-04-03T11:04:00Z,travel
+TX-0002,ACCT-C101,Oriole Trading LLC,ACCT-C102,North Quay Logistics FZE,4700.00,transfer,Mediterranean Commerce Bank,2026-04-03T14:05:00Z,freight adjustment
+TX-0003,ACCT-P003,Omar Rahman,ACCT-P004,Sofia Petrov,4500.00,transfer,Halcyon Private Bank,2026-04-03T16:20:00Z,invoice 447
+TX-0005,ACCT-P002,Elena Markovic,,Cash withdrawal,9800.00,cash_withdrawal,ATM-CY-09,2026-04-03T18:45:00Z,cash
+NTX-00022,ACCT-C102,North Quay Logistics FZE,,Cash withdrawal,880.00,cash_withdrawal,ATM-CY-42,2026-04-03T19:24:00Z,ops
+NTX-00009,ACCT-P002,Elena Markovic,ACCT-NP005,Elias Orlov,118.00,transfer,Halcyon Private Bank,2026-04-04T02:40:00Z,settlement
+TX-0004,ACCT-P004,Sofia Petrov,ACCT-C103,Blue Harbor Consulting Ltd,4300.00,transfer,Halcyon Private Bank,2026-04-04T12:10:00Z,retainer
+TX-0006,ACCT-C102,North Quay Logistics FZE,ACCT-C103,Blue Harbor Consulting Ltd,4250.00,transfer,Marina Trade Bank,2026-04-04T13:55:00Z,service fee
+NTX-00006,ACCT-P004,Sofia Petrov,ACCT-NC002,Ivory Advisory Ltd,118.00,transfer,Marina Trade Bank,2026-04-04T15:17:00Z,invoice
+NTX-00014,ACCT-C102,North Quay Logistics FZE,,Cash withdrawal,72.20,cash_withdrawal,ATM-CY-32,2026-04-04T15:59:00Z,fuel
+NTX-00016,ACCT-NC004,Ridge Partners Ltd,ACCT-NP003,Ben Grant,1250.00,transfer,Halcyon Private Bank,2026-04-04T17:50:00Z,fuel
+TX-0007,ACCT-P001,Kareem Haddad,ACCT-P002,Elena Markovic,1995.00,transfer,Mediterranean Commerce Bank,2026-04-05T09:25:00Z,expense settle
+NTX-00024,ACCT-NC002,Ivory Advisory Ltd,,Cash withdrawal,245.75,cash_withdrawal,ATM-AT-95,2026-04-05T12:23:00Z,travel
+NTX-00007,ACCT-NC001,Keystone Trading Ltd,,Hotel Azure,1250.00,card_purchase,Hotel Azure,2026-04-05T16:43:00Z,hotel
+NTX-00013,ACCT-NP001,Clara Adler,,Cash withdrawal,48.50,cash_withdrawal,ATM-GB-81,2026-04-06T15:42:00Z,fuel
+NTX-00019,ACCT-NP003,Ben Grant,ACCT-NC003,Meridian Solutions Ltd,1250.00,transfer,Marina Trade Bank,2026-04-07T06:22:00Z,fuel
+NTX-00001,ACCT-P005,Daniel Wu,,Cash withdrawal,118.00,cash_withdrawal,ATM-AT-11,2026-04-07T17:29:00Z,fuel
+NTX-00005,ACCT-P001,Kareem Haddad,,Cash withdrawal,1250.00,cash_withdrawal,ATM-AT-27,2026-04-07T17:59:00Z,travel
+NTX-00004,ACCT-P006,Maya Singh,,Office Supply Hub,3225.00,card_purchase,Office Supply Hub,2026-04-07T18:39:00Z,hotel
+NTX-00012,ACCT-NP008,Nadia Costa,ACCT-P002,Elena Markovic,3225.00,transfer,Halcyon Private Bank,2026-04-07T21:23:00Z,travel
+NTX-00020,ACCT-C104,Cedar Gate Holdings SA,,Cash withdrawal,48.50,cash_withdrawal,ATM-GB-32,2026-04-08T09:01:00Z,hotel
+NTX-00015,ACCT-P001,Kareem Haddad,ACCT-NC002,Ivory Advisory Ltd,245.75,transfer,Marina Trade Bank,2026-04-08T10:50:00Z,settlement
+NTX-00010,ACCT-NP009,Ben Byrne,,Cash withdrawal,48.50,cash_withdrawal,ATM-AT-19,2026-04-10T10:35:00Z,settlement
+NTX-00021,ACCT-NP003,Ben Grant,ACCT-P004,Sofia Petrov,1250.00,transfer,Mediterranean Commerce Bank,2026-04-10T14:22:00Z,fuel
+NTX-00017,ACCT-NC006,Evergreen Solutions Ltd,ACCT-NC006,Evergreen Solutions Ltd,72.20,transfer,Mediterranean Commerce Bank,2026-04-11T08:14:00Z,travel

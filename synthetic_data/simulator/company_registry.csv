@@ -1,0 +1,95 @@
+company_id,company_name,jurisdiction,incorporation_date,registered_address,director_name,director_dob,beneficial_owner,beneficial_owner_dob,registered_city,registered_country,registered_site_type
+CO-101,Oriole Trading LLC,Cyprus,2021-03-19,"14 Seabright Ave, Limassol",Elena Markovic,1990-11-03,Kareem Haddad,1987-04-12,Limassol,Cyprus,office
+CO-102,North Quay Logistics FZE,United Arab Emirates,2020-07-08,"88 Marina Free Zone, Dubai",Omar Rahman,1984-08-19,Kareem Haddad,1987-04-12,Dubai,United Arab Emirates,free-zone
+CO-103,Blue Harbor Consulting Ltd,Cyprus,2022-01-14,"14 Seabright Ave, Limassol",Sofia Petrov,1988-02-27,Elena Markovic,1990-11-03,Limassol,Cyprus,office
+CO-104,Cedar Gate Holdings SA,Switzerland,2019-11-04,"21 Rue des Acacias, Geneva",Maya Singh,1992-09-21,Daniel Wu,1985-06-14,,,
+NCO-001,Pioneer Trading Ltd,United Arab Emirates,2024-10-17,"9 Al Noor Park, Dubai",Dina Orlov,1982-03-26,Hugo Demir,1989-11-12,Dubai,United Arab Emirates,residential
+NCO-002,Evergreen Trading Ltd,United Kingdom,2019-11-02,"17 Kingsway, London",Ivy Silva,1974-06-16,Lena Nasser,1986-01-04,London,United Kingdom,office
+NCO-003,Meridian Advisory Ltd,Austria,2024-09-12,"9 Al Noor Park, Dubai",Jonah Hale,1986-03-10,Rami Costa,1976-02-11,Dubai,United Arab Emirates,residential
+NCO-004,Ivory Partners Ltd,United Arab Emirates,2024-11-14,"48 Bahnhofstrasse, Zurich",Ben Ionescu,1994-03-22,Dina Elias,1984-05-16,Zurich,Switzerland,office
+NCO-005,Pioneer Advisory Ltd,Austria,2022-05-29,"27 Ringstrasse, Vienna",Lena Byrne,1987-02-28,Farah Ionescu,1996-09-02,Vienna,Austria,office
+NCO-006,Cedar Solutions Ltd,United Arab Emirates,2021-07-04,"48 Bahnhofstrasse, Zurich",Clara Patel,1979-04-09,Priya Silva,1987-07-28,Zurich,Switzerland,office
+NCO-007,Beacon Advisory Ltd,United Kingdom,2024-10-13,"9 Al Noor Park, Dubai",Elias Silva,1997-10-16,Hugo Costa,1989-03-02,Dubai,United Arab Emirates,residential
+NCO-008,Ridge Holdings Ltd,United Kingdom,2021-12-04,"48 Bahnhofstrasse, Zurich",Owen Vale,1976-11-06,Ben Orlov,1986-05-31,Zurich,Switzerland,office
+NCO-009,Ridge Maritime Ltd,Switzerland,2021-06-07,"27 Ringstrasse, Vienna",Clara Patel,1981-06-18,Priya Keller,1982-12-08,Vienna,Austria,office
+NCO-010,Pioneer Partners Ltd,United Arab Emirates,2025-09-19,"48 Bahnhofstrasse, Zurich",Dina Costa,1995-01-23,Sara Ionescu,1998-10-26,Zurich,Switzerland,office
+NCO-011,Granite Maritime Ltd,Switzerland,2022-01-07,"48 Bahnhofstrasse, Zurich",Adam Patel,1986-11-26,Dina Elias,1984-05-16,Zurich,Switzerland,office
+NCO-012,Lantern Partners Ltd,Cyprus,2021-08-15,"9 Al Noor Park, Dubai",Sara Ionescu,1998-10-26,Dina Hale,1994-09-08,Dubai,United Arab Emirates,residential
+NCO-013,Delta Trading Ltd,Cyprus,2023-09-16,"48 Bahnhofstrasse, Zurich",Farah Nasser,1988-09-22,Aisha Byrne,2000-03-16,Zurich,Switzerland,office
+NCO-014,Atlas Advisory Ltd,Switzerland,2024-09-03,"9 Al Noor Park, Dubai",Rami Nasser,1991-04-27,Hugo Turner,1991-03-07,Dubai,United Arab Emirates,residential
+NCO-015,Cedar Trading Ltd,Switzerland,2023-08-31,"27 Ringstrasse, Vienna",Zane Ionescu,1975-02-28,Farah Lopez,1984-09-15,Vienna,Austria,office
+NCO-016,Evergreen Trading Ltd,Cyprus,2022-12-23,"27 Ringstrasse, Vienna",Farah Ionescu,1996-09-02,Farah Elias,1975-02-05,Vienna,Austria,office
+NCO-017,Ridge Logistics Ltd,Cyprus,2025-10-18,"17 Kingsway, London",Ben Rossi,1984-09-04,Owen Grant,1998-03-11,London,United Kingdom,office
+NCO-018,Lantern Trading Ltd,Austria,2022-06-15,"17 Kingsway, London",Owen Grant,1998-03-11,Sofia Petrov,1988-02-27,London,United Kingdom,office
+NCO-019,Ivory Advisory Ltd,United Kingdom,2020-03-09,"17 Kingsway, London",Daniel Wu,1985-06-14,Hugo Farouk,1992-03-25,London,United Kingdom,office
+NCO-020,Pioneer Maritime Ltd,Austria,2024-11-11,"9 Al Noor Park, Dubai",Elias Silva,1997-10-16,Marcus Grant,1985-12-23,Dubai,United Arab Emirates,residential
+NCO-021,Harbor Partners Ltd,Austria,2022-09-14,"5 Harbor Row, Limassol",Tomas Quinn,1994-11-08,Tomas Elias,1986-04-22,Limassol,Cyprus,office
+NCO-022,Atlas Advisory Ltd,United Kingdom,2021-04-21,"48 Bahnhofstrasse, Zurich",Nadia Lopez,1975-04-16,Rami Nasser,1991-04-27,Zurich,Switzerland,office
+NCO-023,Pioneer Solutions Ltd,Cyprus,2025-03-07,"48 Bahnhofstrasse, Zurich",Dina Hale,1994-09-08,Adam Ionescu,1996-06-15,Zurich,Switzerland,office
+NCO-024,Evergreen Advisory Ltd,United Arab Emirates,2019-12-08,"17 Kingsway, London",Sara Quinn,1981-08-12,Jonah Silva,1974-08-13,London,United Kingdom,office
+NCO-025,Meridian Partners Ltd,United Arab Emirates,2020-12-30,"27 Ringstrasse, Vienna",Farah Vale,1985-03-30,Zane Lopez,1978-03-11,Vienna,Austria,office
+NCO-026,Nova Advisory Ltd,Austria,2023-09-04,"5 Harbor Row, Limassol",Dina Quinn,1978-08-08,Rami Demir,1975-04-18,Limassol,Cyprus,office
+NCO-027,Harbor Maritime Ltd,United Kingdom,2021-08-12,"9 Al Noor Park, Dubai",Nadia Nasser,1982-11-24,Tomas Quinn,1994-11-08,Dubai,United Arab Emirates,residential
+NCO-028,Keystone Maritime Ltd,United Arab Emirates,2021-11-20,"9 Al Noor Park, Dubai",Zane Elias,1984-09-13,Owen Vale,1976-11-06,Dubai,United Arab Emirates,residential
+NCO-029,Pioneer Advisory Ltd,Cyprus,2025-01-15,"5 Harbor Row, Limassol",Owen Grant,1978-03-26,Dina Hale,1994-09-08,Limassol,Cyprus,office
+NCO-030,Lantern Trading Ltd,Austria,2025-05-31,"17 Kingsway, London",Nadia Nasser,1982-11-24,Owen Vale,1976-11-06,London,United Kingdom,office
+NCO-031,Ridge Logistics Ltd,United Kingdom,2022-02-13,"5 Harbor Row, Limassol",Lena Ionescu,1988-07-02,Priya Costa,2000-10-29,Limassol,Cyprus,office
+NCO-032,Beacon Logistics Ltd,United Arab Emirates,2022-02-21,"27 Ringstrasse, Vienna",Jonah Hale,1978-01-20,Elias Vale,2001-03-29,Vienna,Austria,office
+NCO-033,Quarry Holdings Ltd,United Kingdom,2023-07-28,"17 Kingsway, London",Ivy Lopez,1979-01-02,Yara Orlov,1996-01-22,London,United Kingdom,office
+NCO-034,Ridge Logistics Ltd,United Arab Emirates,2023-07-20,"5 Harbor Row, Limassol",Adam Ionescu,1996-06-15,Priya Elias,1994-11-04,Limassol,Cyprus,office
+NCO-035,Ridge Advisory Ltd,United Arab Emirates,2025-10-05,"27 Ringstrasse, Vienna",Elias Keller,1978-11-07,Priya Costa,2000-10-29,Vienna,Austria,office
+NCO-036,Juniper Logistics Ltd,Cyprus,2024-01-19,"9 Al Noor Park, Dubai",Priya Keller,1992-12-22,Priya Meyer,1987-09-10,Dubai,United Arab Emirates,residential
+NCO-037,Meridian Advisory Ltd,Cyprus,2025-01-21,"17 Kingsway, London",Adam Costa,1976-08-22,Zane Ionescu,1975-02-28,London,United Kingdom,office
+NCO-038,Meridian Maritime Ltd,United Arab Emirates,2024-04-27,"48 Bahnhofstrasse, Zurich",Zane Byrne,2001-05-07,Dina Meyer,1977-02-01,Zurich,Switzerland,office
+NCO-039,Keystone Trading Ltd,Austria,2025-02-18,"27 Ringstrasse, Vienna",Dina Elias,1984-05-16,Elias Vale,1999-07-13,Vienna,Austria,office
+NCO-040,Falcon Trading Ltd,Cyprus,2025-03-03,"27 Ringstrasse, Vienna",Nadia Costa,1998-10-06,Owen Grant,1978-03-26,Vienna,Austria,office
+NCO-041,Nova Maritime Ltd,United Kingdom,2021-06-10,"27 Ringstrasse, Vienna",Priya Meyer,1987-09-10,Rami Demir,1993-06-12,Vienna,Austria,office
+NCO-042,Quarry Advisory Ltd,United Kingdom,2024-11-03,"9 Al Noor Park, Dubai",Priya Meyer,1987-09-10,Dina Meyer,1977-02-01,Dubai,United Arab Emirates,residential
+NCO-043,Pioneer Partners Ltd,Cyprus,2023-08-12,"9 Al Noor Park, Dubai",Clara Ionescu,1982-01-04,Hugo Rossi,1992-06-26,Dubai,United Arab Emirates,residential
+NCO-044,Beacon Advisory Ltd,United Arab Emirates,2023-09-19,"17 Kingsway, London",Yara Turner,1975-03-21,Farah Ionescu,1998-08-21,London,United Kingdom,office
+NCO-045,Juniper Logistics Ltd,Cyprus,2020-07-04,"5 Harbor Row, Limassol",Hugo Costa,1989-03-02,Hugo Demir,1989-11-12,Limassol,Cyprus,office
+NCO-046,Evergreen Maritime Ltd,Switzerland,2020-06-22,"27 Ringstrasse, Vienna",Nadia Nasser,1982-11-24,Hugo Farouk,1992-03-25,Vienna,Austria,office
+NCO-047,Lantern Advisory Ltd,Cyprus,2021-03-12,"48 Bahnhofstrasse, Zurich",Priya Costa,2000-10-29,Clara Patel,1981-06-18,Zurich,Switzerland,office
+NCO-048,Cedar Trading Ltd,Austria,2021-04-09,"9 Al Noor Park, Dubai",Daniel Wu,1985-06-14,Nadia Lopez,1975-04-16,Dubai,United Arab Emirates,residential
+NCO-049,Nova Logistics Ltd,United Kingdom,2025-11-07,"5 Harbor Row, Limassol",Elias Quinn,1997-04-12,Lena Lopez,1991-01-03,Limassol,Cyprus,office
+NCO-050,Orchid Trading Ltd,Cyprus,2021-03-10,"9 Al Noor Park, Dubai",Zane Lopez,1978-03-11,Priya Silva,1978-05-24,Dubai,United Arab Emirates,residential
+NCO-051,Nova Partners Ltd,Austria,2025-03-15,"48 Bahnhofstrasse, Zurich",Adam Ionescu,1996-06-15,Owen Silva,1974-06-08,Zurich,Switzerland,office
+NCO-052,Keystone Holdings Ltd,Switzerland,2025-03-25,"9 Al Noor Park, Dubai",Yara Turner,1975-03-21,Elias Vale,1999-07-13,Dubai,United Arab Emirates,residential
+NCO-053,Delta Partners Ltd,Switzerland,2022-03-02,"27 Ringstrasse, Vienna",Priya Lopez,1982-04-09,Tomas Silva,1990-12-03,Vienna,Austria,office
+NCO-054,Evergreen Holdings Ltd,Switzerland,2023-03-20,"5 Harbor Row, Limassol",Priya Elias,1994-11-04,Dina Rossi,2000-06-22,Limassol,Cyprus,office
+NCO-055,Evergreen Trading Ltd,Switzerland,2020-07-18,"5 Harbor Row, Limassol",Ben Hale,1992-02-11,Hugo Farouk,1992-03-25,Limassol,Cyprus,office
+NCO-056,Orchid Solutions Ltd,Austria,2022-06-18,"27 Ringstrasse, Vienna",Farah Meyer,1985-08-03,Zane Ionescu,1975-02-28,Vienna,Austria,office
+NCO-057,Evergreen Maritime Ltd,United Kingdom,2021-02-15,"5 Harbor Row, Limassol",Ivy Adler,1986-09-09,Adam Keller,1986-11-14,Limassol,Cyprus,office
+NCO-058,Ivory Partners Ltd,United Arab Emirates,2020-05-24,"5 Harbor Row, Limassol",Yara Quinn,1980-08-31,Sara Keller,1992-04-27,Limassol,Cyprus,office
+NCO-059,Orchid Maritime Ltd,Cyprus,2021-12-13,"5 Harbor Row, Limassol",Tomas Hale,1988-07-19,Elias Vale,1999-07-13,Limassol,Cyprus,office
+NCO-060,Cedar Partners Ltd,Austria,2021-10-10,"27 Ringstrasse, Vienna",Zane Orlov,1989-07-04,Lena Nasser,1986-01-04,Vienna,Austria,office
+NCO-061,Ridge Trading Ltd,United Kingdom,2023-12-22,"5 Harbor Row, Limassol",Farah Meyer,1985-08-03,Lena Lopez,1978-09-10,Limassol,Cyprus,office
+NCO-062,Pioneer Partners Ltd,Cyprus,2021-01-12,"17 Kingsway, London",Sara Quinn,1981-08-12,Rami Demir,1975-04-18,London,United Kingdom,office
+NCO-063,Cedar Partners Ltd,Cyprus,2023-04-23,"17 Kingsway, London",Ivy Lopez,1979-01-02,Adam Demir,1993-01-26,London,United Kingdom,office
+NCO-064,Orchid Partners Ltd,Austria,2024-04-21,"27 Ringstrasse, Vienna",Rami Keller,1984-04-28,Owen Meyer,1977-02-03,Vienna,Austria,office
+NCO-065,Juniper Maritime Ltd,United Arab Emirates,2025-07-01,"48 Bahnhofstrasse, Zurich",Jonah Hale,1986-03-10,Ben Orlov,1992-04-14,Zurich,Switzerland,office
+NCO-066,Keystone Advisory Ltd,Cyprus,2019-10-30,"9 Al Noor Park, Dubai",Yara Quinn,1980-08-31,Dina Rossi,2000-06-22,Dubai,United Arab Emirates,residential
+NCO-067,Juniper Logistics Ltd,Switzerland,2022-05-07,"27 Ringstrasse, Vienna",Hugo Rossi,1992-06-26,Nadia Orlov,1998-02-22,Vienna,Austria,office
+NCO-068,Evergreen Logistics Ltd,United Kingdom,2024-08-21,"9 Al Noor Park, Dubai",Lena Grant,1996-05-24,Rami Keller,1991-12-19,Dubai,United Arab Emirates,residential
+NCO-069,Cedar Logistics Ltd,United Kingdom,2022-05-27,"27 Ringstrasse, Vienna",Marcus Vale,1996-05-12,Rami Keller,1984-04-28,Vienna,Austria,office
+NCO-070,Quarry Advisory Ltd,Austria,2022-01-10,"48 Bahnhofstrasse, Zurich",Dina Quinn,1998-08-30,Clara Patel,1981-06-18,Zurich,Switzerland,office
+NCO-071,Juniper Holdings Ltd,United Arab Emirates,2020-08-19,"17 Kingsway, London",Daniel Wu,1985-06-14,Sara Quinn,1984-09-24,London,United Kingdom,office
+NCO-072,Evergreen Holdings Ltd,United Arab Emirates,2024-12-13,"5 Harbor Row, Limassol",Elias Byrne,1996-10-12,Tomas Keller,1978-08-25,Limassol,Cyprus,office
+NCO-073,Quarry Advisory Ltd,Austria,2024-08-13,"9 Al Noor Park, Dubai",Dina Quinn,1978-08-08,Rami Keller,1975-06-19,Dubai,United Arab Emirates,residential
+NCO-074,Evergreen Holdings Ltd,Austria,2024-03-24,"17 Kingsway, London",Marcus Vale,1996-05-12,Farah Orlov,1991-06-22,London,United Kingdom,office
+NCO-075,Beacon Maritime Ltd,Switzerland,2021-02-07,"9 Al Noor Park, Dubai",Ben Keller,1988-08-27,Owen Meyer,1977-02-03,Dubai,United Arab Emirates,residential
+NCO-076,Orchid Holdings Ltd,Switzerland,2022-08-13,"27 Ringstrasse, Vienna",Clara Patel,1979-04-09,Clara Ionescu,1982-01-04,Vienna,Austria,office
+NCO-077,Lantern Solutions Ltd,United Kingdom,2020-11-27,"27 Ringstrasse, Vienna",Owen Quinn,1998-11-27,Elias Byrne,1996-10-12,Vienna,Austria,office
+NCO-078,Quarry Partners Ltd,Switzerland,2023-11-06,"48 Bahnhofstrasse, Zurich",Clara Ionescu,1982-01-04,Yara Nasser,1995-05-25,Zurich,Switzerland,office
+NCO-079,Ivory Advisory Ltd,United Arab Emirates,2019-11-13,"48 Bahnhofstrasse, Zurich",Rami Demir,1975-04-18,Hugo Costa,1989-03-02,Zurich,Switzerland,office
+NCO-080,Quarry Trading Ltd,United Arab Emirates,2025-02-22,"5 Harbor Row, Limassol",Ivy Lopez,1979-01-02,Farah Vale,1985-03-30,Limassol,Cyprus,office
+NCO-081,Orchid Partners Ltd,United Kingdom,2025-01-21,"17 Kingsway, London",Lena Demir,1985-02-25,Priya Meyer,1987-09-10,London,United Kingdom,office
+NCO-082,Lantern Advisory Ltd,Cyprus,2021-08-22,"48 Bahnhofstrasse, Zurich",Priya Silva,1987-07-28,Tomas Quinn,1994-11-08,Zurich,Switzerland,office
+NCO-083,Harbor Maritime Ltd,United Arab Emirates,2023-07-27,"5 Harbor Row, Limassol",Tomas Elias,1986-04-22,Ben Orlov,1992-04-14,Limassol,Cyprus,office
+NCO-084,Delta Trading Ltd,Switzerland,2024-07-17,"9 Al Noor Park, Dubai",Clara Silva,1977-11-25,Zane Lopez,1994-11-10,Dubai,United Arab Emirates,residential
+NCO-085,Pioneer Solutions Ltd,United Kingdom,2021-01-20,"17 Kingsway, London",Tomas Orlov,1983-11-21,Zane Orlov,1989-07-04,London,United Kingdom,office
+NCO-086,Cedar Advisory Ltd,Switzerland,2024-05-29,"9 Al Noor Park, Dubai",Jonah Rossi,1986-04-07,Elena Markovic,1990-11-03,Dubai,United Arab Emirates,residential
+NCO-087,Quarry Maritime Ltd,United Arab Emirates,2023-06-03,"5 Harbor Row, Limassol",Tomas Hale,1980-09-07,Jonah Silva,1974-08-13,Limassol,Cyprus,office
+NCO-088,Beacon Holdings Ltd,Austria,2020-12-16,"48 Bahnhofstrasse, Zurich",Sara Keller,1992-04-27,Ben Costa,1995-10-20,Zurich,Switzerland,office
+NCO-089,Pioneer Partners Ltd,Cyprus,2020-04-22,"27 Ringstrasse, Vienna",Marcus Grant,1985-12-23,Jonah Rossi,2001-04-26,Vienna,Austria,office
+NCO-090,Evergreen Logistics Ltd,Cyprus,2022-02-16,"48 Bahnhofstrasse, Zurich",Yara Orlov,1996-01-22,Dina Ionescu,1981-04-01,Zurich,Switzerland,office
