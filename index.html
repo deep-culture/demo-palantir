@@ -5,27 +5,323 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Palantir-style Classroom Demos</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 4rem auto; padding: 0 1rem; line-height: 1.55; color: #1e293b; }
-    h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
-    p.lede { color: #64748b; margin-top: 0; }
-    .card { display: block; padding: 1rem 1.25rem; margin-top: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; color: inherit; transition: border-color 0.15s; }
-    .card:hover { border-color: #3b82f6; }
-    .card h2 { margin: 0 0 0.25rem; font-size: 1.1rem; color: #3b82f6; }
-    .card p { margin: 0; color: #64748b; font-size: 0.95rem; }
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #3b82f6;
+      --accent-soft: #eff6ff;
+      --code-bg: #f1f5f9;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    .topbar .lede {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: calc(100vh - 56px);
+    }
+
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 0.75rem;
+      overflow-y: auto;
+    }
+
+    .sidebar section { margin-bottom: 1.25rem; }
+    .sidebar h3 {
+      margin: 0 0 0.35rem 0.6rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .sidebar a, .sidebar button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.45rem 0.6rem;
+      margin: 0;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 0.92rem;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.1s;
+    }
+    .sidebar a:hover, .sidebar button:hover { background: var(--accent-soft); }
+    .sidebar button.active { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+    .sidebar a .ext { color: var(--muted); margin-left: 0.25rem; font-size: 0.8rem; }
+
+    .content {
+      padding: 2rem 2.5rem 4rem;
+      max-width: 820px;
+      overflow-x: hidden;
+    }
+
+    /* welcome cards */
+    .welcome h2 {
+      margin: 0 0 0.25rem;
+      font-size: 1.4rem;
+    }
+    .welcome p.lede {
+      margin: 0 0 1.5rem;
+      color: var(--muted);
+    }
+    .card {
+      display: block;
+      padding: 1rem 1.25rem;
+      margin-top: 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-decoration: none;
+      color: inherit;
+      background: var(--surface);
+      transition: border-color 0.15s;
+    }
+    .card:hover { border-color: var(--accent); }
+    .card h3 { margin: 0 0 0.25rem; font-size: 1.05rem; color: var(--accent); }
+    .card p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+    .welcome .hint {
+      margin-top: 2rem;
+      padding: 0.85rem 1rem;
+      background: var(--accent-soft);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.88rem;
+    }
+
+    /* markdown */
+    .markdown h1, .markdown h2, .markdown h3, .markdown h4 {
+      line-height: 1.3;
+    }
+    .markdown h1 { font-size: 1.75rem; margin: 0 0 0.75rem; }
+    .markdown h2 { font-size: 1.35rem; margin: 1.8rem 0 0.6rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+    .markdown h3 { font-size: 1.1rem; margin: 1.4rem 0 0.5rem; }
+    .markdown h4 { font-size: 1rem; margin: 1.1rem 0 0.4rem; color: var(--muted); }
+    .markdown p, .markdown li { font-size: 0.95rem; }
+    .markdown ul, .markdown ol { padding-left: 1.4rem; }
+    .markdown li { margin: 0.25rem 0; }
+    .markdown blockquote {
+      margin: 1rem 0;
+      padding: 0.6rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: var(--accent-soft);
+      color: var(--text);
+      border-radius: 0 6px 6px 0;
+    }
+    .markdown code {
+      font-family: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, monospace;
+      font-size: 0.85em;
+      background: var(--code-bg);
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+    }
+    .markdown pre {
+      background: var(--code-bg);
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+    .markdown pre code { background: transparent; padding: 0; }
+    .markdown table {
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+    .markdown th, .markdown td {
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.7rem;
+      text-align: left;
+    }
+    .markdown th { background: var(--code-bg); font-weight: 600; }
+    .markdown hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+    .markdown a { color: var(--accent); }
+    .markdown img { max-width: 100%; }
+
+    .loading, .error {
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+    }
+    .error { color: #b91c1c; }
+
+    /* responsive */
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { border-right: none; border-bottom: 1px solid var(--border); padding: 1rem 0.75rem; }
+      .content { padding: 1.25rem; }
+    }
   </style>
 </head>
 <body>
-  <h1>Palantir-style Classroom Demos</h1>
-  <p class="lede">Two paired demos for teaching how operational intelligence platforms work.</p>
+  <header class="topbar">
+    <h1>Palantir-style Classroom Demos</h1>
+    <p class="lede">Gotham &middot; Foundry &middot; teaching materials</p>
+  </header>
 
-  <a class="card" href="./demo/">
-    <h2>Gotham Studio →</h2>
-    <p>Ontology, investigations, AI copilot, geospatial map. Start here.</p>
-  </a>
+  <div class="layout">
+    <nav class="sidebar" id="sidebar">
+      <section>
+        <h3>Live Demos</h3>
+        <a href="./demo/" target="_blank">Gotham Studio <span class="ext">↗</span></a>
+        <a href="./foundry-demo/" target="_blank">Foundry Studio <span class="ext">↗</span></a>
+      </section>
 
-  <a class="card" href="./foundry-demo/">
-    <h2>Foundry Studio →</h2>
-    <p>Pipelines, datasets, and end-to-end lineage. Run after the Gotham session.</p>
-  </a>
+      <section>
+        <h3>For Students</h3>
+        <button data-doc="STUDENT_STUDY_GUIDE.md">Gotham Study Guide</button>
+        <button data-doc="FOUNDRY_STUDY_GUIDE.md">Foundry Study Guide</button>
+      </section>
+
+      <section>
+        <h3>For Instructors</h3>
+        <button data-doc="DEMO_WALKTHROUGH.md">Gotham Speaker Guide</button>
+        <button data-doc="FOUNDRY_WALKTHROUGH.md">Foundry Speaker Guide</button>
+      </section>
+
+      <section>
+        <h3>Technical</h3>
+        <button data-doc="TECHNICAL_SPEC.md">Gotham Technical Spec</button>
+        <button data-doc="FOUNDRY_TECHNICAL_SPEC.md">Foundry Technical Spec</button>
+      </section>
+
+      <section>
+        <h3>Reference</h3>
+        <button data-doc="DEPLOY.md">Deployment Guide</button>
+        <button data-action="home">← Home</button>
+      </section>
+    </nav>
+
+    <main class="content" id="content">
+      <div class="welcome" id="welcome">
+        <h2>Welcome</h2>
+        <p class="lede">Two paired demos for teaching how operational intelligence platforms work — plus all the supporting documentation.</p>
+
+        <a class="card" href="./demo/" target="_blank">
+          <h3>Gotham Studio →</h3>
+          <p>Ontology, investigations, AI copilot, geospatial map. Start here.</p>
+        </a>
+
+        <a class="card" href="./foundry-demo/" target="_blank">
+          <h3>Foundry Studio →</h3>
+          <p>Pipelines, datasets, and end-to-end lineage. Run after the Gotham session.</p>
+        </a>
+
+        <div class="hint">
+          Pick a document from the sidebar to read it here — no need to leave the page.
+        </div>
+      </div>
+
+      <article class="markdown" id="doc-content" hidden></article>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/marked@4.3.0/marked.min.js"></script>
+  <script>
+    (function () {
+      const welcome = document.getElementById("welcome");
+      const docContent = document.getElementById("doc-content");
+      const sidebar = document.getElementById("sidebar");
+
+      function showHome() {
+        welcome.hidden = false;
+        docContent.hidden = true;
+        docContent.innerHTML = "";
+        clearActive();
+        history.replaceState(null, "", "#");
+      }
+
+      function clearActive() {
+        sidebar.querySelectorAll("button[data-doc]").forEach(b => b.classList.remove("active"));
+      }
+
+      function markActive(docName) {
+        clearActive();
+        const btn = sidebar.querySelector(`button[data-doc="${docName}"]`);
+        if (btn) btn.classList.add("active");
+      }
+
+      async function loadDoc(docName) {
+        welcome.hidden = true;
+        docContent.hidden = false;
+        docContent.innerHTML = `<p class="loading">Loading ${docName}…</p>`;
+        markActive(docName);
+        history.replaceState(null, "", "#" + encodeURIComponent(docName));
+        window.scrollTo({ top: 0, behavior: "instant" });
+        try {
+          const res = await fetch("./" + docName, { cache: "no-cache" });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const md = await res.text();
+          docContent.innerHTML = marked.parse(md);
+          // Open any anchor links inside docs in a new tab if they look external
+          docContent.querySelectorAll("a[href]").forEach(a => {
+            const href = a.getAttribute("href");
+            if (/^https?:/i.test(href)) a.target = "_blank";
+          });
+        } catch (e) {
+          docContent.innerHTML = `<p class="error">Could not load <code>${docName}</code>: ${e.message}</p>`;
+        }
+      }
+
+      sidebar.addEventListener("click", function (e) {
+        const docBtn = e.target.closest("button[data-doc]");
+        if (docBtn) { loadDoc(docBtn.dataset.doc); return; }
+        const actionBtn = e.target.closest("button[data-action='home']");
+        if (actionBtn) { showHome(); return; }
+      });
+
+      // Initial route from hash
+      function routeFromHash() {
+        const hash = decodeURIComponent((window.location.hash || "").replace(/^#/, ""));
+        if (hash && /\.md$/i.test(hash)) {
+          loadDoc(hash);
+        } else {
+          showHome();
+        }
+      }
+      window.addEventListener("hashchange", routeFromHash);
+      routeFromHash();
+    })();
+  </script>
 </body>
 </html>
