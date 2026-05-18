@@ -1463,6 +1463,9 @@
       copilotState.result = buildCopilotResponse(copilotState.query);
     }
     ensureUiSelection();
+
+    const focusInfo = captureFocus();
+
     destroyLeafletMap();
     root.innerHTML = `
       <div class="shell">
@@ -1475,6 +1478,9 @@
         ${renderWalkthroughCard()}
       </div>
     `;
+
+    restoreFocus(focusInfo);
+
     if (ui.activeTool === "map") {
       setTimeout(() => {
         const mapData = buildMapData();
@@ -1483,6 +1489,31 @@
           mapRuntime.map.invalidateSize();
         }
       }, 0);
+    }
+  }
+
+  function captureFocus() {
+    const active = document.activeElement;
+    if (!active || active === document.body) return null;
+    let selector = null;
+    if (active.id) {
+      selector = "#" + CSS.escape(active.id);
+    } else if (active.dataset && active.dataset.scope && active.dataset.field) {
+      selector = `${active.tagName.toLowerCase()}[data-scope="${CSS.escape(active.dataset.scope)}"][data-field="${CSS.escape(active.dataset.field)}"]`;
+    }
+    if (!selector) return null;
+    const selStart = typeof active.selectionStart === "number" ? active.selectionStart : null;
+    const selEnd = typeof active.selectionEnd === "number" ? active.selectionEnd : null;
+    return { selector, selStart, selEnd };
+  }
+
+  function restoreFocus(info) {
+    if (!info) return;
+    const target = document.querySelector(info.selector);
+    if (!target) return;
+    target.focus();
+    if (info.selStart !== null && typeof target.setSelectionRange === "function") {
+      try { target.setSelectionRange(info.selStart, info.selEnd); } catch (_) {}
     }
   }
 
