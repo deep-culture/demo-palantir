@@ -137,6 +137,7 @@
 
     return `
     <header class="app-header">
+      <a class="header-back-link" href="../index.html" title="Back to all demos and docs">← All demos</a>
       <div class="app-title">Foundry <span>Studio</span> Demo</div>
       <div class="dataset-switcher">
         ${datasetKeys.map(k => `

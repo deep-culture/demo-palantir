@@ -1512,6 +1512,7 @@
           </div>
         </div>
         <div class="actions">
+          <a class="header-back-link" href="../index.html" title="Back to all demos and docs">← All demos</a>
           <div class="field header-field">
             <label>Dataset</label>
             <select data-scope="dataset" data-field="datasetKey">

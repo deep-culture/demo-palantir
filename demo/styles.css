@@ -110,6 +110,24 @@ button {
   flex-wrap: wrap;
 }
 
+.header-back-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  white-space: nowrap;
+  background: transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.header-back-link:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
 .header-field {
   min-width: 180px;
 }

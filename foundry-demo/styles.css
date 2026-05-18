@@ -54,6 +54,22 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 }
 .app-header .app-title span { color: var(--accent); }
 
+.app-header .header-back-link {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  white-space: nowrap;
+  transition: color 0.1s, border-color 0.1s;
+}
+.app-header .header-back-link:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
 .dataset-switcher {
   display: flex;
   gap: 4px;
