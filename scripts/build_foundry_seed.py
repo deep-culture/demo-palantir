@@ -13,6 +13,10 @@ datasets and collects:
   - Dataset snapshots (schema, sample rows, row counts, lineage links)
   - Entity-level lineage map
   - Final ontology entities and edges (same shape as the Gotham demo)
+  - Governance block (markings, roles, purposes, checkpoints, honesty) from
+    pipeline/governance.py, identical to the Gotham seed's
+  - Per dataset: markings, markingProvenance, purpose, legalBasis,
+    retentionDays, inputPurposes and derivedFrom (union rule, contract §4)
 
 Output
 ------
@@ -33,7 +37,9 @@ from typing import Any, Dict, List, Optional, Tuple
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
+from pipeline import governance
 from pipeline.lib import Dataset, LineageRecord
+from pipeline.seedmeta import build_metadata
 
 # Pipeline module files are named with leading digits (01_, 02_, ...) which
 # Python cannot import via the normal 'import' statement.  Use importlib.
@@ -88,6 +94,7 @@ def _serialise_dataset(
     produced_by: str = "",
     consumed_by: Optional[List[str]] = None,
     dataset_id: Optional[str] = None,
+    raw: bool = False,
 ) -> Dict[str, Any]:
     did = dataset_id or ds.name
     rows_sample = ds.rows[:SAMPLE_ROWS]
@@ -104,13 +111,19 @@ def _serialise_dataset(
 
     return {
         "id": did,
-        "name": ds.name,
+        "name": did if raw else ds.name,
         "sourceFile": ds.source_file or "",
         "schema": ds.schema,
         "rowCount": len(ds.rows),
         "sampleRows": safe_rows,
         "producedBy": produced_by,
         "consumedBy": consumed_by or [],
+        # Raw datasets have no inputs; everything else lists the dataset ids it
+        # was computed from, so the union rule can be checked (and overrides
+        # recomputed) from the seed alone.
+        "derivedFrom": [] if raw else list(ds.derived_from),
+        **ds.governance(),
+        **({"asOf": getattr(ds, "as_of", "")} if raw or produced_by == "normalize_sources" else {}),
     }
 
 
@@ -180,11 +193,11 @@ def build_catalog_entry(
     generated_at: str,
     codes: Dict[str, str],
 ) -> Dict[str, Any]:
-    # Step 01: Normalize sources
-    wl, cr, fm, bt, mp = step01.run(dataset_dir)
+    # Step 01: Normalize sources (markings etc. from manifest.json)
+    wl, cr, fm, bt, mp, cl = step01.run(dataset_dir)
 
-    # Step 02: Resolve persons
-    persons_ds, person_lineage = step02.run(wl, cr, fm, bt, mp)
+    # Step 02: Resolve persons (clinic rows attach by name + dob only)
+    persons_ds, person_lineage = step02.run(wl, cr, fm, mp, cl)
 
     # Step 03: Resolve companies
     companies_ds, company_lineage = step03.run(cr)
@@ -194,7 +207,7 @@ def build_catalog_entry(
 
     # Step 05: Build ontology
     entities_ds, edges_ds, entity_lineage_raw, edge_lineage = step05.run(
-        persons_ds, companies_ds, accounts_ds, wl, cr, fm, bt, mp
+        persons_ds, companies_ds, accounts_ds, wl, cr, fm, bt, mp, cl
     )
 
     # --- Pipeline DAG ---
@@ -202,26 +215,26 @@ def build_catalog_entry(
         {
             "id": "normalize_sources",
             "name": "01 Normalize Sources",
-            "description": "Read all five raw source files; strip whitespace, parse dates, split pipe-delimited aliases. Produces one clean Dataset per source.",
+            "description": "Read all six raw source files; strip whitespace, parse dates, split pipe-delimited aliases, and copy each file's markings and purpose from manifest.json. Produces one clean Dataset per source, each marked like its raw file.",
             "inputs": ["watchlist.csv", "company_registry.csv", "flight_manifests.csv",
-                       "bank_transactions.csv", "mobile_location_pings.jsonl"],
+                       "bank_transactions.csv", "mobile_location_pings.jsonl", "clinic_registrations.csv"],
             "output": "norm_sources",
             "codePath": PIPELINE_CODE_PATHS["normalize_sources"],
             "code": codes["normalize_sources"],
             "rowsIn": 0,   # raw files — row count computed below
-            "rowsOut": len(wl) + len(cr) + len(fm) + len(bt) + len(mp),
+            "rowsOut": len(wl) + len(cr) + len(fm) + len(bt) + len(mp) + len(cl),
             "builtAt": generated_at,
         },
         {
             "id": "resolve_persons",
             "name": "02 Resolve Persons",
-            "description": "Entity-resolve persons across all five datasets by passport_id > phone_number > name+dob > alias. Records full field-level provenance.",
+            "description": "Entity-resolve persons across watchlist, registry, flights and pings by passport_id > phone_number > name+dob > alias, then attach clinic registrations by name + dob only (a clinic row never creates a person). Records full field-level provenance.",
             "inputs": ["norm_watchlist", "norm_company_registry", "norm_flight_manifests",
-                       "norm_bank_transactions", "norm_mobile_pings"],
+                       "norm_mobile_pings", "norm_clinic_registrations"],
             "output": "resolved_persons",
             "codePath": PIPELINE_CODE_PATHS["resolve_persons"],
             "code": codes["resolve_persons"],
-            "rowsIn": len(wl) + len(cr) + len(fm) + len(bt) + len(mp),
+            "rowsIn": len(wl) + len(cr) + len(fm) + len(mp) + len(cl),
             "rowsOut": len(persons_ds),
             "builtAt": generated_at,
         },
@@ -252,14 +265,14 @@ def build_catalog_entry(
         {
             "id": "build_ontology",
             "name": "05 Build Ontology",
-            "description": "Combine all resolved entities with Device, Flight, Airport, Location, and WatchlistRecord types. Emit all relationship edges.",
+            "description": "Combine all resolved entities with Device, Flight, Airport, Location, and WatchlistRecord types (including residential Locations from clinic rows). Emit all relationship edges, and mark every object and link.",
             "inputs": ["resolved_persons", "resolved_companies", "resolved_accounts",
                        "norm_watchlist", "norm_company_registry", "norm_flight_manifests",
-                       "norm_bank_transactions", "norm_mobile_pings"],
+                       "norm_bank_transactions", "norm_mobile_pings", "norm_clinic_registrations"],
             "output": "ontology",
             "codePath": PIPELINE_CODE_PATHS["build_ontology"],
             "code": codes["build_ontology"],
-            "rowsIn": len(persons_ds) + len(companies_ds) + len(accounts_ds) + len(wl) + len(cr) + len(fm) + len(bt) + len(mp),
+            "rowsIn": len(persons_ds) + len(companies_ds) + len(accounts_ds) + len(wl) + len(cr) + len(fm) + len(bt) + len(mp) + len(cl),
             "rowsOut": len(entities_ds) + len(edges_ds),
             "builtAt": generated_at,
         },
@@ -270,30 +283,19 @@ def build_catalog_entry(
 
     # --- Dataset snapshots ---
     raw_datasets = [
-        _serialise_dataset(wl, produced_by="", consumed_by=["normalize_sources"],
-                           dataset_id="watchlist.csv"),
-        _serialise_dataset(cr, produced_by="", consumed_by=["normalize_sources"],
-                           dataset_id="company_registry.csv"),
-        _serialise_dataset(fm, produced_by="", consumed_by=["normalize_sources"],
-                           dataset_id="flight_manifests.csv"),
-        _serialise_dataset(bt, produced_by="", consumed_by=["normalize_sources"],
-                           dataset_id="bank_transactions.csv"),
-        _serialise_dataset(mp, produced_by="", consumed_by=["normalize_sources"],
-                           dataset_id="mobile_location_pings.jsonl"),
+        _serialise_dataset(ds, produced_by="", consumed_by=["normalize_sources"],
+                           dataset_id=ds.derived_from[0], raw=True)
+        for ds in (wl, cr, fm, bt, mp, cl)
     ]
-    # Patch source file display names for raw
-    raw_datasets[0]["sourceFile"] = str(dataset_dir / "watchlist.csv")
-    raw_datasets[1]["sourceFile"] = str(dataset_dir / "company_registry.csv")
-    raw_datasets[2]["sourceFile"] = str(dataset_dir / "flight_manifests.csv")
-    raw_datasets[3]["sourceFile"] = str(dataset_dir / "bank_transactions.csv")
-    raw_datasets[4]["sourceFile"] = str(dataset_dir / "mobile_location_pings.jsonl")
+    # Raw datasets show the repo-relative source path set by step 01.
 
     norm_datasets = [
         _serialise_dataset(wl, produced_by="normalize_sources", consumed_by=["resolve_persons", "build_ontology"]),
         _serialise_dataset(cr, produced_by="normalize_sources", consumed_by=["resolve_persons", "resolve_companies", "build_ontology"]),
         _serialise_dataset(fm, produced_by="normalize_sources", consumed_by=["resolve_persons", "build_ontology"]),
-        _serialise_dataset(bt, produced_by="normalize_sources", consumed_by=["resolve_persons", "resolve_accounts", "build_ontology"]),
+        _serialise_dataset(bt, produced_by="normalize_sources", consumed_by=["resolve_accounts", "build_ontology"]),
         _serialise_dataset(mp, produced_by="normalize_sources", consumed_by=["resolve_persons", "build_ontology"]),
+        _serialise_dataset(cl, produced_by="normalize_sources", consumed_by=["resolve_persons", "build_ontology"]),
     ]
 
     resolved_datasets = [
@@ -316,7 +318,16 @@ def build_catalog_entry(
         persons_ds, companies_ds, accounts_ds,
     )
 
+    metadata = {
+        **build_metadata(dataset_dir, Path(__file__)),
+        "title": "Foundry Studio Demo",
+        "dataset": dataset_key,
+        "generatedAt": generated_at,
+    }
+
     return {
+        "metadata": metadata,
+        "governance": governance.governance_block(),
         "pipeline": {
             "generatedAt": generated_at,
             "transforms": transforms,

@@ -1,0 +1,80 @@
+/*
+ * brand/deep-culture.css — shared Deep Culture identity for the landing page and both demos.
+ *
+ * Purple #832161 is the identity colour; green #ADFC92 is its partner on purple and black.
+ * Three backgrounds give the site rhythm (as in the Deep Culture slides):
+ *   purple for headers and claims, white for evidence (Gotham), black for code (Foundry).
+ * Lexend is bundled locally (SIL Open Font License) so pages work offline.
+ */
+
+@font-face { font-family: "Lexend"; font-weight: 300; font-display: swap; src: url("fonts/Lexend-Light.woff2") format("woff2"); }
+@font-face { font-family: "Lexend"; font-weight: 400; font-display: swap; src: url("fonts/Lexend-Regular.woff2") format("woff2"); }
+@font-face { font-family: "Lexend"; font-weight: 500; font-display: swap; src: url("fonts/Lexend-Medium.woff2") format("woff2"); }
+@font-face { font-family: "Lexend"; font-weight: 700; font-display: swap; src: url("fonts/Lexend-Bold.woff2") format("woff2"); }
+
+:root {
+  --dc-purple: #832161;
+  --dc-purple-dark: #5c1745;
+  --dc-purple-soft: #a64d87;
+  --dc-purple-tint: #f7eef4;
+  --dc-purple-tint-2: #eedbe7;
+  --dc-purple-line: rgba(131, 33, 97, 0.22);
+  --dc-green: #adfc92;
+  --dc-green-dark: #3c8a2e;
+  --dc-green-tint: rgba(173, 252, 146, 0.14);
+  --dc-black: #0b0b0b;
+  --dc-ink: #161316;
+  --dc-grey: #8c8c8c;
+  --dc-grey-dark: #5a555a;
+  --dc-light: #d1d1d1;
+  --dc-paper: #ffffff;
+  --dc-paper-2: #faf8fa;
+  --dc-blue: #3f5a9e;
+  --dc-font: "Lexend", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --dc-mono: "SF Mono", "JetBrains Mono", "Fira Code", "Roboto Mono", ui-monospace, monospace;
+}
+
+/* Title in a highlight box — green on purple/black, purple on white (as on the slides). */
+.dc-highlight {
+  display: inline;
+  padding: 0.05em 0.3em;
+  line-height: 1.5;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background: var(--dc-purple);
+  color: #fff;
+}
+.dc-on-dark .dc-highlight,
+.dc-highlight.on-dark {
+  background: var(--dc-green);
+  color: var(--dc-black);
+}
+
+/* Purple band with the logo, used at the top of every page. */
+.dc-band {
+  background: var(--dc-purple);
+  color: #fff;
+}
+.dc-logo {
+  display: block;
+  height: 56px;
+  width: auto;
+}
+.dc-logo.small { height: 40px; }
+
+.dc-breadcrumb {
+  font-size: 0.78rem;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
+
+.dc-takeaway {
+  font-weight: 700;
+  color: var(--dc-purple);
+}
+
+:focus-visible {
+  outline: 2px solid var(--dc-green-dark);
+  outline-offset: 2px;
+}

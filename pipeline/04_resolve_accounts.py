@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from pipeline.lib import Dataset, LineageRecord, slug
+from pipeline.lib import Dataset, LineageRecord, inherit_markings, slug
 
 
 def _merge(a: str, b: str) -> str:
@@ -95,6 +95,7 @@ def run(norm_bank_transactions: Dataset) -> Tuple[Dataset, LineageRecord]:
     ]
 
     ds = Dataset(name="resolved_accounts", rows=output_rows, schema=schema)
+    inherit_markings(ds, [norm_bank_transactions])
     lineage = LineageRecord()
 
     for out_idx, fp in enumerate(fp_per_row):
@@ -110,7 +111,7 @@ def run(norm_bank_transactions: Dataset) -> Tuple[Dataset, LineageRecord]:
 if __name__ == "__main__":
     from pipeline.p01_normalize_sources import run as norm_run
     dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("synthetic_data/starter")
-    _, _, _, bt, _ = norm_run(dataset_dir)
+    _, _, _, bt, _, _ = norm_run(dataset_dir)
     ds, lineage = run(bt)
     print(f"Resolved {len(ds)} bank accounts")
     for row in ds.rows[:5]:

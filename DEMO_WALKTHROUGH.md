@@ -1,6 +1,6 @@
-# Demo Walkthrough
+# Session 1 speaker guide: Investigate (Gotham-style)
 
-This document is a speaker guide for the Palantir-style demo in this repository. It is designed for a live classroom walkthrough where you start with ontology design, move into investigation workflows, add natural-language analysis, and finish with geospatial exploration.
+This document is a speaker guide for **Investigate (Gotham-style)** (`demo/`), the analyst's surface of this teaching platform. Session 2 uses **Build (Foundry-style)** (`foundry-demo/`); **Oversight** (`audit/`) reads the shared audit log. The interface uses Palantir's terms (object type, link type, backing dataset); the [glossary](glossary.html) maps them to the older demo terms. It is designed for a live classroom walkthrough where you start with ontology design, move into investigation workflows, add natural-language analysis, and finish with geospatial exploration.
 
 ## 1. Start the demo
 
@@ -8,14 +8,16 @@ From the repository root:
 
 ```bash
 python3 scripts/build_ontology_seed.py --output demo/seed.js
-python3 -m http.server 8123 --directory demo
+python3 -m http.server 8123
 ```
 
 Open:
 
 ```text
-http://127.0.0.1:8123
+http://127.0.0.1:8123/demo/
 ```
+
+Serve the repository root, not `demo/` alone: the app loads the shared core (`../core/`) and the brand files (`../brand/`).
 
 ## 2. Recommended storyline
 
@@ -23,7 +25,7 @@ Use this sequence:
 
 1. **Ontology first** - show that the system is not just dashboards; it is a model of the world.
 2. **Investigation second** - show how linked data becomes an analyst workflow.
-3. **AI copilot third** - show how natural language can pull the graph together.
+3. **Agent (simulated AIP) third** - show how natural language can pull the graph together, and what this rule-based stand-in is not.
 4. **Map last** - show how movement, co-location, and place-based overlap become visible spatially.
 5. **Scale to simulator** - switch from `starter` to `simulator` to show the same model surviving at larger volume.
 
@@ -36,8 +38,9 @@ Start on the **starter** dataset.
 Point out:
 
 - the dataset switcher
-- the entity, relationship, and edge counts
-- the tabs: **AI Copilot**, **Investigations**, **Analytics**, **Map**, and the ontology editors
+- the object, link type and link counts
+- the session strip: the current role (default *Financial-crime analyst*), purpose and audit count
+- the tabs: **Agent (simulated AIP)**, **Investigations**, **Analytics**, **Map**, and the ontology tools (**Object types**, **Properties**, **Link types**, **Backing datasets**, **Objects**, **Graph**), each with an honesty label
 
 Talking point:
 
@@ -47,24 +50,24 @@ Talking point:
 
 Go to:
 
-1. **Entity Types**
+1. **Object types** (formerly *Entity Types*)
 2. **Properties**
-3. **Relationships**
-4. **Source Mappings**
+3. **Link types** (formerly *Relationships*)
+4. **Backing datasets** (formerly *Source Mappings*)
 
 Show:
 
 - `Person`, `Company`, `BankAccount`, `Device`, `Flight`, `Airport`, `Location`, `WatchlistRecord`
 - links like `DIRECTS`, `BENEFICIALLY_OWNS`, `BOOKED_ON`, `TRANSFERRED_TO`, `USES_DEVICE`, `OBSERVED_AT`
-- how CSV and JSONL fields map into ontology objects
+- how CSV and JSONL fields map into ontology objects: in Foundry, an object type is *backed by* a dataset whose rows become objects
 
 Good thing to say:
 
-> The important move is that raw source columns become durable objects and relationships. Once that happens, every workflow above this layer can reuse the same model.
+> The important move is that raw source columns become durable objects and links. Once that happens, every workflow above this layer can reuse the same model.
 
 Optional interaction:
 
-- rename a property label or relationship description
+- rename a property label or link type description in **Objects** or **Link types**
 - show the JSON inspector update
 - reset the dataset afterward if needed
 
@@ -90,7 +93,7 @@ For each scenario, point out:
 
 Suggested narration:
 
-> This is where ontology turns into operations. The student is no longer looking at isolated rows. They are following a case with people, companies, routes, accounts, and places all in one surface. The "Recommended Actions" card shows that the point of the system is not just analysis — it is decision-making. In a real deployment, each button would be permissioned and every click would be written to an immutable audit log.
+> This is where ontology turns into operations. The student is no longer looking at isolated rows. They are following a case with people, companies, routes, accounts, and places all in one surface. The "Recommended Actions" card shows that the point of the system is not just analysis — it is decision-making. In a real deployment, each button would be an Action type: permissioned, validated and logged. Here, clicks go to the shared audit log (see the strip at the bottom and Oversight), which is a classroom model kept in the browser, not an immutable record.
 
 ## 3.4 Analytics layer
 
@@ -107,13 +110,13 @@ Talking point:
 
 > These are simple rules, but they already show why linked data matters. The system can rank interesting actors and places because the ontology has already done the hard work of joining messy sources.
 
-## 3.5 AI copilot
+## 3.5 Agent (simulated AIP)
 
-Go to **AI Copilot**.
+Go to **Agent (simulated AIP)** (formerly *AI Copilot*). Its label is *Simplified*.
 
 Before running a query, point out:
 
-- the **"How this copilot is grounded"** card with the green `⬡ Ontology-grounded` badge
+- the card explaining how the agent is grounded
 - the **"Without the ontology vs. with it"** comparison card — show the raw CSV row on the left and the linked ontology answer on the right
 
 Good thing to say:
@@ -130,7 +133,7 @@ Show me travel and money movement around Elena Markovic
 Find shared booking artifacts and co-travel patterns
 ```
 
-Show that the copilot:
+Show that the agent:
 
 - identifies focal entities
 - synthesizes linked evidence
@@ -140,7 +143,7 @@ Show that the copilot:
 
 Important framing:
 
-> In this demo, the AI layer is grounded in the ontology and graph. It is not inventing an answer from nowhere; it is assembling one from linked evidence already in the system. The grounding summary at the bottom of each answer shows exactly how many entities and relationships were traversed — students can verify every claim.
+> This agent is a rule-based stand-in for an AIP chatbot; it cannot invent objects, because it assembles its answer from linked evidence already in the system. Real AIP uses an LLM with tools and stages edits for review, and an LLM can make claims no object supports. The grounding summary shows how many objects and links were traversed, so students can check every claim; it cannot tell them whether the links themselves are right.
 
 ## 3.6 Map workflow
 
@@ -150,7 +153,7 @@ Use the map in three passes:
 
 1. **Whole dataset**
 2. **Selected scenario**
-3. **Copilot answer**
+3. **Agent answer**
 
 Show:
 
@@ -183,7 +186,7 @@ Then show:
 
 - counts in the top bar increase
 - analytics still surface results
-- copilot still answers in the same pattern
+- the agent still answers in the same pattern
 - map remains usable because the UI scopes and filters the view
 
 ## 3.8 Critical perspectives
@@ -203,9 +206,9 @@ Good framing:
 ## 4. Suggested 10-15 minute classroom flow
 
 1. **1-2 min** - explain the goal: unify messy sources into an operational model
-2. **2-3 min** - ontology and source mappings
+2. **2-3 min** - ontology and backing datasets
 3. **3 min** - investigations and analytics — including the Recommended Actions card
-4. **2-3 min** - AI copilot — grounding callout, comparison card, grounding summary
+4. **2-3 min** - Agent (simulated AIP) — grounding card, comparison card, grounding summary
 5. **2-3 min** - map and geospatial reasoning
 6. **1 min** - switch to simulator and discuss scaling
 7. **2 min** - Critical Perspectives step — invite one question from the room
@@ -230,7 +233,7 @@ Good framing:
 - How trustworthy should a natural-language answer be if the underlying links are weak?
 - Who has access to the action log, and what power do they have to act on it?
 - If the analytics rules score people by connection count, what false positives does that create?
-- Does the "grounded AI" framing fully address the hallucination concern, or does it just move the problem to the quality of entity resolution?
+- Does the "grounded AI" framing fully address the concern that an LLM can state things no data supports, or does it just move the problem to the quality of entity resolution?
 
 ## 7. Reset and recovery
 
@@ -241,13 +244,13 @@ If the state gets messy during class:
 
 ```bash
 python3 scripts/build_ontology_seed.py --output demo/seed.js
-python3 -m http.server 8123 --directory demo
+python3 -m http.server 8123   # then open http://127.0.0.1:8123/demo/
 ```
 
 ## 8. Optional extension ideas
 
-- let students add a new relationship type and discuss its analytic impact
-- ask students to write their own copilot prompts
+- let students add a new link type and discuss its analytic impact
+- ask students to write their own agent prompts
 - compare the same case in **starter** and **simulator**
 - ask students which additional sources would make the ontology more realistic
 - ask students to design a bias audit for the analytics rules

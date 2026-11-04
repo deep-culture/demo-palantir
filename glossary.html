@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glossary and honesty labels · Deep Culture</title>
+  <link rel="icon" href="brand/logo-green-disc.png">
+  <link rel="stylesheet" href="brand/deep-culture.css">
+  <style>
+    /* Glossary — Deep Culture landing-page style: purple band, white reading column. */
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: var(--dc-font);
+      font-weight: 400;
+      background: var(--dc-paper);
+      color: var(--dc-ink);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .topbar {
+      background: var(--dc-purple);
+      color: #fff;
+      padding: 1rem 1.75rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .topbar .dc-logo { height: 64px; }
+    .topbar h1 { margin: 0; font-size: 1.45rem; font-weight: 500; }
+    .topbar h1 .dc-highlight { background: var(--dc-green); color: var(--dc-black); }
+    .topbar .lede { margin: 0.35rem 0 0; color: rgba(255, 255, 255, 0.85); font-size: 0.9rem; font-weight: 300; }
+    .topbar nav { margin-left: auto; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .topbar nav a {
+      color: #fff; text-decoration: none; font-size: 0.85rem;
+      padding: 0.3rem 0.7rem; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 4px;
+    }
+    .topbar nav a:hover { background: var(--dc-green); color: var(--dc-black); border-color: var(--dc-green); }
+
+    main { max-width: 900px; margin: 0 auto; padding: 2rem 1.75rem 4rem; }
+    h2 {
+      font-size: 1.35rem; font-weight: 500; margin: 2.2rem 0 0.6rem;
+      padding-bottom: 0.3rem; border-bottom: 2px solid var(--dc-purple); color: var(--dc-purple);
+    }
+    h3 { font-size: 1.05rem; font-weight: 500; margin: 1.6rem 0 0.4rem; }
+    p.lede { color: var(--dc-grey-dark); font-size: 1.02rem; margin-top: 0; }
+    a { color: var(--dc-purple); }
+    code { font-family: var(--dc-mono); font-size: 0.85em; background: #f6f3f6; padding: 0.1em 0.35em; border-radius: 3px; }
+
+    table { border-collapse: collapse; width: 100%; margin: 0.8rem 0 1.2rem; font-size: 0.9rem; }
+    th, td { border: 1px solid #e3dbe1; padding: 0.45rem 0.7rem; text-align: left; vertical-align: top; }
+    th { background: var(--dc-purple); color: #fff; font-weight: 500; border-color: var(--dc-purple); }
+    tbody tr:nth-child(even) td { background: var(--dc-paper-2); }
+
+    /* Honesty chips: the word carries the meaning, the style only repeats it. */
+    .hl-chip {
+      display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 0.08rem 0.55rem; border-radius: 999px; white-space: nowrap;
+      border: 2px solid var(--dc-purple);
+    }
+    .hl-chip.mirrors { background: var(--dc-purple); color: #fff; }
+    .hl-chip.simplified { background: #fff; color: var(--dc-purple); }
+    .hl-chip.extension { background: #fff; color: var(--dc-purple); border-style: dashed; }
+
+    .kinds { display: grid; gap: 0.75rem; }
+    .kind { display: grid; grid-template-columns: 240px 1fr; gap: 1rem; align-items: baseline;
+      padding: 0.75rem 1rem; border-left: 4px solid var(--dc-purple); background: var(--dc-purple-tint); border-radius: 0 4px 4px 0; }
+    .kind p { margin: 0; }
+
+    .entry { padding: 0.8rem 1rem; border: 1px solid #e3dbe1; border-radius: 4px; margin: 0.6rem 0; scroll-margin-top: 1rem; }
+    .entry:target, .entry.flash { border-color: var(--dc-purple); box-shadow: 0 0 0 3px var(--dc-purple-line); }
+    .entry header { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+    .entry .eid { font-family: var(--dc-mono); font-size: 0.8rem; color: var(--dc-grey-dark); }
+    .entry .elabel { font-weight: 500; }
+    .entry p { margin: 0.35rem 0 0; }
+    .entry .doc { font-size: 0.85rem; }
+    .anchor { text-decoration: none; color: var(--dc-grey); font-size: 0.85rem; }
+    .anchor:hover { color: var(--dc-purple); }
+
+    .mk { display: inline-block; font-family: var(--dc-mono); font-size: 0.75rem; font-weight: 700;
+      padding: 0 0.45rem; border: 1px solid var(--dc-ink); border-radius: 3px; }
+    .source-note { font-size: 0.82rem; color: var(--dc-grey-dark); margin-top: 0.4rem; }
+    .note { padding: 0.75rem 1rem; background: var(--dc-purple-tint); border-left: 4px solid var(--dc-purple); border-radius: 0 4px 4px 0; }
+    footer { margin-top: 3rem; font-size: 0.82rem; color: var(--dc-grey-dark); }
+
+    @media (max-width: 720px) {
+      .topbar { flex-wrap: wrap; }
+      .topbar .dc-logo { height: 48px; }
+      .kind { grid-template-columns: 1fr; }
+      main { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a href="index.html" title="All sessions and docs"><img class="dc-logo" src="brand/logo-green-lines.png" alt="Deep Culture"></a>
+    <div>
+      <h1><span class="dc-highlight">Glossary and honesty labels</span></h1>
+      <p class="lede">Palantir's vocabulary, the demo's vocabulary, and what each surface does and does not model</p>
+    </div>
+    <nav aria-label="Surfaces">
+      <a href="index.html">All sessions</a>
+      <a href="demo/">Investigate</a>
+      <a href="foundry-demo/">Build</a>
+      <a href="audit/">Oversight</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="lede">The demos use Palantir's terms in the interface so that you can read Palantir's own documentation and the public reporting about it. This page maps those terms to the older names used in the demo code and to plain-language meanings, and explains the small label on every panel.</p>
+
+    <div class="note">Everything in the demos is synthetic. No real person is modelled. Palantir product names are used to describe what the demos imitate; the demos are not Palantir software.</div>
+
+    <h2 id="labels">The three honesty labels</h2>
+    <p>Every panel carries one of three labels. Click a label in the apps to land on its entry below.</p>
+    <div class="kinds">
+      <div class="kind" id="kind-mirrors">
+        <span><span class="hl-chip mirrors">Mirrors Foundry/Gotham</span></span>
+        <p>The behaviour follows a concept Palantir documents, and the entry links to the documentation. Example: markings are inherited down lineage.</p>
+      </div>
+      <div class="kind" id="kind-simplified">
+        <span><span class="hl-chip simplified">Simplified</span></span>
+        <p>The concept is real, but the demo's implementation is a stand-in. Example: transparent scoring rules standing in for Search Around-style network expansion.</p>
+      </div>
+      <div class="kind" id="kind-extension">
+        <span><span class="hl-chip extension">Teaching extension</span></span>
+        <p>The demo goes beyond what Palantir documents because it helps you see something. Example: row- and field-level provenance; Foundry's own lineage is dataset-level.</p>
+      </div>
+    </div>
+
+    <h2 id="surfaces">The three surfaces</h2>
+    <table>
+      <thead><tr><th>Name in the interface</th><th>Directory</th><th>What it imitates</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Investigate (Gotham-style)</strong></td><td><code>demo/</code></td><td>An analyst's investigation workspace: objects, links, graph, map, agent. White background: evidence.</td></tr>
+        <tr><td><strong>Build (Foundry-style)</strong></td><td><code>foundry-demo/</code></td><td>The engineering view underneath: pipelines, datasets, lineage, markings. Black background: code.</td></tr>
+        <tr><td><strong>Oversight</strong></td><td><code>audit/</code></td><td>An auditor's view of the shared audit log and Checkpoint records. Deliberately outside both working surfaces.</td></tr>
+      </tbody>
+    </table>
+    <p>Gotham and Foundry share the Ontology, AIP and Apollo; splitting them into two apps is a teaching simplification.</p>
+
+    <h2 id="terms">Terminology</h2>
+    <p>The interface uses the Palantir term. The older demo term survives in field names inside the code and seed files (<code>entityTypes</code>, <code>relationshipTypes</code>, <code>edges</code>), so you will meet both.</p>
+    <table>
+      <thead><tr><th>Palantir term (used in the apps)</th><th>Older demo term</th><th>Generic meaning</th></tr></thead>
+      <tbody>
+        <tr id="term-object-type"><td>Object type</td><td>Entity type</td><td>A class of thing: Person, Company</td></tr>
+        <tr id="term-object"><td>Object</td><td>Entity / instance</td><td>One Person</td></tr>
+        <tr id="term-property"><td>Property</td><td>Property</td><td>A typed attribute</td></tr>
+        <tr id="term-link-type"><td>Link type / link</td><td>Relationship type / edge</td><td>A typed connection between two objects</td></tr>
+        <tr id="term-object-set"><td>Object set</td><td>(none)</td><td>A saved, shareable set of objects</td></tr>
+        <tr id="term-backing-dataset"><td>Backing dataset</td><td>Source mapping</td><td>The dataset whose rows become objects of a type</td></tr>
+        <tr id="term-action-type"><td>Action type / Action</td><td>Scenario action string</td><td>A permitted, parameterised, logged change to objects</td></tr>
+        <tr id="term-marking"><td>Marking</td><td>(none)</td><td>A mandatory security label that travels with data</td></tr>
+        <tr id="term-checkpoint"><td>Checkpoint</td><td>(none)</td><td>A purpose-justification prompt before a sensitive operation</td></tr>
+        <tr id="term-interface"><td>Interface</td><td>(none)</td><td>A shared shape several object types satisfy (mentioned only, not modelled)</td></tr>
+        <tr id="term-layers"><td>Semantic layer / kinetic layer</td><td>(none)</td><td>Nouns (objects, links) / verbs (Actions)</td></tr>
+        <tr id="term-agent"><td>Agent (simulated AIP)</td><td>AI Copilot</td><td>A chatbot that calls tools over the Ontology; here a rule-based stand-in</td></tr>
+        <tr id="term-lineage"><td>Data lineage</td><td>Lineage</td><td>How each dataset was made from other datasets</td></tr>
+        <tr id="term-transform"><td>Transform</td><td>Transform</td><td>Code that produces a new dataset from existing ones</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="markings">Markings and roles</h2>
+    <p>Markings say what a role needs in order to see a dataset, an object or a single property. A dataset derived from a marked dataset inherits the marking; only the data protection officer can remove one, and only after a Checkpoint.</p>
+    <table>
+      <thead><tr><th>Marking</th><th>Label</th><th>Meaning</th></tr></thead>
+      <tbody id="markings-body"></tbody>
+    </table>
+    <table>
+      <thead><tr><th>Role</th><th>Sees markings</th><th>Purposes</th></tr></thead>
+      <tbody id="roles-body"></tbody>
+    </table>
+    <p>The roles are enforced in your browser. That makes them a model of access control, not access control: anyone can open the developer tools and read everything.</p>
+
+    <h2 id="entries">Honesty entries</h2>
+    <p>One entry per surface. The apps link each panel's label to the matching entry.</p>
+    <div id="entries-body"></div>
+    <p class="source-note" id="entries-source" aria-live="polite">Loading the entries from the seed…</p>
+
+    <footer>
+      Deep Culture, University of Amsterdam. Sources for the "Mirrors" entries are Palantir's public documentation; see <code>context/PALANTIR_RESEARCH_2026-11-04.md</code> for the research behind each label.
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const KIND_LABELS = { mirrors: "Mirrors Foundry/Gotham", simplified: "Simplified", extension: "Teaching extension" };
+      const GROUPS = [
+        ["inv.", "Investigate (Gotham-style)"],
+        ["build.", "Build (Foundry-style)"],
+        ["oversight.", "Oversight"],
+        ["session.", "Shared session"],
+      ];
+
+      // Used only when neither seed carries a governance block yet (PHASE1_CONTRACT §2).
+      const FALLBACK_HONESTY = [
+        { id: "inv.agent", kind: "simplified", label: "Agent (simulated AIP)", text: "Rule-based stand-in for an AIP chatbot; it cannot invent objects. Real AIP uses an LLM with tools and stages edits for review.", docUrl: "https://palantir.com/docs/foundry/aip/aip-features/" },
+        { id: "inv.investigations", kind: "simplified", label: "Investigations", text: "Scripted scenario cards stand in for Gotham investigation workflows, which analysts build and share themselves.", docUrl: "" },
+        { id: "inv.analytics", kind: "simplified", label: "Analytics", text: "Transparent scoring rules stand in for Search Around-style network expansion.", docUrl: "" },
+        { id: "inv.map", kind: "simplified", label: "Map", text: "A simple map of synthetic places and routes stands in for Gotham's map application.", docUrl: "" },
+        { id: "inv.object-types", kind: "mirrors", label: "Object types", text: "Object types define a class of thing, such as Person or Company, in the Ontology.", docUrl: "https://www.palantir.com/docs/foundry/ontology/core-concepts" },
+        { id: "inv.properties", kind: "mirrors", label: "Properties", text: "Properties are the typed attributes of an object type.", docUrl: "https://www.palantir.com/docs/foundry/ontology/core-concepts" },
+        { id: "inv.link-types", kind: "mirrors", label: "Link types", text: "Link types define typed connections between object types.", docUrl: "https://www.palantir.com/docs/foundry/ontology/core-concepts" },
+        { id: "inv.backing-datasets", kind: "mirrors", label: "Backing datasets", text: "An object type is backed by a dataset: rows become objects and columns become properties.", docUrl: "https://www.palantir.com/docs/foundry/ontology/core-concepts" },
+        { id: "inv.objects", kind: "simplified", label: "Objects", text: "Objects are edited directly here; in Foundry, edits go through Action types with validation, permissions and logs.", docUrl: "" },
+        { id: "inv.graph", kind: "simplified", label: "Graph", text: "A small graph view stands in for Gotham's graph application.", docUrl: "" },
+        { id: "build.pipelines", kind: "simplified", label: "Pipelines", text: "Real Python transforms, run once at build time. Foundry adds builds, branches, schedules and dataset versions, which are not modelled.", docUrl: "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/" },
+        { id: "build.datasets", kind: "simplified", label: "Datasets", text: "Schema, sample rows and governance tags. Foundry versions datasets through transactions; that is not modelled.", docUrl: "" },
+        { id: "build.lineage", kind: "extension", label: "Lineage", text: "Row- and field-level provenance goes beyond Foundry's dataset-level lineage.", docUrl: "" },
+        { id: "build.markings", kind: "mirrors", label: "Markings", text: "Markings are inherited down lineage: a dataset derived from a marked dataset carries the marking, and only a privileged user can remove it.", docUrl: "https://palantir.com/docs/foundry/security/markings/" },
+        { id: "oversight.audit", kind: "simplified", label: "Oversight", text: "A hash-chained log kept in this browser stands in for platform audit logging.", docUrl: "" },
+        { id: "session.roles", kind: "simplified", label: "Roles", text: "Five roles stand in for groups, projects and organisations. Enforcement runs in your browser: a model of access control, not access control.", docUrl: "https://palantir.com/docs/foundry/security/markings/" },
+        { id: "session.checkpoints", kind: "mirrors", label: "Checkpoints", text: "A purpose-justification prompt before a sensitive operation; the record keeps the prompt as shown, the justification, the user and the time.", docUrl: "https://palantir.com/docs/foundry/checkpoints/core-concepts/" },
+      ];
+      const FALLBACK_MARKINGS = [
+        { id: "OPEN", label: "Open", description: "No restriction." },
+        { id: "PII", label: "Personal data", description: "Identifies a living person." },
+        { id: "FIN", label: "Financial", description: "Bank and payment data." },
+        { id: "TELECOM", label: "Telecom", description: "Phone numbers, handsets and location pings." },
+        { id: "HEALTH", label: "Health", description: "Collected for care; purpose-limited." },
+        { id: "LE-SENSITIVE", label: "Law-enforcement sensitive", description: "Watchlist and intelligence." },
+      ];
+      const FALLBACK_ROLES = [
+        { id: "patrol", label: "Patrol officer", markingsVisible: ["OPEN", "PII", "TELECOM", "LE-SENSITIVE"], purposes: ["public-order"] },
+        { id: "fin-analyst", label: "Financial-crime analyst", markingsVisible: ["OPEN", "PII", "FIN", "LE-SENSITIVE"], purposes: ["financial-crime"] },
+        { id: "dpo", label: "Data protection officer", markingsVisible: ["OPEN", "PII", "FIN", "TELECOM", "HEALTH", "LE-SENSITIVE"], purposes: ["oversight"] },
+        { id: "auditor", label: "Auditor", markingsVisible: ["OPEN"], purposes: ["oversight"] },
+        { id: "contractor", label: "Platform contractor", markingsVisible: ["OPEN"], purposes: ["maintenance"] },
+      ];
+
+      function esc(s) {
+        return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
+      function safeUrl(url) {
+        return /^https:\/\//i.test(String(url || "")) ? url : "";
+      }
+
+      function renderMarkings(markings, roles) {
+        document.getElementById("markings-body").innerHTML = markings.map(m =>
+          `<tr id="marking-${esc(m.id)}"><td><span class="mk">${esc(m.id)}</span></td><td>${esc(m.label)}</td><td>${esc(m.description || "")}</td></tr>`).join("");
+        document.getElementById("roles-body").innerHTML = roles.map(r =>
+          `<tr id="role-${esc(r.id)}"><td>${esc(r.label)} <code>${esc(r.id)}</code></td><td>${(r.markingsVisible || []).map(m => `<span class="mk">${esc(m)}</span>`).join(" ")}</td><td>${esc((r.purposes || []).join(", "))}</td></tr>`).join("");
+      }
+
+      function renderEntries(list) {
+        const used = new Set();
+        const sections = GROUPS.map(([prefix, title]) => {
+          const items = list.filter(h => String(h.id).startsWith(prefix));
+          items.forEach(h => used.add(h.id));
+          return items.length ? `<h3>${esc(title)}</h3>${items.map(entry).join("")}` : "";
+        });
+        const rest = list.filter(h => !used.has(h.id));
+        if (rest.length) sections.push(`<h3>Other</h3>${rest.map(entry).join("")}`);
+        document.getElementById("entries-body").innerHTML = sections.join("");
+      }
+
+      function entry(h) {
+        const kind = KIND_LABELS[h.kind] ? h.kind : "simplified";
+        const url = safeUrl(h.docUrl);
+        return `<article class="entry" id="${esc(h.id)}">
+          <header>
+            <span class="hl-chip ${kind}">${esc(KIND_LABELS[kind])}</span>
+            <span class="elabel">${esc(h.label || h.id)}</span>
+            <span class="eid">${esc(h.id)}</span>
+            <a class="anchor" href="#${esc(h.id)}" aria-label="Link to ${esc(h.id)}">#</a>
+          </header>
+          <p>${esc(h.text)}</p>
+          ${url ? `<p class="doc">Palantir documentation: <a href="${esc(url)}" target="_blank" rel="noopener">${esc(url.replace(/^https:\/\/(www\.)?/, ""))}</a></p>` : ""}
+        </article>`;
+      }
+
+      function jumpToHash() {
+        const id = decodeURIComponent((location.hash || "").slice(1));
+        if (!id) return;
+        const target = document.getElementById(id);
+        if (!target) return;
+        target.scrollIntoView({ block: "start" });
+        target.classList.add("flash");
+      }
+
+      function governanceOf(catalog) {
+        if (!catalog || typeof catalog !== "object") return null;
+        for (const key of Object.keys(catalog)) {
+          const seed = catalog[key] || {};
+          const g = seed.governance || null;
+          if (g && Array.isArray(g.honesty) && g.honesty.length) return { g, key };
+          if (seed.metadata && Array.isArray(seed.metadata.honesty) && seed.metadata.honesty.length) {
+            return { g: { honesty: seed.metadata.honesty }, key };
+          }
+        }
+        return null;
+      }
+
+      function loadScript(src) {
+        return new Promise(resolve => {
+          const s = document.createElement("script");
+          s.src = src;
+          s.async = true;
+          s.onload = () => resolve(true);
+          s.onerror = () => resolve(false);
+          document.head.appendChild(s);
+        });
+      }
+
+      // Render the fallback at once, then replace it with the seed's own entries (so the
+      // glossary and the apps cannot drift apart).
+      renderMarkings(FALLBACK_MARKINGS, FALLBACK_ROLES);
+      renderEntries(FALLBACK_HONESTY);
+      jumpToHash();
+
+      const sources = [
+        ["demo/seed.js", () => window.ontologySeedCatalog || (window.ontologySeed ? { starter: window.ontologySeed } : null)],
+        ["foundry-demo/seed.js", () => window.foundrySeedCatalog || (window.foundrySeed ? { starter: window.foundrySeed } : null)],
+      ];
+      const note = document.getElementById("entries-source");
+      (async function () {
+        for (const [src, read] of sources) {
+          const loaded = await loadScript(src);
+          const found = loaded ? governanceOf(read()) : null;
+          if (found) {
+            renderEntries(found.g.honesty);
+            if (Array.isArray(found.g.markings) && found.g.markings.length) {
+              renderMarkings(found.g.markings, Array.isArray(found.g.roles) && found.g.roles.length ? found.g.roles : FALLBACK_ROLES);
+            }
+            note.textContent = `Entries read from ${src} (${found.key} dataset, governance.honesty: ${found.g.honesty.length} entries).`;
+            jumpToHash();
+            return;
+          }
+        }
+        note.textContent = "Neither seed carries a governance block yet, so this page shows its built-in copy of the entries.";
+      })();
+
+      window.addEventListener("hashchange", () => {
+        document.querySelectorAll(".flash").forEach(n => n.classList.remove("flash"));
+        jumpToHash();
+      });
+    })();
+  </script>
+</body>
+</html>

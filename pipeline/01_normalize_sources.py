@@ -1,13 +1,17 @@
 """
-pipeline/01_normalize_sources.py — Read and normalize all five raw source files.
+pipeline/01_normalize_sources.py — Read and normalize all six raw source files.
 
 For each source:
 - Strip whitespace from all string fields
 - Parse date/datetime strings to ISO format (leave as-is if already ISO)
 - Split pipe-delimited alias fields into Python lists
 - Tag each row with its original 0-based row index as ``_source_row``
+- Copy the dataset's markings, purpose, legal basis and retention from
+  ``manifest.json`` (Dataset.markings / Dataset.purpose / ...), with
+  ``markingProvenance`` pointing at the raw file
 
-Returns five Dataset objects (one per source file).
+Returns six Dataset objects (one per source file).  The clinic file is
+optional: a profile without it yields an empty ``norm_clinic_registrations``.
 """
 
 from __future__ import annotations
@@ -21,6 +25,7 @@ from typing import Any, Dict, List, Tuple
 # Allow imports from the repo root when run directly
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from pipeline import governance
 from pipeline.lib import Dataset
 
 
@@ -36,6 +41,18 @@ def _strip(value: Any) -> Any:
 
 def _clean_row(row: Dict[str, Any]) -> Dict[str, Any]:
     return {k: _strip(v) for k, v in row.items()}
+
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+def source_label(path: Path) -> str:
+    """Repo-relative POSIX path of a raw source file (absolute if outside the repo)."""
+    resolved = Path(path).resolve()
+    try:
+        return resolved.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return resolved.as_posix()
 
 
 def read_csv_raw(path: Path) -> List[Dict[str, str]]:
@@ -84,7 +101,7 @@ def normalize_watchlist(path: Path) -> Dataset:
     return Dataset(
         name="norm_watchlist",
         rows=out,
-        source_file="synthetic_data/starter/watchlist.csv",
+        source_file=source_label(path),
         schema=schema,
     )
 
@@ -128,7 +145,7 @@ def normalize_company_registry(path: Path) -> Dataset:
     return Dataset(
         name="norm_company_registry",
         rows=out,
-        source_file="synthetic_data/starter/company_registry.csv",
+        source_file=source_label(path),
         schema=schema,
     )
 
@@ -172,7 +189,7 @@ def normalize_flight_manifests(path: Path) -> Dataset:
     return Dataset(
         name="norm_flight_manifests",
         rows=out,
-        source_file="synthetic_data/starter/flight_manifests.csv",
+        source_file=source_label(path),
         schema=schema,
     )
 
@@ -217,7 +234,7 @@ def normalize_bank_transactions(path: Path) -> Dataset:
     return Dataset(
         name="norm_bank_transactions",
         rows=out,
-        source_file="synthetic_data/starter/bank_transactions.csv",
+        source_file=source_label(path),
         schema=schema,
     )
 
@@ -262,41 +279,104 @@ def normalize_mobile_pings(path: Path) -> Dataset:
     return Dataset(
         name="norm_mobile_pings",
         rows=out,
-        source_file="synthetic_data/starter/mobile_location_pings.jsonl",
+        source_file=source_label(path),
         schema=schema,
     )
+
+
+def _float_or_none(value: Any) -> Any:
+    try:
+        return float(value) if value not in (None, "") else None
+    except ValueError:
+        return None
+
+
+def normalize_clinic(path: Path) -> Dataset:
+    """clinic_registrations.csv → cleaned rows with numeric lat/lon.
+
+    Health data: rows are only ever *attached* to people who already exist
+    (by name + dob, in step 02); an unmatched row stays in this dataset.
+    """
+    rows = read_csv_raw(path) if path.exists() else []
+    out: List[Dict[str, Any]] = []
+    for i, row in enumerate(rows):
+        row = _clean_row(row)
+        out.append({
+            "_source_row": i,
+            "registration_id": row.get("registration_id", ""),
+            "patient_name": row.get("patient_name", ""),
+            "dob": row.get("dob", ""),
+            "home_address": row.get("home_address", ""),
+            "home_city": row.get("home_city", ""),
+            "home_country": row.get("home_country", ""),
+            "lat": _float_or_none(row.get("lat")),
+            "lon": _float_or_none(row.get("lon")),
+            "clinic_code": row.get("clinic_code", ""),
+            "registered_on": row.get("registered_on", ""),
+            "source": row.get("source", ""),
+        })
+    schema = [
+        {"field": "_source_row", "type": "integer"},
+        {"field": "registration_id", "type": "string"},
+        {"field": "patient_name", "type": "string"},
+        {"field": "dob", "type": "date"},
+        {"field": "home_address", "type": "string"},
+        {"field": "home_city", "type": "string"},
+        {"field": "home_country", "type": "string"},
+        {"field": "lat", "type": "float"},
+        {"field": "lon", "type": "float"},
+        {"field": "clinic_code", "type": "string"},
+        {"field": "registered_on", "type": "date"},
+        {"field": "source", "type": "string"},
+    ]
+    return Dataset(
+        name="norm_clinic_registrations",
+        rows=out,
+        source_file=source_label(path),
+        schema=schema,
+    )
+
+
+def apply_manifest(ds: Dataset, manifest: Dict[str, Dict[str, Any]], file_name: str) -> Dataset:
+    """Copy markings, purpose, legal basis and retention from the manifest."""
+    entry = governance.manifest_entry_for_file(manifest, file_name)
+    ds.set_governance(governance.raw_governance(file_name, entry))
+    ds.as_of = entry.get("asOf", "")  # type: ignore[attr-defined]
+    ds.derived_from = [file_name]
+    return ds
 
 
 # ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
 
-def run(dataset_dir: Path) -> Tuple[Dataset, Dataset, Dataset, Dataset, Dataset]:
-    """Normalize all five sources under *dataset_dir*.
+RAW_FILES = (
+    "watchlist.csv", "company_registry.csv", "flight_manifests.csv",
+    "bank_transactions.csv", "mobile_location_pings.jsonl", "clinic_registrations.csv",
+)
+
+
+def run(dataset_dir: Path) -> Tuple[Dataset, Dataset, Dataset, Dataset, Dataset, Dataset]:
+    """Normalize all six sources under *dataset_dir*.
 
     Returns
     -------
     (norm_watchlist, norm_company_registry, norm_flight_manifests,
-     norm_bank_transactions, norm_mobile_pings)
+     norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations)
     """
+    dataset_dir = Path(dataset_dir)
+    manifest = governance.load_manifest(dataset_dir)
     wl = normalize_watchlist(dataset_dir / "watchlist.csv")
     cr = normalize_company_registry(dataset_dir / "company_registry.csv")
     fm = normalize_flight_manifests(dataset_dir / "flight_manifests.csv")
     bt = normalize_bank_transactions(dataset_dir / "bank_transactions.csv")
     mp = normalize_mobile_pings(dataset_dir / "mobile_location_pings.jsonl")
+    cl = normalize_clinic(dataset_dir / "clinic_registrations.csv")
 
-    # Fix up source_file to be dataset-agnostic (relative path)
-    rel = str(dataset_dir)
-    for ds, filename in [
-        (wl, "watchlist.csv"),
-        (cr, "company_registry.csv"),
-        (fm, "flight_manifests.csv"),
-        (bt, "bank_transactions.csv"),
-        (mp, "mobile_location_pings.jsonl"),
-    ]:
-        ds.source_file = str(dataset_dir / filename)
-
-    return wl, cr, fm, bt, mp
+    datasets = (wl, cr, fm, bt, mp, cl)
+    for ds, file_name in zip(datasets, RAW_FILES):
+        apply_manifest(ds, manifest, file_name)
+    return datasets
 
 
 if __name__ == "__main__":

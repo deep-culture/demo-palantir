@@ -3,11 +3,23 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Foundry Studio Demo</title>
+    <title>Build (Foundry-style) · Deep Culture</title>
+    <link rel="icon" href="../brand/logo-green-disc.png">
+    <link rel="stylesheet" href="../brand/deep-culture.css">
+    <link rel="stylesheet" href="../core/core.css">
     <link rel="stylesheet" href="./styles.css">
   </head>
-  <body>
+  <body class="surface-build">
     <div id="app"></div>
+    <!-- Shared core (PHASE1_CONTRACT §6), then the seed, then the app. The app runs without the
+         governance files (features hidden) if any of them is missing. -->
+    <script src="../core/store.js"></script>
+    <script src="../core/governance.js"></script>
+    <script src="../core/session.js"></script>
+    <script src="../core/audit.js"></script>
+    <script src="../core/markings.js"></script>
+    <script src="../core/checkpoints.js"></script>
+    <script src="../core/ui.js"></script>
     <script src="./seed.js"></script>
     <script src="./app.js"></script>
   </body>

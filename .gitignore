@@ -1,0 +1,9 @@
+# Local copy of the private deep-culture-slides skill: never commit
+_deep-culture-slides/
+
+__pycache__/
+*.pyc
+.DS_Store
+.claude/settings.local.json
+_deep-culture-web/
+_to_delete/

@@ -125,7 +125,7 @@ GitHub redeploys within ~1 minute. Students just need to refresh the page.
 
 ## 7. Notes for the classroom
 
-- **Internet required** at first load — for Leaflet's JS/CSS (loaded from unpkg CDN) and the OpenStreetMap tile images on the map tab. Once a student has loaded the page, the rest works offline because the seed data is bundled into `seed.js`.
+- **Works offline** except for the map tiles: Leaflet, marked.js and the Lexend font are bundled in `vendor/` and `brand/`, and the seed data is in `seed.js`. Only the OpenStreetMap tile images on the map tab need internet; without it the markers and routes still show on a blank background.
 - **Browser support**: any modern desktop browser. Mobile works but the layouts are designed for laptop screens.
 - **No telemetry / no accounts** — students do not need to sign in to anything. Their browser-local state (selections, action log, etc.) stays on their device in `localStorage`.
 - **The synthetic_data, scripts, and pipeline directories also get published** to the same site. This is fine — they're not linked from anywhere — but if you'd prefer to exclude them, add a top-level `.nojekyll` file and a custom Jekyll config, or move them out of the repo before pushing.

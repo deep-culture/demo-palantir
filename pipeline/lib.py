@@ -9,7 +9,9 @@ and field-level provenance.
 from __future__ import annotations
 
 import re
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+
+from pipeline import governance
 
 
 # ---------------------------------------------------------------------------
@@ -49,6 +51,16 @@ class Dataset:
         ID of the Transform that created this Dataset (empty for raw inputs).
     consumed_by : list[str]
         IDs of Transforms that use this Dataset as an input.
+    markings : list[str]
+        Dataset markings (PHASE1_CONTRACT.md §4).  Raw datasets copy them from
+        ``manifest.json``; derived datasets get the union of their inputs.
+    marking_provenance : dict[str, list[str]]
+        ``{marking: [raw dataset ids]}`` — where each marking came from.
+    purpose, legal_basis, retention_days, input_purposes
+        Purpose and legal-basis tags (manifest for raw data; see
+        ``governance.derived_governance`` for derived data).
+    derived_from : list[str]
+        IDs of the datasets this one was computed from (empty for raw data).
     """
 
     def __init__(
@@ -64,6 +76,33 @@ class Dataset:
         self.schema: List[Dict[str, str]] = schema or []
         self.produced_by: str = ""
         self.consumed_by: List[str] = []
+        self.markings: List[str] = []
+        self.marking_provenance: Dict[str, List[str]] = {}
+        self.purpose: str = ""
+        self.legal_basis: str = ""
+        self.retention_days: Optional[int] = None
+        self.input_purposes: List[str] = []
+        self.derived_from: List[str] = []
+
+    # Governance helpers
+    def governance(self) -> Dict[str, Any]:
+        """Governance fields in the seed's camelCase shape."""
+        return {
+            "markings": list(self.markings),
+            "markingProvenance": {k: list(v) for k, v in self.marking_provenance.items()},
+            "purpose": self.purpose,
+            "legalBasis": self.legal_basis,
+            "retentionDays": self.retention_days,
+            "inputPurposes": list(self.input_purposes),
+        }
+
+    def set_governance(self, fields: Dict[str, Any]) -> None:
+        self.markings = list(fields.get("markings", []))
+        self.marking_provenance = {k: list(v) for k, v in fields.get("markingProvenance", {}).items()}
+        self.purpose = fields.get("purpose", "")
+        self.legal_basis = fields.get("legalBasis", "")
+        self.retention_days = fields.get("retentionDays")
+        self.input_purposes = list(fields.get("inputPurposes", []))
 
     # Convenience helpers
     def __len__(self) -> int:
@@ -71,6 +110,20 @@ class Dataset:
 
     def __repr__(self) -> str:
         return f"Dataset(name={self.name!r}, rows={len(self.rows)})"
+
+
+def inherit_markings(output: Dataset, inputs: Sequence[Dataset]) -> Dataset:
+    """Apply the union rule: ``output`` inherits every marking of ``inputs``.
+
+    ``output.markings = union(input.markings)`` and
+    ``output.marking_provenance`` records, per marking, the raw datasets it
+    came from (provenance is passed through, so it always names raw data).
+    Used by :meth:`Transform.run` and by the pipeline steps, which build their
+    output datasets directly.
+    """
+    output.set_governance(governance.derived_governance([ds.governance() for ds in inputs]))
+    output.derived_from = [ds.name for ds in inputs]
+    return output
 
 
 # ---------------------------------------------------------------------------
@@ -182,6 +235,8 @@ class Transform:
             schema=schema,
         )
         output_dataset.produced_by = self.name
+        # Markings carry down lineage: union of the inputs (contract §4).
+        inherit_markings(output_dataset, self.inputs)
 
         # Register consumed_by back-references
         for ds in self.inputs:

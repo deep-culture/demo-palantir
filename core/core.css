@@ -1,0 +1,305 @@
+/*
+ * core/core.css — shared governance UI for Investigate, Build and Oversight.
+ * Session strip, audit strip, Checkpoint modal, honesty and marking chips, withheld cells.
+ * Light variant (white workspace): .dc-strip-light. Dark variant (black workspace): .dc-strip-dark.
+ * Needs brand/deep-culture.css for the --dc-* colours and Lexend.
+ */
+
+:root {
+  /* Marking palette (spec §2.5): colour plus a text chip, never colour alone. */
+  --mk-open: #5a555a;
+  --mk-pii: #3f5a9e;
+  --mk-fin: #a35f00;
+  --mk-telecom: #0b7a75;
+  --mk-health: #b42318;
+  --mk-le-sensitive: #4b2a6b;
+  --mk-le: var(--mk-le-sensitive);
+}
+
+/* ── Marking chip ── */
+.dc-marking {
+  --mk: var(--mk-open);
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0.2rem 0 0;
+  padding: 0.05rem 0.4rem 0.05rem 0.35rem;
+  border: 1px solid var(--mk);
+  border-left-width: 4px;
+  border-radius: 3px;
+  background: #fff;
+  color: var(--mk);
+  font: 600 0.68rem/1.4 var(--dc-mono);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.dc-strip-dark .dc-marking,
+.dc-on-dark .dc-marking {
+  background: #000;
+  color: #fff;
+}
+
+/* ── Withheld cell: grey hatch, readable in greyscale print ── */
+.dc-withheld {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border: 1px dashed #8c8c8c;
+  border-radius: 3px;
+  background: repeating-linear-gradient(135deg, #ececec 0 6px, #dcdcdc 6px 12px);
+  color: #3a363a;
+  font-size: 0.78rem;
+  font-style: italic;
+  white-space: nowrap;
+}
+.dc-strip-dark .dc-withheld,
+.dc-on-dark .dc-withheld {
+  border-color: #777;
+  background: repeating-linear-gradient(135deg, #2a2a2a 0 6px, #1c1c1c 6px 12px);
+  color: #d1d1d1;
+}
+.dc-why {
+  margin: 0.45rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+.dc-why strong {
+  color: var(--dc-purple);
+}
+
+/* ── Honesty chip (spec §2.1) ── */
+.dc-honesty {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.4rem;
+  padding: 0.08rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--dc-purple);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.dc-honesty-mirrors { background: var(--dc-purple); color: #fff; }
+.dc-honesty-simplified { background: #fff; color: var(--dc-purple); }
+.dc-honesty-extension { background: #fff; color: var(--dc-purple); border-style: dashed; }
+.dc-honesty:hover { text-decoration: underline; }
+.dc-honesty-on-dark.dc-honesty-mirrors { background: var(--dc-green); color: var(--dc-black); border-color: var(--dc-green); }
+.dc-honesty-on-dark.dc-honesty-simplified,
+.dc-honesty-on-dark.dc-honesty-extension { background: transparent; color: var(--dc-green); border-color: var(--dc-green); }
+
+/* ── Session strip ── */
+.dc-session-strip {
+  font-family: var(--dc-font);
+  font-size: 0.82rem;
+}
+.dc-strip-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.1rem;
+  padding: 0.5rem 1.5rem;
+}
+.dc-strip-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.dc-strip-group label {
+  font-weight: 500;
+}
+.dc-strip-group select {
+  font: inherit;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+.dc-strip-desc {
+  flex: 1 1 240px;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.6rem;
+  min-width: 0;
+}
+.dc-strip-marks {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  font-size: 0.75rem;
+}
+.dc-strip-sub { opacity: 0.75; font-weight: 300; }
+.dc-strip-spacer { flex: 0 0 0; margin-left: auto; }
+.dc-strip-link { font-weight: 500; text-decoration: none; white-space: nowrap; margin-left: auto; }
+.dc-strip-link:hover { text-decoration: underline; }
+.dc-strip-note { font-style: italic; }
+
+.dc-strip-light {
+  background: #fff;
+  color: var(--dc-ink);
+  border-bottom: 1px solid var(--dc-purple-line);
+}
+.dc-strip-light select { border: 1px solid var(--dc-purple-line); background: #fff; color: var(--dc-ink); }
+.dc-strip-light .dc-strip-link { color: var(--dc-purple); }
+.dc-strip-light .dc-strip-group label { color: var(--dc-purple-dark); }
+
+.dc-strip-dark {
+  background: var(--dc-black);
+  color: #f2f2f2;
+  border-bottom: 1px solid rgba(173, 252, 146, 0.25);
+}
+.dc-strip-dark select { border: 1px solid #555; background: #161616; color: #fff; }
+.dc-strip-dark .dc-strip-link { color: var(--dc-green); }
+.dc-strip-dark .dc-strip-group label { color: var(--dc-green); }
+
+/* ── Audit strip ── */
+.dc-audit-strip {
+  font-family: var(--dc-font);
+  font-size: 0.78rem;
+}
+.dc-audit-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.4rem 1.5rem;
+  min-height: 2.2rem;
+}
+.dc-audit-title {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+.dc-audit-last {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 1.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  min-width: 0;
+}
+.dc-audit-last li {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--dc-mono);
+  font-size: 0.74rem;
+}
+.dc-audit-last time { opacity: 0.7; }
+.dc-audit-role { font-weight: 600; }
+.dc-audit-count { white-space: nowrap; opacity: 0.85; }
+/* The log is "code": black in both apps (spec §2.5). The light variant only softens the top rule. */
+.dc-audit-strip.dc-strip-light,
+.dc-audit-strip.dc-strip-dark {
+  background: var(--dc-black);
+  color: #e8e8e8;
+  border-top: 2px solid var(--dc-purple);
+}
+.dc-audit-strip .dc-audit-title,
+.dc-audit-strip .dc-audit-role,
+.dc-audit-strip .dc-strip-link { color: var(--dc-green); }
+
+/* ── Checkpoint modal ── */
+.dc-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(11, 11, 11, 0.62);
+  font-family: var(--dc-font);
+}
+.dc-modal {
+  width: min(560px, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  background: #fff;
+  color: var(--dc-ink);
+  border-radius: 6px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+}
+.dc-modal-head {
+  padding: 1rem 1.3rem 0.9rem;
+  background: var(--dc-purple);
+  color: #fff;
+}
+.dc-modal-kicker {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+.dc-modal-head h2 {
+  margin: 0.35rem 0 0;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+.dc-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.1rem 1.3rem 1.2rem;
+}
+.dc-modal-prompt {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.dc-modal-items {
+  padding: 0.55rem 0.7rem;
+  border-left: 3px solid var(--dc-purple);
+  background: var(--dc-purple-tint);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+.dc-modal-ids code,
+.dc-modal-items code { font-size: 0.75rem; }
+.dc-modal-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--dc-purple-dark);
+  margin-top: 0.3rem;
+}
+.dc-modal textarea,
+.dc-modal select {
+  font: inherit;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #cdbfc8;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--dc-ink);
+}
+.dc-modal textarea { resize: vertical; min-height: 4.5rem; }
+.dc-modal textarea[aria-invalid="true"] { border-color: #b42318; }
+.dc-modal-note { margin: 0; font-size: 0.76rem; color: var(--dc-grey-dark); line-height: 1.45; }
+.dc-modal-strict { color: var(--dc-purple-dark); font-weight: 500; }
+.dc-modal-error { margin: 0; min-height: 1.1em; font-size: 0.82rem; color: #b42318; font-weight: 500; }
+.dc-modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+.dc-modal-refusal .dc-modal-foot { padding: 0 1.3rem 1.2rem; }
+.dc-btn {
+  font: inherit;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--dc-purple);
+  background: #fff;
+  color: var(--dc-purple);
+  cursor: pointer;
+}
+.dc-btn-primary { background: var(--dc-purple); color: #fff; }
+.dc-btn:disabled { opacity: 0.55; cursor: progress; }
+.dc-btn:focus-visible { outline: 2px solid var(--dc-green-dark); outline-offset: 2px; }
+
+@media print {
+  .dc-modal-backdrop { display: none; }
+}

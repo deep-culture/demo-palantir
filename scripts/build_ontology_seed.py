@@ -1,13 +1,40 @@
 #!/usr/bin/env python3
+"""
+scripts/build_ontology_seed.py — build demo/seed.js (the Gotham-style demo).
+
+Persons are resolved by the shared resolver in pipeline/resolution.py (the
+same one the Foundry pipeline uses), in two passes: first every
+person-bearing record is resolved, then edges are linked with
+``PersonResolver.find`` using the keys each source row carries.  Both seeds
+therefore have identical entity IDs and identical (type, source, target)
+edge sets.
+
+Phase 1: clinic registrations are attached to existing people by name + dob
+(``resolution.attach_clinic_rows``; never a new Person), giving the Person
+``homeAddress`` / ``clinicCode`` and a residential ``Location`` with a
+``RESIDES_AT`` link.  Markings, roles, checkpoints and honesty labels come from
+``pipeline/governance.py`` and dataset markings from ``manifest.json``, the
+same as the Foundry seed.
+"""
 
 import argparse
 import csv
 import json
 import re
+import sys
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT))
+
+from pipeline import governance  # noqa: E402
+from pipeline.resolution import (  # noqa: E402
+    Observation, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,
+)
+from pipeline.seedmeta import build_metadata  # noqa: E402
 
 
 ENTITY_TYPES = [
@@ -24,6 +51,8 @@ ENTITY_TYPES = [
             {"id": "passportId", "label": "Passport ID", "type": "string", "required": False, "description": "Strong cross-source identifier."},
             {"id": "phoneNumber", "label": "Phone number", "type": "string", "required": False, "description": "Common device and travel join key."},
             {"id": "riskTag", "label": "Risk tag", "type": "string", "required": False, "description": "Scenario-specific risk descriptor."},
+            {"id": "homeAddress", "label": "Home address", "type": "string", "required": False, "description": "Latest home address from a clinic registration (health data)."},
+            {"id": "clinicCode", "label": "Clinic code", "type": "string", "required": False, "description": "Clinic of the latest registration (health data)."},
         ],
     },
     {
@@ -91,11 +120,11 @@ ENTITY_TYPES = [
     {
         "id": "Location",
         "name": "Location",
-        "description": "Named places such as registered addresses, towers, marinas, and airport-adjacent observations.",
+        "description": "Named places such as registered addresses, towers, marinas, airport-adjacent observations, and residential addresses from clinic registrations.",
         "color": "#ec4899",
         "properties": [
             {"id": "label", "label": "Label", "type": "string", "required": True, "description": "Human-readable place label."},
-            {"id": "locationType", "label": "Location type", "type": "string", "required": False, "description": "Site category such as office, marina, warehouse, or airport."},
+            {"id": "locationType", "label": "Location type", "type": "string", "required": False, "description": "Site category such as office, marina, warehouse, airport, or residential."},
             {"id": "city", "label": "City", "type": "string", "required": False, "description": "City associated with the place."},
             {"id": "country", "label": "Country", "type": "string", "required": False, "description": "Country associated with the place."},
             {"id": "lat", "label": "Latitude", "type": "number", "required": False, "description": "Approximate latitude."},
@@ -144,6 +173,7 @@ RELATIONSHIP_TYPES = [
     {"id": "ARRIVED_AT", "label": "ARRIVED_AT", "sourceType": "Flight", "targetType": "Airport", "description": "Flight arrival airport.", "color": "#b91c1c"},
     {"id": "USES_DEVICE", "label": "USES_DEVICE", "sourceType": "Person", "targetType": "Device", "description": "Person associated with a device identifier.", "color": "#0f766e"},
     {"id": "OBSERVED_AT", "label": "OBSERVED_AT", "sourceType": "Device", "targetType": "Location", "description": "Aggregated device sightings at a place.", "color": "#be185d"},
+    {"id": "RESIDES_AT", "label": "RESIDES_AT", "sourceType": "Person", "targetType": "Location", "description": "Home address from a clinic registration, with asOf and source.", "color": "#a21caf"},
 ]
 
 
@@ -183,10 +213,7 @@ class SeedBuilder:
         self.entity_index: Dict[str, Dict[str, object]] = {}
         self.edges: List[Dict[str, object]] = []
         self.edge_index: Dict[str, Dict[str, object]] = {}
-        self.person_by_passport: Dict[str, str] = {}
-        self.person_by_phone: Dict[str, str] = {}
-        self.person_by_name_dob: Dict[str, str] = {}
-        self.person_by_alias: Dict[str, str] = {}
+        self.resolver = PersonResolver()
         self.person_alias_sets: Dict[str, set] = defaultdict(set)
         self.company_by_name: Dict[str, str] = {}
         self.account_by_id: Dict[str, str] = {}
@@ -260,80 +287,60 @@ class SeedBuilder:
                 edge["properties"][key] = value
         return edge_id
 
-    def ensure_person(
-        self,
-        name: str,
-        dob: str = "",
-        passport_id: str = "",
-        phone_number: str = "",
-        nationality: str = "",
-        risk_tag: str = "",
-        aliases: Optional[Iterable[str]] = None,
-    ) -> str:
-        normalized_name = normalize_name(name)
-        person_id = ""
-        if passport_id and passport_id in self.person_by_passport:
-            person_id = self.person_by_passport[passport_id]
-        elif phone_number and phone_number in self.person_by_phone:
-            person_id = self.person_by_phone[phone_number]
-        elif dob and normalized_name and f"{normalized_name}|{dob}" in self.person_by_name_dob:
-            person_id = self.person_by_name_dob[f"{normalized_name}|{dob}"]
-        elif normalized_name and normalized_name in self.person_by_alias:
-            person_id = self.person_by_alias[normalized_name]
-
-        external_key = passport_id or f"{normalized_name}-{dob or phone_number or 'person'}"
-        canonical_name = name or external_key
-        person_id = self.upsert_entity(
-            "Person",
-            external_key,
-            canonical_name,
-            {
-                "canonicalName": canonical_name,
-                "dob": dob,
-                "nationality": nationality,
-                "passportId": passport_id,
-                "phoneNumber": phone_number,
-                "riskTag": risk_tag,
-            },
-            source_ids=["starter-seed"],
-        ) if not person_id else person_id
-
-        person = self.entity_index[person_id]
-        person_props = person["properties"]
-        person_props["canonicalName"] = merge_value(str(person_props.get("canonicalName", "")), canonical_name)
-        person["label"] = person_props["canonicalName"]
-        if dob:
-            person_props["dob"] = merge_value(str(person_props.get("dob", "")), dob)
+    def absorb_person(self, obs: Observation) -> Optional[str]:
+        """Resolve one person-bearing record and merge its properties."""
+        record = self.resolver.observe(obs)
+        if record is None:
+            return None
+        person_id = record.id
+        if person_id not in self.entity_index:
+            self.upsert_entity(
+                "Person",
+                person_id.split("::", 1)[1],
+                obs.name or person_id,
+                {"canonicalName": obs.name},
+                source_ids=["starter-seed"],
+            )
+        person_props = self.entity_index[person_id]["properties"]
+        is_ping = obs.kind == "ping"
+        if obs.dob:
+            person_props["dob"] = merge_value(str(person_props.get("dob", "")), obs.dob)
+        nationality = str(obs.row.get("nationality", "") or "") if obs.kind == "watchlist" else ""
         if nationality:
             person_props["nationality"] = merge_value(str(person_props.get("nationality", "")), nationality)
-        if passport_id:
-            person_props["passportId"] = passport_id
-            self.person_by_passport[passport_id] = person_id
-        if phone_number:
-            person_props["phoneNumber"] = phone_number
-            self.person_by_phone[phone_number] = person_id
+        if obs.passport:
+            person_props["passportId"] = obs.passport
+        if obs.phone and (not is_ping or not person_props.get("phoneNumber")):
+            person_props["phoneNumber"] = obs.phone
+        risk_tag = str(obs.row.get("risk_tag", "") or "") if obs.kind == "watchlist" else ""
         if risk_tag:
             person_props["riskTag"] = merge_value(str(person_props.get("riskTag", "")), risk_tag)
-
-        all_names = [canonical_name]
-        all_names.extend(alias for alias in aliases or [] if alias)
-        for alias in all_names:
-            normalized_alias = normalize_name(alias)
-            if normalized_alias:
-                self.person_by_alias[normalized_alias] = person_id
-                if alias != person_props["canonicalName"]:
-                    self.person_alias_sets[person_id].add(alias)
-        if dob and normalized_name:
-            self.person_by_name_dob[f"{normalized_name}|{dob}"] = person_id
+        for alias in (obs.name, *obs.aliases):
+            if alias:
+                self.person_alias_sets[person_id].add(alias)
         return person_id
 
+    def find_person(self, name: str = "", dob: str = "", passport_id: str = "", phone_number: str = "",
+                    ref: str = "") -> Optional[str]:
+        """Person for a source record (``ref``) or, failing that, by key lookup."""
+        if ref:
+            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone_number)
+        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone_number)
+
     def finalize_people(self) -> None:
-        for person_id, aliases in self.person_alias_sets.items():
+        resolutions = self.resolver.resolutions()
+        for person_id, record in self.resolver.records.items():
             person = self.entity_index[person_id]
-            canonical_name = str(person["properties"].get("canonicalName", ""))
+            canonical_name = record.display_name or person_id
+            person["properties"]["canonicalName"] = canonical_name
+            person["label"] = canonical_name
+            aliases = self.person_alias_sets.get(person_id, set())
             cleaned = sorted(alias for alias in aliases if alias and alias != canonical_name)
             if cleaned:
                 person["properties"]["aliases"] = " | ".join(cleaned)
+            else:
+                person["properties"].pop("aliases", None)
+            person["resolution"] = resolutions[person_id]
 
     def ensure_company(self, company_id: str, company_name: str, jurisdiction: str, incorporation_date: str, registered_address: str) -> str:
         entity_id = self.upsert_entity(
@@ -374,8 +381,8 @@ class SeedBuilder:
             self.add_edge("HAS_CORP_ACCOUNT", company_id, account_entity_id, dedupe_key=f"{company_id}:{account_entity_id}")
             self.entity_index[account_entity_id]["properties"]["accountKind"] = "corporate"
             return
-        if normalized_name in self.person_by_alias:
-            person_id = self.person_by_alias[normalized_name]
+        person_id = self.find_person(name=owner_name)
+        if person_id:
             self.add_edge("OWNS_ACCOUNT", person_id, account_entity_id, dedupe_key=f"{person_id}:{account_entity_id}")
             self.entity_index[account_entity_id]["properties"]["accountKind"] = "personal"
 
@@ -426,6 +433,7 @@ class SeedBuilder:
         location_type: str = "",
         city: str = "",
         country: str = "",
+        source_ids: Iterable[str] = ("company_registry.csv", "mobile_location_pings.jsonl"),
     ) -> str:
         normalized = normalize_name(label)
         if normalized in self.location_by_label:
@@ -455,7 +463,7 @@ class SeedBuilder:
                 "lon": lon,
                 "cellTower": cell_tower,
             },
-            source_ids=["company_registry.csv", "mobile_location_pings.jsonl"],
+            source_ids=list(source_ids),
         )
         self.location_by_label[normalized] = entity_id
         return entity_id
@@ -563,6 +571,24 @@ def build_mappings(source_headers: Dict[str, List[str]]) -> List[Dict[str, objec
             "rule": "Device sightings are aggregated by device/location pair with firstSeen, lastSeen, and sightingCount.",
         },
         {
+            "id": "map-clinic-person",
+            "sourceId": "clinic_registrations.csv",
+            "sourceFields": "patient_name, dob, home_address, clinic_code, registered_on",
+            "targetType": "Person",
+            "targetProperty": "homeAddress, clinicCode",
+            "relationType": "",
+            "rule": "Attach to an existing Person by exact name + date of birth only; an unmatched row creates nothing. The latest registration supplies homeAddress and clinicCode (marked HEALTH).",
+        },
+        {
+            "id": "map-clinic-residence",
+            "sourceId": "clinic_registrations.csv",
+            "sourceFields": "home_address, home_city, home_country, lat, lon, registered_on, source",
+            "targetType": "Location",
+            "targetProperty": "label, locationType (residential), city, country, lat, lon",
+            "relationType": "RESIDES_AT",
+            "rule": "Each attached row yields a residential Location (marked HEALTH) and a RESIDES_AT link with asOf = registered_on and source.",
+        },
+        {
             "id": "map-source-header-reference",
             "sourceId": "all-sources",
             "sourceFields": " | ".join(f"{source}: {', '.join(headers)}" for source, headers in source_headers.items()),
@@ -580,6 +606,9 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
     flight_rows = read_csv(dataset_dir / "flight_manifests.csv")
     transaction_rows = read_csv(dataset_dir / "bank_transactions.csv")
     ping_rows = read_jsonl(dataset_dir / "mobile_location_pings.jsonl")
+    clinic_path = dataset_dir / "clinic_registrations.csv"
+    clinic_rows = read_csv(clinic_path) if clinic_path.exists() else []
+    manifest = governance.load_manifest(dataset_dir)
 
     source_headers = {
         "watchlist.csv": list(watchlist_rows[0].keys()) if watchlist_rows else [],
@@ -587,21 +616,28 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
         "flight_manifests.csv": list(flight_rows[0].keys()) if flight_rows else [],
         "bank_transactions.csv": list(transaction_rows[0].keys()) if transaction_rows else [],
         "mobile_location_pings.jsonl": sorted(ping_rows[0].keys()) if ping_rows else [],
+        "clinic_registrations.csv": list(clinic_rows[0].keys()) if clinic_rows else [],
     }
 
     builder = SeedBuilder()
 
+    # Pass 1: resolve every person-bearing record (shared greedy resolver).
+    for obs in person_observations(watchlist_rows, company_rows, flight_rows, ping_rows):
+        builder.absorb_person(obs)
+
+    # Clinic rows attach by name + dob only, after every other record.
+    clinic_attached = attach_clinic_rows(builder.resolver, clinic_rows)
+    for person_id, obs in latest_clinic_rows(clinic_attached).items():
+        props = builder.entity_index[person_id]["properties"]
+        if obs.row.get("home_address"):
+            props["homeAddress"] = obs.row["home_address"]
+        if obs.row.get("clinic_code"):
+            props["clinicCode"] = obs.row["clinic_code"]
+
+    # Pass 2: entities and edges, with person lookups against the final state.
     for row in watchlist_rows:
-        aliases = [alias.strip() for alias in row.get("alias", "").split("|") if alias.strip()]
-        person_id = builder.ensure_person(
-            row.get("canonical_name", ""),
-            row.get("dob", ""),
-            row.get("passport_id", ""),
-            "",
-            row.get("nationality", ""),
-            row.get("risk_tag", ""),
-            aliases=aliases,
-        )
+        person_id = builder.find_person(row.get("canonical_name", ""), row.get("dob", ""), row.get("passport_id", ""),
+                                        ref=f"watchlist:{row.get('watchlist_id', '')}")
         record_id = builder.upsert_entity(
             "WatchlistRecord",
             row.get("watchlist_id", ""),
@@ -616,7 +652,8 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
             },
             source_ids=["watchlist.csv"],
         )
-        builder.add_edge("LISTED_ON", person_id, record_id, dedupe_key=f"{person_id}:{record_id}")
+        if person_id:
+            builder.add_edge("LISTED_ON", person_id, record_id, dedupe_key=f"{person_id}:{record_id}")
 
     for row in company_rows:
         company_id = builder.ensure_company(
@@ -626,8 +663,10 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
             row.get("incorporation_date", ""),
             row.get("registered_address", ""),
         )
-        director_id = builder.ensure_person(row.get("director_name", ""), row.get("director_dob", ""))
-        owner_id = builder.ensure_person(row.get("beneficial_owner", ""), row.get("beneficial_owner_dob", ""))
+        director_id = builder.find_person(row.get("director_name", ""), row.get("director_dob", ""),
+                                          ref=f"company:{row.get('company_id', '')}:director")
+        owner_id = builder.find_person(row.get("beneficial_owner", ""), row.get("beneficial_owner_dob", ""),
+                                       ref=f"company:{row.get('company_id', '')}:owner")
         location_id = builder.ensure_location(
             row.get("registered_address", ""),
             "",
@@ -637,16 +676,19 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
             row.get("registered_city", ""),
             row.get("registered_country", ""),
         )
-        builder.add_edge("DIRECTS", director_id, company_id, dedupe_key=f"{director_id}:{company_id}")
-        builder.add_edge("BENEFICIALLY_OWNS", owner_id, company_id, dedupe_key=f"{owner_id}:{company_id}")
+        if director_id:
+            builder.add_edge("DIRECTS", director_id, company_id, dedupe_key=f"{director_id}:{company_id}")
+        if owner_id:
+            builder.add_edge("BENEFICIALLY_OWNS", owner_id, company_id, dedupe_key=f"{owner_id}:{company_id}")
         builder.add_edge("REGISTERED_AT", company_id, location_id, dedupe_key=f"{company_id}:{location_id}")
 
     for row in flight_rows:
-        person_id = builder.ensure_person(
+        person_id = builder.find_person(
             row.get("passenger_name", ""),
             row.get("dob", ""),
             row.get("passport_id", ""),
             row.get("phone_number", ""),
+            ref=f"flight:{row.get('manifest_id', '')}",
         )
         flight_id = builder.upsert_entity(
             "Flight",
@@ -664,7 +706,8 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
         )
         departure_airport_id = builder.ensure_airport(row.get("departure_airport", ""))
         arrival_airport_id = builder.ensure_airport(row.get("arrival_airport", ""))
-        builder.add_edge("BOOKED_ON", person_id, flight_id, dedupe_key=f"{person_id}:{flight_id}")
+        if person_id:
+            builder.add_edge("BOOKED_ON", person_id, flight_id, dedupe_key=f"{person_id}:{flight_id}")
         builder.add_edge("DEPARTED_FROM", flight_id, departure_airport_id, dedupe_key=f"{flight_id}:{departure_airport_id}")
         builder.add_edge("ARRIVED_AT", flight_id, arrival_airport_id, dedupe_key=f"{flight_id}:{arrival_airport_id}")
 
@@ -707,14 +750,8 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
         observed_name = str(row.get("observed_name", ""))
         phone_number = str(row.get("phone_number", ""))
         device_id = builder.ensure_device(str(row.get("device_id", "")), phone_number, observed_name)
-        normalized_name = normalize_name(observed_name)
-        person_id = ""
-        if phone_number and phone_number in builder.person_by_phone:
-            person_id = builder.person_by_phone[phone_number]
-        elif normalized_name in builder.person_by_alias:
-            person_id = builder.person_by_alias[normalized_name]
-        elif observed_name:
-            person_id = builder.ensure_person(observed_name, phone_number=phone_number)
+        person_id = builder.find_person(observed_name, phone_number=phone_number,
+                                        ref=f"ping:{row.get('ping_id', '')}")
         if person_id:
             builder.add_edge("USES_DEVICE", person_id, device_id, dedupe_key=f"{person_id}:{device_id}")
 
@@ -747,7 +784,33 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
                 dedupe_key=f"{device_id}:{location_id}",
             )
 
+    # Residential Locations + RESIDES_AT from attached clinic rows.
+    for obs, person_id in clinic_attached:
+        if not person_id:
+            continue  # unattached clinic rows create no objects
+        row = obs.row
+        location_id = builder.ensure_location(
+            str(row.get("home_address", "")),
+            float(row["lat"]) if row.get("lat") else "",
+            float(row["lon"]) if row.get("lon") else "",
+            "",
+            "residential",
+            str(row.get("home_city", "")),
+            str(row.get("home_country", "")),
+            source_ids=["clinic_registrations.csv"],
+        )
+        as_of = str(row.get("registered_on", ""))
+        existing_edge = builder.edge_index.get(f"resides_at::{slug(f'{person_id}:{location_id}')}")
+        if existing_edge:
+            if as_of > str(existing_edge["properties"].get("asOf", "")):
+                existing_edge["properties"]["asOf"] = as_of
+        else:
+            builder.add_edge("RESIDES_AT", person_id, location_id,
+                             properties={"asOf": as_of, "source": str(row.get("source", ""))},
+                             dedupe_key=f"{person_id}:{location_id}")
+
     builder.finalize_people()
+    governance.annotate_objects(builder.entities, builder.edges, governance.file_markings(manifest))
 
     sources = [
         {
@@ -790,10 +853,23 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
             "recordCount": len(ping_rows),
             "fields": source_headers["mobile_location_pings.jsonl"],
         },
+        {
+            "id": "clinic_registrations.csv",
+            "name": "Clinic Registrations",
+            "file": f"{dataset_path_label}/clinic_registrations.csv",
+            "description": "Patient registrations with home addresses, collected for care (health data).",
+            "recordCount": len(clinic_rows),
+            "fields": source_headers["clinic_registrations.csv"],
+        },
     ]
+    for source in sources:
+        entry = governance.manifest_entry_for_file(manifest, source["id"])
+        source.update(governance.raw_governance(source["id"], entry))
+        source["asOf"] = entry.get("asOf", "")
 
     return {
         "metadata": {
+            **build_metadata(dataset_dir, Path(__file__)),
             "title": "Ontology Studio Demo",
             "dataset": dataset_key,
             "generatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -804,6 +880,7 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
                 "Edit a relationship type or add a new property, then watch the graph and instance editor update immediately.",
             ],
         },
+        "governance": governance.governance_block(),
         "sources": sources,
         "ontology": {
             "entityTypes": ENTITY_TYPES,
@@ -833,7 +910,7 @@ def main() -> None:
     parser.add_argument("--output", default="demo/seed.js", help="Path to the generated browser seed file.")
     args = parser.parse_args()
 
-    repo_root = Path(__file__).resolve().parent.parent
+    repo_root = REPO_ROOT
     output_path = (repo_root / args.output).resolve()
     dataset_definitions = args.dataset or [
         "starter=synthetic_data/starter",

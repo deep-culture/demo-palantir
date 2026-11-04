@@ -1,47 +1,59 @@
 """
 pipeline/02_resolve_persons.py — Entity resolution for Person entities.
 
-Resolution priority:
+Identity decisions are made by the shared resolver in
+``pipeline/resolution.py`` (also used by the Gotham seed builder), with
+priority:
   1. passport_id (strong cross-source identifier)
   2. phone_number
   3. normalized canonical_name + dob
   4. alias lookup
 
-For each resolved person, all contributing source rows from all five
-datasets are recorded in the LineageRecord along with per-field provenance.
+This step adds what Foundry needs on top: for each resolved person, all
+contributing source rows from the source datasets are recorded in the
+LineageRecord along with per-field provenance.
+
+Clinic registrations (Phase 1) are attached after the greedy pass by name +
+dob only (``resolution.attach_clinic_rows``); they never create a Person.  The
+latest registration supplies ``homeAddress`` and ``clinicCode`` (both marked
+HEALTH).  Bank transactions are not an input: no bank field reaches a Person
+row, so the output does not inherit FIN.
 
 Output Dataset: person entities
   id               — person::{slug(passport_id or name-dob)}
-  canonicalName
+  canonicalName    — longest name from a watchlist/registry/flight record;
+                     for ping-only persons, the most frequent observed name
   aliases          — pipe-joined string of additional names
   dob
   nationality
   passportId
   phoneNumber
   riskTag
+  homeAddress      — latest clinic registration (HEALTH)
+  clinicCode       — latest clinic registration (HEALTH)
+  resolution       — {method, confidence, mergedFrom, splitRisk, note}
+
+The resolver itself is attached to the output dataset as
+``dataset.resolver`` so step 05 links edges with the same lookups.
 """
 
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from pipeline.lib import Dataset, LineageRecord, slug
+from pipeline.lib import Dataset, LineageRecord, inherit_markings
+from pipeline.resolution import (
+    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,
+)
 
 
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
-
-def _norm(value: str) -> str:
-    """Lowercase + collapse non-alphanum runs → single space, trimmed."""
-    cleaned = re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
-    return re.sub(r"\s+", " ", cleaned)
-
 
 def _merge(a: str, b: str) -> str:
     """Prefer the longer non-empty string."""
@@ -68,10 +80,14 @@ class _PersonAccum:
         self.passport_id: str = ""
         self.phone_number: str = ""
         self.risk_tag: str = ""
+        self.home_address: str = ""
+        self.clinic_code: str = ""
         # list of (dataset_name, source_row_idx, field, note)
         self.source_refs: List[Tuple[str, int, str, str]] = []
         # output_field → list of (dataset_name, source_row_idx, source_field, note)
         self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}
+        # (dataset_name, source_row_idx, observed_name) for every named ping
+        self.ping_names: List[Tuple[str, int, str]] = []
 
     def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = "") -> None:
         self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))
@@ -133,13 +149,33 @@ class _PersonAccum:
         self.source_refs.append((ds_name, ri, "", "device-ping"))
         if row.get("observed_name"):
             self.aliases.add(row["observed_name"])
+            self.ping_names.append((ds_name, ri, row["observed_name"]))
             self._add_field_ref("aliases", ds_name, ri, "observed_name", "ping alias")
         if row.get("phone_number"):
             self.phone_number = _merge(self.phone_number, row["phone_number"])
             self._add_field_ref("phoneNumber", ds_name, ri, "phone_number")
 
-    def to_row(self) -> Dict[str, Any]:
-        canonical = self.canonical_name or self.entity_id
+    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:
+        ri = int(row["_source_row"])
+        self.source_refs.append((ds_name, ri, "", "clinic-registration"))
+        if not latest:
+            return
+        if row.get("home_address"):
+            self.home_address = row["home_address"]
+            self._add_field_ref("homeAddress", ds_name, ri, "home_address", "latest registration")
+        if row.get("clinic_code"):
+            self.clinic_code = row["clinic_code"]
+            self._add_field_ref("clinicCode", ds_name, ri, "clinic_code", "latest registration")
+
+    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:
+        canonical = record.display_name or self.canonical_name
+        if record.name_is_weak and canonical:
+            # No watchlist/registry/flight name: fall back to the most frequent
+            # ping observed_name and say so in the field provenance (F0.3).
+            self.field_refs["canonicalName"] = [
+                (ds, row, "observed_name", "from ping observed_name (weak)")
+                for ds, row, name in self.ping_names if name == canonical
+            ]
         clean_aliases = sorted(a for a in self.aliases if a and a != canonical)
         return {
             "id": self.entity_id,
@@ -151,6 +187,9 @@ class _PersonAccum:
             "passportId": self.passport_id,
             "phoneNumber": self.phone_number,
             "riskTag": self.risk_tag,
+            "homeAddress": self.home_address,
+            "clinicCode": self.clinic_code,
+            "resolution": resolution,
         }
 
     def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:
@@ -164,68 +203,6 @@ class _PersonAccum:
 
 
 # ---------------------------------------------------------------------------
-# Resolver
-# ---------------------------------------------------------------------------
-
-class PersonResolver:
-    def __init__(self) -> None:
-        self._by_passport: Dict[str, str] = {}
-        self._by_phone: Dict[str, str] = {}
-        self._by_name_dob: Dict[str, str] = {}
-        self._by_alias: Dict[str, str] = {}
-        self._accums: Dict[str, _PersonAccum] = {}
-
-    def _make_id(self, passport_id: str, name: str, dob: str, phone: str) -> str:
-        if passport_id:
-            return f"person::{slug(passport_id)}"
-        key = f"{_norm(name)}-{dob or phone or 'person'}"
-        return f"person::{slug(key)}"
-
-    def _find_existing(self, passport_id: str, phone: str, name: str, dob: str) -> Optional[str]:
-        if passport_id and passport_id in self._by_passport:
-            return self._by_passport[passport_id]
-        if phone and phone in self._by_phone:
-            return self._by_phone[phone]
-        norm = _norm(name)
-        if norm and dob and f"{norm}|{dob}" in self._by_name_dob:
-            return self._by_name_dob[f"{norm}|{dob}"]
-        if norm and norm in self._by_alias:
-            return self._by_alias[norm]
-        return None
-
-    def _register(self, accum: _PersonAccum, name: str, dob: str, passport_id: str, phone: str) -> None:
-        eid = accum.entity_id
-        if passport_id:
-            self._by_passport[passport_id] = eid
-        if phone:
-            self._by_phone[phone] = eid
-        norm = _norm(name)
-        if norm and dob:
-            self._by_name_dob[f"{norm}|{dob}"] = eid
-        if norm:
-            self._by_alias[norm] = eid
-        for alias in accum.aliases:
-            an = _norm(alias)
-            if an:
-                self._by_alias[an] = eid
-
-    def get_or_create(self, name: str, dob: str = "", passport_id: str = "", phone: str = "") -> _PersonAccum:
-        eid = self._find_existing(passport_id, phone, name, dob)
-        if eid is None:
-            eid = self._make_id(passport_id, name, dob, phone)
-            accum = _PersonAccum(eid)
-            self._accums[eid] = accum
-        else:
-            accum = self._accums[eid]
-        # Register any newly available keys
-        self._register(accum, name, dob, passport_id, phone)
-        return accum
-
-    def all_accums(self) -> List[_PersonAccum]:
-        return list(self._accums.values())
-
-
-# ---------------------------------------------------------------------------
 # Main run function
 # ---------------------------------------------------------------------------
 
@@ -233,54 +210,50 @@ def run(
     norm_watchlist: Dataset,
     norm_company_registry: Dataset,
     norm_flight_manifests: Dataset,
-    norm_bank_transactions: Dataset,
     norm_mobile_pings: Dataset,
+    norm_clinic_registrations: Dataset,
 ) -> Tuple[Dataset, LineageRecord]:
     resolver = PersonResolver()
+    accums: Dict[str, _PersonAccum] = {}
 
-    # --- Watchlist ---
-    for row in norm_watchlist.rows:
-        accum = resolver.get_or_create(
-            row.get("canonical_name", ""),
-            row.get("dob", ""),
-            row.get("passport_id", ""),
-        )
-        accum.absorb_watchlist(row, norm_watchlist.name)
+    # One greedy pass in canonical order: watchlist, registry directors and
+    # owners, flight passengers, mobile pings (see pipeline/resolution.py).
+    observations = person_observations(
+        norm_watchlist.rows, norm_company_registry.rows,
+        norm_flight_manifests.rows, norm_mobile_pings.rows,
+    )
+    for obs in observations:
+        record = resolver.observe(obs)
+        if record is None:
+            continue
+        accum = accums.setdefault(record.id, _PersonAccum(record.id))
+        if obs.kind == "watchlist":
+            accum.absorb_watchlist(obs.row, norm_watchlist.name)
+        elif obs.kind == "director":
+            accum.absorb_company(obs.row, norm_company_registry.name, "director")
+        elif obs.kind == "owner":
+            accum.absorb_company(obs.row, norm_company_registry.name, "beneficial_owner")
+        elif obs.kind == "flight":
+            accum.absorb_flight(obs.row, norm_flight_manifests.name)
+        else:
+            accum.absorb_ping(obs.row, norm_mobile_pings.name)
 
-    # --- Company registry: directors and beneficial owners ---
-    for row in norm_company_registry.rows:
-        if row.get("director_name"):
-            accum = resolver.get_or_create(row["director_name"], row.get("director_dob", ""))
-            accum.absorb_company(row, norm_company_registry.name, "director")
-        if row.get("beneficial_owner"):
-            accum = resolver.get_or_create(row["beneficial_owner"], row.get("beneficial_owner_dob", ""))
-            accum.absorb_company(row, norm_company_registry.name, "beneficial_owner")
-
-    # --- Flight manifests ---
-    for row in norm_flight_manifests.rows:
-        accum = resolver.get_or_create(
-            row.get("passenger_name", ""),
-            row.get("dob", ""),
-            row.get("passport_id", ""),
-            row.get("phone_number", ""),
-        )
-        accum.absorb_flight(row, norm_flight_manifests.name)
-
-    # --- Mobile pings (phone → person or alias) ---
-    for row in norm_mobile_pings.rows:
-        phone = row.get("phone_number", "")
-        observed = row.get("observed_name", "")
-        if phone or observed:
-            accum = resolver.get_or_create(observed or "", phone=phone)
-            accum.absorb_ping(row, norm_mobile_pings.name)
+    # Clinic rows: attach by name + dob only, after every other record.
+    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)
+    latest = latest_clinic_rows(attached)
+    for obs, pid in attached:
+        if pid is None:
+            continue  # never create a Person from a clinic row alone
+        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)
 
     # Build output dataset
-    all_accums = resolver.all_accums()
+    resolutions = resolver.resolutions()
+    all_accums = [accums[pid] for pid in resolver.records]
     output_rows: List[Dict[str, Any]] = []
     fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []
 
     for accum in all_accums:
-        output_rows.append(accum.to_row())
+        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))
         fp_per_row.append(accum.to_field_provenance())
 
     schema = [
@@ -293,9 +266,15 @@ def run(
         {"field": "passportId", "type": "string"},
         {"field": "phoneNumber", "type": "string"},
         {"field": "riskTag", "type": "string"},
+        {"field": "homeAddress", "type": "string"},
+        {"field": "clinicCode", "type": "string"},
+        {"field": "resolution", "type": "json"},
     ]
 
     ds = Dataset(name="resolved_persons", rows=output_rows, schema=schema)
+    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,
+                          norm_mobile_pings, norm_clinic_registrations])
+    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05
     lineage = LineageRecord()
 
     for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):
@@ -316,8 +295,8 @@ def run(
 if __name__ == "__main__":
     from pipeline.p01_normalize_sources import run as norm_run
     dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("synthetic_data/starter")
-    wl, cr, fm, bt, mp = norm_run(dataset_dir)
-    ds, lineage = run(wl, cr, fm, bt, mp)
+    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)
+    ds, lineage = run(wl, cr, fm, mp, cl)
     print(f"Resolved {len(ds)} persons")
     for row in ds.rows[:5]:
         print(" ", row["id"], "—", row["canonicalName"])

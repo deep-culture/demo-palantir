@@ -1,0 +1,9 @@
+registration_id,patient_name,dob,home_address,home_city,home_country,lat,lon,clinic_code,registered_on,source
+REG-0001,Lena Demir,1978-02-28,"95 Makariou Avenue, Limassol",Limassol,Cyprus,34.673593,33.019195,CLN-LIM-02,2023-05-10,clinic-ehr
+REG-0002,Daniel Wu,1985-06-14,"1210 Corcoran Street NW, Washington, D.C.","Washington, D.C.",United States,38.9113,-77.0287,CLN-WAS-01,2023-10-02,clinic-ehr
+REG-0003,Elena Markovic,1990-11-03,"31 Kralja Petra, Belgrade",Belgrade,Serbia,44.8196,20.4553,CLN-BEG-01,2024-02-06,clinic-ehr
+REG-0004,Sofia Petrov,1988-02-27,"40 Vitosha Boulevard, Sofia",Sofia,Bulgaria,42.6909,23.3196,CLN-SOF-03,2024-07-15,clinic-ehr
+REG-0005,Ben Grant,1984-06-08,"171 Josefstaedter Strasse, Vienna",Vienna,Austria,48.226912,16.361844,CLN-VIE-04,2025-02-11,clinic-ehr
+REG-0006,Clara Nasser,1986-06-21,"114 Al Manara Road, Dubai",Dubai,United Arab Emirates,25.200613,55.271738,CLN-DXB-05,2025-07-04,clinic-ehr
+REG-0007,Kareem Haddad,1987-04-12,"7 Anexartisias Street, Limassol",Limassol,Cyprus,34.6762,33.0427,CLN-LIM-02,2025-09-18,clinic-ehr
+REG-0008,Omar Rahman,1984-08-19,"22 Cromer Road, London",London,United Kingdom,51.5462,-0.1103,CLN-LON-04,2025-11-27,clinic-ehr

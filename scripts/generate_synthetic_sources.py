@@ -1,12 +1,32 @@
 #!/usr/bin/env python3
+"""Generate the linked synthetic sources for one profile (starter or simulator).
+
+Two random streams, so the Phase 1 clinic data could be added without touching
+a byte of the existing files:
+
+* ``--legacy-seed`` (default 42) drives the five Phase 0 sources (watchlist,
+  company registry, flights, bank transactions, pings).  Changing it changes
+  every existing file and every entity ID downstream.
+* ``--seed`` (default 20260401) drives only the clinic registrations
+  (``clinic_registrations.csv``) and the residential addresses.
+
+The script also writes ``manifest.json`` (markings, purpose, legal basis,
+retention and as-of date per dataset; values from ``pipeline/governance.py``).
+Two runs with the same seeds produce byte-identical files.
+"""
 
 import argparse
 import csv
 import json
 import random
-from datetime import datetime, timedelta, timezone
+import sys
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional, Set, Tuple
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from pipeline.governance import manifest_for  # noqa: E402
 
 
 PROFILES = {
@@ -16,6 +36,10 @@ PROFILES = {
         "extra_flights": 16,
         "extra_transactions": 24,
         "extra_pings": 80,
+        "residential_addresses": 6,
+        "clinic_noise_people": 3,
+        "clinic_noise_movers": 0,
+        "clinic_unmatched": 0,
     },
     "simulator": {
         "extra_people": 180,
@@ -23,6 +47,10 @@ PROFILES = {
         "extra_flights": 750,
         "extra_transactions": 2200,
         "extra_pings": 6000,
+        "residential_addresses": 40,
+        "clinic_noise_people": 44,
+        "clinic_noise_movers": 6,
+        "clinic_unmatched": 4,
     },
 }
 
@@ -209,12 +237,68 @@ CORE_COMPANIES = [
 
 BASE_TIME = datetime(2026, 4, 1, 8, 0, tzinfo=timezone.utc)
 
+# ---------------------------------------------------------------------------
+# Clinic registrations (Phase 1, PHASE1_CONTRACT.md §4)
+# ---------------------------------------------------------------------------
+
+DEFAULT_SEED = 20260401
+LEGACY_SEED = 42
+CLINIC_SOURCE = "clinic-ehr"
+
+# Home addresses of the core cast (fixed, so the storyline does not depend on
+# the seed).  None of these labels appears in the registry or the pings.
+CORE_HOMES = {
+    "PER-001": {"home_address": "7 Anexartisias Street, Limassol", "home_city": "Limassol", "home_country": "Cyprus",
+                "lat": 34.6762, "lon": 33.0427, "clinic_code": "CLN-LIM-02", "registered_on": "2025-09-18"},
+    "PER-002": {"home_address": "31 Kralja Petra, Belgrade", "home_city": "Belgrade", "home_country": "Serbia",
+                "lat": 44.8196, "lon": 20.4553, "clinic_code": "CLN-BEG-01", "registered_on": "2024-02-06"},
+    "PER-003": {"home_address": "22 Cromer Road, London", "home_city": "London", "home_country": "United Kingdom",
+                "lat": 51.5462, "lon": -0.1103, "clinic_code": "CLN-LON-04", "registered_on": "2025-11-27"},
+    "PER-004": {"home_address": "40 Vitosha Boulevard, Sofia", "home_city": "Sofia", "home_country": "Bulgaria",
+                "lat": 42.6909, "lon": 23.3196, "clinic_code": "CLN-SOF-03", "registered_on": "2024-07-15"},
+    "PER-005": {"home_address": "1210 Corcoran Street NW, Washington, D.C.", "home_city": "Washington, D.C.",
+                "home_country": "United States", "lat": 38.9113, "lon": -77.0287, "clinic_code": "CLN-WAS-01",
+                "registered_on": "2023-10-02"},
+}
+# Kareem Haddad's earlier registration (simulator only): he moved from Dubai.
+CORE_EARLIER_HOMES = {
+    "PER-001": {"home_address": "12 Al Wasl Gardens, Dubai", "home_city": "Dubai", "home_country": "United Arab Emirates",
+                "lat": 25.1972, "lon": 55.2422, "clinic_code": "CLN-DXB-05", "registered_on": "2022-03-09"},
+}
+
+RESIDENTIAL_CITIES = [
+    {"city": "Limassol", "country": "Cyprus", "code": "LIM", "lat": 34.6841, "lon": 33.0379,
+     "streets": ["Makariou Avenue", "Gladstonos Street", "Agias Zonis Street", "Omonoias Avenue"]},
+    {"city": "Larnaca", "country": "Cyprus", "code": "LCA", "lat": 34.9167, "lon": 33.6290,
+     "streets": ["Ermou Street", "Athinon Avenue", "Grigori Afxentiou Avenue"]},
+    {"city": "Dubai", "country": "United Arab Emirates", "code": "DXB", "lat": 25.2048, "lon": 55.2708,
+     "streets": ["Al Safa Street", "Al Manara Road", "Umm Suqeim Street"]},
+    {"city": "London", "country": "United Kingdom", "code": "LON", "lat": 51.5072, "lon": -0.1276,
+     "streets": ["Elgin Crescent", "Mildmay Grove", "Lordship Lane", "Brixton Water Lane"]},
+    {"city": "Vienna", "country": "Austria", "code": "VIE", "lat": 48.2082, "lon": 16.3738,
+     "streets": ["Josefstaedter Strasse", "Gumpendorfer Strasse", "Praterstrasse"]},
+    {"city": "Zurich", "country": "Switzerland", "code": "ZRH", "lat": 47.3769, "lon": 8.5417,
+     "streets": ["Seefeldstrasse", "Langstrasse", "Winterthurerstrasse"]},
+    {"city": "Athens", "country": "Greece", "code": "ATH", "lat": 37.9838, "lon": 23.7275,
+     "streets": ["Patision Street", "Kallidromiou Street", "Solonos Street"]},
+    {"city": "Istanbul", "country": "Turkey", "code": "IST", "lat": 41.0082, "lon": 28.9784,
+     "streets": ["Bagdat Caddesi", "Halaskargazi Caddesi", "Moda Caddesi"]},
+]
+
+# Patients who appear in no other source (simulator only): their rows stay in
+# the clinic dataset and never become objects.
+UNMATCHED_FIRST = ["Ines", "Pavel", "Leyla", "Georgios", "Hanna", "Tariq"]
+UNMATCHED_LAST = ["Moreau", "Novak", "Aydin", "Christou", "Lindqvist", "Bakr"]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate linked synthetic data sources for classroom demos.")
     parser.add_argument("--profile", choices=sorted(PROFILES), default="starter")
     parser.add_argument("--output", default="synthetic_data/starter", help="Directory where files will be written.")
-    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED,
+                        help="Seed for the clinic registrations and residential addresses (Phase 1 data).")
+    parser.add_argument("--legacy-seed", type=int, default=LEGACY_SEED,
+                        help="Seed for the five Phase 0 sources. Changing it changes every existing file.")
     return parser.parse_args()
 
 
@@ -761,11 +845,124 @@ def build_noise_pings(rng: random.Random, people: List[Dict[str, str]], count: i
     return rows
 
 
+def build_residential_addresses(rng: random.Random, count: int, taken: Set[str]) -> List[Dict[str, object]]:
+    """``count`` distinct residential addresses whose labels collide with no known place."""
+    addresses: List[Dict[str, object]] = []
+    labels = set(taken)
+    while len(addresses) < count:
+        city = RESIDENTIAL_CITIES[len(addresses) % len(RESIDENTIAL_CITIES)]
+        street = rng.choice(city["streets"])
+        label = f"{rng.randint(2, 180)} {street}, {city['city']}"
+        if label in labels:
+            continue
+        labels.add(label)
+        addresses.append({
+            "home_address": label,
+            "home_city": city["city"],
+            "home_country": city["country"],
+            "lat": round(city["lat"] + rng.uniform(-0.02, 0.02), 6),
+            "lon": round(city["lon"] + rng.uniform(-0.02, 0.02), 6),
+            "clinic_code": f"CLN-{city['code']}-{rng.randint(1, 6):02d}",
+        })
+    return addresses
+
+
+def _registered_on(rng: random.Random, start: date, end: date) -> str:
+    return (start + timedelta(days=rng.randint(0, (end - start).days))).isoformat()
+
+
+def build_clinic_rows(
+    profile: str,
+    rng: random.Random,
+    people: List[Dict[str, str]],
+    company_rows: List[Dict[str, str]],
+    flight_rows: List[Dict[str, str]],
+    known_labels: Set[str],
+) -> List[Dict[str, object]]:
+    """Clinic registrations: a few core people, some noise people, and (simulator)
+    a few patients who appear nowhere else.
+
+    Every matched patient is written with a name and date of birth that some
+    registry or flight record also carries, so the shared resolver can attach
+    the row by name + dob.  Rows are never the only evidence for a person.
+    """
+    settings = PROFILES[profile]
+    addresses = build_residential_addresses(rng, settings["residential_addresses"], known_labels)
+    named_with_dob: Set[Tuple[str, str]] = set()
+    for row in company_rows:
+        named_with_dob.add((row["director_name"], row["director_dob"]))
+        named_with_dob.add((row["beneficial_owner"], row["beneficial_owner_dob"]))
+    for row in flight_rows:
+        named_with_dob.add((row["passenger_name"], row["dob"]))
+
+    rows: List[Dict[str, object]] = []
+
+    def add(name: str, dob: str, home: Dict[str, object], registered_on: str) -> None:
+        rows.append({
+            "registration_id": "",
+            "patient_name": name,
+            "dob": dob,
+            "home_address": home["home_address"],
+            "home_city": home["home_city"],
+            "home_country": home["home_country"],
+            "lat": home["lat"],
+            "lon": home["lon"],
+            "clinic_code": home["clinic_code"],
+            "registered_on": registered_on,
+            "source": CLINIC_SOURCE,
+        })
+
+    core = {person["person_id"]: person for person in CORE_PEOPLE}
+    for pid, home in CORE_HOMES.items():
+        add(core[pid]["canonical_name"], core[pid]["dob"], home, str(home["registered_on"]))
+    if profile != "starter":
+        for pid, home in CORE_EARLIER_HOMES.items():
+            add(core[pid]["canonical_name"], core[pid]["dob"], home, str(home["registered_on"]))
+
+    core_ids = set(core)
+    eligible = [p for p in people
+                if p["person_id"] not in core_ids and (p["canonical_name"], p["dob"]) in named_with_dob]
+    chosen = rng.sample(eligible, min(settings["clinic_noise_people"], len(eligible)))
+    for person in chosen:
+        add(person["canonical_name"], person["dob"], rng.choice(addresses),
+            _registered_on(rng, date(2022, 1, 1), date(2026, 3, 20)))
+    # Movers: a second, later registration at another address.
+    for person in chosen[: settings["clinic_noise_movers"]]:
+        add(person["canonical_name"], person["dob"], rng.choice(addresses),
+            _registered_on(rng, date(2026, 1, 1), date(2026, 3, 31)))
+
+    taken_pairs = {(p["canonical_name"], p["dob"]) for p in people}
+    for _ in range(settings["clinic_unmatched"]):
+        while True:
+            name = f"{rng.choice(UNMATCHED_FIRST)} {rng.choice(UNMATCHED_LAST)}"
+            dob = (date(1950, 1, 1) + timedelta(days=rng.randint(0, 20000))).isoformat()
+            if (name, dob) not in taken_pairs:
+                taken_pairs.add((name, dob))
+                break
+        add(name, dob, rng.choice(addresses), _registered_on(rng, date(2022, 1, 1), date(2026, 3, 20)))
+
+    rows.sort(key=lambda row: (str(row["registered_on"]), str(row["patient_name"])))
+    for index, row in enumerate(rows, start=1):
+        row["registration_id"] = f"REG-{index:04d}"
+    return rows
+
+
+def _max_date(values: List[str], fallback: str) -> str:
+    dates = [v[:10] for v in values if v]
+    return max(dates) if dates else fallback
+
+
+def write_manifest(path: Path, as_of: Dict[str, str]) -> None:
+    path.write_text(json.dumps(manifest_for(as_of), indent=2) + "\n", encoding="utf-8")
+
+
 def write_csv(path: Path, rows: List[Dict[str, str]]) -> None:
     if not rows:
         return
+    # LF line endings: the files are committed with LF (.gitattributes text=auto),
+    # so a fresh run is byte-identical to the checkout.
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -779,7 +976,8 @@ def write_jsonl(path: Path, rows: List[Dict[str, str]]) -> None:
 
 def main() -> None:
     args = parse_args()
-    rng = random.Random(args.seed)
+    rng = random.Random(args.legacy_seed)
+    clinic_rng = random.Random(args.seed)
     output_dir = Path(args.output)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -807,12 +1005,33 @@ def main() -> None:
     write_csv(output_dir / "bank_transactions.csv", transaction_rows)
     write_jsonl(output_dir / "mobile_location_pings.jsonl", ping_rows)
 
+    # Phase 1: clinic registrations from their own random stream (the legacy
+    # stream above is not consumed any further, so earlier files are unchanged).
+    known_labels = {point["label"] for point in LOCATION_POINTS + ADDRESS_POINTS}
+    known_labels.update(row["registered_address"] for row in company_rows)
+    known_labels.update(row["location_label"] for row in ping_rows)
+    known_labels.update(home["home_address"] for home in list(CORE_HOMES.values()) + list(CORE_EARLIER_HOMES.values()))
+    clinic_rows = build_clinic_rows(args.profile, clinic_rng, people, company_rows, flight_rows, known_labels)
+    write_csv(output_dir / "clinic_registrations.csv", clinic_rows)
+
+    base_date = BASE_TIME.date().isoformat()
+    write_manifest(output_dir / "manifest.json", {
+        "watchlist": base_date,
+        "company_registry": base_date,
+        "flight_manifests": _max_date([row["departure_ts"] for row in flight_rows], base_date),
+        "bank_transactions": _max_date([row["txn_ts"] for row in transaction_rows], base_date),
+        "mobile_location_pings": _max_date([str(row["timestamp"]) for row in ping_rows], base_date),
+        "clinic_registrations": _max_date([str(row["registered_on"]) for row in clinic_rows], base_date),
+    })
+
     print(f"Wrote starter files to {output_dir}" if args.profile == "starter" else f"Wrote simulator files to {output_dir}")
     print(f"- watchlist.csv: {len(watchlist_rows)} rows")
     print(f"- company_registry.csv: {len(company_rows)} rows")
     print(f"- flight_manifests.csv: {len(flight_rows)} rows")
     print(f"- bank_transactions.csv: {len(transaction_rows)} rows")
     print(f"- mobile_location_pings.jsonl: {len(ping_rows)} rows")
+    print(f"- clinic_registrations.csv: {len(clinic_rows)} rows")
+    print("- manifest.json")
 
 
 if __name__ == "__main__":

@@ -7,7 +7,20 @@ Takes all resolved entity datasets + normalized sources.  Produces:
       LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT,
       OWNS_ACCOUNT, HAS_CORP_ACCOUNT, TRANSFERRED_TO,
       BOOKED_ON, DEPARTED_FROM, ARRIVED_AT,
-      USES_DEVICE, OBSERVED_AT
+      USES_DEVICE, OBSERVED_AT,
+      RESIDES_AT (Phase 1: Person → residential Location, from clinic rows)
+
+Clinic rows that the shared resolver attached to a Person (name + dob) become
+a residential ``Location`` (``locationType: "residential"``) and a
+``RESIDES_AT`` link with ``{asOf, source}``.  Unattached rows produce nothing.
+
+Both output datasets inherit the union of their inputs' markings, and every
+entity and edge gets contract §3 markings from ``pipeline/governance.py``.
+
+Person lookups go through the shared resolver in ``pipeline/resolution.py``
+(the same one the Gotham seed builder uses), passing every key the source row
+carries — passport, phone, name and date of birth — so both demos attach
+each edge to the same person.
 
 Returns:
   entities_dataset  — all entities (persons + companies + accounts + new types)
@@ -25,7 +38,9 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from pipeline.lib import Dataset, LineageRecord, slug
+from pipeline import governance
+from pipeline.lib import Dataset, LineageRecord, inherit_markings, slug
+from pipeline.resolution import PersonResolver, attach_clinic_rows, clinic_observations, resolve_people
 
 # ---------------------------------------------------------------------------
 # Airport reference data (from build_ontology_seed.py)
@@ -70,6 +85,7 @@ class OntologyBuilder:
         resolved_persons: Dataset,
         resolved_companies: Dataset,
         resolved_accounts: Dataset,
+        resolver: PersonResolver,
     ) -> None:
         # Start with resolved entities
         self.entities: List[Dict[str, Any]] = []
@@ -81,10 +97,8 @@ class OntologyBuilder:
         self.entity_src: Dict[str, List[Dict[str, Any]]] = {}
         self.entity_field_prov: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
 
-        # Lookup tables
-        self.person_by_passport: Dict[str, str] = {}
-        self.person_by_phone: Dict[str, str] = {}
-        self.person_by_alias: Dict[str, str] = {}
+        # Lookup tables (persons: the shared resolver from step 02)
+        self.resolver = resolver
         self.company_by_name: Dict[str, str] = {}
         self.account_by_id: Dict[str, str] = {}
         self.device_by_id: Dict[str, str] = {}
@@ -94,18 +108,6 @@ class OntologyBuilder:
         # Ingest persons
         for row in resolved_persons.rows:
             self._add_entity_row(row, resolved_persons.name)
-            eid = row["id"]
-            if row.get("passportId"):
-                self.person_by_passport[row["passportId"]] = eid
-            if row.get("phoneNumber"):
-                self.person_by_phone[row["phoneNumber"]] = eid
-            # Register canonical name and aliases for lookup
-            for name in [row.get("canonicalName", "")] + [
-                a.strip() for a in row.get("aliases", "").split("|") if a.strip()
-            ]:
-                norm = _norm(name)
-                if norm:
-                    self.person_by_alias[norm] = eid
 
         # Ingest companies
         for row in resolved_companies.rows:
@@ -124,7 +126,7 @@ class OntologyBuilder:
         idx = len(self.entities)
         self.entity_index[eid] = idx
         # Build Gotham-compatible entity shape
-        props = {k: v for k, v in row.items() if k not in ("id", "type") and v not in (None, "")}
+        props = {k: v for k, v in row.items() if k not in ("id", "type", "resolution") and v not in (None, "")}
         entity = {
             "id": eid,
             "type": row["type"],
@@ -132,6 +134,8 @@ class OntologyBuilder:
             "properties": props,
             "sourceIds": [source_ds],
         }
+        if row.get("resolution"):
+            entity["resolution"] = row["resolution"]
         self.entities.append(entity)
         return eid
 
@@ -241,15 +245,12 @@ class OntologyBuilder:
         self.device_by_id[device_id] = eid
         return eid
 
-    def find_person(self, passport_id: str = "", phone: str = "", name: str = "") -> Optional[str]:
-        if passport_id and passport_id in self.person_by_passport:
-            return self.person_by_passport[passport_id]
-        if phone and phone in self.person_by_phone:
-            return self.person_by_phone[phone]
-        norm = _norm(name)
-        if norm and norm in self.person_by_alias:
-            return self.person_by_alias[norm]
-        return None
+    def find_person(self, passport_id: str = "", phone: str = "", name: str = "", dob: str = "",
+                    ref: str = "") -> Optional[str]:
+        """Person for a source record (``ref``) or, failing that, by key lookup."""
+        if ref:
+            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone)
+        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone)
 
     def link_account_owner(self, account_eid: str, owner_name: str) -> None:
         norm = _norm(owner_name)
@@ -259,8 +260,8 @@ class OntologyBuilder:
             self._add_edge("HAS_CORP_ACCOUNT", company_id, account_eid, dedupe_key=f"{company_id}:{account_eid}")
             acct_props["accountKind"] = "corporate"
             return
-        if norm in self.person_by_alias:
-            person_id = self.person_by_alias[norm]
+        person_id = self.find_person(name=owner_name)
+        if person_id:
             self._add_edge("OWNS_ACCOUNT", person_id, account_eid, dedupe_key=f"{person_id}:{account_eid}")
             acct_props["accountKind"] = "personal"
 
@@ -278,15 +279,24 @@ def run(
     norm_flight_manifests: Dataset,
     norm_bank_transactions: Dataset,
     norm_mobile_pings: Dataset,
+    norm_clinic_registrations: Dataset,
 ) -> Tuple[Dataset, Dataset, LineageRecord, LineageRecord]:
 
-    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts)
+    resolver = getattr(resolved_persons, "resolver", None)
+    if resolver is None:
+        # Rebuild the identical resolver state from the normalised sources.
+        resolver = resolve_people(norm_watchlist.rows, norm_company_registry.rows,
+                                  norm_flight_manifests.rows, norm_mobile_pings.rows)
+        attach_clinic_rows(resolver, norm_clinic_registrations.rows)
+    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts, resolver)
 
     # --- WatchlistRecord entities + LISTED_ON edges ---
     for row in norm_watchlist.rows:
         person_id = builder.find_person(
             passport_id=row.get("passport_id", ""),
             name=row.get("canonical_name", ""),
+            dob=row.get("dob", ""),
+            ref=f"watchlist:{row.get('watchlist_id', '')}",
         )
         record_eid = builder._ensure_entity(
             "WatchlistRecord",
@@ -314,13 +324,16 @@ def run(
 
         # Director
         director_id = builder.find_person(name=row.get("director_name", ""),
-                                           passport_id="")
+                                           dob=row.get("director_dob", ""),
+                                           ref=f"company:{row.get('company_id', '')}:director")
         if director_id:
             builder._add_edge("DIRECTS", director_id, company_eid,
                                dedupe_key=f"{director_id}:{company_eid}")
 
         # Beneficial owner
-        owner_id = builder.find_person(name=row.get("beneficial_owner", ""))
+        owner_id = builder.find_person(name=row.get("beneficial_owner", ""),
+                                        dob=row.get("beneficial_owner_dob", ""),
+                                        ref=f"company:{row.get('company_id', '')}:owner")
         if owner_id:
             builder._add_edge("BENEFICIALLY_OWNS", owner_id, company_eid,
                                dedupe_key=f"{owner_id}:{company_eid}")
@@ -343,6 +356,8 @@ def run(
             passport_id=row.get("passport_id", ""),
             phone=row.get("phone_number", ""),
             name=row.get("passenger_name", ""),
+            dob=row.get("dob", ""),
+            ref=f"flight:{row.get('manifest_id', '')}",
         )
         flight_eid = builder._ensure_entity(
             "Flight",
@@ -411,10 +426,9 @@ def run(
 
         device_eid = builder.ensure_device(device_id_str, phone, observed)
 
-        person_id = builder.find_person(phone=phone, name=observed)
-        if not person_id and observed:
-            # Create a stub person for unrecognized names observed via pings
-            person_id = builder.find_person(name=observed)
+        # Ping-only persons were already created by step 02's resolver.
+        person_id = builder.find_person(phone=phone, name=observed,
+                                        ref=f"ping:{row.get('ping_id', '')}")
         if person_id:
             builder._add_edge("USES_DEVICE", person_id, device_eid,
                                dedupe_key=f"{person_id}:{device_eid}")
@@ -449,6 +463,39 @@ def run(
                 dedupe_key=dedupe,
             )
 
+    # --- Residential Locations + RESIDES_AT (clinic rows, Phase 1) ---
+    for obs in clinic_observations(norm_clinic_registrations.rows):
+        person_id = resolver.clinic_by_ref.get(obs.ref)
+        if not person_id:
+            continue  # unattached clinic rows create no objects
+        row = obs.row
+        loc_eid = builder.ensure_location(
+            row.get("home_address", ""),
+            lat=row.get("lat"),
+            lon=row.get("lon"),
+            location_type="residential",
+            city=row.get("home_city", ""),
+            country=row.get("home_country", ""),
+            source_ds=norm_clinic_registrations.name,
+        )
+        dedupe = f"{person_id}:{loc_eid}"
+        edge_id = f"resides_at::{slug(dedupe)}"
+        as_of = row.get("registered_on", "")
+        if edge_id in builder.edge_index:
+            existing = builder.edges[builder.edge_index[edge_id]]
+            if as_of > str(existing["properties"].get("asOf", "")):
+                existing["properties"]["asOf"] = as_of
+        else:
+            builder._add_edge("RESIDES_AT", person_id, loc_eid,
+                               properties={"asOf": as_of, "source": row.get("source", "")},
+                               dedupe_key=dedupe)
+
+    # --- Markings on every object and link (contract §3) ---
+    raw_inputs = [norm_watchlist, norm_company_registry, norm_flight_manifests,
+                  norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations]
+    file_markings = {ds.derived_from[0]: ds.markings for ds in raw_inputs if ds.derived_from}
+    governance.annotate_objects(builder.entities, builder.edges, file_markings)
+
     # --- Assemble output datasets ---
     entities_schema = [
         {"field": "id", "type": "string"},
@@ -456,6 +503,9 @@ def run(
         {"field": "label", "type": "string"},
         {"field": "properties", "type": "json"},
         {"field": "sourceIds", "type": "json"},
+        {"field": "markings", "type": "json"},
+        {"field": "propertyMarkings", "type": "json"},
+        {"field": "sourceMarkings", "type": "json"},
     ]
     edges_schema = [
         {"field": "id", "type": "string"},
@@ -464,6 +514,7 @@ def run(
         {"field": "target", "type": "string"},
         {"field": "label", "type": "string"},
         {"field": "properties", "type": "json"},
+        {"field": "markings", "type": "json"},
     ]
 
     entities_ds = Dataset(
@@ -476,6 +527,10 @@ def run(
         rows=sorted(builder.edges, key=lambda e: (str(e["type"]), str(e["source"]), str(e["target"]))),
         schema=edges_schema,
     )
+
+    ontology_inputs = [resolved_persons, resolved_companies, resolved_accounts] + raw_inputs
+    inherit_markings(entities_ds, ontology_inputs)
+    inherit_markings(edges_ds, ontology_inputs)
 
     # Trivial lineage: each entity/edge row came from its sourceIds
     entity_lineage = LineageRecord()
@@ -497,9 +552,9 @@ if __name__ == "__main__":
     from pipeline import p04_resolve_accounts as n04
 
     dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("synthetic_data/starter")
-    wl, cr, fm, bt, mp = n01.run(dataset_dir)
-    persons, _ = n02.run(wl, cr, fm, bt, mp)
+    wl, cr, fm, bt, mp, cl = n01.run(dataset_dir)
+    persons, _ = n02.run(wl, cr, fm, mp, cl)
     companies, _ = n03.run(cr)
     accounts, _ = n04.run(bt)
-    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp)
+    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp, cl)
     print(f"Entities: {len(entities_ds)}, Edges: {len(edges_ds)}")

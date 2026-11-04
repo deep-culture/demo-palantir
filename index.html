@@ -3,70 +3,77 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Palantir-style Classroom Demos</title>
+  <title>Palantir-style Classroom Demos · Deep Culture</title>
+  <link rel="icon" href="brand/logo-green-disc.png">
+  <link rel="stylesheet" href="brand/deep-culture.css">
   <style>
+    /* Landing page — Deep Culture design: purple band, black sidebar, white reading column. */
     :root {
-      --bg: #f8fafc;
+      --bg: #ffffff;
       --surface: #ffffff;
-      --border: #e2e8f0;
-      --text: #0f172a;
-      --muted: #64748b;
-      --accent: #3b82f6;
-      --accent-soft: #eff6ff;
-      --code-bg: #f1f5f9;
+      --border: #e3dbe1;
+      --text: var(--dc-ink);
+      --muted: var(--dc-grey-dark);
+      --accent: var(--dc-purple);
+      --accent-soft: var(--dc-purple-tint);
+      --code-bg: #f6f3f6;
     }
 
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
 
     body {
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-family: var(--dc-font);
+      font-weight: 400;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.55;
+      line-height: 1.6;
       min-height: 100vh;
     }
 
     .topbar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0.85rem 1.5rem;
+      background: var(--dc-purple);
+      color: #fff;
+      padding: 1rem 1.75rem;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 1.25rem;
     }
+    .topbar .dc-logo { height: 64px; }
     .topbar h1 {
       margin: 0;
-      font-size: 1.05rem;
-      font-weight: 600;
+      font-size: 1.45rem;
+      font-weight: 500;
     }
+    .topbar h1 .dc-highlight { background: var(--dc-green); color: var(--dc-black); }
     .topbar .lede {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.85rem;
+      margin: 0.35rem 0 0;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.9rem;
+      font-weight: 300;
     }
 
     .layout {
       display: grid;
-      grid-template-columns: 260px 1fr;
-      min-height: calc(100vh - 56px);
+      grid-template-columns: 270px 1fr;
+      min-height: calc(100vh - 96px);
     }
 
     .sidebar {
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      padding: 1.25rem 0.75rem;
+      background: var(--dc-black);
+      color: #fff;
+      padding: 1.5rem 0.85rem;
       overflow-y: auto;
     }
 
-    .sidebar section { margin-bottom: 1.25rem; }
+    .sidebar section { margin-bottom: 1.4rem; }
     .sidebar h3 {
-      margin: 0 0 0.35rem 0.6rem;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
+      margin: 0 0 0.4rem 0.6rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--dc-green);
     }
 
     .sidebar a, .sidebar button {
@@ -77,91 +84,140 @@
       margin: 0;
       border: none;
       background: transparent;
-      color: var(--text);
+      color: #ece6eb;
       font: inherit;
       font-size: 0.92rem;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
       text-decoration: none;
-      transition: background 0.1s;
+      transition: background 0.1s, color 0.1s;
     }
-    .sidebar a:hover, .sidebar button:hover { background: var(--accent-soft); }
-    .sidebar button.active { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
-    .sidebar a .ext { color: var(--muted); margin-left: 0.25rem; font-size: 0.8rem; }
+    .sidebar a:hover, .sidebar button:hover { background: #221d21; color: #fff; }
+    .sidebar button.active { background: var(--dc-purple); color: #fff; font-weight: 500; }
+    .sidebar a .ext { color: var(--dc-green); margin-left: 0.25rem; font-size: 0.8rem; }
 
     .content {
-      padding: 2rem 2.5rem 4rem;
-      max-width: 820px;
+      padding: 2.25rem 2.75rem 4rem;
+      max-width: 1120px;
       overflow-x: hidden;
     }
 
-    /* welcome cards */
+    /* welcome */
     .welcome h2 {
-      margin: 0 0 0.25rem;
-      font-size: 1.4rem;
+      margin: 0 0 0.6rem;
+      font-size: 1.6rem;
+      font-weight: 500;
     }
     .welcome p.lede {
-      margin: 0 0 1.5rem;
+      margin: 0 0 1.75rem;
       color: var(--muted);
+      font-size: 1.02rem;
+    }
+    .card-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
     }
     .card {
       display: block;
-      padding: 1rem 1.25rem;
-      margin-top: 0.85rem;
+      padding: 1.25rem 1.35rem 1.35rem;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-top: 6px solid var(--dc-purple);
+      border-radius: 4px;
       text-decoration: none;
       color: inherit;
       background: var(--surface);
-      transition: border-color 0.15s;
+      transition: transform 0.15s, box-shadow 0.15s;
     }
-    .card:hover { border-color: var(--accent); }
-    .card h3 { margin: 0 0 0.25rem; font-size: 1.05rem; color: var(--accent); }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(22, 19, 22, 0.1); }
+    .card .kicker { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: var(--dc-purple); }
+    .card h3 { margin: 0.35rem 0 0.4rem; font-size: 1.2rem; font-weight: 500; }
     .card p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+    .card.dark { background: var(--dc-black); border-color: var(--dc-black); border-top-color: var(--dc-green); color: #fff; }
+    .card.dark .kicker { color: var(--dc-green); }
+    .card.dark p { color: #cfc7cd; }
+    .card { display: flex; flex-direction: column; }
+    .card .meta { margin: 0.6rem 0 0; font-size: 0.8rem; color: var(--muted); }
+    .card.dark .meta { color: #b8afb6; }
+    .card .meta strong { font-weight: 500; color: inherit; }
+    .card .actions { margin-top: auto; padding-top: 0.9rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .card .btn {
+      display: inline-block; padding: 0.35rem 0.8rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500;
+      text-decoration: none; background: var(--dc-purple); color: #fff; border: 1px solid var(--dc-purple);
+    }
+    .card .btn:hover { background: var(--dc-purple-dark); }
+    .card .btn.ghost { background: transparent; color: var(--dc-purple); }
+    .card .btn.ghost:hover { background: var(--accent-soft); }
+    .card.dark .btn { background: var(--dc-green); color: var(--dc-black); border-color: var(--dc-green); }
+    .card.dark .btn.ghost { background: transparent; color: var(--dc-green); }
+    .card.dark .btn.ghost:hover { background: #221d21; }
+    .card.later { border-style: dashed; border-top-style: solid; border-top-color: var(--dc-grey); background: var(--dc-paper-2); }
+    .card.later:hover { transform: none; box-shadow: none; }
+    .card.later .kicker { color: var(--dc-grey-dark); }
+    .badge-later {
+      display: inline-block; margin-left: 0.4rem; padding: 0.05rem 0.5rem; border-radius: 999px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      border: 1px dashed var(--dc-grey-dark); color: var(--dc-grey-dark); vertical-align: middle;
+    }
+    .also-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .also {
+      display: block; padding: 0.85rem 1.1rem; border: 1px solid var(--border); border-left: 4px solid var(--dc-purple);
+      border-radius: 4px; text-decoration: none; color: inherit;
+    }
+    .also:hover { background: var(--accent-soft); }
+    .also strong { font-weight: 500; color: var(--dc-purple); }
+    .also span { display: block; font-size: 0.88rem; color: var(--muted); }
 
     .welcome .hint {
       margin-top: 2rem;
       padding: 0.85rem 1rem;
       background: var(--accent-soft);
-      border-radius: 6px;
+      border-left: 4px solid var(--dc-purple);
+      border-radius: 0 4px 4px 0;
       color: var(--text);
-      font-size: 0.88rem;
+      font-size: 0.9rem;
     }
 
     /* markdown */
+    .markdown { max-width: 860px; }
     .markdown h1, .markdown h2, .markdown h3, .markdown h4 {
       line-height: 1.3;
+      font-weight: 500;
     }
-    .markdown h1 { font-size: 1.75rem; margin: 0 0 0.75rem; }
-    .markdown h2 { font-size: 1.35rem; margin: 1.8rem 0 0.6rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+    .markdown h1 { font-size: 1.75rem; margin: 0 0 1rem; }
+    .markdown h1 > span.dc-highlight { line-height: 1.55; }
+    .markdown h2 { font-size: 1.35rem; margin: 2rem 0 0.6rem; padding-bottom: 0.3rem; border-bottom: 2px solid var(--dc-purple); color: var(--dc-purple); }
     .markdown h3 { font-size: 1.1rem; margin: 1.4rem 0 0.5rem; }
     .markdown h4 { font-size: 1rem; margin: 1.1rem 0 0.4rem; color: var(--muted); }
     .markdown p, .markdown li { font-size: 0.95rem; }
     .markdown ul, .markdown ol { padding-left: 1.4rem; }
     .markdown li { margin: 0.25rem 0; }
+    .markdown li::marker { color: var(--dc-purple); }
     .markdown blockquote {
       margin: 1rem 0;
       padding: 0.6rem 1rem;
-      border-left: 3px solid var(--accent);
+      border-left: 4px solid var(--dc-purple);
       background: var(--accent-soft);
       color: var(--text);
-      border-radius: 0 6px 6px 0;
+      border-radius: 0 4px 4px 0;
     }
     .markdown code {
-      font-family: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, monospace;
+      font-family: var(--dc-mono);
       font-size: 0.85em;
       background: var(--code-bg);
       padding: 0.1em 0.35em;
-      border-radius: 4px;
+      border-radius: 3px;
     }
     .markdown pre {
-      background: var(--code-bg);
-      padding: 0.85rem 1rem;
-      border-radius: 6px;
+      background: var(--dc-black);
+      color: #efeaee;
+      padding: 0.9rem 1rem;
+      border-radius: 4px;
+      border-left: 4px solid var(--dc-green);
       overflow-x: auto;
       font-size: 0.85rem;
     }
-    .markdown pre code { background: transparent; padding: 0; }
+    .markdown pre code { background: transparent; padding: 0; color: inherit; }
     .markdown table {
       border-collapse: collapse;
       margin: 1rem 0;
@@ -170,12 +226,12 @@
     }
     .markdown th, .markdown td {
       border: 1px solid var(--border);
-      padding: 0.4rem 0.7rem;
+      padding: 0.45rem 0.7rem;
       text-align: left;
     }
-    .markdown th { background: var(--code-bg); font-weight: 600; }
+    .markdown th { background: var(--dc-purple); color: #fff; font-weight: 500; border-color: var(--dc-purple); }
     .markdown hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
-    .markdown a { color: var(--accent); }
+    .markdown a { color: var(--dc-purple); }
     .markdown img { max-width: 100%; }
 
     .loading, .error {
@@ -183,46 +239,64 @@
       text-align: center;
       color: var(--muted);
     }
-    .error { color: #b91c1c; }
+    .error { color: #b42318; }
 
     /* responsive */
+    @media (max-width: 1100px) {
+      .card-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 820px) {
+      .also-row { grid-template-columns: 1fr; }
+    }
     @media (max-width: 720px) {
       .layout { grid-template-columns: 1fr; }
-      .sidebar { border-right: none; border-bottom: 1px solid var(--border); padding: 1rem 0.75rem; }
+      .sidebar { padding: 1rem 0.75rem; }
       .content { padding: 1.25rem; }
+      .topbar .dc-logo { height: 48px; }
     }
   </style>
 </head>
 <body>
   <header class="topbar">
-    <h1>Palantir-style Classroom Demos</h1>
-    <p class="lede">Gotham &middot; Foundry &middot; teaching materials</p>
+    <a href="#" data-home title="Home"><img class="dc-logo" src="brand/logo-green-lines.png" alt="Deep Culture"></a>
+    <div>
+      <h1><span class="dc-highlight">Palantir-style Classroom Demos</span></h1>
+      <p class="lede">Investigate &middot; Build &middot; Oversight &middot; teaching materials &middot; Deep Culture, University of Amsterdam</p>
+    </div>
   </header>
 
   <div class="layout">
     <nav class="sidebar" id="sidebar">
       <section>
-        <h3>Live Demos</h3>
-        <a href="./demo/" target="_blank">Gotham Studio <span class="ext">↗</span></a>
-        <a href="./foundry-demo/" target="_blank">Foundry Studio <span class="ext">↗</span></a>
+        <h3>Surfaces</h3>
+        <a href="./demo/" target="_blank">Investigate (Gotham-style) <span class="ext">↗</span></a>
+        <a href="./foundry-demo/" target="_blank">Build (Foundry-style) <span class="ext">↗</span></a>
+        <a href="./audit/" target="_blank">Oversight <span class="ext">↗</span></a>
+        <a href="./glossary.html">Glossary and honesty labels</a>
       </section>
 
       <section>
         <h3>For Students</h3>
-        <button data-doc="STUDENT_STUDY_GUIDE.md">Gotham Study Guide</button>
-        <button data-doc="FOUNDRY_STUDY_GUIDE.md">Foundry Study Guide</button>
+        <button data-doc="STUDENT_STUDY_GUIDE.md">Session 1 study guide (Investigate)</button>
+        <button data-doc="FOUNDRY_STUDY_GUIDE.md">Session 2 study guide (Build)</button>
       </section>
 
       <section>
         <h3>For Instructors</h3>
-        <button data-doc="DEMO_WALKTHROUGH.md">Gotham Speaker Guide</button>
-        <button data-doc="FOUNDRY_WALKTHROUGH.md">Foundry Speaker Guide</button>
+        <button data-doc="DEMO_WALKTHROUGH.md">Session 1 speaker guide</button>
+        <button data-doc="FOUNDRY_WALKTHROUGH.md">Session 2 speaker guide</button>
       </section>
 
       <section>
         <h3>Technical</h3>
-        <button data-doc="TECHNICAL_SPEC.md">Gotham Technical Spec</button>
-        <button data-doc="FOUNDRY_TECHNICAL_SPEC.md">Foundry Technical Spec</button>
+        <button data-doc="TECHNICAL_SPEC.md">Investigate technical spec</button>
+        <button data-doc="FOUNDRY_TECHNICAL_SPEC.md">Build technical spec</button>
+      </section>
+
+      <section>
+        <h3>Redesign</h3>
+        <button data-doc="REDESIGN_SPEC.md">Redesign Spec (draft)</button>
+        <button data-doc="context/PALANTIR_RESEARCH_2026-11-04.md">Research Report</button>
       </section>
 
       <section>
@@ -235,17 +309,52 @@
     <main class="content" id="content">
       <div class="welcome" id="welcome">
         <h2>Welcome</h2>
-        <p class="lede">Two paired demos for teaching how operational intelligence platforms work — plus all the supporting documentation.</p>
+        <p class="lede">Three 90-minute sessions on how operational intelligence platforms such as Palantir's work, on synthetic data: what an analyst sees, what an engineer builds underneath, and who watches either of them.</p>
 
-        <a class="card" href="./demo/" target="_blank">
-          <h3>Gotham Studio →</h3>
-          <p>Ontology, investigations, AI copilot, geospatial map. Start here.</p>
-        </a>
+        <div class="card-row">
+          <div class="card">
+            <span class="kicker">Session 1 · Start here</span>
+            <h3>Investigate</h3>
+            <p>Log in as a patrol officer and notice what is missing; switch to the financial-crime analyst. Trace the risk-tagged operator, hit a Checkpoint, then open Oversight and read your own trail.</p>
+            <p class="meta"><strong>App:</strong> Investigate (Gotham-style) · <strong>Case:</strong> BVerfG 2023 on automated data analysis</p>
+            <div class="actions">
+              <a class="btn" href="./demo/" target="_blank">Open Investigate →</a>
+              <a class="btn ghost" href="#STUDENT_STUDY_GUIDE.md">Study guide</a>
+            </div>
+          </div>
 
-        <a class="card" href="./foundry-demo/" target="_blank">
-          <h3>Foundry Studio →</h3>
-          <p>Pipelines, datasets, and end-to-end lineage. Run after the Gotham session.</p>
-        </a>
+          <div class="card dark">
+            <span class="kicker">Session 2</span>
+            <h3>Build and govern</h3>
+            <p>Open the pipeline and find where the ontology was made. Trace the HEALTH marking from the clinic data downstream, then try to remove it: first as the analyst, then as the data protection officer.</p>
+            <p class="meta"><strong>Apps:</strong> Build (Foundry-style), then Investigate · <strong>Cases:</strong> ICE and Medicaid data; the Dutch police "Raffinaderij"</p>
+            <div class="actions">
+              <a class="btn" href="./foundry-demo/" target="_blank">Open Build →</a>
+              <a class="btn ghost" href="#FOUNDRY_STUDY_GUIDE.md">Study guide</a>
+            </div>
+          </div>
+
+          <div class="card later" aria-disabled="true">
+            <span class="kicker">Session 3 <span class="badge-later">Coming in Phase 3</span></span>
+            <h3>Agent, leads, oversight</h3>
+            <p>Ask the simulated AIP agent the Session 1 question and read its trace; approve or reject staged edits; review a leads formula; debate the case studies.</p>
+            <p class="meta"><strong>Apps:</strong> Investigate (agent, leads), then Oversight · <strong>Cases:</strong> ELITE, NHS Federated Data Platform, Maven</p>
+            <div class="actions">
+              <a class="btn ghost" href="./audit/" target="_blank">Oversight is ready now →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="also-row">
+          <a class="also" href="./audit/" target="_blank">
+            <strong>Oversight ↗</strong>
+            <span>The shared audit log and Checkpoint records. Only the data protection officer and the auditor may open it.</span>
+          </a>
+          <a class="also" href="./glossary.html">
+            <strong>Glossary and honesty labels</strong>
+            <span>Palantir's terms next to the demo's, and what each panel's Mirrors / Simplified / Teaching extension label means.</span>
+          </a>
+        </div>
 
         <div class="hint">
           Pick a document from the sidebar to read it here — no need to leave the page.
@@ -256,7 +365,7 @@
     </main>
   </div>
 
-  <script src="https://unpkg.com/marked@4.3.0/marked.min.js"></script>
+  <script src="vendor/marked/marked.min.js"></script>
   <script>
     (function () {
       const welcome = document.getElementById("welcome");
@@ -293,6 +402,8 @@
           if (!res.ok) throw new Error("HTTP " + res.status);
           const md = await res.text();
           docContent.innerHTML = marked.parse(md);
+          const h1 = docContent.querySelector("h1");
+          if (h1) h1.innerHTML = `<span class="dc-highlight">${h1.innerHTML}</span>`;
           // Open any anchor links inside docs in a new tab if they look external
           docContent.querySelectorAll("a[href]").forEach(a => {
             const href = a.getAttribute("href");
@@ -319,6 +430,7 @@
           showHome();
         }
       }
+      document.querySelector("[data-home]").addEventListener("click", function (e) { e.preventDefault(); showHome(); });
       window.addEventListener("hashchange", routeFromHash);
       routeFromHash();
     })();

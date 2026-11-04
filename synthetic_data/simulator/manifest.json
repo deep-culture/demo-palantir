@@ -1,0 +1,62 @@
+{
+  "watchlist": {
+    "file": "watchlist.csv",
+    "markings": [
+      "LE-SENSITIVE"
+    ],
+    "purpose": "sanctions-screening",
+    "legalBasis": "EU restrictive measures (e.g. Council Regulation (EU) No 269/2014); illustrative",
+    "retentionDays": 1825,
+    "asOf": "2026-04-01"
+  },
+  "company_registry": {
+    "file": "company_registry.csv",
+    "markings": [
+      "OPEN"
+    ],
+    "purpose": "public-record",
+    "legalBasis": "Public company register, open by law; illustrative",
+    "retentionDays": 3650,
+    "asOf": "2026-04-01"
+  },
+  "flight_manifests": {
+    "file": "flight_manifests.csv",
+    "markings": [
+      "PII"
+    ],
+    "purpose": "border-security",
+    "legalBasis": "PNR Directive (EU) 2016/681, five-year retention; illustrative",
+    "retentionDays": 1825,
+    "asOf": "2026-04-11"
+  },
+  "bank_transactions": {
+    "file": "bank_transactions.csv",
+    "markings": [
+      "FIN"
+    ],
+    "purpose": "financial-crime",
+    "legalBasis": "Anti-money-laundering record keeping, Directive (EU) 2015/849 Art. 40; illustrative",
+    "retentionDays": 1825,
+    "asOf": "2026-04-12"
+  },
+  "mobile_location_pings": {
+    "file": "mobile_location_pings.jsonl",
+    "markings": [
+      "TELECOM"
+    ],
+    "purpose": "telecom-billing",
+    "legalBasis": "Traffic data kept for billing, ePrivacy Directive 2002/58/EC Art. 6; illustrative",
+    "retentionDays": 180,
+    "asOf": "2026-04-12"
+  },
+  "clinic_registrations": {
+    "file": "clinic_registrations.csv",
+    "markings": [
+      "HEALTH"
+    ],
+    "purpose": "healthcare",
+    "legalBasis": "GDPR Art. 9(2)(h), provision of health care; medical-record retention as under the Dutch WGBO (20 years); illustrative",
+    "retentionDays": 7300,
+    "asOf": "2026-03-17"
+  }
+}
