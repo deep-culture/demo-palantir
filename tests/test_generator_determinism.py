@@ -59,20 +59,38 @@ def test_seed_only_moves_clinic_data(runs, profile):
     assert other["clinic_registrations.csv"] != a["clinic_registrations.csv"]
 
 
-def test_legacy_files_unchanged_since_phase0():
-    """The five Phase 0 files are byte-identical to the commit before Phase 1."""
+def _git_show(rev, rel):
+    try:
+        return subprocess.run(["git", "show", f"{rev}:{rel}"], cwd=REPO_ROOT,
+                              capture_output=True, check=True).stdout
+    except (OSError, subprocess.CalledProcessError):
+        pytest.skip("git history not available")
+
+
+# Rows Phase 2 appends (PHASE2_CONTRACT.md §1); everything before them is Phase 0.
+PHASE2_APPENDED = {
+    ("starter", "flight_manifests.csv"): ["MF-0007", "MF-0008", "MF-0009"],
+    ("simulator", "flight_manifests.csv"): ["MF-0007", "MF-0008", "MF-0009", "MF-0101", "MF-0102", "MF-0103", "MF-0104"],
+    ("starter", "bank_transactions.csv"): ["TX-0009", "TX-0010"],
+    ("simulator", "bank_transactions.csv"): ["TX-0009", "TX-0010"],
+    ("simulator", "company_registry.csv"): ["CO-201", "CO-202", "CO-203", "CO-204"],
+}
+
+
+@pytest.mark.parametrize("rev", ["f7c485e", "4913daf"])  # before Phase 1, before Phase 2
+def test_legacy_rows_unchanged(rev):
+    """Every Phase 0 line is byte-identical; Phase 2 only appends whole rows."""
     for profile in PROFILES:
         for name in LEGACY_FILES:
             rel = f"synthetic_data/{profile}/{name}"
-            try:
-                old = subprocess.run(["git", "show", f"f7c485e:{rel}"], cwd=REPO_ROOT,
-                                     capture_output=True, check=True).stdout
-            except (OSError, subprocess.CalledProcessError):
-                pytest.skip("git history not available")
-            assert (REPO_ROOT / rel).read_bytes() == old, rel
+            old = _git_show(rev, rel)
+            new = (REPO_ROOT / rel).read_bytes()
+            assert new.startswith(old), rel
+            appended = [line.split(",", 1)[0] for line in new[len(old):].decode("utf-8").splitlines()]
+            assert appended == PHASE2_APPENDED.get((profile, name), []), rel
 
 
-@pytest.mark.parametrize("profile,expected", [("starter", 8), ("simulator", 60)])
+@pytest.mark.parametrize("profile,expected", [("starter", 10), ("simulator", 123)])
 def test_clinic_row_counts(runs, profile, expected):
     text = runs[profile][0]["clinic_registrations.csv"].decode("utf-8")
     lines = text.strip().split("\n")

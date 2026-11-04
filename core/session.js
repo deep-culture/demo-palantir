@@ -2,7 +2,8 @@
  * core/session.js — the shared session: current role, purpose and instructor flags.
  *
  * Classic script; attaches window.DC.session. Load after core/store.js and core/governance.js.
- * Storage: dc-palantir:session  {sessionId, role, purpose, flags: {strictCheckpoints}}  (contract §5)
+ * Storage: dc-palantir:session  {sessionId, role, purpose, flags: {strictCheckpoints, karlsruhe}}  (contract §5;
+ *          flags.karlsruhe is Karlsruhe mode, read and set through DC.purposes)
  *
  *   DC.session.get()                 {sessionId, role, purpose, flags}
  *   DC.session.setRole(id)           persists, logs a "role" event, notifies listeners
@@ -56,7 +57,7 @@
       sessionId: session && session.sessionId ? String(session.sessionId) : newSessionId(),
       role: session && session.role ? String(session.role) : defaultRole(),
       purpose: session && session.purpose ? String(session.purpose) : null,
-      flags: { strictCheckpoints: false, ...((session && session.flags) || {}) },
+      flags: { strictCheckpoints: false, karlsruhe: false, ...((session && session.flags) || {}) },
     };
     const governance = DC.governance;
     if (governance && governance.isActive() && !governance.role(value.role)) {

@@ -20,6 +20,9 @@ import { buildMapData } from "../map.js";
 import { summarizeEntityForCopilot } from "../agent.js";
 import { withheldNoteHtml } from "./banners.js";
 import { severityClass } from "./common.js";
+import { renderExternalSystems, renderInspectorActions } from "./action-drawer.js";
+import { mergeChip, renderMergeSection } from "./resolution.js";
+import { expansionCheck, karlsruheOn } from "../purpose-gate.js";
 
 // Labels for the resolution note (F0.2).
 export const RESOLUTION_METHOD_LABELS = {
@@ -53,10 +56,24 @@ export function renderTelecomExpansion(entity) {
       `;
   }
   const targets = telecomExpansionTargets(entity);
+  // Karlsruhe mode (F9): a blocked expansion shows the rule instead of the button; R3 asks for a
+  // danger statement instead of the telecom Checkpoint.
+  const gate = expansionCheck(entity.id, targets.objectIds);
+  if (!gate.allowed && gate.effect === "block") {
+    return `
+        <div class="insight-section telecom-expand">
+          <div class="insight-label">${escapeHtml(label)}</div>
+          <div class="microcopy">${escapeHtml(targets.summary)}.</div>
+          ${core.ui.blockedCard(gate, { operation: "expand", buttonAttrs: `data-action="purpose-exception" data-op="expand" data-key="expand:${escapeHtml(entity.id)}" data-id="${escapeHtml(entity.id)}"` })}
+        </div>
+      `;
+  }
+  const r3 = gate.effect === "checkpoint" && gate.rule;
   return `
       <div class="insight-section telecom-expand">
         <div class="insight-label">${escapeHtml(label)}</div>
         <div class="microcopy">${escapeHtml(targets.summary)}. Telecom links are not followed until you state a purpose.</div>
+        ${r3 ? `<div class="microcopy rule-note">Karlsruhe mode, rule ${escapeHtml(r3.id)}: ${escapeHtml(r3.text)} The Checkpoint asks for a concrete danger statement.</div>` : ""}
         <div class="inline-actions">
           <button class="button-secondary" data-action="expand-telecom" data-id="${escapeHtml(entity.id)}" ${targets.count ? "" : "disabled"}>${
           entity.type === "Person" ? "Expand devices &amp; locations" : "Expand people observed here"
@@ -82,6 +99,8 @@ export function renderInspector() {
           </div>
           ${isInsight ? renderInsightPanel(selection) : `<div class="selection-json"><pre>${escapeHtml(JSON.stringify(selection, null, 2))}</pre></div>`}
         </div>
+        ${renderExternalSystems()}
+        ${renderDiscussionPanel()}
         <div class="panel">
           <h3>Data sources</h3>
           <div class="card-stack">
@@ -212,7 +231,9 @@ export function renderInsightPanel(selection) {
         </div>
         <div class="insight-section">
           <span class="severity-badge ${severityClass(rule.severity)}">${escapeHtml(rule.severity)}</span>
-          <span class="stat-pill" style="margin-left:0.5rem">${rule.hits.length} hits</span>
+          ${rule.blocked
+            ? `<span class="stat-pill stat-blocked" style="margin-left:0.5rem">blocked · rule ${escapeHtml(rule.blocked.rule.id)}</span>`
+            : `<span class="stat-pill" style="margin-left:0.5rem">${rule.hits.length} hits</span>`}
         </div>
         ${insightRow("How it works", rule.description)}
         ${topHit ? `
@@ -328,9 +349,12 @@ export function renderInsightPanel(selection) {
           <span class="entity-dot" style="background:${escapeHtml(et2?.color || "#94a3b8")}"></span>${escapeHtml(entity.label)}
         </div>
         <div class="microcopy">${escapeHtml(entity.type)}</div>
+        ${mergeChip(entity)}
       </div>
       ${renderMarkingsSection(entity)}
+      ${renderMergeSection(entity)}
       ${renderResolutionSection(entity, "inspector")}
+      ${renderInspectorActions(entity)}
       ${summary.headline ? `<div class="insight-section"><div class="insight-label">Summary</div><div class="microcopy">${escapeHtml(summary.headline)}</div></div>` : ""}
       ${summary.evidence?.length ? `<div class="insight-section"><div class="insight-label">Evidence</div>${insightEvidenceList(summary.evidence.slice(0, 5))}</div>` : ""}
       ${renderTelecomExpansion(entity)}
@@ -407,4 +431,14 @@ export function renderResolutionSection(entity, variant = "inspector") {
         ` : ""}
       </div>
     `;
+}
+
+// Discussion cards (spec §5.4) for the surfaces on this page: roles and Checkpoints (session strip), and
+// Karlsruhe mode when it is on. Collapsed by default.
+export function renderDiscussionPanel() {
+  if (!core.ui || !core.ui.discussionCardsFor) return "";
+  const surfaces = ["session.roles", "session.checkpoints"].concat(karlsruheOn() ? ["inv.karlsruhe"] : []);
+  const cards = core.ui.discussionCardsFor(surfaces);
+  if (!cards) return "";
+  return `<div class="panel discussion-panel"><h3>Discussion</h3>${cards}</div>`;
 }

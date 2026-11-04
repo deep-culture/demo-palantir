@@ -15,6 +15,11 @@ Phase 1: clinic registrations are attached to existing people by name + dob
 ``RESIDES_AT`` link.  Markings, roles, checkpoints and honesty labels come from
 ``pipeline/governance.py`` and dataset markings from ``manifest.json``, the
 same as the Foundry seed.
+
+Phase 2: ``ontology.actionTypes`` / ``ontology.externalSystems`` come from
+``pipeline/actions.py`` and the ``resolution`` block (cross-person candidate
+pairs with transparent scores) from ``pipeline/candidates.py``; the Foundry
+seed carries identical copies.
 """
 
 import argparse
@@ -30,7 +35,7 @@ from typing import Dict, Iterable, List, Optional, Tuple
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from pipeline import governance  # noqa: E402
+from pipeline import actions, candidates, governance  # noqa: E402
 from pipeline.resolution import (  # noqa: E402
     Observation, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,
 )
@@ -76,6 +81,7 @@ ENTITY_TYPES = [
             {"id": "accountId", "label": "Account ID", "type": "string", "required": True, "description": "Primary account identifier."},
             {"id": "ownerName", "label": "Owner name", "type": "string", "required": False, "description": "Raw owner name from the transaction source."},
             {"id": "accountKind", "label": "Account kind", "type": "string", "required": False, "description": "Derived owner class such as personal or corporate."},
+            {"id": "reviewFlag", "label": "Review flag", "type": "string", "required": False, "description": "Set by the Flag account for review Action (routine or urgent)."},
         ],
     },
     {
@@ -144,6 +150,10 @@ ENTITY_TYPES = [
             {"id": "nationality", "label": "Nationality", "type": "string", "required": False, "description": "Nationality from the watchlist."},
             {"id": "passportId", "label": "Passport ID", "type": "string", "required": False, "description": "Passport ID from the watchlist."},
             {"id": "riskTag", "label": "Risk tag", "type": "string", "required": False, "description": "Reason the record is interesting."},
+            {"id": "reason", "label": "Reason", "type": "string", "required": False, "description": "Stated reason, for records created by the Add to watchlist Action."},
+            {"id": "addedBy", "label": "Added by", "type": "string", "required": False, "description": "Role that ran the Add to watchlist Action."},
+            {"id": "addedAt", "label": "Added at", "type": "datetime", "required": False, "description": "When the Action created the record."},
+            {"id": "origin", "label": "Origin", "type": "string", "required": False, "description": "\"action\" for records created by an Action; empty for the watchlist feed."},
         ],
     },
 ]
@@ -810,6 +820,8 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
                              dedupe_key=f"{person_id}:{location_id}")
 
     builder.finalize_people()
+    resolution = candidates.resolution_block(dataset_key, builder.resolver, watchlist_rows, company_rows,
+                                             flight_rows, ping_rows)
     governance.annotate_objects(builder.entities, builder.edges, governance.file_markings(manifest))
 
     sources = [
@@ -878,6 +890,7 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
                 "Follow Kareem Haddad across aliases, travel, companies, and banking links.",
                 "Inspect why 14 Seabright Ave becomes a meaningful location node shared by multiple companies and people.",
                 "Edit a relationship type or add a new property, then watch the graph and instance editor update immediately.",
+                "There are two Omar Rahmans. Compare their dates of birth, then lower the resolution threshold to 0.55.",
             ],
         },
         "governance": governance.governance_block(),
@@ -885,7 +898,9 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
         "ontology": {
             "entityTypes": ENTITY_TYPES,
             "relationshipTypes": RELATIONSHIP_TYPES,
+            **actions.ontology_block(),
         },
+        "resolution": resolution,
         "mappings": build_mappings(source_headers),
         "entities": sorted(builder.entities, key=lambda item: (str(item["type"]), str(item["label"]))),
         "edges": sorted(builder.edges, key=lambda item: (str(item["type"]), str(item["source"]), str(item["target"]))),

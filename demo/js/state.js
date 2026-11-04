@@ -4,6 +4,7 @@
 import { clone } from "./util.js";
 import { currentRoleId, governanceActive } from "./governance.js";
 import { buildDerivedState } from "./derive.js";
+import { resolveFullData } from "./resolution-view.js";
 import { render } from "./render/index.js";
 
 // Saved edits live under dc-palantir:gotham:{dataset} (core/store.js, REDESIGN_SPEC §6.1–6.2).
@@ -79,6 +80,10 @@ export const ui = {
   telecomRecords: {},
   // Phone-number queries approved through a Checkpoint (normalised digits).
   approvedPhoneQueries: new Set(),
+  // Action drawer (F5): {open, objectId, typeId, params, errors, tried, result, exceptRules, exceptionRecordId}
+  actionDrawer: { open: false, objectId: "", typeId: "", params: {}, errors: {}, tried: false, result: null, exceptRules: [], exceptionRecordId: null },
+  // Purpose-rule exceptions granted through cp-exception this page session (F9): key -> {recordId, rules: [ruleId]}
+  purposeExceptions: new Map(),
 };
 
 // ── Shared mutable state ──
@@ -211,6 +216,8 @@ export function switchDataset(datasetKey, options = {}) {
   ui.telecomExpanded = new Set();
   ui.telecomRecords = {};
   ui.approvedPhoneQueries = new Set();
+  ui.actionDrawer = { open: false, objectId: "", typeId: "", params: {}, errors: {}, tried: false, result: null, exceptRules: [], exceptionRecordId: null };
+  ui.purposeExceptions = new Map();
   ui.graphSearch = "";
   ui.graphTypeFilter = "all";
   ui.graphMode = "instance";
@@ -234,12 +241,25 @@ export function switchDataset(datasetKey, options = {}) {
   }
 }
 
+// Governance block plus the Phase 2 seed fields (purpose rules, action types, resolution candidates).
+// Each is optional: without it the feature is hidden and nothing is blocked.
 export function initGovernance(datasetKey) {
-  if (core.governance) core.governance.init((datasetCatalog[datasetKey] || {}).governance || null);
+  const seed = datasetCatalog[datasetKey] || {};
+  const governance = seed.governance || null;
+  if (core.governance) core.governance.init(governance);
+  if (core.purposes) {
+    core.purposes.init((governance && governance.purposeRules) || [], { legalBasisNote: (governance && governance.legalBasisNote) || "" });
+    core.purposes.registerSources(seed.sources || []);
+  }
+  if (core.actions) core.actions.init(seed.ontology?.actionTypes || [], seed.ontology?.externalSystems || []);
+  if (core.resolution) core.resolution.init(seed.resolution || null);
 }
 
 export function rebuildRoleView() {
   const roleId = currentRoleId();
+  // Evaluation order (spec §6.3): resolveAt → marking overrides → redact per role → derived state.
+  const resolved = resolveFullData(fullData);
+  const base = resolved.data;
   const view = {
     roleId,
     active: governanceActive(),
@@ -250,15 +270,16 @@ export function rebuildRoleView() {
     withheldEdges: [],
     redactedCount: 0,
     storedById: new Map((fullData.entities || []).map((entity) => [entity.id, entity])),
+    resolution: resolved.info,
   };
   if (!view.active) {
-    data = fullData;
+    data = base;
     roleView = view;
     return;
   }
   const entities = [];
   const visibleIds = new Set();
-  (fullData.entities || []).forEach((entity) => {
+  (base.entities || []).forEach((entity) => {
     const redacted = core.markings.redactEntity(entity, roleId);
     if (redacted && redacted._withheld) {
       view.withheldEntities.push(redacted);
@@ -275,14 +296,14 @@ export function rebuildRoleView() {
     }
   });
   const edges = [];
-  (fullData.edges || []).forEach((edge) => {
+  (base.edges || []).forEach((edge) => {
     if (visibleIds.has(edge.source) && visibleIds.has(edge.target) && core.markings.edgeVisible(edge, roleId)) {
       edges.push(edge);
     } else {
       view.withheldEdges.push(edge);
     }
   });
-  data = { ...fullData, entities, edges };
+  data = { ...base, entities, edges };
   roleView = view;
 }
 

@@ -16,6 +16,7 @@ import { logEvent, logView } from "./governance.js";
 import { entityById } from "./derive.js";
 import { render } from "./render/index.js";
 import { handleChange, handleClick, handleInput, handleKeydown } from "./events.js";
+import { applyEffects } from "./actions-ui.js";
 
 // ── Deep links (F0.5): #object=<entityId>[&dataset=<key>] ──
 export function parseDeepLink(hash) {
@@ -86,6 +87,9 @@ if (core.session) core.session.setSurface("investigate");
 // 2. Governance block, stored ontology, role view, derived lookups (state.js).
 initState();
 
+// 2b. Actions staged elsewhere (Phase 3 agent) are applied to this app's data by the same applier.
+if (core.actions) core.actions.registerApplier(applyEffects);
+
 // 3. One listener per event type on #app; events.js dispatches on data-action / data-scope.
 root.addEventListener("click", handleClick);
 root.addEventListener("change", handleChange);
@@ -99,14 +103,27 @@ if (openedFromLink) {
   scrollSelectedGraphNodeIntoView();
 }
 
-// 5. Role switches (here, in Build, or in another tab) and DPO marking overrides re-render everything.
+// 5. Role switches (here, in Build, or in another tab), DPO marking overrides, the resolution threshold
+// and unmerges (here or in Build), and Actions written in another tab re-render everything. Several of
+// these fire for one storage write, so the render is batched.
+let renderQueued = false;
+function scheduleRender() {
+  if (renderQueued) return;
+  renderQueued = true;
+  setTimeout(() => {
+    renderQueued = false;
+    render();
+  }, 0);
+}
 if (core.session) {
   core.session.onChange(() => {
     setLastViewedId("");
     render();
   });
 }
-if (core.markings) core.markings.onChange(() => render());
+if (core.markings) core.markings.onChange(() => scheduleRender());
+if (core.resolution) core.resolution.onChange(() => scheduleRender());
+if (core.actions) core.actions.onChange((info) => info && info.source === "storage" && scheduleRender());
 window.addEventListener("hashchange", () => {
   if (applyDeepLink(window.location.hash)) {
     render();

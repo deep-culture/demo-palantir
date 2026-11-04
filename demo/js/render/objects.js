@@ -12,6 +12,7 @@ import {
 } from "../derive.js";
 import { honestyChip, renderField } from "./common.js";
 import { renderResolutionSection } from "./inspector.js";
+import { mergeChip } from "./resolution.js";
 
 export function renderInstancesTool() {
   const selectedType = entityTypeById(ui.selectedEntityTypeId);
@@ -50,7 +51,7 @@ export function renderInstancesTool() {
                       <span>${escapeHtml(entity.label)}</span>
                       <span class="muted">${escapeHtml(entity.id.split("::")[1] || entity.id)}</span>
                     </div>
-                    <small>${escapeHtml(entity.type)}</small>
+                    <small>${escapeHtml(entity.type)}</small>${mergeChip(entity)}
                   </button>
                 `
             )

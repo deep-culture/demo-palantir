@@ -85,7 +85,7 @@ The five transforms are executable Python modules. Filenames begin with a digit 
 ### 4.4 Demo UI
 
 - `foundry-demo/index.html` — static entry point; loads the shared core, then `seed.js`, then `app.js` (§9.1). Does not load Leaflet.
-- `foundry-demo/app.js` — state, render, event delegation, the Markings tab. No framework. About 1,300 lines.
+- `foundry-demo/app.js` — state, render, event delegation, the Markings and Resolution tabs, purpose checks and discussion cards. No framework. About 2,200 lines, one IIFE (no modules: the app shares many small helpers between tabs).
 - `foundry-demo/styles.css` — dark IDE-style presentation in the Deep Culture palette. Shared fonts and colours come from `brand/deep-culture.css`.
 
 ## 5. Pipeline DAG
@@ -185,7 +185,11 @@ The browser consumes a per-dataset payload with this top-level shape:
     builder: "build_foundry_seed.py@<git short sha or 'dirty'>",
     title, dataset, generatedAt
   },
-  governance: {...},   // identical to the Gotham seed's (TECHNICAL_SPEC.md §7.1b)
+  governance: {...},   // identical to the Gotham seed's (TECHNICAL_SPEC.md §7.1b), incl. Phase 2 purposeRules, legalBasisNote, discussions
+  ontology: {          // Phase 2: only these two keys (TECHNICAL_SPEC.md §7.1d)
+    actionTypes: [...], externalSystems: [...]
+  },
+  resolution: {...},   // Phase 2: candidate pairs for the Resolution tab (TECHNICAL_SPEC.md §7.1c, §8.8)
   pipeline: {
     transforms: [
       { id, name, description, inputs: [datasetId], output: datasetId,
@@ -217,6 +221,8 @@ Object, property and link markings follow `TECHNICAL_SPEC.md §7.3–7.4` and ar
 
 Person entities carry a top-level `resolution` block, identical to the Gotham seed's (`TECHNICAL_SPEC.md §7.3`, §8.1): `{method, confidence, mergedFrom, splitRisk, note}`. The same object appears in the `resolution` column of the `resolved_persons` dataset. For ping-only persons, `canonicalName` is the most frequent observed name and its field provenance is noted `"from ping observed_name (weak)"`.
 
+`resolution` (Phase 2) is computed from the step-02 resolver after the pipeline runs (`pipeline/candidates.py`) and is identical to the Gotham seed's: `{defaultThreshold: 0.75, minThreshold: 0.30, fixedNote, signals, candidates}`. It is not a dataset in the DAG, so it adds no lineage node and the markings table in §5.1 is unchanged. No candidate reaches 0.75: the default threshold is exactly the pipeline's own Persons. The namesake pair `cand-n5538219--g5510077` scores 0.55; the simulator adds two namesake pairs at 0.50 and 0.60.
+
 ### 8.1 Bundled seed catalog
 
 `foundry-demo/seed.js` exports:
@@ -239,13 +245,19 @@ The application is a static client-side SPA implemented without a framework.
 `foundry-demo/index.html` loads, in order (all classic scripts on `window.DC`):
 
 1. `../core/store.js` — namespaced, versioned `localStorage` (`DC.store`)
-2. `../core/governance.js`, `../core/session.js`, `../core/audit.js`, `../core/markings.js`, `../core/checkpoints.js`, `../core/ui.js` — the shared governance core (PHASE1_CONTRACT §6), plus the stylesheet `../core/core.css`
+2. `../core/governance.js`, `../core/session.js`, `../core/audit.js`, `../core/markings.js`, `../core/checkpoints.js`, `../core/purposes.js`, `../core/resolution.js`, `../core/actions.js`, `../core/ui.js` — the shared governance core (PHASE1_CONTRACT §6, PHASE2_CONTRACT §6), in that order, plus the stylesheet `../core/core.css`
 3. `seed.js`
 4. `app.js`
 
-On start the app calls `DC.governance.init(seed.governance)` once, with the first dataset key that carries a governance block.
+On start the app calls `DC.governance.init(seed.governance)` once, with the first dataset key that carries a governance block. It then initialises the Phase 2 modules for the active dataset (again on every dataset switch), each only when present:
+
+- `DC.purposes.init(seed.governance.purposeRules)`
+- `DC.resolution.init(seed.resolution)` (also accepted at `seed.ontology.resolution`)
+- `DC.actions.init(seed.ontology.actionTypes, seed.ontology.externalSystems)` — only when the Build seed carries Action types; otherwise Build offers Unmerge as a link to Investigate (§10.7)
 
 **Graceful degradation.** Every core call goes through a guard (`core(name, fn)`, `safe(label, fn, fallback)`): when a core file is missing, a function is absent or throws, or the seed has no `governance` block, the app keeps working as the Phase 0 app. The session and audit strips stay hidden, nothing is logged, no role redaction is applied, the Markings tab is hidden unless datasets carry `markings`, and the Remove marking button is hidden unless both `DC.checkpoints.withCheckpoint` and `DC.markings.removeMarking` exist. A failing core call logs one `console.warn`, never an error.
+
+Phase 2 degrades the same way. Without `seed.resolution` the Resolution tab is hidden. With the seed block but without `core/resolution.js`, the tab runs on a local copy of the union-find (same representative rule as the contract); the slider then applies to this page only, is not shared with Investigate, and the page says so. Without `core/purposes.js` no rule badges or Karlsruhe panel appear. Without `DC.ui.discussionCardsFor` the discussion cards are rendered from `seed.governance.discussions` with simpler markup.
 
 ### 9.2 State model
 
@@ -253,7 +265,8 @@ Primary runtime state:
 
 - `catalog` — the full `window.foundrySeedCatalog`
 - `seedData` — the active dataset's payload (`catalog[ui.datasetKey]`)
-- `ui` — `{ datasetKey, activeTab, selectedTransformId, selectedDatasetId, selectedEntityId, lineageEntitySearch, datasetRowOffset, markingFilter, highlightDatasetRow }`
+- `ui` — `{ datasetKey, activeTab, selectedTransformId, selectedDatasetId, selectedEntityId, lineageEntitySearch, datasetRowOffset, markingFilter, selectedPersonId, resPreview, highlightDatasetRow }` (`resPreview` is the threshold shown while the slider is dragged; not persisted)
+- the resolution threshold comes from `DC.resolution.threshold()` (stored by the core in `dc-palantir:governance.threshold`, shared with Investigate); resolution overrides from `DC.resolution.overrides()`, falling back to `dc-palantir:governance.resolutionOverrides`; Karlsruhe mode from `DC.purposes.enabled()`
 - the current role comes from `DC.session.get().role`; marking overrides from `dc-palantir:governance` (read through `DC.markings`)
 
 ### 9.3 Persistence
@@ -271,10 +284,12 @@ Shared governance state is owned by the core and shared with Investigate and Ove
 ```text
 dc-palantir:session      {sessionId, role, purpose, flags}
 dc-palantir:audit        [event…]
-dc-palantir:governance   {markingOverrides: [{datasetId, removed, by, checkpointRecordId, ts, buildId}]}
+dc-palantir:governance   {markingOverrides: [{datasetId, removed, by, checkpointRecordId, ts, buildId}],
+                          threshold, resolutionOverrides: [{candidateId, decision: "reject", by, reason, ts}],
+                          actionLog: [...]}            (Phase 2 fields written by the core)
 ```
 
-Build re-renders on `DC.session.onChange` (role changes, also from another tab) and on a `storage` event for `dc-palantir:governance`.
+Build re-renders on `DC.session.onChange` (role changes, also from another tab), on a `storage` event for `dc-palantir:governance` (threshold, overrides and markings changed in Investigate), on `onChange` of `DC.purposes` / `DC.resolution` / `DC.actions` when the core offers it, and after any `change` inside the session strip (the Karlsruhe toggle lives there).
 
 The seed data itself is **not** persisted — it is reloaded from `seed.js` on every page load. This is the opposite of the Gotham demo, which persists the whole ontology to allow inline editing. Foundry treats the pipeline as authoritative; the only mutable state is which view the user is currently looking at.
 
@@ -285,22 +300,23 @@ The seed data itself is **not** persisted — it is reloaded from `seed.js` on e
 Purple band with the logo, the title **Build (Foundry-style)**, a link back to the landing page, the dataset switcher (`starter` / `simulator`) and object/link/dataset counts. Below it, in order:
 
 - the **session strip**, `DC.ui.renderSessionStrip(el, {surface: "build"})`, in a dark host (`#build-session-strip.dc-on-dark`): role selector, purpose, strict-Checkpoint toggle, audit count, Oversight link;
-- the tab bar: **Pipelines**, **Datasets**, **Lineage**, **Markings**;
+- the tab bar: **Pipelines**, **Datasets**, **Lineage**, **Markings**, **Resolution**;
 - the workspace;
 - the **audit strip**, `DC.ui.renderAuditStrip(el, {surface: "build"})`, at the bottom (`aria-live="polite"`).
 
-The strip hosts sit outside the re-rendered regions, so they are rendered once on start; the audit strip is re-rendered (debounced) after each event Build logs. Every tab's title carries `DC.ui.honestyChip(id)`: `build.pipelines` (Simplified), `build.datasets` (Simplified), `build.lineage` (Teaching extension), `build.markings` (Mirrors Foundry).
+The strip hosts sit outside the re-rendered regions, so they are rendered once on start; the audit strip is re-rendered (debounced) after each event Build logs. Every tab's title carries `DC.ui.honestyChip(id)`: `build.pipelines` (Simplified), `build.datasets` (Simplified), `build.lineage` (Teaching extension), `build.markings` (Mirrors Foundry), `build.resolution` (Simplified; when the seed lacks the entry, Build shows the same chip linked to the glossary's built-in copy).
 
 ### 10.2 Pipelines tab
 
 - Left sidebar: list of transforms in execution order.
 - Main pane: DAG flow diagram, rendered as horizontally scrolling columns (Raw Sources → Transform → Output) using flexbox. A transform's output column shows every dataset whose `producedBy` is that transform (so `normalize_sources` shows all normalised datasets, including the clinic data), falling back to `transform.output`. Arrows are rendered as Unicode `→` glyphs in dedicated arrow columns rather than SVG paths.
-- Bottom inspector: when a transform is selected, shows name, description, input/output dataset backlinks, row counts, the embedded Python source code in a monospace pane with line numbers, and a stub "Last built" timestamp from the seed generation time.
+- Bottom inspector: when a transform is selected, shows name, description, input/output dataset backlinks, row counts, the embedded Python source code in a monospace pane with line numbers, and a stub "Last built" timestamp from the seed generation time. In Karlsruhe mode it also shows each purpose rule the transform breaks (§10.8).
+- With Karlsruhe mode on, transform boxes that break a purpose rule carry a red rule badge (`R2`) and a purpose panel above the DAG lists every offending dataset (§10.8). Below the DAG: discussion cards for `build.pipelines` (§10.9).
 
 ### 10.3 Datasets tab
 
 - Left sidebar: dataset list, grouped as **Raw Sources**, **Normalised**, **Resolved**, **Final** (and **Other** for anything else), with one dot per effective marking (outlined = inherited).
-- Main pane: selected dataset's row count, source file path (if raw), produced-by / consumed-by transform backlinks, a **Governance** table (`purpose`, `legalBasis`, `retentionDays`, effective markings with "carried by this dataset" or "inherited from {raw dataset}", markings removed by an override with who and when, and "your access"), the schema table, and a paginated sample-row table (10 rows per page).
+- Main pane: selected dataset's row count, **purpose** and **legal basis** chips, source file path (if raw), produced-by / consumed-by transform backlinks, a **Governance** table (`purpose`, `legalBasis`, `retentionDays`, effective markings with "carried by this dataset" or "inherited from {raw dataset}", markings removed by an override with who and when, and "your access"), the schema table, and a paginated sample-row table (10 rows per page).
 - Rows are **withheld** (schema only, hatched notice plus "Why can't I see this?" naming the roles that could) when the current role cannot see every effective marking of the dataset. This follows Foundry, where a user needs every marking on a dataset to open it.
 - Raw datasets in the current seed carry the name of their normalised counterpart (`watchlist.csv` is named `norm_watchlist`); the UI shows the id for raw datasets, and lineage references resolve by id before name.
 - Row highlighting: when navigated from the Lineage tab via `goto-dataset-row`, the target row gets a glow style and the pagination offset auto-adjusts to bring it into view.
@@ -322,6 +338,7 @@ The strip hosts sit outside the re-rendered regions, so they are rendered once o
 - Main pane: the pipeline as columns by depth (raw sources, then one column per transform stage), one box per dataset with a stripe segment per effective marking (hatched = inherited) and the marking ids as text badges; dataset → dataset edges drawn in an SVG behind the boxes after layout (`drawMarkingEdges`, redrawn on resize). Dataset parents are `dataset.inputs` if present, else the producing transform's inputs; a transform with several outputs is split by name stem (`norm_mobile_pings` ← `mobile_location_pings.jsonl`).
 - **Highlight** buttons, one per marking: boxes and edges carrying the marking are outlined in its colour, the rest dimmed, and a summary line counts the datasets (at source / inherited).
 - **Legend**: badge, label, description and the roles that can see each marking; the inherited style is explained.
+- Each box also shows the dataset's purpose (legal basis on hover); in Karlsruhe mode, boxes whose production breaks a purpose rule carry the red rule badge and the purpose panel sits above the DAG (§10.8). Below the legend: discussion cards for `build.markings` (§10.9).
 - Inspector: the selected dataset's markings as `{id, inheritedFrom}` (inheritedFrom = the raw dataset id(s) from `markingProvenance`, or null when the dataset carries the marking itself), removed markings with the override, "Rows visible to" (roles that can see every effective marking), and a **Remove marking** button per marking.
 - Remove marking: logs `marking.remove.request`, then `DC.checkpoints.withCheckpoint("cp-marking-remove", {surface: "build", objectIds: [], datasetId, summary}, record => DC.markings.removeMarking({datasetId, marking, checkpointRecordId: record.id}))`. The core decides: roles other than `dpo` see the refusal text and the function never runs; the DPO must give a justification. Build only re-renders afterwards.
 - Effective markings come from `DC.markings.effectiveDatasetMarkings(dataset, datasetsById)`, which may return ids or `{id, inheritedFrom}` objects; both are accepted.
@@ -337,7 +354,38 @@ All with `surface: "build"` via `DC.audit.logEvent`:
 | object selected on the Lineage tab | `view` | `lineage.view` | `objectIds: [id]` |
 | Remove marking clicked | `marking` | `marking.remove.request` | `datasetId`, `payload: {marking}` |
 
-The Checkpoint record (`kind: "checkpoint"`, outcome continued/cancelled/refused) and the removal itself (`kind: "marking"`) are written by the core.
+| tab switch to Resolution | `view` | `tab.view` | `payload: {tab: "resolution", dataset}` |
+| person selected for a merge explanation | `view` | `resolution.explain.view` | `objectIds: [personId]`, `payload: {threshold}` |
+| "Unmerge in Investigate" link clicked | `view` | `resolution.unmerge.open` | `objectIds: [candidateId]` |
+| threshold changed without `core/resolution.js` | `resolution` | `resolution.threshold.local` | `payload: {from, to, shared: false}` |
+
+The Checkpoint record (`kind: "checkpoint"`, outcome continued/cancelled/refused) and the removal itself (`kind: "marking"`) are written by the core. So are the threshold change (`DC.resolution.setThreshold` logs a `resolution` event; Build does not log it again), the Karlsruhe toggle (`DC.purposes.setEnabled`) and the Unmerge Action (`DC.actions.applyAction`).
+
+### 10.7 Resolution tab (F6)
+
+Shown when the seed carries `resolution` (PHASE2_CONTRACT §2). Honesty chip `build.resolution`.
+
+- **Left sidebar:** every Person that appears in a candidate pair, highest-scoring pairs first; selecting one opens its merge explanation.
+- **Threshold slider:** `resolution.minThreshold` (0.30) to 0.95, step 0.01, default `resolution.defaultThreshold` (0.75), with presets 0.55, 0.65 and 0.75. Dragging (`input`) re-renders only the results under the slider (`#res-results`), so the slider survives the drag; releasing (`change`) or a preset commits through `DC.resolution.setThreshold(t)`, which persists and logs, and the whole page re-renders. Above the default a note says that the pipeline's deterministic merges are fixed in this build.
+- **Counts:** Persons at the current threshold vs at the default, the difference, and the number of merges. Persons = Person objects in the seed minus (cluster size − 1) for every merged cluster.
+- **People who changed identity at this threshold:** every cluster whose membership differs from the default, with its representative and, when the representative has a `riskTag` the role can see, which members inherit it.
+- **Candidate pairs table:** left, right (names read through the role's redaction; auditor and contractor see "withheld — PII"), score, signals with weights (negative weights in red), and the decision at the current threshold: `merged` (in `resolveAt(t).merges`), `separate`, `same person via another pair` (transitive merge), or `rejected by override` (an override in `resolutionOverrides`, with who and why; honoured at every threshold).
+- **The scorer's weights:** the full `resolution.signals` table (id, signed weight, label, note), so students can argue with it.
+- **Merge explanation** (right column, sticky): for the selected Person, its cluster at the current threshold and the merge chain from `DC.resolution.explain(personId)` (falling back to the merged pairs of its cluster). Each pair shows the arithmetic, one row per signal (`+0.45 name-exact`, `+0.20 shared-route`, `−0.10 dob-conflict`) and the total (`= 0.55`, clamped to 0–1, with a warning if the seed's score differs from the sum), the verdict against the threshold, and the candidate's plain-English `explanation` (only when the role can see both persons). Pairs that do not merge are listed with "would merge at *score* or lower".
+- **Unmerge:** each merged pair offers *Unmerge in Investigate →*, a deep link `../demo/index.html#object=<representative>&dataset=<key>` where the Action runs. When `DC.actions` is loaded with an `act-unmerge-person` type that the current role may run (`DC.actions.applicable("Person", role)`), Build also shows the Action's parameters (the candidate id is filled in) and an Unmerge button that calls `DC.actions.applyAction("act-unmerge-person", representativeId, params, {staged: false, apply: () => {}})`. The `apply` callback is a no-op: the override lives in shared governance, not in Build's data. If the Action completed but no override for the candidate exists afterwards, Build writes it with `DC.resolution.reject(candidateId, reason)`.
+
+### 10.8 Purposes and Karlsruhe mode (F9)
+
+Rules come from `seed.governance.purposeRules` (or `DC.purposes.rules()` when the core exposes it); the mode from `DC.purposes.enabled()` (toggle in the session strip). Build evaluates the rules that have an `incompatible: {data, session}` clause (R2) per **derived dataset**, not per transform, so `normalize_sources`, which copies each source on its own, is not flagged:
+
+- the data purposes of a dataset are its manifest `purpose` plus purposes implied by its effective markings (`HEALTH` ⇒ `healthcare`);
+- a dataset breaks the rule when one parent has a purpose in `incompatible.data` and another parent, or the dataset's own `purpose`, has a purpose in `incompatible.session`. In the current seeds `resolved_persons` (clinic data joined into the financial-crime person table), `ontology_entities` and `ontology_edges` break R2.
+
+Build evaluates the rule text itself rather than calling `DC.purposes.check` on every render, so displaying the DAG never writes audit events. With the mode off, Pipelines and Markings show a one-line hint; with it on, the purpose panel (a `<details>` element: summary with the rule text, then one line per offending dataset and the seed's `legalBasisNote`) and the red badges. Nothing is blocked in Build: the pipeline has already run.
+
+### 10.9 Discussion cards (spec §5.4)
+
+`DC.ui.discussionCardsFor(surfaceId)` on Pipelines (`build.pipelines`, POL-INTEL) and Markings (`build.markings`, ICE ImmigrationOS/ELITE and NHS FDP), wrapped in `.build-discussions`, which restyles the core's markup for the black workspace (surface background, purple top rule, green kicker and links). Without the core helper, Build renders `seed.governance.discussions` itself (title, summary, questions, sources, disclaimer).
 
 ## 11. Event handling
 
@@ -352,6 +400,7 @@ Behavior is dispatched using `data-action` attributes, mirroring the Gotham demo
 - `switch-dataset`, `switch-tab`
 - `select-transform`, `select-dataset`, `select-entity`
 - `mk-select`, `mk-filter`, `mk-remove` — Markings tab selection, highlight and removal
+- `res-select`, `res-threshold`, `res-unmerge`, `res-unmerge-link` — Resolution tab: select a person, apply a preset threshold, run the Unmerge Action, open Investigate; the slider (`#res-threshold`) has its own `input` (preview) and `change` (commit) listeners
 - `keydown` Enter/Space on `role="button"` sidebar items and DAG boxes triggers the same action
 - `goto-dataset` — switch to Datasets tab with a specific dataset preselected
 - `goto-dataset-row` — same, with a specific row highlighted (sets `ui.highlightDatasetRow`)
@@ -394,7 +443,9 @@ Acceptable because datasets are modest (≤1534 entities, ≤6000 edges in simul
 ### 13.4 `foundry-demo/app.js`
 
 - State management, render, event handling
-- Four tab renderers: `renderPipelinesMain`, `renderDatasetsMain`, `renderLineageMain`, `renderMarkingsMain`
+- Five tab renderers: `renderPipelinesMain`, `renderDatasetsMain`, `renderLineageMain`, `renderMarkingsMain`, `renderResolutionMain` (with `renderResolutionResults`, `renderMergeExplanation`)
+- Resolution adapters: `resolutionBlock()`, `currentThreshold()`, `setThreshold()`, `resolveAt()` (core or `localResolveAt` fallback, normalised to Maps), `overridesList()`, `explainChain()`, `runUnmerge()`
+- Purpose checks: `dataPurposesOf()`, `purposeConflictsForDataset()`, `purposeConflictsForTransform()`, `purposePanel()`; discussion cards: `discussionCards(surfaceId)`
 - Inspector pane renderer (transform code; dataset markings)
 - Governance adapters over the core: `governance()`, `currentRoleId()`, `canSee()`, `redact()`, `effectiveMarkings()`, `removedMarkings()`, `honestyChip()`, `logEvent()`
 - Cross-link to Investigate via relative href `../demo/index.html`
@@ -404,7 +455,8 @@ Acceptable because datasets are modest (≤1534 entities, ≤6000 edges in simul
 - Deep Culture design: purple header band (`#832161`) with the green line logo; black workspace (`#0b0b0b`, surfaces `#151315` / `#221d21`); green `#ADFC92` as the code/selection accent; transforms tinted purple
 - Build-status palette: built green `#ADFC92`, stale `#f2c14e`, broken `#ff7a7a`
 - Typography: monospace for data/code/IDs, Lexend (bundled, `brand/fonts/`) for chrome
-- Dense layout: persistent left sidebar (240px), main pane, bottom inspector (Pipelines and Markings only)
+- Dense layout: persistent left sidebar (240px), main pane, bottom inspector (Pipelines and Markings only); the Resolution tab uses a two-column main pane (table left, sticky merge explanation right; one column below 1,100px)
+- Rule badges: red `#d93a3a` with the rule id written out (`R2`); merge decisions as text pills (`merged` green, `separate` outlined, `rejected by override` red); negative signal weights in light red
 - Marking palette as CSS variables, light tints on black with black text on solid badges: `--mk-open #d6d6d6`, `--mk-pii #7db8ff`, `--mk-fin #ffc94d`, `--mk-telecom #4fd8c8`, `--mk-health #ff7b7b`, `--mk-le-sensitive #d39bff` (`--mk-le` alias, `--mk-unknown` fallback). The seed names the variable per marking (`governance.markings[].colour`). Colour never carries meaning alone: every marking is also a text badge, inherited badges are dashed outlines, withheld values are hatched with the marking named
 
 ## 14. Build and run

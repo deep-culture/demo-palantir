@@ -303,3 +303,107 @@
 @media print {
   .dc-modal-backdrop { display: none; }
 }
+
+/* ── Phase 2: purposes, Karlsruhe mode, blocked card, discussion cards, external systems ── */
+:root {
+  --dc-blocked: #b42318;
+  --dc-blocked-tint: #fdf0ef;
+}
+.dc-purpose {
+  display: inline-block;
+  padding: 0.05rem 0.5rem;
+  border-radius: 3px;
+  border: 1px solid var(--dc-purple-line, #d9c3d1);
+  background: var(--dc-purple-tint, #f6eef3);
+  color: var(--dc-purple-dark, #5c1745);
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.dc-strip-dark .dc-purpose,
+.dc-on-dark .dc-purpose { background: transparent; color: var(--dc-green); border-color: var(--dc-green); }
+.dc-purpose-missing { color: var(--dc-blocked); font-size: 0.75rem; font-weight: 500; }
+.dc-strip-dark .dc-purpose-missing { color: #ff9b91; }
+.dc-strip-karlsruhe.is-on label.dc-strip-toggle { color: var(--dc-blocked); }
+.dc-strip-dark .dc-strip-karlsruhe.is-on label.dc-strip-toggle { color: #ff9b91; }
+
+.dc-blocked {
+  margin: 0.6rem 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--dc-blocked);
+  border-left-width: 5px;
+  border-radius: 4px;
+  background: var(--dc-blocked-tint);
+  color: var(--dc-ink, #1b1b1b);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.dc-blocked-head { display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; }
+.dc-blocked-title { color: var(--dc-blocked); font-weight: 700; letter-spacing: 0.01em; }
+.dc-blocked p { margin: 0.35rem 0 0; }
+.dc-blocked-rule { font-weight: 500; }
+.dc-blocked-note { font-size: 0.75rem; color: var(--dc-grey-dark, #555); font-style: italic; }
+.dc-blocked-exception { color: var(--dc-purple-dark, #5c1745); font-weight: 500; }
+.dc-btn-blocked { margin-top: 0.55rem; border-color: var(--dc-blocked); color: var(--dc-blocked); padding: 0.35rem 0.8rem; font-size: 0.82rem; }
+.dc-btn-blocked:hover { background: var(--dc-blocked); color: #fff; }
+
+.dc-discussion {
+  margin: 0.5rem 0;
+  border: 1px solid var(--dc-purple);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--dc-ink, #1b1b1b);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  overflow: hidden;
+}
+.dc-discussion > summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--dc-purple);
+  color: #fff;
+  cursor: pointer;
+  list-style: none;
+}
+.dc-discussion > summary::-webkit-details-marker { display: none; }
+.dc-discussion > summary::after { content: "+"; margin-left: auto; font-weight: 700; }
+.dc-discussion[open] > summary::after { content: "−"; }
+.dc-discussion-kicker {
+  padding: 0 0.4rem;
+  background: var(--dc-green);
+  color: var(--dc-black, #0b0b0b);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+.dc-discussion-title { font-weight: 500; }
+.dc-discussion-body { padding: 0.6rem 0.8rem 0.7rem; }
+.dc-discussion-body p { margin: 0 0 0.45rem; }
+.dc-discussion-questions { margin: 0 0 0.45rem; padding-left: 1.2rem; color: var(--dc-purple-dark, #5c1745); font-weight: 500; }
+.dc-discussion-sources { font-size: 0.76rem; }
+.dc-discussion-sources a { color: var(--dc-purple); }
+.dc-discussion-disclaimer { font-size: 0.72rem; font-style: italic; color: var(--dc-grey-dark, #555); margin-bottom: 0 !important; }
+
+/* External systems (simulated receivers): black and monospace, like code (spec §2.5). */
+.dc-systems {
+  background: var(--dc-black, #0b0b0b);
+  color: #e6e6e6;
+  border-radius: 6px;
+  padding: 0.7rem 0.8rem;
+  font-family: var(--dc-mono);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+.dc-systems h3,
+.dc-systems h4 { margin: 0 0 0.35rem; color: var(--dc-green); font-family: var(--dc-font); font-weight: 500; }
+.dc-systems h3 { font-size: 0.95rem; display: flex; align-items: center; gap: 0.3rem; }
+.dc-systems h4 { font-size: 0.78rem; margin-top: 0.6rem; }
+.dc-inbox { margin: 0; padding: 0; list-style: none; }
+.dc-inbox li { padding: 0.25rem 0; border-top: 1px dashed #333; word-break: break-word; }
+.dc-inbox li.is-mine { color: #fff; }
+.dc-inbox time { color: #9a9a9a; margin-right: 0.35rem; }
+.dc-inbox .dc-inbox-empty { color: #8a8a8a; font-style: italic; border-top: none; }

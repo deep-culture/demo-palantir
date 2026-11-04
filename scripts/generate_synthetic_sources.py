@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
 """Generate the linked synthetic sources for one profile (starter or simulator).
 
-Two random streams, so the Phase 1 clinic data could be added without touching
-a byte of the existing files:
+Three random streams, so later phases could add data without touching a byte
+of the existing rows:
 
 * ``--legacy-seed`` (default 42) drives the five Phase 0 sources (watchlist,
   company registry, flights, bank transactions, pings).  Changing it changes
   every existing file and every entity ID downstream.
-* ``--seed`` (default 20260401) drives only the clinic registrations
+* ``--seed`` (default 20260401) drives the Phase 1 clinic registrations
   (``clinic_registrations.csv``) and the residential addresses.
+* ``--phase2-seed`` (default 20261104) picks which further noise people get a
+  clinic registration in the Phase 2 rework.
+
+Phase 2 (PHASE2_CONTRACT.md §1) appends fixed rows after the Phase 0 rows: the
+namesake Omar Rahman (PER-007) and the watchlisted Omar Rahman's LHR-IST
+flights, the namesake's rent transfers and (simulator) two namesake pairs.
+The clinic rework drops the watchlisted people's registrations.
 
 The script also writes ``manifest.json`` (markings, purpose, legal basis,
 retention and as-of date per dataset; values from ``pipeline/governance.py``).
@@ -290,6 +297,134 @@ RESIDENTIAL_CITIES = [
 UNMATCHED_FIRST = ["Ines", "Pavel", "Leyla", "Georgios", "Hanna", "Tariq"]
 UNMATCHED_LAST = ["Moreau", "Novak", "Aydin", "Christou", "Lindqvist", "Bakr"]
 
+# ---------------------------------------------------------------------------
+# Phase 2 (PHASE2_CONTRACT.md §1): the namesake, the clinic rework and two
+# simulator namesake pairs.
+#
+# Nothing here is added to CORE_PEOPLE or consumes the legacy random stream:
+# the noise generators draw from ``CORE_PEOPLE + noise``, so a seventh core
+# person would change every Phase 0 row.  Phase 2 rows are fixed and are
+# *appended* after the Phase 0 rows of flight_manifests.csv,
+# bank_transactions.csv and (simulator) company_registry.csv, so every
+# existing line stays byte-identical.  The only random choice (which extra
+# noise people get a clinic registration) uses ``--phase2-seed``.
+# ---------------------------------------------------------------------------
+
+PHASE2_SEED = 20261104
+CLINIC_NOISE_SHARE = 0.6   # share of noise people with a clinic registration
+
+# PER-007: a care worker in Birmingham who shares a name with the watchlisted
+# Omar Rahman (PER-003, passport N5538219).  Nationality and occupation are
+# storyline facts; no source file carries them for non-watchlisted people.
+NAMESAKE = {
+    "person_id": "PER-007",
+    "canonical_name": "Omar Rahman",
+    "aliases": ["Umar Rahman"],
+    "dob": "1979-02-02",
+    "nationality": "British",
+    "occupation": "care worker",
+    "passport_id": "G5510077",
+    "phone_number": "+447911223344",
+    "person_account_id": "ACCT-P007",
+    "watchlist_id": "",
+    "risk_tag": "",
+    "namesake_of": "PER-003",
+}
+NAMESAKE_HOME = {"home_address": "41 Oak Lane, Birmingham", "home_city": "Birmingham", "home_country": "United Kingdom",
+                 "lat": 52.4421, "lon": -1.9368, "clinic_code": "CLN-BHM-02", "registered_on": "2026-03-12"}
+# Maya Singh (PER-006, not watchlisted) also registers with a clinic.
+MAYA_HOME = {"home_address": "58 Rue de Carouge, Geneva", "home_city": "Geneva", "home_country": "Switzerland",
+             "lat": 46.1934, "lon": 6.1424, "clinic_code": "CLN-GVA-01", "registered_on": "2024-11-05"}
+
+# Watchlisted people: the clinic data must not cover them (spec §5.1 item 2).
+WATCHLISTED_KEYS = {(p["canonical_name"], p["dob"]) for p in CORE_PEOPLE if p["watchlist_id"]}
+
+_FLIGHT_KEYS = ["manifest_id", "flight_number", "departure_airport", "arrival_airport", "departure_ts",
+                "booking_reference", "passenger_name", "dob", "passport_id", "phone_number", "seat",
+                "payment_card_last4"]
+
+
+def _flight(*values: str) -> Dict[str, str]:
+    return dict(zip(_FLIGHT_KEYS, values))
+
+
+# Both profiles: the watchlisted Omar Rahman flies LHR-IST once; the namesake
+# flies the same route out and back, and the return manifest spells him Umar.
+PHASE2_FLIGHTS = [
+    _flight("MF-0007", "TK-1980", "LHR", "IST", "2026-04-02T06:45:00Z", "PNR47T", "Omar Rahman",
+            "1984-08-19", "N5538219", "+447700912410", "21A", "9088"),
+    _flight("MF-0008", "TK-1986", "LHR", "IST", "2026-04-04T09:15:00Z", "PNR52H", "Omar Rahman",
+            "1979-02-02", "G5510077", "+447911223344", "32C", "6630"),
+    _flight("MF-0009", "TK-1971", "IST", "LHR", "2026-04-09T17:30:00Z", "PNR52H", "Umar Rahman",
+            "1979-02-02", "G5510077", "+447911223344", "30F", "6630"),
+]
+
+# The namesake's rent, paid by bank transfer to his letting agent.  The bank
+# writes his name as "Umar Rahman": the transaction feed links an account to a
+# person by name only, and "Omar Rahman" already belongs to the watchlisted
+# man (whose account ACCT-P003 must keep its owner).
+PHASE2_TRANSACTIONS = [
+    {"transaction_id": "TX-0009", "source_account_id": "ACCT-P007", "source_name": "Umar Rahman",
+     "destination_account_id": "ACCT-L041", "destination_name": "Oak Lane Lettings Ltd", "amount_usd": "910.00",
+     "txn_type": "transfer", "merchant_or_bank": "Midland Community Bank", "txn_ts": "2026-03-02T08:05:00Z",
+     "reference": "rent March"},
+    {"transaction_id": "TX-0010", "source_account_id": "ACCT-P007", "source_name": "Umar Rahman",
+     "destination_account_id": "ACCT-L041", "destination_name": "Oak Lane Lettings Ltd", "amount_usd": "910.00",
+     "txn_type": "transfer", "merchant_or_bank": "Midland Community Bank", "txn_ts": "2026-04-01T08:05:00Z",
+     "reference": "rent April"},
+]
+
+# Simulator only: two namesake pairs among the background people.  Each pair is
+# the same name written with and without a diacritic (Yılmaz/Yilmaz,
+# José/Jose), has two different dates of birth and directs companies at one
+# shared address; pair B also shares a flight route.  The pipeline's ASCII
+# normaliser keeps them apart; the candidate scorer folds accents and pairs them.
+SIM_PAIR_PEOPLE = [
+    {"person_id": "NPER-P2A1", "canonical_name": "Mehmet Yılmaz", "dob": "1983-05-17",
+     "passport_id": "X3141592", "phone_number": "+905321184407"},
+    {"person_id": "NPER-P2A2", "canonical_name": "Mehmet Yilmaz", "dob": "1991-10-02",
+     "passport_id": "X2718281", "phone_number": "+491761230045"},
+    {"person_id": "NPER-P2B1", "canonical_name": "José Ferreira", "dob": "1979-07-30",
+     "passport_id": "X5772156", "phone_number": "+351912345670"},
+    {"person_id": "NPER-P2B2", "canonical_name": "Jose Ferreira", "dob": "1986-01-11",
+     "passport_id": "X1414213", "phone_number": "+41791234567"},
+]
+SIM_PAIR_FLIGHTS = [
+    # Pair A fly different routes.
+    _flight("MF-0101", "TK-1887", "IST", "VIE", "2026-04-05T06:20:00Z", "PNR71K", "Mehmet Yılmaz",
+            "1983-05-17", "X3141592", "+905321184407", "11C", "2281"),
+    _flight("MF-0102", "OS-836", "VIE", "ATH", "2026-04-07T15:40:00Z", "PNR74D", "Mehmet Yilmaz",
+            "1991-10-02", "X2718281", "+491761230045", "19A", "5402"),
+    # Pair B share the LCA-ATH route.
+    _flight("MF-0103", "A3-911", "LCA", "ATH", "2026-04-03T12:30:00Z", "PNR77S", "José Ferreira",
+            "1979-07-30", "X5772156", "+351912345670", "6B", "3318"),
+    _flight("MF-0104", "A3-902", "ATH", "LCA", "2026-04-08T10:10:00Z", "PNR79W", "Jose Ferreira",
+            "1986-01-11", "X1414213", "+41791234567", "22E", "8840"),
+]
+# Each pair runs companies registered at one shared (new) address.
+SIM_PAIR_COMPANIES = [
+    {"company_id": "CO-201", "company_name": "Yilmaz Textiles GmbH", "jurisdiction": "Austria",
+     "incorporation_date": "2017-02-08", "registered_address": "12 Mariahilfer Strasse, Vienna",
+     "director_name": "Mehmet Yılmaz", "director_dob": "1983-05-17",
+     "beneficial_owner": "Mehmet Yılmaz", "beneficial_owner_dob": "1983-05-17",
+     "registered_city": "Vienna", "registered_country": "Austria", "registered_site_type": "office"},
+    {"company_id": "CO-202", "company_name": "Mariahilf Logistics KG", "jurisdiction": "Austria",
+     "incorporation_date": "2024-06-19", "registered_address": "12 Mariahilfer Strasse, Vienna",
+     "director_name": "Mehmet Yilmaz", "director_dob": "1991-10-02",
+     "beneficial_owner": "Mehmet Yilmaz", "beneficial_owner_dob": "1991-10-02",
+     "registered_city": "Vienna", "registered_country": "Austria", "registered_site_type": "office"},
+    {"company_id": "CO-203", "company_name": "Ferreira Imports GmbH", "jurisdiction": "Switzerland",
+     "incorporation_date": "2018-05-22", "registered_address": "6 Kirchgasse, Zurich",
+     "director_name": "José Ferreira", "director_dob": "1979-07-30",
+     "beneficial_owner": "José Ferreira", "beneficial_owner_dob": "1979-07-30",
+     "registered_city": "Zurich", "registered_country": "Switzerland", "registered_site_type": "office"},
+    {"company_id": "CO-204", "company_name": "Kirchgasse Freight AG", "jurisdiction": "Switzerland",
+     "incorporation_date": "2023-09-14", "registered_address": "6 Kirchgasse, Zurich",
+     "director_name": "Jose Ferreira", "director_dob": "1986-01-11",
+     "beneficial_owner": "Jose Ferreira", "beneficial_owner_dob": "1986-01-11",
+     "registered_city": "Zurich", "registered_country": "Switzerland", "registered_site_type": "office"},
+]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate linked synthetic data sources for classroom demos.")
@@ -299,6 +434,8 @@ def parse_args() -> argparse.Namespace:
                         help="Seed for the clinic registrations and residential addresses (Phase 1 data).")
     parser.add_argument("--legacy-seed", type=int, default=LEGACY_SEED,
                         help="Seed for the five Phase 0 sources. Changing it changes every existing file.")
+    parser.add_argument("--phase2-seed", type=int, default=PHASE2_SEED,
+                        help="Seed for the Phase 2 clinic coverage (which extra noise people are registered).")
     return parser.parse_args()
 
 
@@ -878,9 +1015,11 @@ def build_clinic_rows(
     company_rows: List[Dict[str, str]],
     flight_rows: List[Dict[str, str]],
     known_labels: Set[str],
-) -> List[Dict[str, object]]:
-    """Clinic registrations: a few core people, some noise people, and (simulator)
-    a few patients who appear nowhere else.
+) -> Tuple[List[Dict[str, object]], List[Dict[str, object]]]:
+    """Phase 1 clinic registrations: a few core people, some noise people, and
+    (simulator) a few patients who appear nowhere else.  Returns the rows and
+    the residential address pool.  Phase 2 then drops the watchlisted people's
+    rows and appends more (:func:`phase2_clinic_rows`).
 
     Every matched patient is written with a name and date of birth that some
     registry or flight record also carries, so the shared resolver can attach
@@ -944,7 +1083,78 @@ def build_clinic_rows(
     rows.sort(key=lambda row: (str(row["registered_on"]), str(row["patient_name"])))
     for index, row in enumerate(rows, start=1):
         row["registration_id"] = f"REG-{index:04d}"
-    return rows
+    return rows, addresses
+
+
+def _clinic_row(name: str, dob: str, home: Dict[str, object], registered_on: str) -> Dict[str, object]:
+    return {
+        "registration_id": "",
+        "patient_name": name,
+        "dob": dob,
+        "home_address": home["home_address"],
+        "home_city": home["home_city"],
+        "home_country": home["home_country"],
+        "lat": home["lat"],
+        "lon": home["lon"],
+        "clinic_code": home["clinic_code"],
+        "registered_on": registered_on,
+        "source": CLINIC_SOURCE,
+    }
+
+
+def phase2_clinic_rows(
+    phase1_rows: List[Dict[str, object]],
+    addresses: List[Dict[str, object]],
+    rng: random.Random,
+    noise_people: List[Dict[str, str]],
+    company_rows: List[Dict[str, str]],
+    flight_rows: List[Dict[str, str]],
+) -> List[Dict[str, object]]:
+    """The clinic rework (PHASE2_CONTRACT.md §1).
+
+    * Rows of the four watchlisted people are removed (their registration IDs
+      are not reused, so the file shows the gaps).  Every other Phase 1 row is
+      kept unchanged.
+    * New rows, numbered after the last Phase 1 ID: the namesake, Maya Singh,
+      and enough further noise people for about 60% of all noise people to be
+      registered.  Only people whose name and date of birth some registry or
+      flight record carries are eligible, so every new row attaches to a Person.
+    """
+    kept = [row for row in phase1_rows if (row["patient_name"], row["dob"]) not in WATCHLISTED_KEYS]
+    covered = {(str(row["patient_name"]), str(row["dob"])) for row in phase1_rows}
+    named_with_dob: Set[Tuple[str, str]] = set()
+    for row in company_rows:
+        named_with_dob.add((row["director_name"], row["director_dob"]))
+        named_with_dob.add((row["beneficial_owner"], row["beneficial_owner_dob"]))
+    for row in flight_rows:
+        named_with_dob.add((row["passenger_name"], row["dob"]))
+
+    new_rows = [
+        _clinic_row(NAMESAKE["canonical_name"], NAMESAKE["dob"], NAMESAKE_HOME, str(NAMESAKE_HOME["registered_on"])),
+        _clinic_row("Maya Singh", "1992-09-21", MAYA_HOME, str(MAYA_HOME["registered_on"])),
+    ]
+    target = round(CLINIC_NOISE_SHARE * len(noise_people))
+    already = sum(1 for p in noise_people if (p["canonical_name"], p["dob"]) in covered)
+    eligible = [p for p in noise_people
+                if (p["canonical_name"], p["dob"]) not in covered and (p["canonical_name"], p["dob"]) in named_with_dob]
+    chosen = rng.sample(eligible, min(max(target - already, 0), len(eligible)))
+    for person in chosen:
+        new_rows.append(_clinic_row(person["canonical_name"], person["dob"], rng.choice(addresses),
+                                    _registered_on(rng, date(2022, 1, 1), date(2026, 3, 20))))
+    new_rows.sort(key=lambda row: (str(row["registered_on"]), str(row["patient_name"])))
+    start = len(phase1_rows) + 1
+    for index, row in enumerate(new_rows, start=start):
+        row["registration_id"] = f"REG-{index:04d}"
+    return kept + new_rows
+
+
+def append_rows(rows: List[Dict[str, str]], extra: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    """Phase 0 rows unchanged and in order, then the Phase 2 rows (same columns)."""
+    if rows:
+        keys = list(rows[0].keys())
+        for row in extra:
+            assert list(row.keys()) == keys, (keys, list(row.keys()))
+    return rows + extra
 
 
 def _max_date(values: List[str], fallback: str) -> str:
@@ -998,6 +1208,19 @@ def main() -> None:
     flight_rows.sort(key=lambda row: row["departure_ts"])
     transaction_rows.sort(key=lambda row: row["txn_ts"])
     ping_rows.sort(key=lambda row: row["timestamp"])
+    noise_people = people[len(CORE_PEOPLE):]
+    phase1_company_rows = company_rows
+    phase1_flight_rows = flight_rows
+
+    # Phase 2: fixed rows appended after the Phase 0 rows (no RNG involved).
+    flight_rows = append_rows(flight_rows, PHASE2_FLIGHTS + (SIM_PAIR_FLIGHTS if args.profile == "simulator" else []))
+    transaction_rows = append_rows(transaction_rows, PHASE2_TRANSACTIONS)
+    if args.profile == "simulator":
+        company_rows = append_rows(company_rows, SIM_PAIR_COMPANIES)
+        noise_people = noise_people + [
+            {**p, "aliases": [], "nationality": "", "device_id": "", "person_account_id": "",
+             "watchlist_id": "", "risk_tag": ""} for p in SIM_PAIR_PEOPLE
+        ]
 
     write_csv(output_dir / "watchlist.csv", watchlist_rows)
     write_csv(output_dir / "company_registry.csv", company_rows)
@@ -1011,7 +1234,12 @@ def main() -> None:
     known_labels.update(row["registered_address"] for row in company_rows)
     known_labels.update(row["location_label"] for row in ping_rows)
     known_labels.update(home["home_address"] for home in list(CORE_HOMES.values()) + list(CORE_EARLIER_HOMES.values()))
-    clinic_rows = build_clinic_rows(args.profile, clinic_rng, people, company_rows, flight_rows, known_labels)
+    known_labels.add(str(NAMESAKE_HOME["home_address"]))
+    known_labels.add(str(MAYA_HOME["home_address"]))
+    phase1_clinic, addresses = build_clinic_rows(args.profile, clinic_rng, people, phase1_company_rows,
+                                                 phase1_flight_rows, known_labels)
+    clinic_rows = phase2_clinic_rows(phase1_clinic, addresses, random.Random(args.phase2_seed), noise_people,
+                                     company_rows, flight_rows)
     write_csv(output_dir / "clinic_registrations.csv", clinic_rows)
 
     base_date = BASE_TIME.date().isoformat()

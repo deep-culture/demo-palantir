@@ -8,6 +8,9 @@
  *   DC.governance.get()                  {markings, roles, purposes, checkpoints, honesty}
  *   DC.governance.role(id)               role object or null
  *
+ * Phase 2: get() also carries purposeRules, discussions and legalBasisNote (empty when absent);
+ * discussion(id) looks one up.
+ *
  * Additions (not in the contract, safe to use):
  *   isActive()                 true when the seed carried a governance block with roles
  *   marking(id), purpose(id), checkpoint(idOrTrigger), honesty(id)
@@ -22,7 +25,7 @@
 
   const DC = (window.DC = window.DC || {});
   const DEFAULT_ROLE = "fin-analyst";
-  const EMPTY = Object.freeze({ markings: [], roles: [], purposes: [], checkpoints: [], honesty: [] });
+  const EMPTY = Object.freeze({ markings: [], roles: [], purposes: [], checkpoints: [], honesty: [], purposeRules: [], discussions: [], legalBasisNote: "" });
 
   let current = EMPTY;
   let active = false;
@@ -48,6 +51,10 @@
           purposes: list(source.purposes),
           checkpoints: list(source.checkpoints),
           honesty: list(source.honesty),
+          // Phase 2 (contract §4–5); empty when the seed predates them.
+          purposeRules: list(source.purposeRules),
+          discussions: list(source.discussions),
+          legalBasisNote: typeof source.legalBasisNote === "string" ? source.legalBasisNote : "",
         }
       : EMPTY;
     active = current.roles.length > 0;
@@ -74,6 +81,7 @@
     marking: (id) => byId(current.markings, id),
     purpose: (id) => byId(current.purposes, id),
     honesty: (id) => byId(current.honesty, id),
+    discussion: (id) => byId(current.discussions, id),
     checkpoint: (idOrTrigger) =>
       byId(current.checkpoints, idOrTrigger) || current.checkpoints.find((item) => item.trigger === idOrTrigger) || null,
     onInit(callback) {

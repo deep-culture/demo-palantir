@@ -168,3 +168,16 @@ a { color: var(--dc-green); }
   .topbar { grid-template-columns: auto 1fr; }
   .topbar .actions { grid-column: 1 / -1; justify-content: flex-start; }
 }
+
+/* ── Phase 2: Action history, resolution events, exception records, discussion ── */
+.action-table .diff-row { white-space: nowrap; }
+.action-table .diff-from { color: #ff9b91; text-decoration: line-through; }
+.action-table .diff-to { color: var(--dc-green); }
+.action-table .wb { margin: 0.1rem 0; }
+.action-table .wb-system { color: var(--dc-green); font-weight: 600; }
+.outcome-exception { border-color: #ff9b91 !important; color: #ff9b91 !important; }
+.subhead { margin: 0.9rem 0 0.3rem; font-size: 0.95rem; font-weight: 500; color: var(--dc-green); }
+.redacted-inline > span { background: #000; color: transparent; }
+.is-redacted .redacted-inline > span { background: #000; color: transparent; }
+.panel-head .toggle { margin-left: auto; }
+.discussion-panel { padding: 0.4rem 0.9rem; }

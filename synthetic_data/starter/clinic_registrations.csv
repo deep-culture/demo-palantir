@@ -1,9 +1,11 @@
 registration_id,patient_name,dob,home_address,home_city,home_country,lat,lon,clinic_code,registered_on,source
 REG-0001,Lena Demir,1978-02-28,"95 Makariou Avenue, Limassol",Limassol,Cyprus,34.673593,33.019195,CLN-LIM-02,2023-05-10,clinic-ehr
 REG-0002,Daniel Wu,1985-06-14,"1210 Corcoran Street NW, Washington, D.C.","Washington, D.C.",United States,38.9113,-77.0287,CLN-WAS-01,2023-10-02,clinic-ehr
-REG-0003,Elena Markovic,1990-11-03,"31 Kralja Petra, Belgrade",Belgrade,Serbia,44.8196,20.4553,CLN-BEG-01,2024-02-06,clinic-ehr
-REG-0004,Sofia Petrov,1988-02-27,"40 Vitosha Boulevard, Sofia",Sofia,Bulgaria,42.6909,23.3196,CLN-SOF-03,2024-07-15,clinic-ehr
 REG-0005,Ben Grant,1984-06-08,"171 Josefstaedter Strasse, Vienna",Vienna,Austria,48.226912,16.361844,CLN-VIE-04,2025-02-11,clinic-ehr
 REG-0006,Clara Nasser,1986-06-21,"114 Al Manara Road, Dubai",Dubai,United Arab Emirates,25.200613,55.271738,CLN-DXB-05,2025-07-04,clinic-ehr
-REG-0007,Kareem Haddad,1987-04-12,"7 Anexartisias Street, Limassol",Limassol,Cyprus,34.6762,33.0427,CLN-LIM-02,2025-09-18,clinic-ehr
-REG-0008,Omar Rahman,1984-08-19,"22 Cromer Road, London",London,United Kingdom,51.5462,-0.1103,CLN-LON-04,2025-11-27,clinic-ehr
+REG-0009,Elias Orlov,1989-04-06,"99 Mildmay Grove, London",London,United Kingdom,51.516794,-0.118285,CLN-LON-05,2022-01-14,clinic-ehr
+REG-0010,Clara Silva,1977-11-25,"95 Makariou Avenue, Limassol",Limassol,Cyprus,34.673593,33.019195,CLN-LIM-02,2023-04-13,clinic-ehr
+REG-0011,Maya Singh,1992-09-21,"58 Rue de Carouge, Geneva",Geneva,Switzerland,46.1934,6.1424,CLN-GVA-01,2024-11-05,clinic-ehr
+REG-0012,Marcus Grant,1985-12-23,"56 Seefeldstrasse, Zurich",Zurich,Switzerland,47.362699,8.548637,CLN-ZRH-02,2025-01-14,clinic-ehr
+REG-0013,Elias Silva,1984-12-24,"99 Mildmay Grove, London",London,United Kingdom,51.516794,-0.118285,CLN-LON-05,2025-04-26,clinic-ehr
+REG-0014,Omar Rahman,1979-02-02,"41 Oak Lane, Birmingham",Birmingham,United Kingdom,52.4421,-1.9368,CLN-BHM-02,2026-03-12,clinic-ehr

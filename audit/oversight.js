@@ -7,6 +7,8 @@
  *
  * Shows: hash-chain status, a filterable event table, a per-object timeline, Checkpoint records,
  * a redaction toggle (the Raffinaderij exhibit), CSV/JSON export and the instructor "Clear audit".
+ * Phase 2 (audit/oversight-actions.js): Action history with before/after and writebacks, resolution
+ * events, the "exception records only" Checkpoint filter, and the Raffinaderij discussion card.
  */
 (function () {
   "use strict";
@@ -16,12 +18,16 @@
   const catalog = window.ontologySeedCatalog || {};
   const seed = catalog.starter || catalog[Object.keys(catalog)[0]] || {};
   DC.governance.init(seed.governance || null);
+  if (DC.purposes) DC.purposes.init((seed.governance && seed.governance.purposeRules) || []);
+  if (DC.actions) DC.actions.init((seed.ontology && seed.ontology.actionTypes) || [], (seed.ontology && seed.ontology.externalSystems) || []);
+  if (DC.resolution) DC.resolution.init(seed.resolution || null);
   DC.session.setSurface("oversight");
   DC.ui.configure({ oversightHref: "./index.html" });
 
   const state = {
     filters: { kind: "", role: "", surface: "", verb: "", objectId: "" },
     redacted: false,
+    exceptionsOnly: false,
     chain: null, // {ok, brokenAt, count, dropped}
     clearReason: "",
     notice: "",
@@ -96,6 +102,15 @@
   function cell(content, key, extraClass = "") {
     const redact = state.redacted && !keepVisible(key);
     return `<td class="${extraClass}${redact ? " redacted" : ""}"${redact ? ' aria-label="redacted"' : ""}>${redact ? `<span>${content}</span>` : content}</td>`;
+  }
+
+  function cellInline(content, key) {
+    const redact = state.redacted && !keepVisible(key);
+    return redact ? `<span class="redacted-inline" aria-label="redacted"><span>${content}</span></span>` : content;
+  }
+
+  function isException(event) {
+    return ((event.payload || {}).tags || []).includes("exception");
   }
 
   function objectButtons(ids) {
@@ -257,12 +272,13 @@
   }
 
   function renderCheckpoints(events) {
-    const records = events.filter((event) => event.kind === "checkpoint").slice(-MAX_ROWS).reverse();
+    const records = events.filter((event) => event.kind === "checkpoint" && (!state.exceptionsOnly || isException(event))).slice(-MAX_ROWS).reverse();
     return `
       <section class="panel" aria-label="Checkpoint records">
         <div class="panel-head">
           <h2><span class="dc-highlight">Checkpoint records</span></h2>
           <span class="muted">The prompt exactly as shown, the justification typed, and what happened next.</span>
+          <label class="toggle"><input type="checkbox" data-action="toggle-exceptions" ${state.exceptionsOnly ? "checked" : ""}> Exception records only</label>
         </div>
         <div class="table-wrap">
           <table class="audit-table checkpoint-table">
@@ -280,11 +296,11 @@
                     ${cell(esc(payload.promptText || ""), `${k}:prompt`, "prompt")}
                     ${cell(payload.justification ? `“${esc(payload.justification)}”` : `<span class="muted">—</span>`, `${k}:why`)}
                     ${cell(esc(payload.purpose || "—"), `${k}:purpose`)}
-                    ${cell(`<span class="outcome outcome-${esc(payload.outcome || "")}">${esc(payload.outcome || "")}</span>`, `${k}:outcome`)}
+                    ${cell(`<span class="outcome outcome-${esc(payload.outcome || "")}">${esc(payload.outcome || "")}</span>${isException(event) ? ` <span class="outcome outcome-exception">exception${payload.rule ? ` · ${esc(payload.rule)}` : ""}</span>` : ""}`, `${k}:outcome`)}
                     ${cell(objectButtons(event.objectIds), `${k}:objects`, "objects")}
                   </tr>`;
                 })
-                .join("") || `<tr><td colspan="9" class="muted">No Checkpoint records yet.</td></tr>`}
+                .join("") || `<tr><td colspan="9" class="muted">${state.exceptionsOnly ? "No exception records." : "No Checkpoint records yet."}</td></tr>`}
             </tbody>
           </table>
         </div>
@@ -317,13 +333,18 @@
       const all = DC.audit.readEvents();
       const index = checkpointIndex(all);
       const events = filteredEvents(all);
+      const p2 = window.DCOversight;
+      const helpers = { esc, cell, cellInline, formatTime, roleLabel, objectButtons, maxRows: MAX_ROWS };
       body = `
         <main class="oversight-main${state.redacted ? " is-redacted" : ""}">
           ${DC.governance.isActive() ? "" : `<p class="notice">No governance block in the seed: the role gate is off.</p>`}
           ${renderStatus(all)}
+          ${p2 ? p2.renderDiscussion() : ""}
           ${renderFilters(all)}
           ${renderTimeline(all, index)}
           ${renderTable(events, index)}
+          ${p2 ? p2.renderActionHistory(helpers) : ""}
+          ${p2 ? p2.renderResolution(helpers) : ""}
           ${renderCheckpoints(events)}
           ${renderInstructor()}
         </main>
@@ -423,7 +444,10 @@
 
   root.addEventListener("change", (event) => {
     const target = event.target;
-    if (target.dataset.action === "toggle-redaction") {
+    if (target.dataset.action === "toggle-exceptions") {
+      state.exceptionsOnly = target.checked;
+      render();
+    } else if (target.dataset.action === "toggle-redaction") {
       state.redacted = target.checked;
       DC.audit.logEvent({ surface: "oversight", kind: "view", verb: "oversight.redaction", payload: { on: state.redacted } });
       render();

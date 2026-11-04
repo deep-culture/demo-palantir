@@ -775,3 +775,142 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   cursor: pointer;
 }
 .mk-remove:hover { background: var(--dc-purple-dark); border-color: var(--accent); }
+
+/* ============================================================
+   Phase 2: purposes and Karlsruhe mode, discussion cards, Resolution tab
+   ============================================================ */
+
+/* ---- Rule badge (Karlsruhe mode): red, but the rule id is always written out ---- */
+.rule-badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 0 6px;
+  margin-left: 4px;
+  border-radius: 3px;
+  background: #d93a3a;
+  color: #fff;
+  border: 1px solid #ff9a9a;
+  letter-spacing: 0.04em;
+  vertical-align: 1px;
+  text-transform: none;
+}
+.dag-box.rule-hit, .dag-box.transform.rule-hit { border-color: #ff7a7a; box-shadow: inset 0 0 0 1px #ff7a7a; }
+.mk-box .mk-head .rule-badge { flex: none; }
+.mk-purpose { font-size: 10px; color: var(--text-muted); font-family: var(--sans); margin-top: 2px; }
+.purpose-chip strong { color: var(--text); }
+
+.purpose-panel { font-size: 12px; margin: 0 0 12px; padding: 8px 12px; border-radius: var(--radius); }
+.purpose-panel.off { border: 1px dashed var(--border-2); }
+.purpose-panel.on { border: 1px solid #ff7a7a; border-left: 4px solid #d93a3a; background: rgba(217, 58, 58, 0.10); }
+.purpose-panel-head { margin-bottom: 6px; }
+.purpose-panel-head .rule-badge { margin-left: 0; }
+.purpose-conflict { display: flex; gap: 8px; align-items: flex-start; padding: 4px 0; }
+.purpose-conflict .rule-badge { margin-left: 0; margin-top: 2px; }
+.purpose-conflict.inline { margin-top: 8px; padding: 6px 10px; border-left: 4px solid #d93a3a; background: rgba(217, 58, 58, 0.10); border-radius: var(--radius); font-size: 12px; }
+.purpose-rule-text { color: #ffb3b3; }
+.purpose-note { margin-top: 6px; font-size: 11px; font-style: italic; }
+.purpose-panel code, .purpose-conflict code { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+
+/* ---- Discussion cards (core/ui.js markup, restyled for the black workspace) ---- */
+.build-discussions { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; margin-top: 20px; }
+.build-discussions > * {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border-2) !important;
+  border-top: 4px solid var(--dc-purple) !important;
+  border-radius: var(--radius) !important;
+  padding: 12px 14px !important;
+  box-shadow: none !important;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.build-discussions h3, .build-discussions h4 { color: #fff !important; font-size: 14px; font-weight: 500; margin: 2px 0 6px; }
+.build-discussions p, .build-discussions li { color: var(--text) !important; margin: 0 0 6px; }
+.build-discussions ol, .build-discussions ul { padding-left: 18px; margin: 4px 0 8px; }
+.build-discussions a { color: var(--accent) !important; }
+.build-discussions [class*="kicker"], .build-discussions [class*="label"] {
+  color: var(--accent) !important; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  background: transparent !important;
+}
+.build-discussions [class*="disclaimer"] { color: var(--text-muted) !important; font-size: 11px; font-style: italic; }
+.build-discussions [class*="sources"] { color: var(--text-muted) !important; font-size: 11px; }
+
+/* ---- Resolution tab (F6) ---- */
+.res-lede { max-width: 820px; color: var(--text-muted); margin-bottom: 10px; }
+.res-controls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  padding: 10px 12px; margin-bottom: 10px;
+  background: var(--surface-2); border: 1px solid var(--border-2); border-radius: var(--radius);
+}
+.res-label { font-weight: 500; }
+#res-threshold { width: 280px; accent-color: var(--accent); }
+.res-value { font-family: var(--mono); font-size: 18px; color: var(--accent); min-width: 3.2em; }
+.res-presets { display: inline-flex; gap: 4px; }
+.res-shared { font-size: 11px; }
+.res-fixed-note {
+  margin-bottom: 10px; padding: 8px 12px; font-size: 12px;
+  border-left: 4px solid var(--amber); background: rgba(242, 193, 78, 0.10); border-radius: var(--radius);
+}
+.res-stats { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.res-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 1100px) { .res-grid { grid-template-columns: 1fr; } }
+.res-changed { list-style: none; margin-bottom: 8px; }
+.res-changed li { padding: 6px 10px; margin-bottom: 4px; border-left: 3px solid var(--accent); background: var(--accent-bg); border-radius: var(--radius); }
+.res-inherit { margin-top: 2px; color: var(--amber); font-size: 12px; }
+.res-inherit code { font-family: var(--mono); }
+.res-person { font-size: 12px; }
+.res-hint { font-size: 11px; }
+.res-table td { white-space: normal; vertical-align: top; }
+.res-table tr.res-merged td { background: rgba(173, 252, 146, 0.07); }
+.res-table tr.res-rejected td { background: rgba(255, 122, 122, 0.06); }
+.res-score { font-weight: 600; }
+.res-sigs { font-size: 11px; }
+.res-sig {
+  display: inline-block; font-family: var(--mono); font-size: 10px; padding: 0 5px; margin: 1px 0;
+  border: 1px solid var(--border-2); border-radius: 3px; color: var(--text); white-space: nowrap;
+}
+.res-sig.neg { border-color: #ff7a7a; color: #ffb3b3; }
+.res-decision { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 0 6px; border-radius: 3px; white-space: nowrap; }
+.res-decision-merged { background: var(--accent); color: var(--dc-black, #000); }
+.res-decision-separate { border: 1px solid var(--border-2); color: var(--text-muted); }
+.res-decision-indirect { border: 1px dashed var(--accent); color: var(--accent); }
+.res-decision-rejected { background: #d93a3a; color: #fff; }
+.res-override { font-size: 11px; }
+.res-weights td { white-space: normal; }
+.res-weights tr.neg .res-w, .res-arith tr.neg td { color: #ffb3b3; }
+.res-w { text-align: right; white-space: nowrap; }
+
+.res-explain {
+  position: sticky; top: 0;
+  padding: 12px 14px; background: var(--surface); border: 1px solid var(--border-2);
+  border-top: 3px solid var(--accent); border-radius: var(--radius);
+}
+.res-explain-title { font-size: 15px; margin-bottom: 4px; }
+.res-explain-status { margin-bottom: 8px; }
+.res-sub { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin: 10px 0 4px; }
+.res-pair { padding: 8px 10px; margin-bottom: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); }
+.res-pair-head { margin-bottom: 6px; font-size: 12px; }
+.res-arith { border-collapse: collapse; width: 100%; font-size: 12px; margin-bottom: 6px; }
+.res-arith td { padding: 2px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.res-arith td:first-child { width: 64px; }
+.res-arith tfoot td { border-top: 2px solid var(--text-muted); border-bottom: 0; font-weight: 600; color: var(--accent); }
+.res-arith tfoot td .text-muted { font-weight: 400; }
+.res-verdict { font-size: 12px; margin-bottom: 4px; }
+.res-expl-text { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+.res-unmerge { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; }
+.res-param { display: inline-flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--text-muted); }
+.res-param input[type="text"], .res-param select {
+  font-family: var(--sans); font-size: 12px; padding: 3px 6px; min-width: 220px;
+  background: var(--bg); color: var(--text); border: 1px solid var(--border-2); border-radius: 3px;
+}
+.res-table .res-hint { display: block; }
+.res-arith code { white-space: nowrap; }
+.res-pair-head .text-mono { display: block; font-size: 10px; }
+details.purpose-panel > summary { cursor: pointer; list-style: none; margin-bottom: 0; line-height: 1.6; }
+details.purpose-panel > summary::-webkit-details-marker { display: none; }
+details.purpose-panel[open] > summary { margin-bottom: 6px; }
+.rule-badge.ok { background: transparent; color: var(--accent); border-color: var(--accent); }
+.res-table td:nth-child(1), .res-table td:nth-child(2) { min-width: 150px; }

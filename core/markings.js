@@ -278,7 +278,8 @@
   }
 
   function clearOverrides(reason) {
-    writeState({ markingOverrides: [], ontologyRemoved: [] });
+    // Keep the other governance keys (threshold, resolutionOverrides, actionLog, …).
+    writeState({ ...readState(), markingOverrides: [], ontologyRemoved: [] });
     notify("local");
     return DC.audit
       ? DC.audit.logEvent({ kind: "marking", verb: "marking.clearOverrides", payload: { reason: String(reason || "") } })

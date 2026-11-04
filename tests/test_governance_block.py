@@ -45,12 +45,18 @@ CHECKPOINTS = {
                   "You are about to export ontology data outside the platform. State the purpose and the recipient."),
     "cp-marking-remove": ("marking.remove", ["dpo"],
                           "You are about to remove a marking. Everything derived from this dataset will become visible to more roles. State the legal basis."),
+    # Phase 2 (PHASE2_CONTRACT.md §4); the contract fixes only the danger-statement prompt.
+    "cp-action-sensitive": ("action.execute", ["fin-analyst", "dpo"], None),
+    "cp-danger-statement": ("expand.danger", ["patrol", "fin-analyst", "dpo"],
+                            "Describe the concrete danger that justifies widening this analysis beyond the first hop."),
+    "cp-exception": ("purpose.exception", ["fin-analyst", "dpo"], None),
 }
 
 HONESTY_IDS = ["inv.agent", "inv.investigations", "inv.analytics", "inv.map", "inv.object-types",
                "inv.properties", "inv.link-types", "inv.backing-datasets", "inv.objects", "inv.graph",
                "build.pipelines", "build.datasets", "build.lineage", "build.markings", "oversight.audit",
-               "session.roles", "session.checkpoints"]
+               "session.roles", "session.checkpoints",
+               "inv.actions", "inv.karlsruhe", "build.resolution"]
 HONESTY_FIXED = {
     "inv.agent": ("simplified", "Rule-based stand-in for an AIP chatbot; it cannot invent objects. Real AIP uses an LLM with tools and stages edits for review."),
     "build.lineage": ("extension", "Row- and field-level provenance goes beyond Foundry's dataset-level lineage."),
@@ -115,14 +121,17 @@ def test_checkpoints_exact(gotham, foundry):
             trigger, allowed, prompt = CHECKPOINTS[cp["id"]]
             assert cp["trigger"] == trigger
             assert cp["allowedRoles"] == allowed
-            assert cp["prompt"] == prompt
+            assert cp["prompt"] == prompt if prompt is not None else cp["prompt"]
             assert isinstance(cp["requiresPurpose"], bool)
             assert cp["refusalText"].endswith("This attempt has been logged.")
         removal = next(c for c in block["checkpoints"] if c["id"] == "cp-marking-remove")
         assert removal["refusalText"] == "Your role cannot remove markings. This attempt has been logged."
         assert removal["minLength"] == 20
         purposeful = {c["id"] for c in block["checkpoints"] if c["requiresPurpose"]}
-        assert purposeful == {"cp-export", "cp-marking-remove"}
+        assert purposeful == {"cp-export", "cp-marking-remove", "cp-action-sensitive", "cp-exception"}
+        by_id = {c["id"]: c for c in block["checkpoints"]}
+        assert by_id["cp-danger-statement"]["minLength"] == 30
+        assert by_id["cp-exception"]["tag"] == "exception"
 
 
 def test_honesty_entries(gotham, foundry):
@@ -143,6 +152,10 @@ def test_honesty_entries(gotham, foundry):
         assert by_id["build.markings"]["kind"] == "mirrors"
         assert by_id["session.checkpoints"]["kind"] == "mirrors"
         assert by_id["inv.objects"]["kind"] == "simplified"
+        # Phase 2 surfaces
+        assert by_id["inv.actions"]["kind"] == "mirrors" and "panels" in by_id["inv.actions"]["text"]
+        assert by_id["inv.karlsruhe"]["kind"] == "extension"
+        assert by_id["build.resolution"]["kind"] == "simplified" and "weighted sum" in by_id["build.resolution"]["text"]
 
 
 @pytest.mark.parametrize("dataset", DATASETS)

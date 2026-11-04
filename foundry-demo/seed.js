@@ -2,20 +2,20 @@ window.foundrySeedCatalog = {
   "starter": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:1967f91fbe74e78b29b27222735e36d88234b6d5feae3e5a8f853f061835b311",
+      "buildId": "sha256:381f3334efbd8d5343955cdda58a51b6fbc3d744b3b4b973ee7b1d557d04ba51",
       "sources": {
-        "bank_transactions.csv": "sha256:dab7921a62604db939a2c50d5489d31f704d01232a67bb63d923f9c1dc9efd2d",
-        "clinic_registrations.csv": "sha256:73209713f7f2276313867b25b298f283784f67de4739f78b8ef8665f5588b7db",
+        "bank_transactions.csv": "sha256:0a88981afca6d5f129af59d9eddd670b4fd4786b8d2cca104bbf905f06e94687",
+        "clinic_registrations.csv": "sha256:68a6e5270a055ceb0bf89c3b136a110405c95408ba7e9943137a72548b57588d",
         "company_registry.csv": "sha256:61b9b813d730ad7e821efb2fe8235972cbd2bc0c7bcd7914da0cc876da623a1c",
-        "flight_manifests.csv": "sha256:990589d20c367d3bdc319faea487370a219919852b40c292e8afa6be6ad08d75",
-        "manifest.json": "sha256:c4e8c70022bda948b4393253db1e3330ef9c8e4f59ffa7925e8597ea028a0748",
+        "flight_manifests.csv": "sha256:4c2e299db65b59c5b85a359c1303f5d656d3b28011d95c3c0cc65d949b9893b8",
+        "manifest.json": "sha256:1b5b5a5204a6e1508552fef76f1fc4c3490241e1ab4ba09eda8d3accdece7004",
         "mobile_location_pings.jsonl": "sha256:eb565ce866d9b7cbe93345f0781dd446b67fe07edf67ab573d472cc6d3ccfe48",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_foundry_seed.py@cc3797c",
+      "builder": "build_foundry_seed.py@c3b5739",
       "title": "Foundry Studio Demo",
       "dataset": "starter",
-      "generatedAt": "2026-11-04T16:20:00.672691Z"
+      "generatedAt": "2026-11-04T17:35:57.828396Z"
     },
     "governance": {
       "markings": [
@@ -224,6 +224,43 @@ window.foundrySeedCatalog = {
           ],
           "minLength": 20,
           "refusalText": "Your role cannot remove markings. This attempt has been logged."
+        },
+        {
+          "id": "cp-action-sensitive",
+          "trigger": "action.execute",
+          "prompt": "You are about to run an Action that changes data and sends a message to an external system. State why it is needed and for what purpose.",
+          "requiresPurpose": true,
+          "allowedRoles": [
+            "fin-analyst",
+            "dpo"
+          ],
+          "refusalText": "Your role cannot run sensitive Actions. This attempt has been logged."
+        },
+        {
+          "id": "cp-danger-statement",
+          "trigger": "expand.danger",
+          "prompt": "Describe the concrete danger that justifies widening this analysis beyond the first hop.",
+          "requiresPurpose": false,
+          "allowedRoles": [
+            "patrol",
+            "fin-analyst",
+            "dpo"
+          ],
+          "minLength": 30,
+          "refusalText": "Your role cannot widen an analysis beyond the first hop. This attempt has been logged."
+        },
+        {
+          "id": "cp-exception",
+          "trigger": "purpose.exception",
+          "prompt": "You are asking for an exception to a purpose rule. State the legal basis and why the rule should not apply in this case. The request is recorded as an exception for the data protection officer.",
+          "requiresPurpose": true,
+          "allowedRoles": [
+            "fin-analyst",
+            "dpo"
+          ],
+          "minLength": 20,
+          "tag": "exception",
+          "refusalText": "Your role cannot request exceptions to purpose rules. This attempt has been logged."
         }
       ],
       "honesty": [
@@ -362,11 +399,609 @@ window.foundrySeedCatalog = {
           "title": "Checkpoints",
           "text": "A purpose-justification prompt before sensitive searches, exports or network expansion. The record keeps the user, the time, the prompt exactly as shown, the justification and the items involved, as in Foundry Checkpoints (Jagasia & Wee, PEPR '21). Nothing stops you typing 'routine'.",
           "docUrl": "https://palantir.com/docs/foundry/checkpoints/overview/"
+        },
+        {
+          "id": "inv.actions",
+          "kind": "mirrors",
+          "label": "Mirrors Foundry",
+          "title": "Actions",
+          "text": "Action types with parameters, validation, permissions, side effects, logs and writeback to operational systems: the Ontology's kinetic layer, as in Foundry. Simplified: the receiving systems are panels in this page, not real APIs.",
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+        },
+        {
+          "id": "inv.karlsruhe",
+          "kind": "extension",
+          "label": "Teaching extension",
+          "title": "Karlsruhe mode",
+          "text": "Purpose rules that block combining data collected for incompatible purposes. Not a Palantir feature: our abstraction of the logic of the German Constitutional Court's 2023 ruling on automated data analysis, not its text.",
+          "docUrl": "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html"
+        },
+        {
+          "id": "build.resolution",
+          "kind": "simplified",
+          "label": "Simplified",
+          "title": "Entity resolution",
+          "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
+          "docUrl": "https://docs.aleph.occrp.org/developers/mappings"
+        }
+      ],
+      "purposeRules": [
+        {
+          "id": "R1",
+          "text": "Automated cross-dataset analysis needs a stated purpose on the session.",
+          "operations": [
+            "expand",
+            "rule",
+            "action"
+          ],
+          "requires": "sessionPurpose",
+          "effect": "block"
+        },
+        {
+          "id": "R2",
+          "text": "Data collected for healthcare may not be combined with law-enforcement purposes.",
+          "operations": [
+            "expand",
+            "rule",
+            "action",
+            "view"
+          ],
+          "incompatible": {
+            "data": [
+              "healthcare"
+            ],
+            "session": [
+              "public-order",
+              "financial-crime"
+            ]
+          },
+          "effect": "block"
+        },
+        {
+          "id": "R3",
+          "text": "Expansion beyond the first hop requires a concrete, logged danger statement.",
+          "operations": [
+            "expand"
+          ],
+          "depthOver": 1,
+          "effect": "checkpoint",
+          "checkpointId": "cp-danger-statement"
+        }
+      ],
+      "legalBasisNote": "Our abstraction of the BVerfG 2023 ruling's logic, not its text [to verify against the press release before teaching as the court's criteria].",
+      "discussions": [
+        {
+          "id": "disc-ice-elite",
+          "title": "ICE: ImmigrationOS and ELITE (2025–26)",
+          "attachedTo": [
+            "build.markings"
+          ],
+          "summary": "In April 2025 US Immigration and Customs Enforcement gave Palantir a $30m contract, without competition, for an \"ImmigrationOS\" targeting and removal platform. ELITE, reported in January 2026, is a map-based app for finding people that draws on Medicaid, USCIS and Thomson Reuters CLEAR data and shows a 0–100 \"address confidence score\". Court filings in July 2026 describe Medicaid data, shared beyond what a court order allowed, reaching Palantir through a Teams chat; Palantir says the data was deleted.",
+          "questions": [
+            "What would a HEALTH marking have prevented here, and what would it not have prevented?",
+            "What does \"deleted\" mean once derived datasets have been built from the data?"
+          ],
+          "sources": [
+            "https://immpolicytracking.org/policies/reported-palantir-awarded-30-million-to-build-immigrationos-surveillance-platform-for-ice",
+            "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite",
+            "https://www.hppr.org/npr-news/2026-07-17/ice-shared-medicaid-data-it-wasnt-supposed-to-have-with-palantir"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-bverfg-2023",
+          "title": "German Constitutional Court, 16 February 2023 (1 BvR 1547/19, 1 BvR 2634/20)",
+          "attachedTo": [
+            "session.checkpoints",
+            "inv.karlsruhe"
+          ],
+          "summary": "On 16 February 2023 the court ruled on police powers for automated data analysis in Hamburg and Hesse. Hamburg's provision was void outright; Hesse's was unconstitutional but stayed in force until 30 September 2023. Bavaria's system (VeRA, built on Palantir) went live in September 2024 and a constitutional complaint followed in July 2025. By 2026 many states had passed new laws; the complaint against North Rhine-Westphalia was not accepted (February 2026), those against Bavaria and Hesse are pending, and the federal government is reviewing nationwide use.",
+          "questions": [
+            "Is a free-text Checkpoint the kind of threshold the court had in mind?",
+            "Can a rule engine implement a proportionality test, or only imitate one?"
+          ],
+          "sources": [
+            "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html",
+            "https://verfassungsblog.de/?p=106048",
+            "https://posteo.de/en/news/germany-legal-challenge-alleges-unconstitutional-data-analysis-by-bavarian-police",
+            "https://www.yahoo.com/news/articles/germany-weighs-nationwide-palantirs-controversial-161014140.html"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-raffinaderij",
+          "title": "Dutch police: the \"Raffinaderij\" platform",
+          "attachedTo": [
+            "oversight.audit"
+          ],
+          "summary": "Dutch police have used Palantir software since 2012 inside a platform called the \"Raffinaderij\" (refinery). Its use became public through Open Government Act (Woo) requests by de Volkskrant; about 99% of the released documents were redacted (Buro Jansen & Janssen). The Ministry of Defence plans an alternative within two years.",
+          "questions": [
+            "What does an audit log mean if the public cannot see that the system exists?",
+            "Who is the auditor here, and who audits them?"
+          ],
+          "sources": [
+            "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-nhs-fdp",
+          "title": "NHS England: the Federated Data Platform",
+          "attachedTo": [
+            "session.roles",
+            "build.markings"
+          ],
+          "summary": "NHS England awarded the Federated Data Platform contract to Palantir in November 2023, worth up to £330m over seven years; 137 NHS trusts were using it by April 2026. Palantir says it is not the data controller, a claim that is contested in practice, and in February 2026 the British Medical Association urged doctors to limit their use of the platform.",
+          "questions": [
+            "Does \"not the controller\" survive once the vendor's software decides what each role can see?",
+            "Who should define the roles and markings on a health platform: the hospital, the ministry or the vendor?"
+          ],
+          "sources": [
+            "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-pol-intel",
+          "title": "Denmark: POL-INTEL and European exits",
+          "attachedTo": [
+            "build.pipelines"
+          ],
+          "summary": "Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, and other European governments are re-evaluating their agreements with US defence-technology suppliers.",
+          "questions": [
+            "What is sovereignty when the platform, and its updates, are delivered by the vendor?",
+            "Which decisions in a pipeline are technical, and which are policy made by whoever writes the transforms?"
+          ],
+          "sources": [
+            "https://researcher.itu.dk/p/en/research-outputs/scientification-through-privatization-pol-intel-in-denmark",
+            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        }
+      ]
+    },
+    "ontology": {
+      "actionTypes": [
+        {
+          "id": "act-add-to-watchlist",
+          "label": "Add to watchlist",
+          "objectType": "Person",
+          "sensitive": true,
+          "description": "Tag a person with a risk category, create a watchlist record linked to them and alert the border watch system.",
+          "parameters": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            },
+            {
+              "id": "riskTag",
+              "label": "Risk tag",
+              "type": "enum",
+              "required": true,
+              "options": [
+                "facilitator",
+                "procurement-network",
+                "sanctions-evasion",
+                "dual-use-broker"
+              ]
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst"
+          ],
+          "checkpointId": "cp-action-sensitive",
+          "effects": [
+            {
+              "op": "setProperty",
+              "property": "riskTag",
+              "from": "param:riskTag"
+            },
+            {
+              "op": "createObject",
+              "type": "WatchlistRecord",
+              "properties": {
+                "riskTag": "param:riskTag",
+                "passportId": "object:passportId",
+                "dob": "object:dob",
+                "reason": "param:reason",
+                "addedBy": "session:role",
+                "addedAt": "now",
+                "origin": "value:action"
+              }
+            },
+            {
+              "op": "createLink",
+              "linkType": "LISTED_ON",
+              "target": "created:WatchlistRecord"
+            },
+            {
+              "op": "writeback",
+              "system": "border-watch",
+              "template": "WATCH {label} passport {passportId} tag {riskTag}: {reason}"
+            }
+          ],
+          "feedsAnalytics": true,
+          "honesty": "inv.actions"
+        },
+        {
+          "id": "act-remove-from-watchlist",
+          "label": "Remove from watchlist",
+          "objectType": "Person",
+          "sensitive": true,
+          "description": "Undo an Add to watchlist made in this session: clear the risk tag, delete the watchlist record the Action created and tell the border watch system. Risk tags from the watchlist feed cannot be removed here.",
+          "parameters": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst"
+          ],
+          "checkpointId": "cp-action-sensitive",
+          "effects": [
+            {
+              "op": "setProperty",
+              "property": "riskTag",
+              "from": "value:",
+              "onlyIfSetByAction": true,
+              "refusal": "This risk tag comes from the watchlist feed, not from an Action in this session, so it cannot be removed here."
+            },
+            {
+              "op": "deleteLinked",
+              "linkType": "LISTED_ON",
+              "targetType": "WatchlistRecord",
+              "onlyCreatedByAction": true
+            },
+            {
+              "op": "writeback",
+              "system": "border-watch",
+              "template": "UNWATCH {label} passport {passportId}: {reason}"
+            }
+          ],
+          "feedsAnalytics": true,
+          "honesty": "inv.actions"
+        },
+        {
+          "id": "act-flag-account",
+          "label": "Flag account for review",
+          "objectType": "BankAccount",
+          "sensitive": false,
+          "description": "Mark a bank account for review and send the request to the bank's compliance desk.",
+          "parameters": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            },
+            {
+              "id": "priority",
+              "label": "Priority",
+              "type": "enum",
+              "required": true,
+              "options": [
+                "routine",
+                "urgent"
+              ]
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst"
+          ],
+          "effects": [
+            {
+              "op": "setProperty",
+              "property": "reviewFlag",
+              "from": "param:priority"
+            },
+            {
+              "op": "writeback",
+              "system": "bank-compliance",
+              "template": "REVIEW account {accountId} ({priority}) held by {ownerName}: {reason}"
+            }
+          ],
+          "feedsAnalytics": false,
+          "honesty": "inv.actions"
+        },
+        {
+          "id": "act-request-border-watch",
+          "label": "Request border watch",
+          "objectType": "Person",
+          "sensitive": false,
+          "description": "Ask the border watch system to alert on this person's passport. Changes nothing in the ontology.",
+          "parameters": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            },
+            {
+              "id": "duration",
+              "label": "Duration",
+              "type": "enum",
+              "required": true,
+              "options": [
+                "24h",
+                "7d",
+                "30d"
+              ]
+            }
+          ],
+          "allowedRoles": [
+            "patrol",
+            "fin-analyst"
+          ],
+          "effects": [
+            {
+              "op": "writeback",
+              "system": "border-watch",
+              "template": "ALERT REQUEST {label} passport {passportId} for {duration}: {reason}"
+            }
+          ],
+          "feedsAnalytics": false,
+          "honesty": "inv.actions"
+        },
+        {
+          "id": "act-unmerge-person",
+          "label": "Unmerge person",
+          "objectType": "Person",
+          "sensitive": true,
+          "description": "Reject a candidate merge: the two source identities stay separate at every threshold. The correction is sent to case management.",
+          "parameters": [
+            {
+              "id": "candidateId",
+              "label": "Merge to undo",
+              "type": "string",
+              "required": true
+            },
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst",
+            "dpo"
+          ],
+          "checkpointId": "cp-action-sensitive",
+          "effects": [
+            {
+              "op": "resolutionOverride",
+              "candidateId": "param:candidateId",
+              "decision": "reject"
+            },
+            {
+              "op": "writeback",
+              "system": "case-management",
+              "template": "UNMERGE {label}: candidate {candidateId} rejected by {role}: {reason}"
+            }
+          ],
+          "feedsAnalytics": true,
+          "honesty": "inv.actions"
+        }
+      ],
+      "externalSystems": [
+        {
+          "id": "border-watch",
+          "label": "Border watch system",
+          "description": "Simulated border-control alert list. Receives watch and unwatch requests for people."
+        },
+        {
+          "id": "bank-compliance",
+          "label": "Bank compliance desk",
+          "description": "Simulated compliance team at the account-holding bank. Receives account review requests."
+        },
+        {
+          "id": "case-management",
+          "label": "Case management",
+          "description": "Simulated case file system. Receives identity corrections such as unmerges."
+        }
+      ]
+    },
+    "resolution": {
+      "defaultThreshold": 0.75,
+      "minThreshold": 0.3,
+      "fixedNote": "Merges made by the pipeline's deterministic rules are fixed in this build — see each person's resolution record.",
+      "signals": [
+        {
+          "id": "passport-exact",
+          "weight": 1.0,
+          "label": "Same passport number",
+          "note": "Already merged by the pipeline's deterministic rules; never appears on a candidate.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "name-exact",
+          "weight": 0.45,
+          "label": "Same name",
+          "note": "Equal after folding case, punctuation and accents (José = Jose, Yılmaz = Yilmaz).",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "surname+initial",
+          "weight": 0.25,
+          "label": "Same surname and first initial",
+          "note": "C. Silva ~ Clara Silva. Counts only when no name matches exactly.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "name-translit",
+          "weight": 0.15,
+          "label": "Another spelling also matches",
+          "note": "Some pair of their names is equal only after mapping spelling variants: Omar/Umar, Karim/Kareem, Jelena/Elena, Petrova/Petrov. Added on top of the other name signals.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "dob-exact",
+          "weight": 0.15,
+          "label": "Same date of birth",
+          "note": "At least one date of birth is shared.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "dob-conflict",
+          "weight": -0.15,
+          "label": "Different dates of birth",
+          "note": "Both have dates of birth and none is shared. Deliberately a small penalty: is it too small?",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "phone-exact",
+          "weight": 0.3,
+          "label": "Same phone number",
+          "note": "A phone number appears for both (flights or pings). The number itself is not shown.",
+          "markings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "shared-route",
+          "weight": 0.1,
+          "label": "Shared flight route",
+          "note": "Both were booked between the same two airports, in either direction, on any date.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "shared-address",
+          "weight": 0.2,
+          "label": "Shared company address",
+          "note": "Both direct or own a company registered at the same address (open company register). Clinic home addresses are never used.",
+          "markings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "same-nationality",
+          "weight": 0.05,
+          "label": "Same nationality",
+          "note": "Nationality as recorded on the watchlist.",
+          "markings": [
+            "LE-SENSITIVE"
+          ]
+        }
+      ],
+      "candidates": [
+        {
+          "id": "cand-i6117009--maya-singh-1992-09-21",
+          "left": "person::i6117009",
+          "right": "person::maya-singh-1992-09-21",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:singh",
+          "explanation": "Same name 'Maya Singh' (+0.45), same date of birth 1992-09-21 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-lena-demir-1978-02-28--x2622631",
+          "left": "person::lena-demir-1978-02-28",
+          "right": "person::x2622631",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:demir",
+          "explanation": "Same name 'Lena Demir' (+0.45), same date of birth 1978-02-28 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-n5538219--g5510077",
+          "left": "person::n5538219",
+          "right": "person::g5510077",
+          "score": 0.55,
+          "signals": [
+            "name-exact",
+            "name-translit",
+            "dob-conflict",
+            "shared-route"
+          ],
+          "block": "surname:rahman",
+          "explanation": "Same name 'Omar Rahman' (+0.45), also spelled 'Omar Rahman' / 'Umar Rahman' (+0.15), different dates of birth 1984-08-19 / 1979-02-02 (−0.15), shared route LHR–IST (+0.10). Score 0.55.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-c-silva-30131994523--clara-silva-1977-11-25",
+          "left": "person::c-silva-30131994523",
+          "right": "person::clara-silva-1977-11-25",
+          "score": 0.45,
+          "signals": [
+            "name-exact"
+          ],
+          "block": "surname:silva",
+          "explanation": "Same name 'Clara Silva' (+0.45). Score 0.45.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-e-orlov-33919795579--elias-orlov-1989-04-06",
+          "left": "person::e-orlov-33919795579",
+          "right": "person::elias-orlov-1989-04-06",
+          "score": 0.45,
+          "signals": [
+            "name-exact"
+          ],
+          "block": "surname:orlov",
+          "explanation": "Same name 'Elias Orlov' (+0.45). Score 0.45.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-clara-adler-1986-05-04--x4744854",
+          "left": "person::clara-adler-1986-05-04",
+          "right": "person::x4744854",
+          "score": 0.4,
+          "signals": [
+            "surname+initial",
+            "dob-exact"
+          ],
+          "block": "surname:adler",
+          "explanation": "Same surname and initial 'Clara Adler' / 'C. Adler' (+0.25), same date of birth 1986-05-04 (+0.15). Score 0.40.",
+          "markings": [
+            "PII"
+          ]
         }
       ]
     },
     "pipeline": {
-      "generatedAt": "2026-11-04T16:20:00.672691Z",
+      "generatedAt": "2026-11-04T17:35:57.828396Z",
       "transforms": [
         {
           "id": "normalize_sources",
@@ -384,13 +1019,13 @@ window.foundrySeedCatalog = {
           "codePath": "pipeline/01_normalize_sources.py",
           "code": "\"\"\"\npipeline/01_normalize_sources.py — Read and normalize all six raw source files.\n\nFor each source:\n- Strip whitespace from all string fields\n- Parse date/datetime strings to ISO format (leave as-is if already ISO)\n- Split pipe-delimited alias fields into Python lists\n- Tag each row with its original 0-based row index as ``_source_row``\n- Copy the dataset's markings, purpose, legal basis and retention from\n  ``manifest.json`` (Dataset.markings / Dataset.purpose / ...), with\n  ``markingProvenance`` pointing at the raw file\n\nReturns six Dataset objects (one per source file).  The clinic file is\noptional: a profile without it yields an empty ``norm_clinic_registrations``.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport csv\nimport json\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\n# Allow imports from the repo root when run directly\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _strip(value: Any) -> Any:\n    if isinstance(value, str):\n        return value.strip()\n    return value\n\n\ndef _clean_row(row: Dict[str, Any]) -> Dict[str, Any]:\n    return {k: _strip(v) for k, v in row.items()}\n\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\n\n\ndef source_label(path: Path) -> str:\n    \"\"\"Repo-relative POSIX path of a raw source file (absolute if outside the repo).\"\"\"\n    resolved = Path(path).resolve()\n    try:\n        return resolved.relative_to(REPO_ROOT).as_posix()\n    except ValueError:\n        return resolved.as_posix()\n\n\ndef read_csv_raw(path: Path) -> List[Dict[str, str]]:\n    with path.open(newline=\"\", encoding=\"utf-8\") as fh:\n        return list(csv.DictReader(fh))\n\n\ndef read_jsonl_raw(path: Path) -> List[Dict[str, Any]]:\n    with path.open(encoding=\"utf-8\") as fh:\n        return [json.loads(line) for line in fh if line.strip()]\n\n\n# ---------------------------------------------------------------------------\n# Per-source normalizers\n# ---------------------------------------------------------------------------\n\ndef normalize_watchlist(path: Path) -> Dataset:\n    \"\"\"watchlist.csv → cleaned rows with aliases as list.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        # Split pipe-delimited aliases\n        raw_alias = row.get(\"alias\", \"\")\n        alias_list = [a.strip() for a in raw_alias.split(\"|\") if a.strip()] if raw_alias else []\n        out.append({\n            \"_source_row\": i,\n            \"watchlist_id\": row.get(\"watchlist_id\", \"\"),\n            \"canonical_name\": row.get(\"canonical_name\", \"\"),\n            \"aliases\": alias_list,\n            \"dob\": row.get(\"dob\", \"\"),\n            \"nationality\": row.get(\"nationality\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"risk_tag\": row.get(\"risk_tag\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"watchlist_id\", \"type\": \"string\"},\n        {\"field\": \"canonical_name\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"json\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"risk_tag\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_watchlist\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_company_registry(path: Path) -> Dataset:\n    \"\"\"company_registry.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"company_id\": row.get(\"company_id\", \"\"),\n            \"company_name\": row.get(\"company_name\", \"\"),\n            \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n            \"incorporation_date\": row.get(\"incorporation_date\", \"\"),\n            \"registered_address\": row.get(\"registered_address\", \"\"),\n            \"director_name\": row.get(\"director_name\", \"\"),\n            \"director_dob\": row.get(\"director_dob\", \"\"),\n            \"beneficial_owner\": row.get(\"beneficial_owner\", \"\"),\n            \"beneficial_owner_dob\": row.get(\"beneficial_owner_dob\", \"\"),\n            \"registered_city\": row.get(\"registered_city\", \"\"),\n            \"registered_country\": row.get(\"registered_country\", \"\"),\n            \"registered_site_type\": row.get(\"registered_site_type\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"company_id\", \"type\": \"string\"},\n        {\"field\": \"company_name\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporation_date\", \"type\": \"date\"},\n        {\"field\": \"registered_address\", \"type\": \"string\"},\n        {\"field\": \"director_name\", \"type\": \"string\"},\n        {\"field\": \"director_dob\", \"type\": \"date\"},\n        {\"field\": \"beneficial_owner\", \"type\": \"string\"},\n        {\"field\": \"beneficial_owner_dob\", \"type\": \"date\"},\n        {\"field\": \"registered_city\", \"type\": \"string\"},\n        {\"field\": \"registered_country\", \"type\": \"string\"},\n        {\"field\": \"registered_site_type\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_company_registry\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_flight_manifests(path: Path) -> Dataset:\n    \"\"\"flight_manifests.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"manifest_id\": row.get(\"manifest_id\", \"\"),\n            \"flight_number\": row.get(\"flight_number\", \"\"),\n            \"departure_airport\": row.get(\"departure_airport\", \"\"),\n            \"arrival_airport\": row.get(\"arrival_airport\", \"\"),\n            \"departure_ts\": row.get(\"departure_ts\", \"\"),\n            \"booking_reference\": row.get(\"booking_reference\", \"\"),\n            \"passenger_name\": row.get(\"passenger_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"phone_number\": row.get(\"phone_number\", \"\"),\n            \"seat\": row.get(\"seat\", \"\"),\n            \"payment_card_last4\": row.get(\"payment_card_last4\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"manifest_id\", \"type\": \"string\"},\n        {\"field\": \"flight_number\", \"type\": \"string\"},\n        {\"field\": \"departure_airport\", \"type\": \"string\"},\n        {\"field\": \"arrival_airport\", \"type\": \"string\"},\n        {\"field\": \"departure_ts\", \"type\": \"date\"},\n        {\"field\": \"booking_reference\", \"type\": \"string\"},\n        {\"field\": \"passenger_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"seat\", \"type\": \"string\"},\n        {\"field\": \"payment_card_last4\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_flight_manifests\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_bank_transactions(path: Path) -> Dataset:\n    \"\"\"bank_transactions.csv → cleaned rows with numeric amount.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        amount_raw = row.get(\"amount_usd\", \"\")\n        try:\n            amount = float(amount_raw) if amount_raw else None\n        except ValueError:\n            amount = None\n        out.append({\n            \"_source_row\": i,\n            \"transaction_id\": row.get(\"transaction_id\", \"\"),\n            \"source_account_id\": row.get(\"source_account_id\", \"\"),\n            \"source_name\": row.get(\"source_name\", \"\"),\n            \"destination_account_id\": row.get(\"destination_account_id\", \"\"),\n            \"destination_name\": row.get(\"destination_name\", \"\"),\n            \"amount_usd\": amount,\n            \"txn_type\": row.get(\"txn_type\", \"\"),\n            \"merchant_or_bank\": row.get(\"merchant_or_bank\", \"\"),\n            \"txn_ts\": row.get(\"txn_ts\", \"\"),\n            \"reference\": row.get(\"reference\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"transaction_id\", \"type\": \"string\"},\n        {\"field\": \"source_account_id\", \"type\": \"string\"},\n        {\"field\": \"source_name\", \"type\": \"string\"},\n        {\"field\": \"destination_account_id\", \"type\": \"string\"},\n        {\"field\": \"destination_name\", \"type\": \"string\"},\n        {\"field\": \"amount_usd\", \"type\": \"float\"},\n        {\"field\": \"txn_type\", \"type\": \"string\"},\n        {\"field\": \"merchant_or_bank\", \"type\": \"string\"},\n        {\"field\": \"txn_ts\", \"type\": \"date\"},\n        {\"field\": \"reference\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_bank_transactions\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_mobile_pings(path: Path) -> Dataset:\n    \"\"\"mobile_location_pings.jsonl → cleaned rows with numeric lat/lon.\"\"\"\n    rows = read_jsonl_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        out.append({\n            \"_source_row\": i,\n            \"ping_id\": str(row.get(\"ping_id\", \"\")),\n            \"device_id\": str(row.get(\"device_id\", \"\")),\n            \"phone_number\": str(row.get(\"phone_number\", \"\")),\n            \"observed_name\": str(row.get(\"observed_name\", \"\")),\n            \"timestamp\": str(row.get(\"timestamp\", \"\")),\n            \"location_label\": str(row.get(\"location_label\", \"\")),\n            \"location_type\": str(row.get(\"location_type\", \"\")),\n            \"city\": str(row.get(\"city\", \"\")),\n            \"country\": str(row.get(\"country\", \"\")),\n            \"lat\": row.get(\"lat\"),\n            \"lon\": row.get(\"lon\"),\n            \"cell_tower\": str(row.get(\"cell_tower\", \"\")),\n            \"source\": str(row.get(\"source\", \"\")),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"ping_id\", \"type\": \"string\"},\n        {\"field\": \"device_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"observed_name\", \"type\": \"string\"},\n        {\"field\": \"timestamp\", \"type\": \"date\"},\n        {\"field\": \"location_label\", \"type\": \"string\"},\n        {\"field\": \"location_type\", \"type\": \"string\"},\n        {\"field\": \"city\", \"type\": \"string\"},\n        {\"field\": \"country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"cell_tower\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_mobile_pings\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef _float_or_none(value: Any) -> Any:\n    try:\n        return float(value) if value not in (None, \"\") else None\n    except ValueError:\n        return None\n\n\ndef normalize_clinic(path: Path) -> Dataset:\n    \"\"\"clinic_registrations.csv → cleaned rows with numeric lat/lon.\n\n    Health data: rows are only ever *attached* to people who already exist\n    (by name + dob, in step 02); an unmatched row stays in this dataset.\n    \"\"\"\n    rows = read_csv_raw(path) if path.exists() else []\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"registration_id\": row.get(\"registration_id\", \"\"),\n            \"patient_name\": row.get(\"patient_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"home_address\": row.get(\"home_address\", \"\"),\n            \"home_city\": row.get(\"home_city\", \"\"),\n            \"home_country\": row.get(\"home_country\", \"\"),\n            \"lat\": _float_or_none(row.get(\"lat\")),\n            \"lon\": _float_or_none(row.get(\"lon\")),\n            \"clinic_code\": row.get(\"clinic_code\", \"\"),\n            \"registered_on\": row.get(\"registered_on\", \"\"),\n            \"source\": row.get(\"source\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"registration_id\", \"type\": \"string\"},\n        {\"field\": \"patient_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"home_address\", \"type\": \"string\"},\n        {\"field\": \"home_city\", \"type\": \"string\"},\n        {\"field\": \"home_country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"clinic_code\", \"type\": \"string\"},\n        {\"field\": \"registered_on\", \"type\": \"date\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_clinic_registrations\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef apply_manifest(ds: Dataset, manifest: Dict[str, Dict[str, Any]], file_name: str) -> Dataset:\n    \"\"\"Copy markings, purpose, legal basis and retention from the manifest.\"\"\"\n    entry = governance.manifest_entry_for_file(manifest, file_name)\n    ds.set_governance(governance.raw_governance(file_name, entry))\n    ds.as_of = entry.get(\"asOf\", \"\")  # type: ignore[attr-defined]\n    ds.derived_from = [file_name]\n    return ds\n\n\n# ---------------------------------------------------------------------------\n# Public entry point\n# ---------------------------------------------------------------------------\n\nRAW_FILES = (\n    \"watchlist.csv\", \"company_registry.csv\", \"flight_manifests.csv\",\n    \"bank_transactions.csv\", \"mobile_location_pings.jsonl\", \"clinic_registrations.csv\",\n)\n\n\ndef run(dataset_dir: Path) -> Tuple[Dataset, Dataset, Dataset, Dataset, Dataset, Dataset]:\n    \"\"\"Normalize all six sources under *dataset_dir*.\n\n    Returns\n    -------\n    (norm_watchlist, norm_company_registry, norm_flight_manifests,\n     norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations)\n    \"\"\"\n    dataset_dir = Path(dataset_dir)\n    manifest = governance.load_manifest(dataset_dir)\n    wl = normalize_watchlist(dataset_dir / \"watchlist.csv\")\n    cr = normalize_company_registry(dataset_dir / \"company_registry.csv\")\n    fm = normalize_flight_manifests(dataset_dir / \"flight_manifests.csv\")\n    bt = normalize_bank_transactions(dataset_dir / \"bank_transactions.csv\")\n    mp = normalize_mobile_pings(dataset_dir / \"mobile_location_pings.jsonl\")\n    cl = normalize_clinic(dataset_dir / \"clinic_registrations.csv\")\n\n    datasets = (wl, cr, fm, bt, mp, cl)\n    for ds, file_name in zip(datasets, RAW_FILES):\n        apply_manifest(ds, manifest, file_name)\n    return datasets\n\n\nif __name__ == \"__main__\":\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    datasets = run(dataset_dir)\n    for ds in datasets:\n        print(f\"{ds.name}: {len(ds)} rows\")\n",
           "rowsIn": 0,
-          "rowsOut": 165,
-          "builtAt": "2026-11-04T16:20:00.672691Z"
+          "rowsOut": 172,
+          "builtAt": "2026-11-04T17:35:57.828396Z"
         },
         {
           "id": "resolve_persons",
           "name": "02 Resolve Persons",
-          "description": "Entity-resolve persons across watchlist, registry, flights and pings by passport_id > phone_number > name+dob > alias, then attach clinic registrations by name + dob only (a clinic row never creates a person). Records full field-level provenance.",
+          "description": "Entity-resolve persons across watchlist, registry, flights and pings by passport_id > phone_number > name+dob > alias, then attach clinic registrations by name + dob only (a clinic row never creates a person). A name alone never extends or re-points a watchlisted identity. Records full field-level provenance; candidate pairs for the Resolution tab are scored afterwards (pipeline/candidates.py).",
           "inputs": [
             "norm_watchlist",
             "norm_company_registry",
@@ -400,10 +1035,10 @@ window.foundrySeedCatalog = {
           ],
           "output": "resolved_persons",
           "codePath": "pipeline/02_resolve_persons.py",
-          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (HEALTH)\n  clinicCode       — latest clinic registration (HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
-          "rowsIn": 133,
-          "rowsOut": 23,
-          "builtAt": "2026-11-04T16:20:00.672691Z"
+          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (HEALTH)\n  clinicCode       — latest clinic registration (HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
+          "rowsIn": 138,
+          "rowsOut": 24,
+          "builtAt": "2026-11-04T17:35:57.828396Z"
         },
         {
           "id": "resolve_companies",
@@ -417,7 +1052,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/03_resolve_companies.py — Entity resolution for Company entities.\n\nKeyed by company_id from the normalized company_registry dataset.\n\nOutput Dataset: company entities\n  id                 — company::{slug(company_id)}\n  companyName\n  jurisdiction\n  incorporationDate\n  registeredAddress\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef run(norm_company_registry: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve Company entities from the normalized company_registry dataset.\"\"\"\n    seen: Dict[str, int] = {}   # company_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for row in norm_company_registry.rows:\n        company_id = row.get(\"company_id\", \"\")\n        if not company_id:\n            continue\n\n        src_row = int(row[\"_source_row\"])\n        ds_name = norm_company_registry.name\n\n        if company_id in seen:\n            # Merge into existing — update any empty fields\n            out_idx = seen[company_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                val = row.get(src_field, \"\")\n                if val and not existing.get(out_field):\n                    existing[out_field] = val\n                    fp.setdefault(out_field, []).append(\n                        {\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"merge\"}\n                    )\n        else:\n            out_idx = len(output_rows)\n            seen[company_id] = out_idx\n            entity_id = f\"company::{slug(company_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"Company\",\n                \"companyName\": row.get(\"company_name\", \"\"),\n                \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n                \"incorporationDate\": row.get(\"incorporation_date\", \"\"),\n                \"registeredAddress\": row.get(\"registered_address\", \"\"),\n            }\n            fp: Dict[str, List[Dict[str, Any]]] = {}\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                if row.get(src_field):\n                    fp[out_field] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"\"}]\n            fp[\"id\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": \"company_id\", \"note\": \"key\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp)\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"companyName\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporationDate\", \"type\": \"date\"},\n        {\"field\": \"registeredAddress\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_companies\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_company_registry])\n    lineage = LineageRecord()\n\n    for out_idx, (out_row, fp) in enumerate(zip(output_rows, fp_per_row)):\n        # Row-level: find the original source row index\n        src_refs = fp.get(\"id\", fp.get(\"companyName\", []))\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"company\")\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, cr, _, _, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(cr)\n    print(f\"Resolved {len(ds)} companies\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"companyName\"])\n",
           "rowsIn": 10,
           "rowsOut": 10,
-          "builtAt": "2026-11-04T16:20:00.672691Z"
+          "builtAt": "2026-11-04T17:35:57.828396Z"
         },
         {
           "id": "resolve_accounts",
@@ -429,9 +1064,9 @@ window.foundrySeedCatalog = {
           "output": "resolved_accounts",
           "codePath": "pipeline/04_resolve_accounts.py",
           "code": "\"\"\"\npipeline/04_resolve_accounts.py — Entity resolution for BankAccount entities.\n\nKeyed by account_id from the normalized bank_transactions dataset.\nBoth source and destination accounts are extracted.\n\nOutput Dataset: bank account entities\n  id           — bankaccount::{slug(account_id)}\n  accountId\n  ownerName\n  accountKind  — \"personal\" | \"corporate\" | \"\" (resolved downstream in step 05)\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\ndef run(norm_bank_transactions: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve BankAccount entities from the normalized bank_transactions dataset.\"\"\"\n    seen: Dict[str, int] = {}   # account_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n    ds_name = norm_bank_transactions.name\n\n    def upsert(account_id: str, owner_name: str, src_row: int, id_field: str, name_field: str) -> None:\n        if not account_id:\n            return\n        if account_id in seen:\n            out_idx = seen[account_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            if owner_name and not existing.get(\"ownerName\"):\n                existing[\"ownerName\"] = owner_name\n                fp.setdefault(\"ownerName\", []).append(\n                    {\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"merge\"}\n                )\n        else:\n            out_idx = len(output_rows)\n            seen[account_id] = out_idx\n            entity_id = f\"bankaccount::{slug(account_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"BankAccount\",\n                \"accountId\": account_id,\n                \"ownerName\": owner_name,\n                \"accountKind\": \"\",\n            }\n            fp_entry: Dict[str, List[Dict[str, Any]]] = {\n                \"id\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"key\"}],\n                \"accountId\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"\"}],\n            }\n            if owner_name:\n                fp_entry[\"ownerName\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp_entry)\n\n    for row in norm_bank_transactions.rows:\n        src_row = int(row[\"_source_row\"])\n        upsert(\n            row.get(\"source_account_id\", \"\"),\n            row.get(\"source_name\", \"\"),\n            src_row,\n            \"source_account_id\",\n            \"source_name\",\n        )\n        upsert(\n            row.get(\"destination_account_id\", \"\"),\n            row.get(\"destination_name\", \"\"),\n            src_row,\n            \"destination_account_id\",\n            \"destination_name\",\n        )\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"accountId\", \"type\": \"string\"},\n        {\"field\": \"ownerName\", \"type\": \"string\"},\n        {\"field\": \"accountKind\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_accounts\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_bank_transactions])\n    lineage = LineageRecord()\n\n    for out_idx, fp in enumerate(fp_per_row):\n        src_refs = fp.get(\"id\", [])\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"account\")\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, _, _, bt, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(bt)\n    print(f\"Resolved {len(ds)} bank accounts\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"ownerName\"])\n",
-          "rowsIn": 32,
-          "rowsOut": 23,
-          "builtAt": "2026-11-04T16:20:00.672691Z"
+          "rowsIn": 34,
+          "rowsOut": 25,
+          "builtAt": "2026-11-04T17:35:57.828396Z"
         },
         {
           "id": "build_ontology",
@@ -451,9 +1086,9 @@ window.foundrySeedCatalog = {
           "output": "ontology",
           "codePath": "pipeline/05_build_ontology.py",
           "code": "\"\"\"\npipeline/05_build_ontology.py — Build the full ontology entity and edge sets.\n\nTakes all resolved entity datasets + normalized sources.  Produces:\n  - Additional entity types: Device, Flight, Airport, Location, WatchlistRecord\n  - All edges:\n      LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT,\n      OWNS_ACCOUNT, HAS_CORP_ACCOUNT, TRANSFERRED_TO,\n      BOOKED_ON, DEPARTED_FROM, ARRIVED_AT,\n      USES_DEVICE, OBSERVED_AT,\n      RESIDES_AT (Phase 1: Person → residential Location, from clinic rows)\n\nClinic rows that the shared resolver attached to a Person (name + dob) become\na residential ``Location`` (``locationType: \"residential\"``) and a\n``RESIDES_AT`` link with ``{asOf, source}``.  Unattached rows produce nothing.\n\nBoth output datasets inherit the union of their inputs' markings, and every\nentity and edge gets contract §3 markings from ``pipeline/governance.py``.\n\nPerson lookups go through the shared resolver in ``pipeline/resolution.py``\n(the same one the Gotham seed builder uses), passing every key the source row\ncarries — passport, phone, name and date of birth — so both demos attach\neach edge to the same person.\n\nReturns:\n  entities_dataset  — all entities (persons + companies + accounts + new types)\n  edges_dataset     — all edges\n  entity_lineage    — LineageRecord for entities\n  edge_lineage      — LineageRecord for edges\n\"\"\"\n\nfrom __future__ import annotations\n\nimport re\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Optional, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\nfrom pipeline.resolution import PersonResolver, attach_clinic_rows, clinic_observations, resolve_people\n\n# ---------------------------------------------------------------------------\n# Airport reference data (from build_ontology_seed.py)\n# ---------------------------------------------------------------------------\nAIRPORT_COORDS: Dict[str, Dict[str, Any]] = {\n    \"ATH\": {\"name\": \"Athens International Airport\", \"city\": \"Athens\", \"country\": \"Greece\", \"lat\": 37.9364, \"lon\": 23.9475},\n    \"BEG\": {\"name\": \"Belgrade Nikola Tesla Airport\", \"city\": \"Belgrade\", \"country\": \"Serbia\", \"lat\": 44.8184, \"lon\": 20.3091},\n    \"DXB\": {\"name\": \"Dubai International Airport\", \"city\": \"Dubai\", \"country\": \"United Arab Emirates\", \"lat\": 25.2532, \"lon\": 55.3657},\n    \"IAD\": {\"name\": \"Washington Dulles International Airport\", \"city\": \"Washington, D.C.\", \"country\": \"United States\", \"lat\": 38.9531, \"lon\": -77.4565},\n    \"IST\": {\"name\": \"Istanbul Airport\", \"city\": \"Istanbul\", \"country\": \"Turkey\", \"lat\": 41.2753, \"lon\": 28.7519},\n    \"LCA\": {\"name\": \"Larnaca International Airport\", \"city\": \"Larnaca\", \"country\": \"Cyprus\", \"lat\": 34.8751, \"lon\": 33.6249},\n    \"LHR\": {\"name\": \"Heathrow Airport\", \"city\": \"London\", \"country\": \"United Kingdom\", \"lat\": 51.4700, \"lon\": -0.4543},\n    \"SOF\": {\"name\": \"Sofia Airport\", \"city\": \"Sofia\", \"country\": \"Bulgaria\", \"lat\": 42.6950, \"lon\": 23.4062},\n    \"VIE\": {\"name\": \"Vienna International Airport\", \"city\": \"Vienna\", \"country\": \"Austria\", \"lat\": 48.1103, \"lon\": 16.5697},\n}\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _norm(value: str) -> str:\n    cleaned = re.sub(r\"[^a-z0-9]+\", \" \", value.lower()).strip()\n    return re.sub(r\"\\s+\", \" \", cleaned)\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Ontology builder\n# ---------------------------------------------------------------------------\n\nclass OntologyBuilder:\n    def __init__(\n        self,\n        resolved_persons: Dataset,\n        resolved_companies: Dataset,\n        resolved_accounts: Dataset,\n        resolver: PersonResolver,\n    ) -> None:\n        # Start with resolved entities\n        self.entities: List[Dict[str, Any]] = []\n        self.entity_index: Dict[str, int] = {}  # entity_id → index in self.entities\n        self.edges: List[Dict[str, Any]] = []\n        self.edge_index: Dict[str, int] = {}\n\n        # Entity lineage: entity_id → list of source refs\n        self.entity_src: Dict[str, List[Dict[str, Any]]] = {}\n        self.entity_field_prov: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}\n\n        # Lookup tables (persons: the shared resolver from step 02)\n        self.resolver = resolver\n        self.company_by_name: Dict[str, str] = {}\n        self.account_by_id: Dict[str, str] = {}\n        self.device_by_id: Dict[str, str] = {}\n        self.airport_by_code: Dict[str, str] = {}\n        self.location_by_label: Dict[str, str] = {}\n\n        # Ingest persons\n        for row in resolved_persons.rows:\n            self._add_entity_row(row, resolved_persons.name)\n\n        # Ingest companies\n        for row in resolved_companies.rows:\n            self._add_entity_row(row, resolved_companies.name)\n            self.company_by_name[_norm(row.get(\"companyName\", \"\"))] = row[\"id\"]\n\n        # Ingest accounts\n        for row in resolved_accounts.rows:\n            self._add_entity_row(row, resolved_accounts.name)\n            self.account_by_id[row[\"accountId\"]] = row[\"id\"]\n\n    def _add_entity_row(self, row: Dict[str, Any], source_ds: str) -> str:\n        eid = row[\"id\"]\n        if eid in self.entity_index:\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        # Build Gotham-compatible entity shape\n        props = {k: v for k, v in row.items() if k not in (\"id\", \"type\", \"resolution\") and v not in (None, \"\")}\n        entity = {\n            \"id\": eid,\n            \"type\": row[\"type\"],\n            \"label\": props.get(\"canonicalName\") or props.get(\"companyName\") or props.get(\"accountId\") or eid,\n            \"properties\": props,\n            \"sourceIds\": [source_ds],\n        }\n        if row.get(\"resolution\"):\n            entity[\"resolution\"] = row[\"resolution\"]\n        self.entities.append(entity)\n        return eid\n\n    def _add_edge(\n        self,\n        rel_type: str,\n        source_id: str,\n        target_id: str,\n        properties: Optional[Dict[str, Any]] = None,\n        dedupe_key: Optional[str] = None,\n    ) -> str:\n        base_key = dedupe_key or f\"{rel_type}:{source_id}:{target_id}\"\n        edge_id = f\"{rel_type.lower()}::{slug(base_key)}\"\n        if edge_id in self.edge_index:\n            idx = self.edge_index[edge_id]\n            if properties:\n                for k, v in properties.items():\n                    if v not in (None, \"\"):\n                        self.edges[idx][\"properties\"][k] = v\n            return edge_id\n        idx = len(self.edges)\n        self.edge_index[edge_id] = idx\n        self.edges.append({\n            \"id\": edge_id,\n            \"type\": rel_type,\n            \"source\": source_id,\n            \"target\": target_id,\n            \"label\": rel_type,\n            \"properties\": {k: v for k, v in (properties or {}).items() if v not in (None, \"\")},\n        })\n        return edge_id\n\n    def _ensure_entity(\n        self, type_id: str, external_key: str, label: str,\n        properties: Dict[str, Any], source_ds: str,\n    ) -> str:\n        eid = f\"{type_id.lower()}::{slug(external_key)}\"\n        if eid in self.entity_index:\n            # Merge\n            existing = self.entities[self.entity_index[eid]]\n            for k, v in properties.items():\n                if v not in (None, \"\") and existing[\"properties\"].get(k) in (None, \"\"):\n                    existing[\"properties\"][k] = v\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        clean_props = {k: v for k, v in properties.items() if v not in (None, \"\")}\n        self.entities.append({\n            \"id\": eid,\n            \"type\": type_id,\n            \"label\": label or external_key,\n            \"properties\": clean_props,\n            \"sourceIds\": [source_ds],\n        })\n        return eid\n\n    def ensure_airport(self, code: str) -> str:\n        if code in self.airport_by_code:\n            return self.airport_by_code[code]\n        info = AIRPORT_COORDS.get(code, {\"name\": code, \"city\": \"\", \"country\": \"\", \"lat\": None, \"lon\": None})\n        eid = self._ensure_entity(\n            \"Airport\", code, info[\"name\"],\n            {\"code\": code, \"airportName\": info[\"name\"], \"city\": info[\"city\"],\n             \"country\": info[\"country\"], \"lat\": info[\"lat\"], \"lon\": info[\"lon\"]},\n            \"norm_flight_manifests\",\n        )\n        self.airport_by_code[code] = eid\n        return eid\n\n    def ensure_location(\n        self, label: str, lat: Any = None, lon: Any = None,\n        cell_tower: str = \"\", location_type: str = \"\", city: str = \"\", country: str = \"\",\n        source_ds: str = \"norm_mobile_pings\",\n    ) -> str:\n        norm = _norm(label)\n        if norm in self.location_by_label:\n            eid = self.location_by_label[norm]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            for k, v in {\"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower,\n                         \"locationType\": location_type, \"city\": city, \"country\": country}.items():\n                if v not in (None, \"\") and props.get(k) in (None, \"\"):\n                    props[k] = v\n            return eid\n        eid = self._ensure_entity(\n            \"Location\", label, label,\n            {\"label\": label, \"locationType\": location_type, \"city\": city, \"country\": country,\n             \"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower},\n            source_ds,\n        )\n        self.location_by_label[norm] = eid\n        return eid\n\n    def ensure_device(self, device_id: str, phone: str, observed_name: str) -> str:\n        if device_id in self.device_by_id:\n            eid = self.device_by_id[device_id]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            if phone:\n                props[\"phoneNumber\"] = _merge(str(props.get(\"phoneNumber\", \"\")), phone)\n            if observed_name:\n                props[\"lastObservedName\"] = _merge(str(props.get(\"lastObservedName\", \"\")), observed_name)\n            return eid\n        eid = self._ensure_entity(\n            \"Device\", device_id, device_id,\n            {\"deviceId\": device_id, \"phoneNumber\": phone, \"lastObservedName\": observed_name},\n            \"norm_mobile_pings\",\n        )\n        self.device_by_id[device_id] = eid\n        return eid\n\n    def find_person(self, passport_id: str = \"\", phone: str = \"\", name: str = \"\", dob: str = \"\",\n                    ref: str = \"\") -> Optional[str]:\n        \"\"\"Person for a source record (``ref``) or, failing that, by key lookup.\"\"\"\n        if ref:\n            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone)\n        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone)\n\n    def link_account_owner(self, account_eid: str, owner_name: str) -> None:\n        norm = _norm(owner_name)\n        acct_props = self.entities[self.entity_index[account_eid]][\"properties\"]\n        if norm in self.company_by_name:\n            company_id = self.company_by_name[norm]\n            self._add_edge(\"HAS_CORP_ACCOUNT\", company_id, account_eid, dedupe_key=f\"{company_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"corporate\"\n            return\n        person_id = self.find_person(name=owner_name)\n        if person_id:\n            self._add_edge(\"OWNS_ACCOUNT\", person_id, account_eid, dedupe_key=f\"{person_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"personal\"\n\n\n# ---------------------------------------------------------------------------\n# Main run\n# ---------------------------------------------------------------------------\n\ndef run(\n    resolved_persons: Dataset,\n    resolved_companies: Dataset,\n    resolved_accounts: Dataset,\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_bank_transactions: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, Dataset, LineageRecord, LineageRecord]:\n\n    resolver = getattr(resolved_persons, \"resolver\", None)\n    if resolver is None:\n        # Rebuild the identical resolver state from the normalised sources.\n        resolver = resolve_people(norm_watchlist.rows, norm_company_registry.rows,\n                                  norm_flight_manifests.rows, norm_mobile_pings.rows)\n        attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts, resolver)\n\n    # --- WatchlistRecord entities + LISTED_ON edges ---\n    for row in norm_watchlist.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            name=row.get(\"canonical_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"watchlist:{row.get('watchlist_id', '')}\",\n        )\n        record_eid = builder._ensure_entity(\n            \"WatchlistRecord\",\n            row.get(\"watchlist_id\", \"\"),\n            row.get(\"watchlist_id\", \"\"),\n            {\n                \"watchlistId\": row.get(\"watchlist_id\", \"\"),\n                \"alias\": \" | \".join(row.get(\"aliases\", [])),\n                \"dob\": row.get(\"dob\", \"\"),\n                \"nationality\": row.get(\"nationality\", \"\"),\n                \"passportId\": row.get(\"passport_id\", \"\"),\n                \"riskTag\": row.get(\"risk_tag\", \"\"),\n            },\n            norm_watchlist.name,\n        )\n        if person_id:\n            builder._add_edge(\"LISTED_ON\", person_id, record_eid,\n                               dedupe_key=f\"{person_id}:{record_eid}\")\n\n    # --- Company edges: DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT ---\n    for row in norm_company_registry.rows:\n        company_eid = f\"company::{slug(row.get('company_id', ''))}\"\n        if company_eid not in builder.entity_index:\n            continue\n\n        # Director\n        director_id = builder.find_person(name=row.get(\"director_name\", \"\"),\n                                           dob=row.get(\"director_dob\", \"\"),\n                                           ref=f\"company:{row.get('company_id', '')}:director\")\n        if director_id:\n            builder._add_edge(\"DIRECTS\", director_id, company_eid,\n                               dedupe_key=f\"{director_id}:{company_eid}\")\n\n        # Beneficial owner\n        owner_id = builder.find_person(name=row.get(\"beneficial_owner\", \"\"),\n                                        dob=row.get(\"beneficial_owner_dob\", \"\"),\n                                        ref=f\"company:{row.get('company_id', '')}:owner\")\n        if owner_id:\n            builder._add_edge(\"BENEFICIALLY_OWNS\", owner_id, company_eid,\n                               dedupe_key=f\"{owner_id}:{company_eid}\")\n\n        # Registered address → Location\n        address = row.get(\"registered_address\", \"\")\n        if address:\n            loc_eid = builder.ensure_location(\n                address, location_type=row.get(\"registered_site_type\", \"\"),\n                city=row.get(\"registered_city\", \"\"),\n                country=row.get(\"registered_country\", \"\"),\n                source_ds=norm_company_registry.name,\n            )\n            builder._add_edge(\"REGISTERED_AT\", company_eid, loc_eid,\n                               dedupe_key=f\"{company_eid}:{loc_eid}\")\n\n    # --- Flight entities + BOOKED_ON, DEPARTED_FROM, ARRIVED_AT ---\n    for row in norm_flight_manifests.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            phone=row.get(\"phone_number\", \"\"),\n            name=row.get(\"passenger_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"flight:{row.get('manifest_id', '')}\",\n        )\n        flight_eid = builder._ensure_entity(\n            \"Flight\",\n            row.get(\"manifest_id\", \"\"),\n            f\"{row.get('flight_number', '')} · {row.get('passenger_name', '')}\",\n            {\n                \"manifestId\": row.get(\"manifest_id\", \"\"),\n                \"flightNumber\": row.get(\"flight_number\", \"\"),\n                \"departureTs\": row.get(\"departure_ts\", \"\"),\n                \"bookingReference\": row.get(\"booking_reference\", \"\"),\n                \"seat\": row.get(\"seat\", \"\"),\n                \"paymentCardLast4\": row.get(\"payment_card_last4\", \"\"),\n            },\n            norm_flight_manifests.name,\n        )\n        dep_eid = builder.ensure_airport(row.get(\"departure_airport\", \"\"))\n        arr_eid = builder.ensure_airport(row.get(\"arrival_airport\", \"\"))\n        if person_id:\n            builder._add_edge(\"BOOKED_ON\", person_id, flight_eid,\n                               dedupe_key=f\"{person_id}:{flight_eid}\")\n        builder._add_edge(\"DEPARTED_FROM\", flight_eid, dep_eid,\n                           dedupe_key=f\"{flight_eid}:{dep_eid}\")\n        builder._add_edge(\"ARRIVED_AT\", flight_eid, arr_eid,\n                           dedupe_key=f\"{flight_eid}:{arr_eid}\")\n\n    # --- Bank account ownership + TRANSFERRED_TO ---\n    for row in norm_bank_transactions.rows:\n        src_acc = row.get(\"source_account_id\", \"\")\n        dst_acc = row.get(\"destination_account_id\", \"\")\n        src_eid = builder.account_by_id.get(src_acc, \"\")\n        dst_eid = builder.account_by_id.get(dst_acc, \"\")\n\n        if src_eid:\n            builder.link_account_owner(src_eid, row.get(\"source_name\", \"\"))\n        if dst_eid:\n            builder.link_account_owner(dst_eid, row.get(\"destination_name\", \"\"))\n\n        if src_eid and dst_eid and row.get(\"txn_type\") == \"transfer\":\n            dedupe = f\"{src_eid}:{dst_eid}\"\n            edge_id = f\"transferred_to::{slug(dedupe)}\"\n            if edge_id in builder.edge_index:\n                idx = builder.edge_index[edge_id]\n                existing = builder.edges[idx]\n                count = int(existing[\"properties\"].get(\"count\", \"1\")) + 1\n                total = float(existing[\"properties\"].get(\"totalAmountUsd\", \"0\")) + float(row.get(\"amount_usd\") or 0)\n                existing[\"properties\"][\"count\"] = str(count)\n                existing[\"properties\"][\"totalAmountUsd\"] = f\"{total:.2f}\"\n                existing[\"properties\"][\"lastTxnTs\"] = row.get(\"txn_ts\", \"\")\n            else:\n                builder._add_edge(\n                    \"TRANSFERRED_TO\", src_eid, dst_eid,\n                    properties={\n                        \"count\": \"1\",\n                        \"totalAmountUsd\": str(row.get(\"amount_usd\", \"\") or \"\"),\n                        \"lastTxnTs\": row.get(\"txn_ts\", \"\"),\n                        \"sampleReference\": row.get(\"reference\", \"\"),\n                    },\n                    dedupe_key=dedupe,\n                )\n\n    # --- Device entities + USES_DEVICE + OBSERVED_AT ---\n    for row in norm_mobile_pings.rows:\n        device_id_str = row.get(\"device_id\", \"\")\n        phone = row.get(\"phone_number\", \"\")\n        observed = row.get(\"observed_name\", \"\")\n\n        device_eid = builder.ensure_device(device_id_str, phone, observed)\n\n        # Ping-only persons were already created by step 02's resolver.\n        person_id = builder.find_person(phone=phone, name=observed,\n                                        ref=f\"ping:{row.get('ping_id', '')}\")\n        if person_id:\n            builder._add_edge(\"USES_DEVICE\", person_id, device_eid,\n                               dedupe_key=f\"{person_id}:{device_eid}\")\n\n        loc_eid = builder.ensure_location(\n            row.get(\"location_label\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            cell_tower=row.get(\"cell_tower\", \"\"),\n            location_type=row.get(\"location_type\", \"\"),\n            city=row.get(\"city\", \"\"),\n            country=row.get(\"country\", \"\"),\n        )\n\n        dedupe = f\"{device_eid}:{loc_eid}\"\n        edge_id = f\"observed_at::{slug(dedupe)}\"\n        if edge_id in builder.edge_index:\n            idx = builder.edge_index[edge_id]\n            existing = builder.edges[idx]\n            count = int(existing[\"properties\"].get(\"sightingCount\", \"1\")) + 1\n            existing[\"properties\"][\"sightingCount\"] = str(count)\n            existing[\"properties\"][\"lastSeen\"] = row.get(\"timestamp\", \"\")\n        else:\n            builder._add_edge(\n                \"OBSERVED_AT\", device_eid, loc_eid,\n                properties={\n                    \"sightingCount\": \"1\",\n                    \"firstSeen\": row.get(\"timestamp\", \"\"),\n                    \"lastSeen\": row.get(\"timestamp\", \"\"),\n                    \"source\": row.get(\"source\", \"\"),\n                },\n                dedupe_key=dedupe,\n            )\n\n    # --- Residential Locations + RESIDES_AT (clinic rows, Phase 1) ---\n    for obs in clinic_observations(norm_clinic_registrations.rows):\n        person_id = resolver.clinic_by_ref.get(obs.ref)\n        if not person_id:\n            continue  # unattached clinic rows create no objects\n        row = obs.row\n        loc_eid = builder.ensure_location(\n            row.get(\"home_address\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            location_type=\"residential\",\n            city=row.get(\"home_city\", \"\"),\n            country=row.get(\"home_country\", \"\"),\n            source_ds=norm_clinic_registrations.name,\n        )\n        dedupe = f\"{person_id}:{loc_eid}\"\n        edge_id = f\"resides_at::{slug(dedupe)}\"\n        as_of = row.get(\"registered_on\", \"\")\n        if edge_id in builder.edge_index:\n            existing = builder.edges[builder.edge_index[edge_id]]\n            if as_of > str(existing[\"properties\"].get(\"asOf\", \"\")):\n                existing[\"properties\"][\"asOf\"] = as_of\n        else:\n            builder._add_edge(\"RESIDES_AT\", person_id, loc_eid,\n                               properties={\"asOf\": as_of, \"source\": row.get(\"source\", \"\")},\n                               dedupe_key=dedupe)\n\n    # --- Markings on every object and link (contract §3) ---\n    raw_inputs = [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                  norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations]\n    file_markings = {ds.derived_from[0]: ds.markings for ds in raw_inputs if ds.derived_from}\n    governance.annotate_objects(builder.entities, builder.edges, file_markings)\n\n    # --- Assemble output datasets ---\n    entities_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"sourceIds\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n        {\"field\": \"propertyMarkings\", \"type\": \"json\"},\n        {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n    ]\n    edges_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n        {\"field\": \"target\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n    ]\n\n    entities_ds = Dataset(\n        name=\"ontology_entities\",\n        rows=sorted(builder.entities, key=lambda e: (str(e[\"type\"]), str(e[\"label\"]))),\n        schema=entities_schema,\n    )\n    edges_ds = Dataset(\n        name=\"ontology_edges\",\n        rows=sorted(builder.edges, key=lambda e: (str(e[\"type\"]), str(e[\"source\"]), str(e[\"target\"]))),\n        schema=edges_schema,\n    )\n\n    ontology_inputs = [resolved_persons, resolved_companies, resolved_accounts] + raw_inputs\n    inherit_markings(entities_ds, ontology_inputs)\n    inherit_markings(edges_ds, ontology_inputs)\n\n    # Trivial lineage: each entity/edge row came from its sourceIds\n    entity_lineage = LineageRecord()\n    for out_idx, entity in enumerate(entities_ds.rows):\n        for src in entity.get(\"sourceIds\", []):\n            entity_lineage.add_source(out_idx, src, 0, note=entity[\"type\"])\n\n    edge_lineage = LineageRecord()\n    for out_idx, edge in enumerate(edges_ds.rows):\n        edge_lineage.add_source(out_idx, edge[\"type\"], 0, note=\"edge\")\n\n    return entities_ds, edges_ds, entity_lineage, edge_lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline import p01_normalize_sources as n01\n    from pipeline import p02_resolve_persons as n02\n    from pipeline import p03_resolve_companies as n03\n    from pipeline import p04_resolve_accounts as n04\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = n01.run(dataset_dir)\n    persons, _ = n02.run(wl, cr, fm, mp, cl)\n    companies, _ = n03.run(cr)\n    accounts, _ = n04.run(bt)\n    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp, cl)\n    print(f\"Entities: {len(entities_ds)}, Edges: {len(edges_ds)}\")\n",
-          "rowsIn": 221,
-          "rowsOut": 378,
-          "builtAt": "2026-11-04T16:20:00.672691Z"
+          "rowsIn": 231,
+          "rowsOut": 397,
+          "builtAt": "2026-11-04T17:35:57.828396Z"
         }
       ]
     },
@@ -861,7 +1496,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 22,
+        "rowCount": 25,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -1235,7 +1870,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 32,
+        "rowCount": 34,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -1979,7 +2614,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 8,
+        "rowCount": 10,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -2011,34 +2646,6 @@ window.foundrySeedCatalog = {
           },
           {
             "_source_row": 2,
-            "registration_id": "REG-0003",
-            "patient_name": "Elena Markovic",
-            "dob": "1990-11-03",
-            "home_address": "31 Kralja Petra, Belgrade",
-            "home_city": "Belgrade",
-            "home_country": "Serbia",
-            "lat": 44.8196,
-            "lon": 20.4553,
-            "clinic_code": "CLN-BEG-01",
-            "registered_on": "2024-02-06",
-            "source": "clinic-ehr"
-          },
-          {
-            "_source_row": 3,
-            "registration_id": "REG-0004",
-            "patient_name": "Sofia Petrov",
-            "dob": "1988-02-27",
-            "home_address": "40 Vitosha Boulevard, Sofia",
-            "home_city": "Sofia",
-            "home_country": "Bulgaria",
-            "lat": 42.6909,
-            "lon": 23.3196,
-            "clinic_code": "CLN-SOF-03",
-            "registered_on": "2024-07-15",
-            "source": "clinic-ehr"
-          },
-          {
-            "_source_row": 4,
             "registration_id": "REG-0005",
             "patient_name": "Ben Grant",
             "dob": "1984-06-08",
@@ -2052,7 +2659,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 5,
+            "_source_row": 3,
             "registration_id": "REG-0006",
             "patient_name": "Clara Nasser",
             "dob": "1986-06-21",
@@ -2066,31 +2673,87 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 6,
-            "registration_id": "REG-0007",
-            "patient_name": "Kareem Haddad",
-            "dob": "1987-04-12",
-            "home_address": "7 Anexartisias Street, Limassol",
+            "_source_row": 4,
+            "registration_id": "REG-0009",
+            "patient_name": "Elias Orlov",
+            "dob": "1989-04-06",
+            "home_address": "99 Mildmay Grove, London",
+            "home_city": "London",
+            "home_country": "United Kingdom",
+            "lat": 51.516794,
+            "lon": -0.118285,
+            "clinic_code": "CLN-LON-05",
+            "registered_on": "2022-01-14",
+            "source": "clinic-ehr"
+          },
+          {
+            "_source_row": 5,
+            "registration_id": "REG-0010",
+            "patient_name": "Clara Silva",
+            "dob": "1977-11-25",
+            "home_address": "95 Makariou Avenue, Limassol",
             "home_city": "Limassol",
             "home_country": "Cyprus",
-            "lat": 34.6762,
-            "lon": 33.0427,
+            "lat": 34.673593,
+            "lon": 33.019195,
             "clinic_code": "CLN-LIM-02",
-            "registered_on": "2025-09-18",
+            "registered_on": "2023-04-13",
+            "source": "clinic-ehr"
+          },
+          {
+            "_source_row": 6,
+            "registration_id": "REG-0011",
+            "patient_name": "Maya Singh",
+            "dob": "1992-09-21",
+            "home_address": "58 Rue de Carouge, Geneva",
+            "home_city": "Geneva",
+            "home_country": "Switzerland",
+            "lat": 46.1934,
+            "lon": 6.1424,
+            "clinic_code": "CLN-GVA-01",
+            "registered_on": "2024-11-05",
             "source": "clinic-ehr"
           },
           {
             "_source_row": 7,
-            "registration_id": "REG-0008",
-            "patient_name": "Omar Rahman",
-            "dob": "1984-08-19",
-            "home_address": "22 Cromer Road, London",
+            "registration_id": "REG-0012",
+            "patient_name": "Marcus Grant",
+            "dob": "1985-12-23",
+            "home_address": "56 Seefeldstrasse, Zurich",
+            "home_city": "Zurich",
+            "home_country": "Switzerland",
+            "lat": 47.362699,
+            "lon": 8.548637,
+            "clinic_code": "CLN-ZRH-02",
+            "registered_on": "2025-01-14",
+            "source": "clinic-ehr"
+          },
+          {
+            "_source_row": 8,
+            "registration_id": "REG-0013",
+            "patient_name": "Elias Silva",
+            "dob": "1984-12-24",
+            "home_address": "99 Mildmay Grove, London",
             "home_city": "London",
             "home_country": "United Kingdom",
-            "lat": 51.5462,
-            "lon": -0.1103,
-            "clinic_code": "CLN-LON-04",
-            "registered_on": "2025-11-27",
+            "lat": 51.516794,
+            "lon": -0.118285,
+            "clinic_code": "CLN-LON-05",
+            "registered_on": "2025-04-26",
+            "source": "clinic-ehr"
+          },
+          {
+            "_source_row": 9,
+            "registration_id": "REG-0014",
+            "patient_name": "Omar Rahman",
+            "dob": "1979-02-02",
+            "home_address": "41 Oak Lane, Birmingham",
+            "home_city": "Birmingham",
+            "home_country": "United Kingdom",
+            "lat": 52.4421,
+            "lon": -1.9368,
+            "clinic_code": "CLN-BHM-02",
+            "registered_on": "2026-03-12",
             "source": "clinic-ehr"
           }
         ],
@@ -2113,7 +2776,7 @@ window.foundrySeedCatalog = {
         "inputPurposes": [
           "healthcare"
         ],
-        "asOf": "2025-11-27"
+        "asOf": "2026-03-12"
       },
       {
         "id": "norm_watchlist",
@@ -2525,7 +3188,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 22,
+        "rowCount": 25,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -2902,7 +3565,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 32,
+        "rowCount": 34,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -3652,7 +4315,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 8,
+        "rowCount": 10,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -3684,34 +4347,6 @@ window.foundrySeedCatalog = {
           },
           {
             "_source_row": 2,
-            "registration_id": "REG-0003",
-            "patient_name": "Elena Markovic",
-            "dob": "1990-11-03",
-            "home_address": "31 Kralja Petra, Belgrade",
-            "home_city": "Belgrade",
-            "home_country": "Serbia",
-            "lat": 44.8196,
-            "lon": 20.4553,
-            "clinic_code": "CLN-BEG-01",
-            "registered_on": "2024-02-06",
-            "source": "clinic-ehr"
-          },
-          {
-            "_source_row": 3,
-            "registration_id": "REG-0004",
-            "patient_name": "Sofia Petrov",
-            "dob": "1988-02-27",
-            "home_address": "40 Vitosha Boulevard, Sofia",
-            "home_city": "Sofia",
-            "home_country": "Bulgaria",
-            "lat": 42.6909,
-            "lon": 23.3196,
-            "clinic_code": "CLN-SOF-03",
-            "registered_on": "2024-07-15",
-            "source": "clinic-ehr"
-          },
-          {
-            "_source_row": 4,
             "registration_id": "REG-0005",
             "patient_name": "Ben Grant",
             "dob": "1984-06-08",
@@ -3725,7 +4360,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 5,
+            "_source_row": 3,
             "registration_id": "REG-0006",
             "patient_name": "Clara Nasser",
             "dob": "1986-06-21",
@@ -3739,31 +4374,87 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 6,
-            "registration_id": "REG-0007",
-            "patient_name": "Kareem Haddad",
-            "dob": "1987-04-12",
-            "home_address": "7 Anexartisias Street, Limassol",
+            "_source_row": 4,
+            "registration_id": "REG-0009",
+            "patient_name": "Elias Orlov",
+            "dob": "1989-04-06",
+            "home_address": "99 Mildmay Grove, London",
+            "home_city": "London",
+            "home_country": "United Kingdom",
+            "lat": 51.516794,
+            "lon": -0.118285,
+            "clinic_code": "CLN-LON-05",
+            "registered_on": "2022-01-14",
+            "source": "clinic-ehr"
+          },
+          {
+            "_source_row": 5,
+            "registration_id": "REG-0010",
+            "patient_name": "Clara Silva",
+            "dob": "1977-11-25",
+            "home_address": "95 Makariou Avenue, Limassol",
             "home_city": "Limassol",
             "home_country": "Cyprus",
-            "lat": 34.6762,
-            "lon": 33.0427,
+            "lat": 34.673593,
+            "lon": 33.019195,
             "clinic_code": "CLN-LIM-02",
-            "registered_on": "2025-09-18",
+            "registered_on": "2023-04-13",
+            "source": "clinic-ehr"
+          },
+          {
+            "_source_row": 6,
+            "registration_id": "REG-0011",
+            "patient_name": "Maya Singh",
+            "dob": "1992-09-21",
+            "home_address": "58 Rue de Carouge, Geneva",
+            "home_city": "Geneva",
+            "home_country": "Switzerland",
+            "lat": 46.1934,
+            "lon": 6.1424,
+            "clinic_code": "CLN-GVA-01",
+            "registered_on": "2024-11-05",
             "source": "clinic-ehr"
           },
           {
             "_source_row": 7,
-            "registration_id": "REG-0008",
-            "patient_name": "Omar Rahman",
-            "dob": "1984-08-19",
-            "home_address": "22 Cromer Road, London",
+            "registration_id": "REG-0012",
+            "patient_name": "Marcus Grant",
+            "dob": "1985-12-23",
+            "home_address": "56 Seefeldstrasse, Zurich",
+            "home_city": "Zurich",
+            "home_country": "Switzerland",
+            "lat": 47.362699,
+            "lon": 8.548637,
+            "clinic_code": "CLN-ZRH-02",
+            "registered_on": "2025-01-14",
+            "source": "clinic-ehr"
+          },
+          {
+            "_source_row": 8,
+            "registration_id": "REG-0013",
+            "patient_name": "Elias Silva",
+            "dob": "1984-12-24",
+            "home_address": "99 Mildmay Grove, London",
             "home_city": "London",
             "home_country": "United Kingdom",
-            "lat": 51.5462,
-            "lon": -0.1103,
-            "clinic_code": "CLN-LON-04",
-            "registered_on": "2025-11-27",
+            "lat": 51.516794,
+            "lon": -0.118285,
+            "clinic_code": "CLN-LON-05",
+            "registered_on": "2025-04-26",
+            "source": "clinic-ehr"
+          },
+          {
+            "_source_row": 9,
+            "registration_id": "REG-0014",
+            "patient_name": "Omar Rahman",
+            "dob": "1979-02-02",
+            "home_address": "41 Oak Lane, Birmingham",
+            "home_city": "Birmingham",
+            "home_country": "United Kingdom",
+            "lat": 52.4421,
+            "lon": -1.9368,
+            "clinic_code": "CLN-BHM-02",
+            "registered_on": "2026-03-12",
             "source": "clinic-ehr"
           }
         ],
@@ -3789,7 +4480,7 @@ window.foundrySeedCatalog = {
         "inputPurposes": [
           "healthcare"
         ],
-        "asOf": "2025-11-27"
+        "asOf": "2026-03-12"
       },
       {
         "id": "resolved_persons",
@@ -3845,7 +4536,7 @@ window.foundrySeedCatalog = {
             "type": "json"
           }
         ],
-        "rowCount": 23,
+        "rowCount": 24,
         "sampleRows": [
           {
             "id": "person::p8842101",
@@ -3857,8 +4548,8 @@ window.foundrySeedCatalog = {
             "passportId": "P8842101",
             "phoneNumber": "+971501118890",
             "riskTag": "sanctions-evasion",
-            "homeAddress": "7 Anexartisias Street, Limassol",
-            "clinicCode": "CLN-LIM-02",
+            "homeAddress": "",
+            "clinicCode": "",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -3892,8 +4583,8 @@ window.foundrySeedCatalog = {
             "passportId": "L1029921",
             "phoneNumber": "+381642201488",
             "riskTag": "procurement-network",
-            "homeAddress": "31 Kralja Petra, Belgrade",
-            "clinicCode": "CLN-BEG-01",
+            "homeAddress": "",
+            "clinicCode": "",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -3931,8 +4622,8 @@ window.foundrySeedCatalog = {
             "passportId": "N5538219",
             "phoneNumber": "+447700912410",
             "riskTag": "dual-use-broker",
-            "homeAddress": "22 Cromer Road, London",
-            "clinicCode": "CLN-LON-04",
+            "homeAddress": "",
+            "clinicCode": "",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -3941,6 +4632,7 @@ window.foundrySeedCatalog = {
                 "company:CO-102:director",
                 "flight:NMF-0008",
                 "flight:MF-0003",
+                "flight:MF-0007",
                 "ping:NPG-00021",
                 "ping:PG-0005",
                 "ping:NPG-00047",
@@ -3962,8 +4654,8 @@ window.foundrySeedCatalog = {
             "passportId": "B7730042",
             "phoneNumber": "+359883317821",
             "riskTag": "facilitator",
-            "homeAddress": "40 Vitosha Boulevard, Sofia",
-            "clinicCode": "CLN-SOF-03",
+            "homeAddress": "",
+            "clinicCode": "",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -3990,8 +4682,8 @@ window.foundrySeedCatalog = {
             "passportId": "",
             "phoneNumber": "",
             "riskTag": "",
-            "homeAddress": "",
-            "clinicCode": "",
+            "homeAddress": "58 Rue de Carouge, Geneva",
+            "clinicCode": "CLN-GVA-01",
             "resolution": {
               "method": "name+dob",
               "confidence": 0.9,
@@ -4040,8 +4732,8 @@ window.foundrySeedCatalog = {
             "passportId": "X8755439",
             "phoneNumber": "+44389854268",
             "riskTag": "",
-            "homeAddress": "",
-            "clinicCode": "",
+            "homeAddress": "99 Mildmay Grove, London",
+            "clinicCode": "CLN-LON-05",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -4068,8 +4760,8 @@ window.foundrySeedCatalog = {
             "passportId": "",
             "phoneNumber": "",
             "riskTag": "",
-            "homeAddress": "",
-            "clinicCode": "",
+            "homeAddress": "95 Makariou Avenue, Limassol",
+            "clinicCode": "CLN-LIM-02",
             "resolution": {
               "method": "name+dob",
               "confidence": 0.9,
@@ -4091,8 +4783,8 @@ window.foundrySeedCatalog = {
             "passportId": "",
             "phoneNumber": "",
             "riskTag": "",
-            "homeAddress": "",
-            "clinicCode": "",
+            "homeAddress": "99 Mildmay Grove, London",
+            "clinicCode": "CLN-LON-05",
             "resolution": {
               "method": "name+dob",
               "confidence": 0.9,
@@ -4245,8 +4937,8 @@ window.foundrySeedCatalog = {
             "passportId": "X2197935",
             "phoneNumber": "+49781802744",
             "riskTag": "",
-            "homeAddress": "",
-            "clinicCode": "",
+            "homeAddress": "56 Seefeldstrasse, Zurich",
+            "clinicCode": "CLN-ZRH-02",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -4364,28 +5056,26 @@ window.foundrySeedCatalog = {
             }
           },
           {
-            "id": "person::tomas-orlov-971106977991",
+            "id": "person::g5510077",
             "type": "Person",
-            "canonicalName": "Tomas Orlov",
-            "aliases": "T. Orlov",
-            "dob": "",
+            "canonicalName": "Omar Rahman",
+            "aliases": "",
+            "dob": "1979-02-02",
             "nationality": "",
-            "passportId": "",
-            "phoneNumber": "+971106977991",
+            "passportId": "G5510077",
+            "phoneNumber": "+447911223344",
             "riskTag": "",
-            "homeAddress": "",
-            "clinicCode": "",
+            "homeAddress": "41 Oak Lane, Birmingham",
+            "clinicCode": "CLN-BHM-02",
             "resolution": {
-              "method": "ping-only",
-              "confidence": 0.35,
+              "method": "passport",
+              "confidence": 1.0,
               "mergedFrom": [
-                "ping:NPG-00043",
-                "ping:NPG-00037",
-                "ping:NPG-00006",
-                "ping:NPG-00024"
+                "flight:MF-0008",
+                "flight:MF-0009"
               ],
               "splitRisk": false,
-              "note": "Known only from phone pings observed as 'Tomas Orlov', 'T. Orlov'; no passport, flight or registry record."
+              "note": ""
             }
           }
         ],
@@ -4596,7 +5286,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 23,
+        "rowCount": 25,
         "sampleRows": [
           {
             "id": "bankaccount::acct-nc001",
@@ -4799,7 +5489,7 @@ window.foundrySeedCatalog = {
             "type": "json"
           }
         ],
-        "rowCount": 136,
+        "rowCount": 142,
         "sampleRows": [
           {
             "id": "airport::ath",
@@ -5071,6 +5761,25 @@ window.foundrySeedCatalog = {
             ]
           },
           {
+            "id": "bankaccount::acct-l041",
+            "type": "BankAccount",
+            "label": "ACCT-L041",
+            "properties": {
+              "accountId": "ACCT-L041",
+              "ownerName": "Oak Lane Lettings Ltd"
+            },
+            "sourceIds": [
+              "resolved_accounts"
+            ],
+            "markings": [
+              "FIN"
+            ],
+            "propertyMarkings": {},
+            "sourceMarkings": [
+              "FIN"
+            ]
+          },
+          {
             "id": "bankaccount::acct-nc001",
             "type": "BankAccount",
             "label": "ACCT-NC001",
@@ -5189,26 +5898,6 @@ window.foundrySeedCatalog = {
             "sourceMarkings": [
               "FIN"
             ]
-          },
-          {
-            "id": "bankaccount::acct-np002",
-            "type": "BankAccount",
-            "label": "ACCT-NP002",
-            "properties": {
-              "accountId": "ACCT-NP002",
-              "ownerName": "Clara Silva",
-              "accountKind": "personal"
-            },
-            "sourceIds": [
-              "resolved_accounts"
-            ],
-            "markings": [
-              "FIN"
-            ],
-            "propertyMarkings": {},
-            "sourceMarkings": [
-              "FIN"
-            ]
           }
         ],
         "producedBy": "build_ontology",
@@ -5298,7 +5987,7 @@ window.foundrySeedCatalog = {
             "type": "json"
           }
         ],
-        "rowCount": 242,
+        "rowCount": 255,
         "sampleRows": [
           {
             "id": "arrived_at::flight-mf-0001-airport-lca",
@@ -5350,6 +6039,33 @@ window.foundrySeedCatalog = {
             "type": "ARRIVED_AT",
             "source": "flight::mf-0006",
             "target": "airport::dxb",
+            "label": "ARRIVED_AT",
+            "properties": {},
+            "markings": []
+          },
+          {
+            "id": "arrived_at::flight-mf-0007-airport-ist",
+            "type": "ARRIVED_AT",
+            "source": "flight::mf-0007",
+            "target": "airport::ist",
+            "label": "ARRIVED_AT",
+            "properties": {},
+            "markings": []
+          },
+          {
+            "id": "arrived_at::flight-mf-0008-airport-ist",
+            "type": "ARRIVED_AT",
+            "source": "flight::mf-0008",
+            "target": "airport::ist",
+            "label": "ARRIVED_AT",
+            "properties": {},
+            "markings": []
+          },
+          {
+            "id": "arrived_at::flight-mf-0009-airport-lhr",
+            "type": "ARRIVED_AT",
+            "source": "flight::mf-0009",
+            "target": "airport::lhr",
             "label": "ARRIVED_AT",
             "properties": {},
             "markings": []
@@ -5449,33 +6165,6 @@ window.foundrySeedCatalog = {
             "type": "ARRIVED_AT",
             "source": "flight::nmf-0011",
             "target": "airport::beg",
-            "label": "ARRIVED_AT",
-            "properties": {},
-            "markings": []
-          },
-          {
-            "id": "arrived_at::flight-nmf-0012-airport-beg",
-            "type": "ARRIVED_AT",
-            "source": "flight::nmf-0012",
-            "target": "airport::beg",
-            "label": "ARRIVED_AT",
-            "properties": {},
-            "markings": []
-          },
-          {
-            "id": "arrived_at::flight-nmf-0013-airport-ath",
-            "type": "ARRIVED_AT",
-            "source": "flight::nmf-0013",
-            "target": "airport::ath",
-            "label": "ARRIVED_AT",
-            "properties": {},
-            "markings": []
-          },
-          {
-            "id": "arrived_at::flight-nmf-0014-airport-lhr",
-            "type": "ARRIVED_AT",
-            "source": "flight::nmf-0014",
-            "target": "airport::lhr",
             "label": "ARRIVED_AT",
             "properties": {},
             "markings": []
@@ -5724,6 +6413,43 @@ window.foundrySeedCatalog = {
               "dataset": "norm_bank_transactions",
               "row": 27,
               "field": "source_name",
+              "note": ""
+            }
+          ]
+        }
+      },
+      "bankaccount::acct-l041": {
+        "producedBy": "resolved_accounts",
+        "sourceRows": [
+          {
+            "dataset": "norm_bank_transactions",
+            "row": 32,
+            "field": "",
+            "note": "account"
+          }
+        ],
+        "fieldProvenance": {
+          "id": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 32,
+              "field": "destination_account_id",
+              "note": "key"
+            }
+          ],
+          "accountId": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 32,
+              "field": "destination_account_id",
+              "note": ""
+            }
+          ],
+          "ownerName": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 32,
+              "field": "destination_name",
               "note": ""
             }
           ]
@@ -6426,6 +7152,43 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_bank_transactions",
               "row": 25,
+              "field": "source_name",
+              "note": ""
+            }
+          ]
+        }
+      },
+      "bankaccount::acct-p007": {
+        "producedBy": "resolved_accounts",
+        "sourceRows": [
+          {
+            "dataset": "norm_bank_transactions",
+            "row": 32,
+            "field": "",
+            "note": "account"
+          }
+        ],
+        "fieldProvenance": {
+          "id": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 32,
+              "field": "source_account_id",
+              "note": "key"
+            }
+          ],
+          "accountId": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 32,
+              "field": "source_account_id",
+              "note": ""
+            }
+          ],
+          "ownerName": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 32,
               "field": "source_name",
               "note": ""
             }
@@ -7162,6 +7925,21 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
+      "flight::mf-0009": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "flight::mf-0007": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "flight::mf-0008": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
       "location::114-al-manara-road-dubai": {
         "producedBy": "build_ontology",
         "sourceRows": [],
@@ -7192,22 +7970,12 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
-      "location::22-cromer-road-london": {
-        "producedBy": "build_ontology",
-        "sourceRows": [],
-        "fieldProvenance": {}
-      },
       "location::27-ringstrasse-vienna": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
       },
-      "location::31-kralja-petra-belgrade": {
-        "producedBy": "build_ontology",
-        "sourceRows": [],
-        "fieldProvenance": {}
-      },
-      "location::40-vitosha-boulevard-sofia": {
+      "location::41-oak-lane-birmingham": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -7222,7 +7990,12 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
-      "location::7-anexartisias-street-limassol": {
+      "location::56-seefeldstrasse-zurich": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "location::58-rue-de-carouge-geneva": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -7238,6 +8011,11 @@ window.foundrySeedCatalog = {
         "fieldProvenance": {}
       },
       "location::95-makariou-avenue-limassol": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "location::99-mildmay-grove-london": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -7475,7 +8253,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 4,
+            "row": 2,
             "field": "",
             "note": "clinic-registration"
           }
@@ -7614,7 +8392,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 4,
+              "row": 2,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -7622,7 +8400,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 4,
+              "row": 2,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -7867,7 +8645,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 5,
+            "row": 3,
             "field": "",
             "note": "clinic-registration"
           }
@@ -7994,7 +8772,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 5,
+              "row": 3,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -8002,7 +8780,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 5,
+              "row": 3,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -8023,6 +8801,12 @@ window.foundrySeedCatalog = {
             "row": 7,
             "field": "",
             "note": "beneficial_owner"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 5,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -8052,6 +8836,22 @@ window.foundrySeedCatalog = {
               "row": 7,
               "field": "beneficial_owner_dob",
               "note": ""
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 5,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 5,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -8386,6 +9186,12 @@ window.foundrySeedCatalog = {
             "row": 5,
             "field": "",
             "note": "director"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 4,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -8403,6 +9209,22 @@ window.foundrySeedCatalog = {
               "row": 5,
               "field": "director_dob",
               "note": ""
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 4,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 4,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -8451,6 +9273,12 @@ window.foundrySeedCatalog = {
             "row": 67,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 8,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -8558,6 +9386,22 @@ window.foundrySeedCatalog = {
               "row": 67,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 8,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 8,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -8672,12 +9516,6 @@ window.foundrySeedCatalog = {
             "row": 87,
             "field": "",
             "note": "device-ping"
-          },
-          {
-            "dataset": "norm_clinic_registrations",
-            "row": 2,
-            "field": "",
-            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -8993,22 +9831,6 @@ window.foundrySeedCatalog = {
               "row": 87,
               "field": "phone_number",
               "note": ""
-            }
-          ],
-          "homeAddress": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 2,
-              "field": "home_address",
-              "note": "latest registration"
-            }
-          ],
-          "clinicCode": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 2,
-              "field": "clinic_code",
-              "note": "latest registration"
             }
           ]
         }
@@ -9099,12 +9921,6 @@ window.foundrySeedCatalog = {
             "row": 83,
             "field": "",
             "note": "device-ping"
-          },
-          {
-            "dataset": "norm_clinic_registrations",
-            "row": 6,
-            "field": "",
-            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -9336,22 +10152,6 @@ window.foundrySeedCatalog = {
               "row": 83,
               "field": "phone_number",
               "note": ""
-            }
-          ],
-          "homeAddress": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 6,
-              "field": "home_address",
-              "note": "latest registration"
-            }
-          ],
-          "clinicCode": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 6,
-              "field": "clinic_code",
-              "note": "latest registration"
             }
           ]
         }
@@ -9743,6 +10543,12 @@ window.foundrySeedCatalog = {
             "row": 64,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 7,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -9791,6 +10597,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 7,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 7,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -9802,6 +10624,12 @@ window.foundrySeedCatalog = {
             "row": 3,
             "field": "",
             "note": "director"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 6,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -9819,6 +10647,22 @@ window.foundrySeedCatalog = {
               "row": 3,
               "field": "director_dob",
               "note": ""
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 6,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 6,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -9948,6 +10792,12 @@ window.foundrySeedCatalog = {
             "note": "flight-passenger"
           },
           {
+            "dataset": "norm_flight_manifests",
+            "row": 22,
+            "field": "",
+            "note": "flight-passenger"
+          },
+          {
             "dataset": "norm_mobile_pings",
             "row": 4,
             "field": "",
@@ -9982,12 +10832,6 @@ window.foundrySeedCatalog = {
             "row": 55,
             "field": "",
             "note": "device-ping"
-          },
-          {
-            "dataset": "norm_clinic_registrations",
-            "row": 7,
-            "field": "",
-            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -10013,6 +10857,12 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_flight_manifests",
               "row": 5,
+              "field": "passenger_name",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 22,
               "field": "passenger_name",
               "note": ""
             }
@@ -10085,6 +10935,12 @@ window.foundrySeedCatalog = {
               "row": 5,
               "field": "dob",
               "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 22,
+              "field": "dob",
+              "note": ""
             }
           ],
           "nationality": [
@@ -10113,6 +10969,12 @@ window.foundrySeedCatalog = {
               "row": 5,
               "field": "passport_id",
               "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 22,
+              "field": "passport_id",
+              "note": ""
             }
           ],
           "riskTag": [
@@ -10133,6 +10995,12 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_flight_manifests",
               "row": 5,
+              "field": "phone_number",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 22,
               "field": "phone_number",
               "note": ""
             },
@@ -10172,11 +11040,92 @@ window.foundrySeedCatalog = {
               "field": "phone_number",
               "note": ""
             }
+          ]
+        }
+      },
+      "person::g5510077": {
+        "producedBy": "resolved_persons",
+        "sourceRows": [
+          {
+            "dataset": "norm_flight_manifests",
+            "row": 23,
+            "field": "",
+            "note": "flight-passenger"
+          },
+          {
+            "dataset": "norm_flight_manifests",
+            "row": 24,
+            "field": "",
+            "note": "flight-passenger"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 9,
+            "field": "",
+            "note": "clinic-registration"
+          }
+        ],
+        "fieldProvenance": {
+          "canonicalName": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 23,
+              "field": "passenger_name",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 24,
+              "field": "passenger_name",
+              "note": ""
+            }
+          ],
+          "dob": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 23,
+              "field": "dob",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 24,
+              "field": "dob",
+              "note": ""
+            }
+          ],
+          "passportId": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 23,
+              "field": "passport_id",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 24,
+              "field": "passport_id",
+              "note": ""
+            }
+          ],
+          "phoneNumber": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 23,
+              "field": "phone_number",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 24,
+              "field": "phone_number",
+              "note": ""
+            }
           ],
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 7,
+              "row": 9,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -10184,7 +11133,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 7,
+              "row": 9,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -10235,12 +11184,6 @@ window.foundrySeedCatalog = {
             "row": 82,
             "field": "",
             "note": "device-ping"
-          },
-          {
-            "dataset": "norm_clinic_registrations",
-            "row": 3,
-            "field": "",
-            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -10376,22 +11319,6 @@ window.foundrySeedCatalog = {
               "row": 82,
               "field": "phone_number",
               "note": ""
-            }
-          ],
-          "homeAddress": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 3,
-              "field": "home_address",
-              "note": "latest registration"
-            }
-          ],
-          "clinicCode": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 3,
-              "field": "clinic_code",
-              "note": "latest registration"
             }
           ]
         }
@@ -10976,6 +11903,25 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "bankaccount::acct-l041",
+        "type": "BankAccount",
+        "label": "ACCT-L041",
+        "properties": {
+          "accountId": "ACCT-L041",
+          "ownerName": "Oak Lane Lettings Ltd"
+        },
+        "sourceIds": [
+          "resolved_accounts"
+        ],
+        "markings": [
+          "FIN"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "FIN"
+        ]
+      },
+      {
         "id": "bankaccount::acct-nc001",
         "type": "BankAccount",
         "label": "ACCT-NC001",
@@ -11342,6 +12288,26 @@ window.foundrySeedCatalog = {
         "properties": {
           "accountId": "ACCT-P006",
           "ownerName": "Maya Singh",
+          "accountKind": "personal"
+        },
+        "sourceIds": [
+          "resolved_accounts"
+        ],
+        "markings": [
+          "FIN"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "FIN"
+        ]
+      },
+      {
+        "id": "bankaccount::acct-p007",
+        "type": "BankAccount",
+        "label": "ACCT-P007",
+        "properties": {
+          "accountId": "ACCT-P007",
+          "ownerName": "Umar Rahman",
           "accountKind": "personal"
         },
         "sourceIds": [
@@ -12500,6 +13466,87 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "flight::mf-0009",
+        "type": "Flight",
+        "label": "TK-1971 · Umar Rahman",
+        "properties": {
+          "manifestId": "MF-0009",
+          "flightNumber": "TK-1971",
+          "departureTs": "2026-04-09T17:30:00Z",
+          "bookingReference": "PNR52H",
+          "seat": "30F",
+          "paymentCardLast4": "6630"
+        },
+        "sourceIds": [
+          "norm_flight_manifests"
+        ],
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "paymentCardLast4": [
+            "FIN"
+          ]
+        },
+        "sourceMarkings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "flight::mf-0007",
+        "type": "Flight",
+        "label": "TK-1980 · Omar Rahman",
+        "properties": {
+          "manifestId": "MF-0007",
+          "flightNumber": "TK-1980",
+          "departureTs": "2026-04-02T06:45:00Z",
+          "bookingReference": "PNR47T",
+          "seat": "21A",
+          "paymentCardLast4": "9088"
+        },
+        "sourceIds": [
+          "norm_flight_manifests"
+        ],
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "paymentCardLast4": [
+            "FIN"
+          ]
+        },
+        "sourceMarkings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "flight::mf-0008",
+        "type": "Flight",
+        "label": "TK-1986 · Omar Rahman",
+        "properties": {
+          "manifestId": "MF-0008",
+          "flightNumber": "TK-1986",
+          "departureTs": "2026-04-04T09:15:00Z",
+          "bookingReference": "PNR52H",
+          "seat": "32C",
+          "paymentCardLast4": "6630"
+        },
+        "sourceIds": [
+          "norm_flight_manifests"
+        ],
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "paymentCardLast4": [
+            "FIN"
+          ]
+        },
+        "sourceMarkings": [
+          "PII"
+        ]
+      },
+      {
         "id": "location::114-al-manara-road-dubai",
         "type": "Location",
         "label": "114 Al Manara Road, Dubai",
@@ -12627,29 +13674,6 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "location::22-cromer-road-london",
-        "type": "Location",
-        "label": "22 Cromer Road, London",
-        "properties": {
-          "label": "22 Cromer Road, London",
-          "locationType": "residential",
-          "city": "London",
-          "country": "United Kingdom",
-          "lat": 51.5462,
-          "lon": -0.1103
-        },
-        "sourceIds": [
-          "norm_clinic_registrations"
-        ],
-        "markings": [
-          "HEALTH"
-        ],
-        "propertyMarkings": {},
-        "sourceMarkings": [
-          "HEALTH"
-        ]
-      },
-      {
         "id": "location::27-ringstrasse-vienna",
         "type": "Location",
         "label": "27 Ringstrasse, Vienna",
@@ -12669,39 +13693,16 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "location::31-kralja-petra-belgrade",
+        "id": "location::41-oak-lane-birmingham",
         "type": "Location",
-        "label": "31 Kralja Petra, Belgrade",
+        "label": "41 Oak Lane, Birmingham",
         "properties": {
-          "label": "31 Kralja Petra, Belgrade",
+          "label": "41 Oak Lane, Birmingham",
           "locationType": "residential",
-          "city": "Belgrade",
-          "country": "Serbia",
-          "lat": 44.8196,
-          "lon": 20.4553
-        },
-        "sourceIds": [
-          "norm_clinic_registrations"
-        ],
-        "markings": [
-          "HEALTH"
-        ],
-        "propertyMarkings": {},
-        "sourceMarkings": [
-          "HEALTH"
-        ]
-      },
-      {
-        "id": "location::40-vitosha-boulevard-sofia",
-        "type": "Location",
-        "label": "40 Vitosha Boulevard, Sofia",
-        "properties": {
-          "label": "40 Vitosha Boulevard, Sofia",
-          "locationType": "residential",
-          "city": "Sofia",
-          "country": "Bulgaria",
-          "lat": 42.6909,
-          "lon": 23.3196
+          "city": "Birmingham",
+          "country": "United Kingdom",
+          "lat": 52.4421,
+          "lon": -1.9368
         },
         "sourceIds": [
           "norm_clinic_registrations"
@@ -12753,16 +13754,39 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "location::7-anexartisias-street-limassol",
+        "id": "location::56-seefeldstrasse-zurich",
         "type": "Location",
-        "label": "7 Anexartisias Street, Limassol",
+        "label": "56 Seefeldstrasse, Zurich",
         "properties": {
-          "label": "7 Anexartisias Street, Limassol",
+          "label": "56 Seefeldstrasse, Zurich",
           "locationType": "residential",
-          "city": "Limassol",
-          "country": "Cyprus",
-          "lat": 34.6762,
-          "lon": 33.0427
+          "city": "Zurich",
+          "country": "Switzerland",
+          "lat": 47.362699,
+          "lon": 8.548637
+        },
+        "sourceIds": [
+          "norm_clinic_registrations"
+        ],
+        "markings": [
+          "HEALTH"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "location::58-rue-de-carouge-geneva",
+        "type": "Location",
+        "label": "58 Rue de Carouge, Geneva",
+        "properties": {
+          "label": "58 Rue de Carouge, Geneva",
+          "locationType": "residential",
+          "city": "Geneva",
+          "country": "Switzerland",
+          "lat": 46.1934,
+          "lon": 6.1424
         },
         "sourceIds": [
           "norm_clinic_registrations"
@@ -12828,6 +13852,29 @@ window.foundrySeedCatalog = {
           "country": "Cyprus",
           "lat": 34.673593,
           "lon": 33.019195
+        },
+        "sourceIds": [
+          "norm_clinic_registrations"
+        ],
+        "markings": [
+          "HEALTH"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "location::99-mildmay-grove-london",
+        "type": "Location",
+        "label": "99 Mildmay Grove, London",
+        "properties": {
+          "label": "99 Mildmay Grove, London",
+          "locationType": "residential",
+          "city": "London",
+          "country": "United Kingdom",
+          "lat": 51.516794,
+          "lon": -0.118285
         },
         "sourceIds": [
           "norm_clinic_registrations"
@@ -13397,7 +14444,9 @@ window.foundrySeedCatalog = {
         "label": "Clara Silva",
         "properties": {
           "canonicalName": "Clara Silva",
-          "dob": "1977-11-25"
+          "dob": "1977-11-25",
+          "homeAddress": "95 Makariou Avenue, Limassol",
+          "clinicCode": "CLN-LIM-02"
         },
         "sourceIds": [
           "resolved_persons"
@@ -13433,7 +14482,8 @@ window.foundrySeedCatalog = {
           ]
         },
         "sourceMarkings": [
-          "OPEN"
+          "OPEN",
+          "HEALTH"
         ]
       },
       {
@@ -13549,7 +14599,9 @@ window.foundrySeedCatalog = {
         "label": "Elias Orlov",
         "properties": {
           "canonicalName": "Elias Orlov",
-          "dob": "1989-04-06"
+          "dob": "1989-04-06",
+          "homeAddress": "99 Mildmay Grove, London",
+          "clinicCode": "CLN-LON-05"
         },
         "sourceIds": [
           "resolved_persons"
@@ -13584,7 +14636,8 @@ window.foundrySeedCatalog = {
           ]
         },
         "sourceMarkings": [
-          "OPEN"
+          "OPEN",
+          "HEALTH"
         ]
       },
       {
@@ -13596,7 +14649,9 @@ window.foundrySeedCatalog = {
           "aliases": "E. Silva",
           "dob": "1984-12-24",
           "passportId": "X8755439",
-          "phoneNumber": "+44389854268"
+          "phoneNumber": "+44389854268",
+          "homeAddress": "99 Mildmay Grove, London",
+          "clinicCode": "CLN-LON-05"
         },
         "sourceIds": [
           "resolved_persons"
@@ -13639,7 +14694,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -13653,9 +14709,7 @@ window.foundrySeedCatalog = {
           "nationality": "Serbian",
           "passportId": "L1029921",
           "phoneNumber": "+381642201488",
-          "riskTag": "procurement-network",
-          "homeAddress": "31 Kralja Petra, Belgrade",
-          "clinicCode": "CLN-BEG-01"
+          "riskTag": "procurement-network"
         },
         "sourceIds": [
           "resolved_persons"
@@ -13710,7 +14764,6 @@ window.foundrySeedCatalog = {
           "OPEN",
           "PII",
           "TELECOM",
-          "HEALTH",
           "LE-SENSITIVE"
         ]
       },
@@ -13725,9 +14778,7 @@ window.foundrySeedCatalog = {
           "nationality": "Lebanese",
           "passportId": "P8842101",
           "phoneNumber": "+971501118890",
-          "riskTag": "sanctions-evasion",
-          "homeAddress": "7 Anexartisias Street, Limassol",
-          "clinicCode": "CLN-LIM-02"
+          "riskTag": "sanctions-evasion"
         },
         "sourceIds": [
           "resolved_persons"
@@ -13778,7 +14829,6 @@ window.foundrySeedCatalog = {
           "OPEN",
           "PII",
           "TELECOM",
-          "HEALTH",
           "LE-SENSITIVE"
         ]
       },
@@ -13945,7 +14995,9 @@ window.foundrySeedCatalog = {
           "canonicalName": "Marcus Grant",
           "dob": "1985-12-23",
           "passportId": "X2197935",
-          "phoneNumber": "+49781802744"
+          "phoneNumber": "+49781802744",
+          "homeAddress": "56 Seefeldstrasse, Zurich",
+          "clinicCode": "CLN-ZRH-02"
         },
         "sourceIds": [
           "resolved_persons"
@@ -13982,7 +15034,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -13991,7 +15044,9 @@ window.foundrySeedCatalog = {
         "label": "Maya Singh",
         "properties": {
           "canonicalName": "Maya Singh",
-          "dob": "1992-09-21"
+          "dob": "1992-09-21",
+          "homeAddress": "58 Rue de Carouge, Geneva",
+          "clinicCode": "CLN-GVA-01"
         },
         "sourceIds": [
           "resolved_persons"
@@ -14026,7 +15081,8 @@ window.foundrySeedCatalog = {
           ]
         },
         "sourceMarkings": [
-          "OPEN"
+          "OPEN",
+          "HEALTH"
         ]
       },
       {
@@ -14088,9 +15144,7 @@ window.foundrySeedCatalog = {
           "nationality": "Jordanian",
           "passportId": "N5538219",
           "phoneNumber": "+447700912410",
-          "riskTag": "dual-use-broker",
-          "homeAddress": "22 Cromer Road, London",
-          "clinicCode": "CLN-LON-04"
+          "riskTag": "dual-use-broker"
         },
         "sourceIds": [
           "resolved_persons"
@@ -14103,6 +15157,7 @@ window.foundrySeedCatalog = {
             "company:CO-102:director",
             "flight:NMF-0008",
             "flight:MF-0003",
+            "flight:MF-0007",
             "ping:NPG-00021",
             "ping:PG-0005",
             "ping:NPG-00047",
@@ -14137,8 +15192,57 @@ window.foundrySeedCatalog = {
           "OPEN",
           "PII",
           "TELECOM",
-          "HEALTH",
           "LE-SENSITIVE"
+        ]
+      },
+      {
+        "id": "person::g5510077",
+        "type": "Person",
+        "label": "Omar Rahman",
+        "properties": {
+          "canonicalName": "Omar Rahman",
+          "dob": "1979-02-02",
+          "passportId": "G5510077",
+          "phoneNumber": "+447911223344",
+          "homeAddress": "41 Oak Lane, Birmingham",
+          "clinicCode": "CLN-BHM-02"
+        },
+        "sourceIds": [
+          "resolved_persons"
+        ],
+        "resolution": {
+          "method": "passport",
+          "confidence": 1.0,
+          "mergedFrom": [
+            "flight:MF-0008",
+            "flight:MF-0009"
+          ],
+          "splitRisk": false,
+          "note": ""
+        },
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "phoneNumber": [
+            "TELECOM"
+          ],
+          "riskTag": [
+            "LE-SENSITIVE"
+          ],
+          "passportId": [
+            "PII"
+          ],
+          "homeAddress": [
+            "HEALTH"
+          ],
+          "clinicCode": [
+            "HEALTH"
+          ]
+        },
+        "sourceMarkings": [
+          "PII",
+          "HEALTH"
         ]
       },
       {
@@ -14152,9 +15256,7 @@ window.foundrySeedCatalog = {
           "nationality": "Bulgarian",
           "passportId": "B7730042",
           "phoneNumber": "+359883317821",
-          "riskTag": "facilitator",
-          "homeAddress": "40 Vitosha Boulevard, Sofia",
-          "clinicCode": "CLN-SOF-03"
+          "riskTag": "facilitator"
         },
         "sourceIds": [
           "resolved_persons"
@@ -14198,7 +15300,6 @@ window.foundrySeedCatalog = {
           "OPEN",
           "PII",
           "TELECOM",
-          "HEALTH",
           "LE-SENSITIVE"
         ]
       },
@@ -14451,6 +15552,33 @@ window.foundrySeedCatalog = {
         "type": "ARRIVED_AT",
         "source": "flight::mf-0006",
         "target": "airport::dxb",
+        "label": "ARRIVED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "arrived_at::flight-mf-0007-airport-ist",
+        "type": "ARRIVED_AT",
+        "source": "flight::mf-0007",
+        "target": "airport::ist",
+        "label": "ARRIVED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "arrived_at::flight-mf-0008-airport-ist",
+        "type": "ARRIVED_AT",
+        "source": "flight::mf-0008",
+        "target": "airport::ist",
+        "label": "ARRIVED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "arrived_at::flight-mf-0009-airport-lhr",
+        "type": "ARRIVED_AT",
+        "source": "flight::mf-0009",
+        "target": "airport::lhr",
         "label": "ARRIVED_AT",
         "properties": {},
         "markings": []
@@ -14745,6 +15873,28 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "booked_on::person-g5510077-flight-mf-0008",
+        "type": "BOOKED_ON",
+        "source": "person::g5510077",
+        "target": "flight::mf-0008",
+        "label": "BOOKED_ON",
+        "properties": {},
+        "markings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "booked_on::person-g5510077-flight-mf-0009",
+        "type": "BOOKED_ON",
+        "source": "person::g5510077",
+        "target": "flight::mf-0009",
+        "label": "BOOKED_ON",
+        "properties": {},
+        "markings": [
+          "PII"
+        ]
+      },
+      {
         "id": "booked_on::person-i6117009-flight-nmf-0003",
         "type": "BOOKED_ON",
         "source": "person::i6117009",
@@ -14826,6 +15976,17 @@ window.foundrySeedCatalog = {
         "type": "BOOKED_ON",
         "source": "person::n5538219",
         "target": "flight::mf-0003",
+        "label": "BOOKED_ON",
+        "properties": {},
+        "markings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "booked_on::person-n5538219-flight-mf-0007",
+        "type": "BOOKED_ON",
+        "source": "person::n5538219",
+        "target": "flight::mf-0007",
         "label": "BOOKED_ON",
         "properties": {},
         "markings": [
@@ -14981,6 +16142,33 @@ window.foundrySeedCatalog = {
         "type": "DEPARTED_FROM",
         "source": "flight::mf-0006",
         "target": "airport::lca",
+        "label": "DEPARTED_FROM",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "departed_from::flight-mf-0007-airport-lhr",
+        "type": "DEPARTED_FROM",
+        "source": "flight::mf-0007",
+        "target": "airport::lhr",
+        "label": "DEPARTED_FROM",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "departed_from::flight-mf-0008-airport-lhr",
+        "type": "DEPARTED_FROM",
+        "source": "flight::mf-0008",
+        "target": "airport::lhr",
+        "label": "DEPARTED_FROM",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "departed_from::flight-mf-0009-airport-ist",
+        "type": "DEPARTED_FROM",
+        "source": "flight::mf-0009",
+        "target": "airport::ist",
         "label": "DEPARTED_FROM",
         "properties": {},
         "markings": []
@@ -16677,6 +17865,17 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "owns_account::person-g5510077-bankaccount-acct-p007",
+        "type": "OWNS_ACCOUNT",
+        "source": "person::g5510077",
+        "target": "bankaccount::acct-p007",
+        "label": "OWNS_ACCOUNT",
+        "properties": {},
+        "markings": [
+          "FIN"
+        ]
+      },
+      {
         "id": "owns_account::person-i6117009-bankaccount-acct-p006",
         "type": "OWNS_ACCOUNT",
         "source": "person::i6117009",
@@ -16855,20 +18054,6 @@ window.foundrySeedCatalog = {
         "markings": []
       },
       {
-        "id": "resides_at::person-b7730042-location-40-vitosha-boulevard-sofia",
-        "type": "RESIDES_AT",
-        "source": "person::b7730042",
-        "target": "location::40-vitosha-boulevard-sofia",
-        "label": "RESIDES_AT",
-        "properties": {
-          "asOf": "2024-07-15",
-          "source": "clinic-ehr"
-        },
-        "markings": [
-          "HEALTH"
-        ]
-      },
-      {
         "id": "resides_at::person-clara-nasser-1986-06-21-location-114-al-manara-road-dubai",
         "type": "RESIDES_AT",
         "source": "person::clara-nasser-1986-06-21",
@@ -16876,6 +18061,20 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2025-07-04",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-clara-silva-1977-11-25-location-95-makariou-avenue-limassol",
+        "type": "RESIDES_AT",
+        "source": "person::clara-silva-1977-11-25",
+        "target": "location::95-makariou-avenue-limassol",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-04-13",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -16897,13 +18096,41 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "resides_at::person-l1029921-location-31-kralja-petra-belgrade",
+        "id": "resides_at::person-elias-orlov-1989-04-06-location-99-mildmay-grove-london",
         "type": "RESIDES_AT",
-        "source": "person::l1029921",
-        "target": "location::31-kralja-petra-belgrade",
+        "source": "person::elias-orlov-1989-04-06",
+        "target": "location::99-mildmay-grove-london",
         "label": "RESIDES_AT",
         "properties": {
-          "asOf": "2024-02-06",
+          "asOf": "2022-01-14",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-elias-silva-1984-12-24-location-99-mildmay-grove-london",
+        "type": "RESIDES_AT",
+        "source": "person::elias-silva-1984-12-24",
+        "target": "location::99-mildmay-grove-london",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-04-26",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-g5510077-location-41-oak-lane-birmingham",
+        "type": "RESIDES_AT",
+        "source": "person::g5510077",
+        "target": "location::41-oak-lane-birmingham",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2026-03-12",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -16925,27 +18152,13 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "resides_at::person-n5538219-location-22-cromer-road-london",
+        "id": "resides_at::person-maya-singh-1992-09-21-location-58-rue-de-carouge-geneva",
         "type": "RESIDES_AT",
-        "source": "person::n5538219",
-        "target": "location::22-cromer-road-london",
+        "source": "person::maya-singh-1992-09-21",
+        "target": "location::58-rue-de-carouge-geneva",
         "label": "RESIDES_AT",
         "properties": {
-          "asOf": "2025-11-27",
-          "source": "clinic-ehr"
-        },
-        "markings": [
-          "HEALTH"
-        ]
-      },
-      {
-        "id": "resides_at::person-p8842101-location-7-anexartisias-street-limassol",
-        "type": "RESIDES_AT",
-        "source": "person::p8842101",
-        "target": "location::7-anexartisias-street-limassol",
-        "label": "RESIDES_AT",
-        "properties": {
-          "asOf": "2025-09-18",
+          "asOf": "2024-11-05",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -16960,6 +18173,20 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2025-02-11",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x2197935-location-56-seefeldstrasse-zurich",
+        "type": "RESIDES_AT",
+        "source": "person::x2197935",
+        "target": "location::56-seefeldstrasse-zurich",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-01-14",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -17207,6 +18434,22 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "transferred_to::bankaccount-acct-p007-bankaccount-acct-l041",
+        "type": "TRANSFERRED_TO",
+        "source": "bankaccount::acct-p007",
+        "target": "bankaccount::acct-l041",
+        "label": "TRANSFERRED_TO",
+        "properties": {
+          "count": "2",
+          "totalAmountUsd": "1820.00",
+          "lastTxnTs": "2026-04-01T08:05:00Z",
+          "sampleReference": "rent March"
+        },
+        "markings": [
+          "FIN"
+        ]
+      },
+      {
         "id": "uses_device::person-b7730042-device-dev-sp-04",
         "type": "USES_DEVICE",
         "source": "person::b7730042",
@@ -17409,20 +18652,20 @@ window.foundrySeedCatalog = {
   "simulator": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:45fe1c6e7a2138ef6d60f478aab83985a594df82f51b5ab87b28ee1f59f71327",
+      "buildId": "sha256:0c9de859650dc1414592084d5982377bb838e4040f80afeb92b754beeb32bc4a",
       "sources": {
-        "bank_transactions.csv": "sha256:4b91975f54ce98dcc200236a02f3a7e5d40431a8cd32b2c4a73023412d03534f",
-        "clinic_registrations.csv": "sha256:5b9c50480948cf945a244695024eb4a12678c73f03a2b63048112b78d541b479",
-        "company_registry.csv": "sha256:2509c113bb1e5d53c0cd079d17e244f2f0adbe9ec8a22ca7c5eed154a83fa5e3",
-        "flight_manifests.csv": "sha256:6ab9f3a6b215f6940fc39bbe3dec49c081d334ee83f9e4dbf2dd0b5c8e76f7d5",
+        "bank_transactions.csv": "sha256:1b192ef6c107359560bc3df631a4fd42e665aa4e26403630a82bbe9b47a44596",
+        "clinic_registrations.csv": "sha256:3b651e31a0bff7bfc2fcf324c827b515d21f43a5c9ff688242cad73c4d453453",
+        "company_registry.csv": "sha256:06aca2351b875fb3f9d443d5eb907d495bc51a698b60381623501c188ead956a",
+        "flight_manifests.csv": "sha256:b418d4cc4ab3868de48bfd86d5097b53a2499eec2e1c2bd6b5dd6573bbc023a7",
         "manifest.json": "sha256:0f369eabdc4b097a6e78a75736086d1676821d656b65f514eaf46be022ea037d",
         "mobile_location_pings.jsonl": "sha256:60b459e39a4bda517bd780f3ff8b3a9ba342cf2f822a844e2b16935ac543d095",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_foundry_seed.py@cc3797c",
+      "builder": "build_foundry_seed.py@c3b5739",
       "title": "Foundry Studio Demo",
       "dataset": "simulator",
-      "generatedAt": "2026-11-04T16:20:00.672691Z"
+      "generatedAt": "2026-11-04T17:35:57.828396Z"
     },
     "governance": {
       "markings": [
@@ -17631,6 +18874,43 @@ window.foundrySeedCatalog = {
           ],
           "minLength": 20,
           "refusalText": "Your role cannot remove markings. This attempt has been logged."
+        },
+        {
+          "id": "cp-action-sensitive",
+          "trigger": "action.execute",
+          "prompt": "You are about to run an Action that changes data and sends a message to an external system. State why it is needed and for what purpose.",
+          "requiresPurpose": true,
+          "allowedRoles": [
+            "fin-analyst",
+            "dpo"
+          ],
+          "refusalText": "Your role cannot run sensitive Actions. This attempt has been logged."
+        },
+        {
+          "id": "cp-danger-statement",
+          "trigger": "expand.danger",
+          "prompt": "Describe the concrete danger that justifies widening this analysis beyond the first hop.",
+          "requiresPurpose": false,
+          "allowedRoles": [
+            "patrol",
+            "fin-analyst",
+            "dpo"
+          ],
+          "minLength": 30,
+          "refusalText": "Your role cannot widen an analysis beyond the first hop. This attempt has been logged."
+        },
+        {
+          "id": "cp-exception",
+          "trigger": "purpose.exception",
+          "prompt": "You are asking for an exception to a purpose rule. State the legal basis and why the rule should not apply in this case. The request is recorded as an exception for the data protection officer.",
+          "requiresPurpose": true,
+          "allowedRoles": [
+            "fin-analyst",
+            "dpo"
+          ],
+          "minLength": 20,
+          "tag": "exception",
+          "refusalText": "Your role cannot request exceptions to purpose rules. This attempt has been logged."
         }
       ],
       "honesty": [
@@ -17769,11 +19049,1177 @@ window.foundrySeedCatalog = {
           "title": "Checkpoints",
           "text": "A purpose-justification prompt before sensitive searches, exports or network expansion. The record keeps the user, the time, the prompt exactly as shown, the justification and the items involved, as in Foundry Checkpoints (Jagasia & Wee, PEPR '21). Nothing stops you typing 'routine'.",
           "docUrl": "https://palantir.com/docs/foundry/checkpoints/overview/"
+        },
+        {
+          "id": "inv.actions",
+          "kind": "mirrors",
+          "label": "Mirrors Foundry",
+          "title": "Actions",
+          "text": "Action types with parameters, validation, permissions, side effects, logs and writeback to operational systems: the Ontology's kinetic layer, as in Foundry. Simplified: the receiving systems are panels in this page, not real APIs.",
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+        },
+        {
+          "id": "inv.karlsruhe",
+          "kind": "extension",
+          "label": "Teaching extension",
+          "title": "Karlsruhe mode",
+          "text": "Purpose rules that block combining data collected for incompatible purposes. Not a Palantir feature: our abstraction of the logic of the German Constitutional Court's 2023 ruling on automated data analysis, not its text.",
+          "docUrl": "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html"
+        },
+        {
+          "id": "build.resolution",
+          "kind": "simplified",
+          "label": "Simplified",
+          "title": "Entity resolution",
+          "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
+          "docUrl": "https://docs.aleph.occrp.org/developers/mappings"
+        }
+      ],
+      "purposeRules": [
+        {
+          "id": "R1",
+          "text": "Automated cross-dataset analysis needs a stated purpose on the session.",
+          "operations": [
+            "expand",
+            "rule",
+            "action"
+          ],
+          "requires": "sessionPurpose",
+          "effect": "block"
+        },
+        {
+          "id": "R2",
+          "text": "Data collected for healthcare may not be combined with law-enforcement purposes.",
+          "operations": [
+            "expand",
+            "rule",
+            "action",
+            "view"
+          ],
+          "incompatible": {
+            "data": [
+              "healthcare"
+            ],
+            "session": [
+              "public-order",
+              "financial-crime"
+            ]
+          },
+          "effect": "block"
+        },
+        {
+          "id": "R3",
+          "text": "Expansion beyond the first hop requires a concrete, logged danger statement.",
+          "operations": [
+            "expand"
+          ],
+          "depthOver": 1,
+          "effect": "checkpoint",
+          "checkpointId": "cp-danger-statement"
+        }
+      ],
+      "legalBasisNote": "Our abstraction of the BVerfG 2023 ruling's logic, not its text [to verify against the press release before teaching as the court's criteria].",
+      "discussions": [
+        {
+          "id": "disc-ice-elite",
+          "title": "ICE: ImmigrationOS and ELITE (2025–26)",
+          "attachedTo": [
+            "build.markings"
+          ],
+          "summary": "In April 2025 US Immigration and Customs Enforcement gave Palantir a $30m contract, without competition, for an \"ImmigrationOS\" targeting and removal platform. ELITE, reported in January 2026, is a map-based app for finding people that draws on Medicaid, USCIS and Thomson Reuters CLEAR data and shows a 0–100 \"address confidence score\". Court filings in July 2026 describe Medicaid data, shared beyond what a court order allowed, reaching Palantir through a Teams chat; Palantir says the data was deleted.",
+          "questions": [
+            "What would a HEALTH marking have prevented here, and what would it not have prevented?",
+            "What does \"deleted\" mean once derived datasets have been built from the data?"
+          ],
+          "sources": [
+            "https://immpolicytracking.org/policies/reported-palantir-awarded-30-million-to-build-immigrationos-surveillance-platform-for-ice",
+            "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite",
+            "https://www.hppr.org/npr-news/2026-07-17/ice-shared-medicaid-data-it-wasnt-supposed-to-have-with-palantir"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-bverfg-2023",
+          "title": "German Constitutional Court, 16 February 2023 (1 BvR 1547/19, 1 BvR 2634/20)",
+          "attachedTo": [
+            "session.checkpoints",
+            "inv.karlsruhe"
+          ],
+          "summary": "On 16 February 2023 the court ruled on police powers for automated data analysis in Hamburg and Hesse. Hamburg's provision was void outright; Hesse's was unconstitutional but stayed in force until 30 September 2023. Bavaria's system (VeRA, built on Palantir) went live in September 2024 and a constitutional complaint followed in July 2025. By 2026 many states had passed new laws; the complaint against North Rhine-Westphalia was not accepted (February 2026), those against Bavaria and Hesse are pending, and the federal government is reviewing nationwide use.",
+          "questions": [
+            "Is a free-text Checkpoint the kind of threshold the court had in mind?",
+            "Can a rule engine implement a proportionality test, or only imitate one?"
+          ],
+          "sources": [
+            "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html",
+            "https://verfassungsblog.de/?p=106048",
+            "https://posteo.de/en/news/germany-legal-challenge-alleges-unconstitutional-data-analysis-by-bavarian-police",
+            "https://www.yahoo.com/news/articles/germany-weighs-nationwide-palantirs-controversial-161014140.html"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-raffinaderij",
+          "title": "Dutch police: the \"Raffinaderij\" platform",
+          "attachedTo": [
+            "oversight.audit"
+          ],
+          "summary": "Dutch police have used Palantir software since 2012 inside a platform called the \"Raffinaderij\" (refinery). Its use became public through Open Government Act (Woo) requests by de Volkskrant; about 99% of the released documents were redacted (Buro Jansen & Janssen). The Ministry of Defence plans an alternative within two years.",
+          "questions": [
+            "What does an audit log mean if the public cannot see that the system exists?",
+            "Who is the auditor here, and who audits them?"
+          ],
+          "sources": [
+            "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-nhs-fdp",
+          "title": "NHS England: the Federated Data Platform",
+          "attachedTo": [
+            "session.roles",
+            "build.markings"
+          ],
+          "summary": "NHS England awarded the Federated Data Platform contract to Palantir in November 2023, worth up to £330m over seven years; 137 NHS trusts were using it by April 2026. Palantir says it is not the data controller, a claim that is contested in practice, and in February 2026 the British Medical Association urged doctors to limit their use of the platform.",
+          "questions": [
+            "Does \"not the controller\" survive once the vendor's software decides what each role can see?",
+            "Who should define the roles and markings on a health platform: the hospital, the ministry or the vendor?"
+          ],
+          "sources": [
+            "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-pol-intel",
+          "title": "Denmark: POL-INTEL and European exits",
+          "attachedTo": [
+            "build.pipelines"
+          ],
+          "summary": "Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, and other European governments are re-evaluating their agreements with US defence-technology suppliers.",
+          "questions": [
+            "What is sovereignty when the platform, and its updates, are delivered by the vendor?",
+            "Which decisions in a pipeline are technical, and which are policy made by whoever writes the transforms?"
+          ],
+          "sources": [
+            "https://researcher.itu.dk/p/en/research-outputs/scientification-through-privatization-pol-intel-in-denmark",
+            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        }
+      ]
+    },
+    "ontology": {
+      "actionTypes": [
+        {
+          "id": "act-add-to-watchlist",
+          "label": "Add to watchlist",
+          "objectType": "Person",
+          "sensitive": true,
+          "description": "Tag a person with a risk category, create a watchlist record linked to them and alert the border watch system.",
+          "parameters": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            },
+            {
+              "id": "riskTag",
+              "label": "Risk tag",
+              "type": "enum",
+              "required": true,
+              "options": [
+                "facilitator",
+                "procurement-network",
+                "sanctions-evasion",
+                "dual-use-broker"
+              ]
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst"
+          ],
+          "checkpointId": "cp-action-sensitive",
+          "effects": [
+            {
+              "op": "setProperty",
+              "property": "riskTag",
+              "from": "param:riskTag"
+            },
+            {
+              "op": "createObject",
+              "type": "WatchlistRecord",
+              "properties": {
+                "riskTag": "param:riskTag",
+                "passportId": "object:passportId",
+                "dob": "object:dob",
+                "reason": "param:reason",
+                "addedBy": "session:role",
+                "addedAt": "now",
+                "origin": "value:action"
+              }
+            },
+            {
+              "op": "createLink",
+              "linkType": "LISTED_ON",
+              "target": "created:WatchlistRecord"
+            },
+            {
+              "op": "writeback",
+              "system": "border-watch",
+              "template": "WATCH {label} passport {passportId} tag {riskTag}: {reason}"
+            }
+          ],
+          "feedsAnalytics": true,
+          "honesty": "inv.actions"
+        },
+        {
+          "id": "act-remove-from-watchlist",
+          "label": "Remove from watchlist",
+          "objectType": "Person",
+          "sensitive": true,
+          "description": "Undo an Add to watchlist made in this session: clear the risk tag, delete the watchlist record the Action created and tell the border watch system. Risk tags from the watchlist feed cannot be removed here.",
+          "parameters": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst"
+          ],
+          "checkpointId": "cp-action-sensitive",
+          "effects": [
+            {
+              "op": "setProperty",
+              "property": "riskTag",
+              "from": "value:",
+              "onlyIfSetByAction": true,
+              "refusal": "This risk tag comes from the watchlist feed, not from an Action in this session, so it cannot be removed here."
+            },
+            {
+              "op": "deleteLinked",
+              "linkType": "LISTED_ON",
+              "targetType": "WatchlistRecord",
+              "onlyCreatedByAction": true
+            },
+            {
+              "op": "writeback",
+              "system": "border-watch",
+              "template": "UNWATCH {label} passport {passportId}: {reason}"
+            }
+          ],
+          "feedsAnalytics": true,
+          "honesty": "inv.actions"
+        },
+        {
+          "id": "act-flag-account",
+          "label": "Flag account for review",
+          "objectType": "BankAccount",
+          "sensitive": false,
+          "description": "Mark a bank account for review and send the request to the bank's compliance desk.",
+          "parameters": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            },
+            {
+              "id": "priority",
+              "label": "Priority",
+              "type": "enum",
+              "required": true,
+              "options": [
+                "routine",
+                "urgent"
+              ]
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst"
+          ],
+          "effects": [
+            {
+              "op": "setProperty",
+              "property": "reviewFlag",
+              "from": "param:priority"
+            },
+            {
+              "op": "writeback",
+              "system": "bank-compliance",
+              "template": "REVIEW account {accountId} ({priority}) held by {ownerName}: {reason}"
+            }
+          ],
+          "feedsAnalytics": false,
+          "honesty": "inv.actions"
+        },
+        {
+          "id": "act-request-border-watch",
+          "label": "Request border watch",
+          "objectType": "Person",
+          "sensitive": false,
+          "description": "Ask the border watch system to alert on this person's passport. Changes nothing in the ontology.",
+          "parameters": [
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            },
+            {
+              "id": "duration",
+              "label": "Duration",
+              "type": "enum",
+              "required": true,
+              "options": [
+                "24h",
+                "7d",
+                "30d"
+              ]
+            }
+          ],
+          "allowedRoles": [
+            "patrol",
+            "fin-analyst"
+          ],
+          "effects": [
+            {
+              "op": "writeback",
+              "system": "border-watch",
+              "template": "ALERT REQUEST {label} passport {passportId} for {duration}: {reason}"
+            }
+          ],
+          "feedsAnalytics": false,
+          "honesty": "inv.actions"
+        },
+        {
+          "id": "act-unmerge-person",
+          "label": "Unmerge person",
+          "objectType": "Person",
+          "sensitive": true,
+          "description": "Reject a candidate merge: the two source identities stay separate at every threshold. The correction is sent to case management.",
+          "parameters": [
+            {
+              "id": "candidateId",
+              "label": "Merge to undo",
+              "type": "string",
+              "required": true
+            },
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst",
+            "dpo"
+          ],
+          "checkpointId": "cp-action-sensitive",
+          "effects": [
+            {
+              "op": "resolutionOverride",
+              "candidateId": "param:candidateId",
+              "decision": "reject"
+            },
+            {
+              "op": "writeback",
+              "system": "case-management",
+              "template": "UNMERGE {label}: candidate {candidateId} rejected by {role}: {reason}"
+            }
+          ],
+          "feedsAnalytics": true,
+          "honesty": "inv.actions"
+        }
+      ],
+      "externalSystems": [
+        {
+          "id": "border-watch",
+          "label": "Border watch system",
+          "description": "Simulated border-control alert list. Receives watch and unwatch requests for people."
+        },
+        {
+          "id": "bank-compliance",
+          "label": "Bank compliance desk",
+          "description": "Simulated compliance team at the account-holding bank. Receives account review requests."
+        },
+        {
+          "id": "case-management",
+          "label": "Case management",
+          "description": "Simulated case file system. Receives identity corrections such as unmerges."
+        }
+      ]
+    },
+    "resolution": {
+      "defaultThreshold": 0.75,
+      "minThreshold": 0.3,
+      "fixedNote": "Merges made by the pipeline's deterministic rules are fixed in this build — see each person's resolution record.",
+      "signals": [
+        {
+          "id": "passport-exact",
+          "weight": 1.0,
+          "label": "Same passport number",
+          "note": "Already merged by the pipeline's deterministic rules; never appears on a candidate.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "name-exact",
+          "weight": 0.45,
+          "label": "Same name",
+          "note": "Equal after folding case, punctuation and accents (José = Jose, Yılmaz = Yilmaz).",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "surname+initial",
+          "weight": 0.25,
+          "label": "Same surname and first initial",
+          "note": "C. Silva ~ Clara Silva. Counts only when no name matches exactly.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "name-translit",
+          "weight": 0.15,
+          "label": "Another spelling also matches",
+          "note": "Some pair of their names is equal only after mapping spelling variants: Omar/Umar, Karim/Kareem, Jelena/Elena, Petrova/Petrov. Added on top of the other name signals.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "dob-exact",
+          "weight": 0.15,
+          "label": "Same date of birth",
+          "note": "At least one date of birth is shared.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "dob-conflict",
+          "weight": -0.15,
+          "label": "Different dates of birth",
+          "note": "Both have dates of birth and none is shared. Deliberately a small penalty: is it too small?",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "phone-exact",
+          "weight": 0.3,
+          "label": "Same phone number",
+          "note": "A phone number appears for both (flights or pings). The number itself is not shown.",
+          "markings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "shared-route",
+          "weight": 0.1,
+          "label": "Shared flight route",
+          "note": "Both were booked between the same two airports, in either direction, on any date.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "shared-address",
+          "weight": 0.2,
+          "label": "Shared company address",
+          "note": "Both direct or own a company registered at the same address (open company register). Clinic home addresses are never used.",
+          "markings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "same-nationality",
+          "weight": 0.05,
+          "label": "Same nationality",
+          "note": "Nationality as recorded on the watchlist.",
+          "markings": [
+            "LE-SENSITIVE"
+          ]
+        }
+      ],
+      "candidates": [
+        {
+          "id": "cand-dina-hale-1994-09-08--x5408072",
+          "left": "person::dina-hale-1994-09-08",
+          "right": "person::x5408072",
+          "score": 0.7,
+          "signals": [
+            "name-exact",
+            "dob-exact",
+            "shared-route"
+          ],
+          "block": "surname:hale",
+          "explanation": "Same name 'Dina Hale' (+0.45), same date of birth 1994-09-08 (+0.15), shared route BEG–IST (and 1 more) (+0.10). Score 0.70.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-farah-ionescu-1996-09-02--x5024269",
+          "left": "person::farah-ionescu-1996-09-02",
+          "right": "person::x5024269",
+          "score": 0.7,
+          "signals": [
+            "name-exact",
+            "dob-exact",
+            "shared-route"
+          ],
+          "block": "surname:ionescu",
+          "explanation": "Same name 'Farah Ionescu' (+0.45), same date of birth 1996-09-02 (+0.15), shared route LHR–ATH (+0.10). Score 0.70.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-priya-silva-1987-07-28--x1247595",
+          "left": "person::priya-silva-1987-07-28",
+          "right": "person::x1247595",
+          "score": 0.7,
+          "signals": [
+            "name-exact",
+            "dob-exact",
+            "shared-route"
+          ],
+          "block": "surname:silva",
+          "explanation": "Same name 'Priya Silva' (+0.45), same date of birth 1978-05-24 (+0.15), shared route DXB–VIE (+0.10). Score 0.70.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-rami-keller-1984-04-28--x6910964",
+          "left": "person::rami-keller-1984-04-28",
+          "right": "person::x6910964",
+          "score": 0.7,
+          "signals": [
+            "name-exact",
+            "dob-exact",
+            "shared-route"
+          ],
+          "block": "surname:keller",
+          "explanation": "Same name 'Rami Keller' (+0.45), same date of birth 1984-04-28 (+0.15), shared route ATH–VIE (+0.10). Score 0.70.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-sara-quinn-1981-08-12--x8379837",
+          "left": "person::sara-quinn-1981-08-12",
+          "right": "person::x8379837",
+          "score": 0.7,
+          "signals": [
+            "name-exact",
+            "dob-exact",
+            "shared-route"
+          ],
+          "block": "surname:quinn",
+          "explanation": "Same name 'Sara Quinn' (+0.45), same date of birth 1984-09-24 (+0.15), shared route IST–ATH (+0.10). Score 0.70.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-adam-ionescu-1996-06-15--x9517485",
+          "left": "person::adam-ionescu-1996-06-15",
+          "right": "person::x9517485",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:ionescu",
+          "explanation": "Same name 'Adam Ionescu' (+0.45), same date of birth 1996-06-15 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-ben-costa-1995-10-20--x9937326",
+          "left": "person::ben-costa-1995-10-20",
+          "right": "person::x9937326",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:costa",
+          "explanation": "Same name 'Ben Costa' (+0.45), same date of birth 1995-10-20 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-ben-hale-1992-02-11--x5130808",
+          "left": "person::ben-hale-1992-02-11",
+          "right": "person::x5130808",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:hale",
+          "explanation": "Same name 'Ben Hale' (+0.45), same date of birth 1992-02-11 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-ben-ionescu-1994-03-22--x8796514",
+          "left": "person::ben-ionescu-1994-03-22",
+          "right": "person::x8796514",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:ionescu",
+          "explanation": "Same name 'Ben Ionescu' (+0.45), same date of birth 1994-03-22 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-ben-keller-1988-08-27--x7970985",
+          "left": "person::ben-keller-1988-08-27",
+          "right": "person::x7970985",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:keller",
+          "explanation": "Same name 'Ben Keller' (+0.45), same date of birth 1988-08-27 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-ben-orlov-1986-05-31--x8816912",
+          "left": "person::ben-orlov-1986-05-31",
+          "right": "person::x8816912",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:orlov",
+          "explanation": "Same name 'Ben Orlov' (+0.45), same date of birth 1992-04-14 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-clara-silva-1977-11-25--x4786401",
+          "left": "person::clara-silva-1977-11-25",
+          "right": "person::x4786401",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:silva",
+          "explanation": "Same name 'Clara Silva' (+0.45), same date of birth 1977-11-25 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-daniel-wu-1985-06-14--u2286130",
+          "left": "person::daniel-wu-1985-06-14",
+          "right": "person::u2286130",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:wu",
+          "explanation": "Same name 'Daniel Wu' (+0.45), same date of birth 1985-06-14 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-dina-elias-1984-05-16--x3563646",
+          "left": "person::dina-elias-1984-05-16",
+          "right": "person::x3563646",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:elias",
+          "explanation": "Same name 'Dina Elias' (+0.45), same date of birth 1984-05-16 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-dina-ionescu-1981-04-01--x8412769",
+          "left": "person::dina-ionescu-1981-04-01",
+          "right": "person::x8412769",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:ionescu",
+          "explanation": "Same name 'Dina Ionescu' (+0.45), same date of birth 1981-04-01 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-dina-meyer-1977-02-01--x7199635",
+          "left": "person::dina-meyer-1977-02-01",
+          "right": "person::x7199635",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:meyer",
+          "explanation": "Same name 'Dina Meyer' (+0.45), same date of birth 1977-02-01 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-dina-orlov-1982-03-26--x8761611",
+          "left": "person::dina-orlov-1982-03-26",
+          "right": "person::x8761611",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:orlov",
+          "explanation": "Same name 'Dina Orlov' (+0.45), same date of birth 1982-03-26 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-dina-quinn-1978-08-08--x5446912",
+          "left": "person::dina-quinn-1978-08-08",
+          "right": "person::x5446912",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:quinn",
+          "explanation": "Same name 'Dina Quinn' (+0.45), same date of birth 1998-08-30 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-dina-rossi-2000-06-22--x2683838",
+          "left": "person::dina-rossi-2000-06-22",
+          "right": "person::x2683838",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:rossi",
+          "explanation": "Same name 'Dina Rossi' (+0.45), same date of birth 2000-06-22 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-elias-keller-1978-11-07--x1430812",
+          "left": "person::elias-keller-1978-11-07",
+          "right": "person::x1430812",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:keller",
+          "explanation": "Same name 'Elias Keller' (+0.45), same date of birth 1978-11-07 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-farah-elias-1975-02-05--x5107776",
+          "left": "person::farah-elias-1975-02-05",
+          "right": "person::x5107776",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:elias",
+          "explanation": "Same name 'Farah Elias' (+0.45), same date of birth 1975-02-05 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-farah-vale-1985-03-30--x3294774",
+          "left": "person::farah-vale-1985-03-30",
+          "right": "person::x3294774",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:vale",
+          "explanation": "Same name 'Farah Vale' (+0.45), same date of birth 1985-03-30 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-hugo-farouk-1992-03-25--x9075854",
+          "left": "person::hugo-farouk-1992-03-25",
+          "right": "person::x9075854",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:farouk",
+          "explanation": "Same name 'Hugo Farouk' (+0.45), same date of birth 1992-03-25 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-i6117009--maya-singh-1992-09-21",
+          "left": "person::i6117009",
+          "right": "person::maya-singh-1992-09-21",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:singh",
+          "explanation": "Same name 'Maya Singh' (+0.45), same date of birth 1992-09-21 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-ivy-adler-1986-09-09--x6008935",
+          "left": "person::ivy-adler-1986-09-09",
+          "right": "person::x6008935",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:adler",
+          "explanation": "Same name 'Ivy Adler' (+0.45), same date of birth 1986-09-09 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-jonah-silva-1974-08-13--x7844947",
+          "left": "person::jonah-silva-1974-08-13",
+          "right": "person::x7844947",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:silva",
+          "explanation": "Same name 'Jonah Silva' (+0.45), same date of birth 1974-08-13 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-jos-ferreira-1979-07-30--jose-ferreira-1986-01-11",
+          "left": "person::jos-ferreira-1979-07-30",
+          "right": "person::jose-ferreira-1986-01-11",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-conflict",
+            "shared-route",
+            "shared-address"
+          ],
+          "block": "address:6 kirchgasse zurich",
+          "explanation": "Same name 'José Ferreira' / 'Jose Ferreira' (+0.45), different dates of birth 1979-07-30 / 1986-01-11 (−0.15), shared route LCA–ATH (+0.10), companies registered at 6 Kirchgasse, Zurich (+0.20). Score 0.60.",
+          "markings": [
+            "OPEN",
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-lena-nasser-1986-01-04--x4539704",
+          "left": "person::lena-nasser-1986-01-04",
+          "right": "person::x4539704",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:nasser",
+          "explanation": "Same name 'Lena Nasser' (+0.45), same date of birth 1986-01-04 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-nadia-costa-1998-10-06--x7067228",
+          "left": "person::nadia-costa-1998-10-06",
+          "right": "person::x7067228",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:costa",
+          "explanation": "Same name 'Nadia Costa' (+0.45), same date of birth 1998-10-06 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-nadia-nasser-1982-11-24--x5074336",
+          "left": "person::nadia-nasser-1982-11-24",
+          "right": "person::x5074336",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:nasser",
+          "explanation": "Same name 'Nadia Nasser' (+0.45), same date of birth 1982-11-24 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-owen-meyer-1977-02-03--x6724909",
+          "left": "person::owen-meyer-1977-02-03",
+          "right": "person::x6724909",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:meyer",
+          "explanation": "Same name 'Owen Meyer' (+0.45), same date of birth 1977-02-03 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-rami-costa-1976-02-11--x3564251",
+          "left": "person::rami-costa-1976-02-11",
+          "right": "person::x3564251",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:costa",
+          "explanation": "Same name 'Rami Costa' (+0.45), same date of birth 1976-02-11 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-rami-demir-1975-04-18--x5014745",
+          "left": "person::rami-demir-1975-04-18",
+          "right": "person::x5014745",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:demir",
+          "explanation": "Same name 'Rami Demir' (+0.45), same date of birth 1975-04-18 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-sara-keller-1992-04-27--x7751158",
+          "left": "person::sara-keller-1992-04-27",
+          "right": "person::x7751158",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:keller",
+          "explanation": "Same name 'Sara Keller' (+0.45), same date of birth 1992-04-27 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-tomas-hale-1988-07-19--x3386328",
+          "left": "person::tomas-hale-1988-07-19",
+          "right": "person::x3386328",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:hale",
+          "explanation": "Same name 'Tomas Hale' (+0.45), same date of birth 1980-09-07 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-tomas-quinn-1994-11-08--x5502929",
+          "left": "person::tomas-quinn-1994-11-08",
+          "right": "person::x5502929",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:quinn",
+          "explanation": "Same name 'Tomas Quinn' (+0.45), same date of birth 1994-11-08 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-x6901533--yara-nasser-1995-05-25",
+          "left": "person::x6901533",
+          "right": "person::yara-nasser-1995-05-25",
+          "score": 0.6,
+          "signals": [
+            "name-exact",
+            "dob-exact"
+          ],
+          "block": "surname:nasser",
+          "explanation": "Same name 'Yara Nasser' (+0.45), same date of birth 1995-05-25 (+0.15). Score 0.60.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-n5538219--g5510077",
+          "left": "person::n5538219",
+          "right": "person::g5510077",
+          "score": 0.55,
+          "signals": [
+            "name-exact",
+            "name-translit",
+            "dob-conflict",
+            "shared-route"
+          ],
+          "block": "surname:rahman",
+          "explanation": "Same name 'Omar Rahman' (+0.45), also spelled 'Omar Rahman' / 'Umar Rahman' (+0.15), different dates of birth 1984-08-19 / 1979-02-02 (−0.15), shared route LHR–IST (+0.10). Score 0.55.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-mehmet-y-lmaz-1983-05-17--mehmet-yilmaz-1991-10-02",
+          "left": "person::mehmet-y-lmaz-1983-05-17",
+          "right": "person::mehmet-yilmaz-1991-10-02",
+          "score": 0.5,
+          "signals": [
+            "name-exact",
+            "dob-conflict",
+            "shared-address"
+          ],
+          "block": "address:12 mariahilfer strasse vienna",
+          "explanation": "Same name 'Mehmet Yılmaz' / 'Mehmet Yilmaz' (+0.45), different dates of birth 1983-05-17 / 1991-10-02 (−0.15), companies registered at 12 Mariahilfer Strasse, Vienna (+0.20). Score 0.50.",
+          "markings": [
+            "OPEN",
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-h-costa-49336456621--hugo-costa-1989-03-02",
+          "left": "person::h-costa-49336456621",
+          "right": "person::hugo-costa-1989-03-02",
+          "score": 0.45,
+          "signals": [
+            "name-exact"
+          ],
+          "block": "surname:costa",
+          "explanation": "Same name 'Hugo Costa' (+0.45). Score 0.45.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-adam-keller-1986-11-14--x7121355",
+          "left": "person::adam-keller-1986-11-14",
+          "right": "person::x7121355",
+          "score": 0.4,
+          "signals": [
+            "name-exact",
+            "dob-conflict",
+            "shared-route"
+          ],
+          "block": "surname:keller",
+          "explanation": "Same name 'A. Keller' (+0.45), different dates of birth 1986-11-14 / 1993-10-10 (−0.15), shared route SOF–DXB (and 1 more) (+0.10). Score 0.40.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-elias-silva-1997-10-16--x8755439",
+          "left": "person::elias-silva-1997-10-16",
+          "right": "person::x8755439",
+          "score": 0.4,
+          "signals": [
+            "name-exact",
+            "dob-conflict",
+            "shared-route"
+          ],
+          "block": "surname:silva",
+          "explanation": "Same name 'Elias Silva' (+0.45), different dates of birth 1997-10-16 / 1984-12-24 (−0.15), shared route ATH–DXB (+0.10). Score 0.40.",
+          "markings": [
+            "PII"
+          ]
+        },
+        {
+          "id": "cand-priya-costa-2000-10-29--x4318855",
+          "left": "person::priya-costa-2000-10-29",
+          "right": "person::x4318855",
+          "score": 0.3,
+          "signals": [
+            "name-exact",
+            "dob-conflict"
+          ],
+          "block": "surname:costa",
+          "explanation": "Same name 'Priya Costa' (+0.45), different dates of birth 2000-10-29 / 1984-06-21 (−0.15). Score 0.30.",
+          "markings": [
+            "PII"
+          ]
         }
       ]
     },
     "pipeline": {
-      "generatedAt": "2026-11-04T16:20:00.672691Z",
+      "generatedAt": "2026-11-04T17:35:57.828396Z",
       "transforms": [
         {
           "id": "normalize_sources",
@@ -17791,13 +20237,13 @@ window.foundrySeedCatalog = {
           "codePath": "pipeline/01_normalize_sources.py",
           "code": "\"\"\"\npipeline/01_normalize_sources.py — Read and normalize all six raw source files.\n\nFor each source:\n- Strip whitespace from all string fields\n- Parse date/datetime strings to ISO format (leave as-is if already ISO)\n- Split pipe-delimited alias fields into Python lists\n- Tag each row with its original 0-based row index as ``_source_row``\n- Copy the dataset's markings, purpose, legal basis and retention from\n  ``manifest.json`` (Dataset.markings / Dataset.purpose / ...), with\n  ``markingProvenance`` pointing at the raw file\n\nReturns six Dataset objects (one per source file).  The clinic file is\noptional: a profile without it yields an empty ``norm_clinic_registrations``.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport csv\nimport json\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\n# Allow imports from the repo root when run directly\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _strip(value: Any) -> Any:\n    if isinstance(value, str):\n        return value.strip()\n    return value\n\n\ndef _clean_row(row: Dict[str, Any]) -> Dict[str, Any]:\n    return {k: _strip(v) for k, v in row.items()}\n\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\n\n\ndef source_label(path: Path) -> str:\n    \"\"\"Repo-relative POSIX path of a raw source file (absolute if outside the repo).\"\"\"\n    resolved = Path(path).resolve()\n    try:\n        return resolved.relative_to(REPO_ROOT).as_posix()\n    except ValueError:\n        return resolved.as_posix()\n\n\ndef read_csv_raw(path: Path) -> List[Dict[str, str]]:\n    with path.open(newline=\"\", encoding=\"utf-8\") as fh:\n        return list(csv.DictReader(fh))\n\n\ndef read_jsonl_raw(path: Path) -> List[Dict[str, Any]]:\n    with path.open(encoding=\"utf-8\") as fh:\n        return [json.loads(line) for line in fh if line.strip()]\n\n\n# ---------------------------------------------------------------------------\n# Per-source normalizers\n# ---------------------------------------------------------------------------\n\ndef normalize_watchlist(path: Path) -> Dataset:\n    \"\"\"watchlist.csv → cleaned rows with aliases as list.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        # Split pipe-delimited aliases\n        raw_alias = row.get(\"alias\", \"\")\n        alias_list = [a.strip() for a in raw_alias.split(\"|\") if a.strip()] if raw_alias else []\n        out.append({\n            \"_source_row\": i,\n            \"watchlist_id\": row.get(\"watchlist_id\", \"\"),\n            \"canonical_name\": row.get(\"canonical_name\", \"\"),\n            \"aliases\": alias_list,\n            \"dob\": row.get(\"dob\", \"\"),\n            \"nationality\": row.get(\"nationality\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"risk_tag\": row.get(\"risk_tag\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"watchlist_id\", \"type\": \"string\"},\n        {\"field\": \"canonical_name\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"json\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"risk_tag\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_watchlist\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_company_registry(path: Path) -> Dataset:\n    \"\"\"company_registry.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"company_id\": row.get(\"company_id\", \"\"),\n            \"company_name\": row.get(\"company_name\", \"\"),\n            \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n            \"incorporation_date\": row.get(\"incorporation_date\", \"\"),\n            \"registered_address\": row.get(\"registered_address\", \"\"),\n            \"director_name\": row.get(\"director_name\", \"\"),\n            \"director_dob\": row.get(\"director_dob\", \"\"),\n            \"beneficial_owner\": row.get(\"beneficial_owner\", \"\"),\n            \"beneficial_owner_dob\": row.get(\"beneficial_owner_dob\", \"\"),\n            \"registered_city\": row.get(\"registered_city\", \"\"),\n            \"registered_country\": row.get(\"registered_country\", \"\"),\n            \"registered_site_type\": row.get(\"registered_site_type\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"company_id\", \"type\": \"string\"},\n        {\"field\": \"company_name\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporation_date\", \"type\": \"date\"},\n        {\"field\": \"registered_address\", \"type\": \"string\"},\n        {\"field\": \"director_name\", \"type\": \"string\"},\n        {\"field\": \"director_dob\", \"type\": \"date\"},\n        {\"field\": \"beneficial_owner\", \"type\": \"string\"},\n        {\"field\": \"beneficial_owner_dob\", \"type\": \"date\"},\n        {\"field\": \"registered_city\", \"type\": \"string\"},\n        {\"field\": \"registered_country\", \"type\": \"string\"},\n        {\"field\": \"registered_site_type\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_company_registry\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_flight_manifests(path: Path) -> Dataset:\n    \"\"\"flight_manifests.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"manifest_id\": row.get(\"manifest_id\", \"\"),\n            \"flight_number\": row.get(\"flight_number\", \"\"),\n            \"departure_airport\": row.get(\"departure_airport\", \"\"),\n            \"arrival_airport\": row.get(\"arrival_airport\", \"\"),\n            \"departure_ts\": row.get(\"departure_ts\", \"\"),\n            \"booking_reference\": row.get(\"booking_reference\", \"\"),\n            \"passenger_name\": row.get(\"passenger_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"phone_number\": row.get(\"phone_number\", \"\"),\n            \"seat\": row.get(\"seat\", \"\"),\n            \"payment_card_last4\": row.get(\"payment_card_last4\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"manifest_id\", \"type\": \"string\"},\n        {\"field\": \"flight_number\", \"type\": \"string\"},\n        {\"field\": \"departure_airport\", \"type\": \"string\"},\n        {\"field\": \"arrival_airport\", \"type\": \"string\"},\n        {\"field\": \"departure_ts\", \"type\": \"date\"},\n        {\"field\": \"booking_reference\", \"type\": \"string\"},\n        {\"field\": \"passenger_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"seat\", \"type\": \"string\"},\n        {\"field\": \"payment_card_last4\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_flight_manifests\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_bank_transactions(path: Path) -> Dataset:\n    \"\"\"bank_transactions.csv → cleaned rows with numeric amount.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        amount_raw = row.get(\"amount_usd\", \"\")\n        try:\n            amount = float(amount_raw) if amount_raw else None\n        except ValueError:\n            amount = None\n        out.append({\n            \"_source_row\": i,\n            \"transaction_id\": row.get(\"transaction_id\", \"\"),\n            \"source_account_id\": row.get(\"source_account_id\", \"\"),\n            \"source_name\": row.get(\"source_name\", \"\"),\n            \"destination_account_id\": row.get(\"destination_account_id\", \"\"),\n            \"destination_name\": row.get(\"destination_name\", \"\"),\n            \"amount_usd\": amount,\n            \"txn_type\": row.get(\"txn_type\", \"\"),\n            \"merchant_or_bank\": row.get(\"merchant_or_bank\", \"\"),\n            \"txn_ts\": row.get(\"txn_ts\", \"\"),\n            \"reference\": row.get(\"reference\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"transaction_id\", \"type\": \"string\"},\n        {\"field\": \"source_account_id\", \"type\": \"string\"},\n        {\"field\": \"source_name\", \"type\": \"string\"},\n        {\"field\": \"destination_account_id\", \"type\": \"string\"},\n        {\"field\": \"destination_name\", \"type\": \"string\"},\n        {\"field\": \"amount_usd\", \"type\": \"float\"},\n        {\"field\": \"txn_type\", \"type\": \"string\"},\n        {\"field\": \"merchant_or_bank\", \"type\": \"string\"},\n        {\"field\": \"txn_ts\", \"type\": \"date\"},\n        {\"field\": \"reference\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_bank_transactions\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_mobile_pings(path: Path) -> Dataset:\n    \"\"\"mobile_location_pings.jsonl → cleaned rows with numeric lat/lon.\"\"\"\n    rows = read_jsonl_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        out.append({\n            \"_source_row\": i,\n            \"ping_id\": str(row.get(\"ping_id\", \"\")),\n            \"device_id\": str(row.get(\"device_id\", \"\")),\n            \"phone_number\": str(row.get(\"phone_number\", \"\")),\n            \"observed_name\": str(row.get(\"observed_name\", \"\")),\n            \"timestamp\": str(row.get(\"timestamp\", \"\")),\n            \"location_label\": str(row.get(\"location_label\", \"\")),\n            \"location_type\": str(row.get(\"location_type\", \"\")),\n            \"city\": str(row.get(\"city\", \"\")),\n            \"country\": str(row.get(\"country\", \"\")),\n            \"lat\": row.get(\"lat\"),\n            \"lon\": row.get(\"lon\"),\n            \"cell_tower\": str(row.get(\"cell_tower\", \"\")),\n            \"source\": str(row.get(\"source\", \"\")),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"ping_id\", \"type\": \"string\"},\n        {\"field\": \"device_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"observed_name\", \"type\": \"string\"},\n        {\"field\": \"timestamp\", \"type\": \"date\"},\n        {\"field\": \"location_label\", \"type\": \"string\"},\n        {\"field\": \"location_type\", \"type\": \"string\"},\n        {\"field\": \"city\", \"type\": \"string\"},\n        {\"field\": \"country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"cell_tower\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_mobile_pings\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef _float_or_none(value: Any) -> Any:\n    try:\n        return float(value) if value not in (None, \"\") else None\n    except ValueError:\n        return None\n\n\ndef normalize_clinic(path: Path) -> Dataset:\n    \"\"\"clinic_registrations.csv → cleaned rows with numeric lat/lon.\n\n    Health data: rows are only ever *attached* to people who already exist\n    (by name + dob, in step 02); an unmatched row stays in this dataset.\n    \"\"\"\n    rows = read_csv_raw(path) if path.exists() else []\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"registration_id\": row.get(\"registration_id\", \"\"),\n            \"patient_name\": row.get(\"patient_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"home_address\": row.get(\"home_address\", \"\"),\n            \"home_city\": row.get(\"home_city\", \"\"),\n            \"home_country\": row.get(\"home_country\", \"\"),\n            \"lat\": _float_or_none(row.get(\"lat\")),\n            \"lon\": _float_or_none(row.get(\"lon\")),\n            \"clinic_code\": row.get(\"clinic_code\", \"\"),\n            \"registered_on\": row.get(\"registered_on\", \"\"),\n            \"source\": row.get(\"source\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"registration_id\", \"type\": \"string\"},\n        {\"field\": \"patient_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"home_address\", \"type\": \"string\"},\n        {\"field\": \"home_city\", \"type\": \"string\"},\n        {\"field\": \"home_country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"clinic_code\", \"type\": \"string\"},\n        {\"field\": \"registered_on\", \"type\": \"date\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_clinic_registrations\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef apply_manifest(ds: Dataset, manifest: Dict[str, Dict[str, Any]], file_name: str) -> Dataset:\n    \"\"\"Copy markings, purpose, legal basis and retention from the manifest.\"\"\"\n    entry = governance.manifest_entry_for_file(manifest, file_name)\n    ds.set_governance(governance.raw_governance(file_name, entry))\n    ds.as_of = entry.get(\"asOf\", \"\")  # type: ignore[attr-defined]\n    ds.derived_from = [file_name]\n    return ds\n\n\n# ---------------------------------------------------------------------------\n# Public entry point\n# ---------------------------------------------------------------------------\n\nRAW_FILES = (\n    \"watchlist.csv\", \"company_registry.csv\", \"flight_manifests.csv\",\n    \"bank_transactions.csv\", \"mobile_location_pings.jsonl\", \"clinic_registrations.csv\",\n)\n\n\ndef run(dataset_dir: Path) -> Tuple[Dataset, Dataset, Dataset, Dataset, Dataset, Dataset]:\n    \"\"\"Normalize all six sources under *dataset_dir*.\n\n    Returns\n    -------\n    (norm_watchlist, norm_company_registry, norm_flight_manifests,\n     norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations)\n    \"\"\"\n    dataset_dir = Path(dataset_dir)\n    manifest = governance.load_manifest(dataset_dir)\n    wl = normalize_watchlist(dataset_dir / \"watchlist.csv\")\n    cr = normalize_company_registry(dataset_dir / \"company_registry.csv\")\n    fm = normalize_flight_manifests(dataset_dir / \"flight_manifests.csv\")\n    bt = normalize_bank_transactions(dataset_dir / \"bank_transactions.csv\")\n    mp = normalize_mobile_pings(dataset_dir / \"mobile_location_pings.jsonl\")\n    cl = normalize_clinic(dataset_dir / \"clinic_registrations.csv\")\n\n    datasets = (wl, cr, fm, bt, mp, cl)\n    for ds, file_name in zip(datasets, RAW_FILES):\n        apply_manifest(ds, manifest, file_name)\n    return datasets\n\n\nif __name__ == \"__main__\":\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    datasets = run(dataset_dir)\n    for ds in datasets:\n        print(f\"{ds.name}: {len(ds)} rows\")\n",
           "rowsIn": 0,
-          "rowsOut": 9131,
-          "builtAt": "2026-11-04T16:20:00.672691Z"
+          "rowsOut": 9207,
+          "builtAt": "2026-11-04T17:35:57.828396Z"
         },
         {
           "id": "resolve_persons",
           "name": "02 Resolve Persons",
-          "description": "Entity-resolve persons across watchlist, registry, flights and pings by passport_id > phone_number > name+dob > alias, then attach clinic registrations by name + dob only (a clinic row never creates a person). Records full field-level provenance.",
+          "description": "Entity-resolve persons across watchlist, registry, flights and pings by passport_id > phone_number > name+dob > alias, then attach clinic registrations by name + dob only (a clinic row never creates a person). A name alone never extends or re-points a watchlisted identity. Records full field-level provenance; candidate pairs for the Resolution tab are scored afterwards (pipeline/candidates.py).",
           "inputs": [
             "norm_watchlist",
             "norm_company_registry",
@@ -17807,10 +20253,10 @@ window.foundrySeedCatalog = {
           ],
           "output": "resolved_persons",
           "codePath": "pipeline/02_resolve_persons.py",
-          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (HEALTH)\n  clinicCode       — latest clinic registration (HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
-          "rowsIn": 6923,
-          "rowsOut": 186,
-          "builtAt": "2026-11-04T16:20:00.672691Z"
+          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (HEALTH)\n  clinicCode       — latest clinic registration (HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
+          "rowsIn": 6997,
+          "rowsOut": 191,
+          "builtAt": "2026-11-04T17:35:57.828396Z"
         },
         {
           "id": "resolve_companies",
@@ -17822,9 +20268,9 @@ window.foundrySeedCatalog = {
           "output": "resolved_companies",
           "codePath": "pipeline/03_resolve_companies.py",
           "code": "\"\"\"\npipeline/03_resolve_companies.py — Entity resolution for Company entities.\n\nKeyed by company_id from the normalized company_registry dataset.\n\nOutput Dataset: company entities\n  id                 — company::{slug(company_id)}\n  companyName\n  jurisdiction\n  incorporationDate\n  registeredAddress\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef run(norm_company_registry: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve Company entities from the normalized company_registry dataset.\"\"\"\n    seen: Dict[str, int] = {}   # company_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for row in norm_company_registry.rows:\n        company_id = row.get(\"company_id\", \"\")\n        if not company_id:\n            continue\n\n        src_row = int(row[\"_source_row\"])\n        ds_name = norm_company_registry.name\n\n        if company_id in seen:\n            # Merge into existing — update any empty fields\n            out_idx = seen[company_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                val = row.get(src_field, \"\")\n                if val and not existing.get(out_field):\n                    existing[out_field] = val\n                    fp.setdefault(out_field, []).append(\n                        {\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"merge\"}\n                    )\n        else:\n            out_idx = len(output_rows)\n            seen[company_id] = out_idx\n            entity_id = f\"company::{slug(company_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"Company\",\n                \"companyName\": row.get(\"company_name\", \"\"),\n                \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n                \"incorporationDate\": row.get(\"incorporation_date\", \"\"),\n                \"registeredAddress\": row.get(\"registered_address\", \"\"),\n            }\n            fp: Dict[str, List[Dict[str, Any]]] = {}\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                if row.get(src_field):\n                    fp[out_field] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"\"}]\n            fp[\"id\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": \"company_id\", \"note\": \"key\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp)\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"companyName\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporationDate\", \"type\": \"date\"},\n        {\"field\": \"registeredAddress\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_companies\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_company_registry])\n    lineage = LineageRecord()\n\n    for out_idx, (out_row, fp) in enumerate(zip(output_rows, fp_per_row)):\n        # Row-level: find the original source row index\n        src_refs = fp.get(\"id\", fp.get(\"companyName\", []))\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"company\")\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, cr, _, _, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(cr)\n    print(f\"Resolved {len(ds)} companies\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"companyName\"])\n",
-          "rowsIn": 94,
-          "rowsOut": 94,
-          "builtAt": "2026-11-04T16:20:00.672691Z"
+          "rowsIn": 98,
+          "rowsOut": 98,
+          "builtAt": "2026-11-04T17:35:57.828396Z"
         },
         {
           "id": "resolve_accounts",
@@ -17836,9 +20282,9 @@ window.foundrySeedCatalog = {
           "output": "resolved_accounts",
           "codePath": "pipeline/04_resolve_accounts.py",
           "code": "\"\"\"\npipeline/04_resolve_accounts.py — Entity resolution for BankAccount entities.\n\nKeyed by account_id from the normalized bank_transactions dataset.\nBoth source and destination accounts are extracted.\n\nOutput Dataset: bank account entities\n  id           — bankaccount::{slug(account_id)}\n  accountId\n  ownerName\n  accountKind  — \"personal\" | \"corporate\" | \"\" (resolved downstream in step 05)\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\ndef run(norm_bank_transactions: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve BankAccount entities from the normalized bank_transactions dataset.\"\"\"\n    seen: Dict[str, int] = {}   # account_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n    ds_name = norm_bank_transactions.name\n\n    def upsert(account_id: str, owner_name: str, src_row: int, id_field: str, name_field: str) -> None:\n        if not account_id:\n            return\n        if account_id in seen:\n            out_idx = seen[account_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            if owner_name and not existing.get(\"ownerName\"):\n                existing[\"ownerName\"] = owner_name\n                fp.setdefault(\"ownerName\", []).append(\n                    {\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"merge\"}\n                )\n        else:\n            out_idx = len(output_rows)\n            seen[account_id] = out_idx\n            entity_id = f\"bankaccount::{slug(account_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"BankAccount\",\n                \"accountId\": account_id,\n                \"ownerName\": owner_name,\n                \"accountKind\": \"\",\n            }\n            fp_entry: Dict[str, List[Dict[str, Any]]] = {\n                \"id\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"key\"}],\n                \"accountId\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"\"}],\n            }\n            if owner_name:\n                fp_entry[\"ownerName\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp_entry)\n\n    for row in norm_bank_transactions.rows:\n        src_row = int(row[\"_source_row\"])\n        upsert(\n            row.get(\"source_account_id\", \"\"),\n            row.get(\"source_name\", \"\"),\n            src_row,\n            \"source_account_id\",\n            \"source_name\",\n        )\n        upsert(\n            row.get(\"destination_account_id\", \"\"),\n            row.get(\"destination_name\", \"\"),\n            src_row,\n            \"destination_account_id\",\n            \"destination_name\",\n        )\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"accountId\", \"type\": \"string\"},\n        {\"field\": \"ownerName\", \"type\": \"string\"},\n        {\"field\": \"accountKind\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_accounts\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_bank_transactions])\n    lineage = LineageRecord()\n\n    for out_idx, fp in enumerate(fp_per_row):\n        src_refs = fp.get(\"id\", [])\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"account\")\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, _, _, bt, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(bt)\n    print(f\"Resolved {len(ds)} bank accounts\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"ownerName\"])\n",
-          "rowsIn": 2208,
-          "rowsOut": 280,
-          "builtAt": "2026-11-04T16:20:00.672691Z"
+          "rowsIn": 2210,
+          "rowsOut": 282,
+          "builtAt": "2026-11-04T17:35:57.828396Z"
         },
         {
           "id": "build_ontology",
@@ -17858,9 +20304,9 @@ window.foundrySeedCatalog = {
           "output": "ontology",
           "codePath": "pipeline/05_build_ontology.py",
           "code": "\"\"\"\npipeline/05_build_ontology.py — Build the full ontology entity and edge sets.\n\nTakes all resolved entity datasets + normalized sources.  Produces:\n  - Additional entity types: Device, Flight, Airport, Location, WatchlistRecord\n  - All edges:\n      LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT,\n      OWNS_ACCOUNT, HAS_CORP_ACCOUNT, TRANSFERRED_TO,\n      BOOKED_ON, DEPARTED_FROM, ARRIVED_AT,\n      USES_DEVICE, OBSERVED_AT,\n      RESIDES_AT (Phase 1: Person → residential Location, from clinic rows)\n\nClinic rows that the shared resolver attached to a Person (name + dob) become\na residential ``Location`` (``locationType: \"residential\"``) and a\n``RESIDES_AT`` link with ``{asOf, source}``.  Unattached rows produce nothing.\n\nBoth output datasets inherit the union of their inputs' markings, and every\nentity and edge gets contract §3 markings from ``pipeline/governance.py``.\n\nPerson lookups go through the shared resolver in ``pipeline/resolution.py``\n(the same one the Gotham seed builder uses), passing every key the source row\ncarries — passport, phone, name and date of birth — so both demos attach\neach edge to the same person.\n\nReturns:\n  entities_dataset  — all entities (persons + companies + accounts + new types)\n  edges_dataset     — all edges\n  entity_lineage    — LineageRecord for entities\n  edge_lineage      — LineageRecord for edges\n\"\"\"\n\nfrom __future__ import annotations\n\nimport re\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Optional, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\nfrom pipeline.resolution import PersonResolver, attach_clinic_rows, clinic_observations, resolve_people\n\n# ---------------------------------------------------------------------------\n# Airport reference data (from build_ontology_seed.py)\n# ---------------------------------------------------------------------------\nAIRPORT_COORDS: Dict[str, Dict[str, Any]] = {\n    \"ATH\": {\"name\": \"Athens International Airport\", \"city\": \"Athens\", \"country\": \"Greece\", \"lat\": 37.9364, \"lon\": 23.9475},\n    \"BEG\": {\"name\": \"Belgrade Nikola Tesla Airport\", \"city\": \"Belgrade\", \"country\": \"Serbia\", \"lat\": 44.8184, \"lon\": 20.3091},\n    \"DXB\": {\"name\": \"Dubai International Airport\", \"city\": \"Dubai\", \"country\": \"United Arab Emirates\", \"lat\": 25.2532, \"lon\": 55.3657},\n    \"IAD\": {\"name\": \"Washington Dulles International Airport\", \"city\": \"Washington, D.C.\", \"country\": \"United States\", \"lat\": 38.9531, \"lon\": -77.4565},\n    \"IST\": {\"name\": \"Istanbul Airport\", \"city\": \"Istanbul\", \"country\": \"Turkey\", \"lat\": 41.2753, \"lon\": 28.7519},\n    \"LCA\": {\"name\": \"Larnaca International Airport\", \"city\": \"Larnaca\", \"country\": \"Cyprus\", \"lat\": 34.8751, \"lon\": 33.6249},\n    \"LHR\": {\"name\": \"Heathrow Airport\", \"city\": \"London\", \"country\": \"United Kingdom\", \"lat\": 51.4700, \"lon\": -0.4543},\n    \"SOF\": {\"name\": \"Sofia Airport\", \"city\": \"Sofia\", \"country\": \"Bulgaria\", \"lat\": 42.6950, \"lon\": 23.4062},\n    \"VIE\": {\"name\": \"Vienna International Airport\", \"city\": \"Vienna\", \"country\": \"Austria\", \"lat\": 48.1103, \"lon\": 16.5697},\n}\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _norm(value: str) -> str:\n    cleaned = re.sub(r\"[^a-z0-9]+\", \" \", value.lower()).strip()\n    return re.sub(r\"\\s+\", \" \", cleaned)\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Ontology builder\n# ---------------------------------------------------------------------------\n\nclass OntologyBuilder:\n    def __init__(\n        self,\n        resolved_persons: Dataset,\n        resolved_companies: Dataset,\n        resolved_accounts: Dataset,\n        resolver: PersonResolver,\n    ) -> None:\n        # Start with resolved entities\n        self.entities: List[Dict[str, Any]] = []\n        self.entity_index: Dict[str, int] = {}  # entity_id → index in self.entities\n        self.edges: List[Dict[str, Any]] = []\n        self.edge_index: Dict[str, int] = {}\n\n        # Entity lineage: entity_id → list of source refs\n        self.entity_src: Dict[str, List[Dict[str, Any]]] = {}\n        self.entity_field_prov: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}\n\n        # Lookup tables (persons: the shared resolver from step 02)\n        self.resolver = resolver\n        self.company_by_name: Dict[str, str] = {}\n        self.account_by_id: Dict[str, str] = {}\n        self.device_by_id: Dict[str, str] = {}\n        self.airport_by_code: Dict[str, str] = {}\n        self.location_by_label: Dict[str, str] = {}\n\n        # Ingest persons\n        for row in resolved_persons.rows:\n            self._add_entity_row(row, resolved_persons.name)\n\n        # Ingest companies\n        for row in resolved_companies.rows:\n            self._add_entity_row(row, resolved_companies.name)\n            self.company_by_name[_norm(row.get(\"companyName\", \"\"))] = row[\"id\"]\n\n        # Ingest accounts\n        for row in resolved_accounts.rows:\n            self._add_entity_row(row, resolved_accounts.name)\n            self.account_by_id[row[\"accountId\"]] = row[\"id\"]\n\n    def _add_entity_row(self, row: Dict[str, Any], source_ds: str) -> str:\n        eid = row[\"id\"]\n        if eid in self.entity_index:\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        # Build Gotham-compatible entity shape\n        props = {k: v for k, v in row.items() if k not in (\"id\", \"type\", \"resolution\") and v not in (None, \"\")}\n        entity = {\n            \"id\": eid,\n            \"type\": row[\"type\"],\n            \"label\": props.get(\"canonicalName\") or props.get(\"companyName\") or props.get(\"accountId\") or eid,\n            \"properties\": props,\n            \"sourceIds\": [source_ds],\n        }\n        if row.get(\"resolution\"):\n            entity[\"resolution\"] = row[\"resolution\"]\n        self.entities.append(entity)\n        return eid\n\n    def _add_edge(\n        self,\n        rel_type: str,\n        source_id: str,\n        target_id: str,\n        properties: Optional[Dict[str, Any]] = None,\n        dedupe_key: Optional[str] = None,\n    ) -> str:\n        base_key = dedupe_key or f\"{rel_type}:{source_id}:{target_id}\"\n        edge_id = f\"{rel_type.lower()}::{slug(base_key)}\"\n        if edge_id in self.edge_index:\n            idx = self.edge_index[edge_id]\n            if properties:\n                for k, v in properties.items():\n                    if v not in (None, \"\"):\n                        self.edges[idx][\"properties\"][k] = v\n            return edge_id\n        idx = len(self.edges)\n        self.edge_index[edge_id] = idx\n        self.edges.append({\n            \"id\": edge_id,\n            \"type\": rel_type,\n            \"source\": source_id,\n            \"target\": target_id,\n            \"label\": rel_type,\n            \"properties\": {k: v for k, v in (properties or {}).items() if v not in (None, \"\")},\n        })\n        return edge_id\n\n    def _ensure_entity(\n        self, type_id: str, external_key: str, label: str,\n        properties: Dict[str, Any], source_ds: str,\n    ) -> str:\n        eid = f\"{type_id.lower()}::{slug(external_key)}\"\n        if eid in self.entity_index:\n            # Merge\n            existing = self.entities[self.entity_index[eid]]\n            for k, v in properties.items():\n                if v not in (None, \"\") and existing[\"properties\"].get(k) in (None, \"\"):\n                    existing[\"properties\"][k] = v\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        clean_props = {k: v for k, v in properties.items() if v not in (None, \"\")}\n        self.entities.append({\n            \"id\": eid,\n            \"type\": type_id,\n            \"label\": label or external_key,\n            \"properties\": clean_props,\n            \"sourceIds\": [source_ds],\n        })\n        return eid\n\n    def ensure_airport(self, code: str) -> str:\n        if code in self.airport_by_code:\n            return self.airport_by_code[code]\n        info = AIRPORT_COORDS.get(code, {\"name\": code, \"city\": \"\", \"country\": \"\", \"lat\": None, \"lon\": None})\n        eid = self._ensure_entity(\n            \"Airport\", code, info[\"name\"],\n            {\"code\": code, \"airportName\": info[\"name\"], \"city\": info[\"city\"],\n             \"country\": info[\"country\"], \"lat\": info[\"lat\"], \"lon\": info[\"lon\"]},\n            \"norm_flight_manifests\",\n        )\n        self.airport_by_code[code] = eid\n        return eid\n\n    def ensure_location(\n        self, label: str, lat: Any = None, lon: Any = None,\n        cell_tower: str = \"\", location_type: str = \"\", city: str = \"\", country: str = \"\",\n        source_ds: str = \"norm_mobile_pings\",\n    ) -> str:\n        norm = _norm(label)\n        if norm in self.location_by_label:\n            eid = self.location_by_label[norm]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            for k, v in {\"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower,\n                         \"locationType\": location_type, \"city\": city, \"country\": country}.items():\n                if v not in (None, \"\") and props.get(k) in (None, \"\"):\n                    props[k] = v\n            return eid\n        eid = self._ensure_entity(\n            \"Location\", label, label,\n            {\"label\": label, \"locationType\": location_type, \"city\": city, \"country\": country,\n             \"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower},\n            source_ds,\n        )\n        self.location_by_label[norm] = eid\n        return eid\n\n    def ensure_device(self, device_id: str, phone: str, observed_name: str) -> str:\n        if device_id in self.device_by_id:\n            eid = self.device_by_id[device_id]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            if phone:\n                props[\"phoneNumber\"] = _merge(str(props.get(\"phoneNumber\", \"\")), phone)\n            if observed_name:\n                props[\"lastObservedName\"] = _merge(str(props.get(\"lastObservedName\", \"\")), observed_name)\n            return eid\n        eid = self._ensure_entity(\n            \"Device\", device_id, device_id,\n            {\"deviceId\": device_id, \"phoneNumber\": phone, \"lastObservedName\": observed_name},\n            \"norm_mobile_pings\",\n        )\n        self.device_by_id[device_id] = eid\n        return eid\n\n    def find_person(self, passport_id: str = \"\", phone: str = \"\", name: str = \"\", dob: str = \"\",\n                    ref: str = \"\") -> Optional[str]:\n        \"\"\"Person for a source record (``ref``) or, failing that, by key lookup.\"\"\"\n        if ref:\n            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone)\n        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone)\n\n    def link_account_owner(self, account_eid: str, owner_name: str) -> None:\n        norm = _norm(owner_name)\n        acct_props = self.entities[self.entity_index[account_eid]][\"properties\"]\n        if norm in self.company_by_name:\n            company_id = self.company_by_name[norm]\n            self._add_edge(\"HAS_CORP_ACCOUNT\", company_id, account_eid, dedupe_key=f\"{company_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"corporate\"\n            return\n        person_id = self.find_person(name=owner_name)\n        if person_id:\n            self._add_edge(\"OWNS_ACCOUNT\", person_id, account_eid, dedupe_key=f\"{person_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"personal\"\n\n\n# ---------------------------------------------------------------------------\n# Main run\n# ---------------------------------------------------------------------------\n\ndef run(\n    resolved_persons: Dataset,\n    resolved_companies: Dataset,\n    resolved_accounts: Dataset,\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_bank_transactions: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, Dataset, LineageRecord, LineageRecord]:\n\n    resolver = getattr(resolved_persons, \"resolver\", None)\n    if resolver is None:\n        # Rebuild the identical resolver state from the normalised sources.\n        resolver = resolve_people(norm_watchlist.rows, norm_company_registry.rows,\n                                  norm_flight_manifests.rows, norm_mobile_pings.rows)\n        attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts, resolver)\n\n    # --- WatchlistRecord entities + LISTED_ON edges ---\n    for row in norm_watchlist.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            name=row.get(\"canonical_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"watchlist:{row.get('watchlist_id', '')}\",\n        )\n        record_eid = builder._ensure_entity(\n            \"WatchlistRecord\",\n            row.get(\"watchlist_id\", \"\"),\n            row.get(\"watchlist_id\", \"\"),\n            {\n                \"watchlistId\": row.get(\"watchlist_id\", \"\"),\n                \"alias\": \" | \".join(row.get(\"aliases\", [])),\n                \"dob\": row.get(\"dob\", \"\"),\n                \"nationality\": row.get(\"nationality\", \"\"),\n                \"passportId\": row.get(\"passport_id\", \"\"),\n                \"riskTag\": row.get(\"risk_tag\", \"\"),\n            },\n            norm_watchlist.name,\n        )\n        if person_id:\n            builder._add_edge(\"LISTED_ON\", person_id, record_eid,\n                               dedupe_key=f\"{person_id}:{record_eid}\")\n\n    # --- Company edges: DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT ---\n    for row in norm_company_registry.rows:\n        company_eid = f\"company::{slug(row.get('company_id', ''))}\"\n        if company_eid not in builder.entity_index:\n            continue\n\n        # Director\n        director_id = builder.find_person(name=row.get(\"director_name\", \"\"),\n                                           dob=row.get(\"director_dob\", \"\"),\n                                           ref=f\"company:{row.get('company_id', '')}:director\")\n        if director_id:\n            builder._add_edge(\"DIRECTS\", director_id, company_eid,\n                               dedupe_key=f\"{director_id}:{company_eid}\")\n\n        # Beneficial owner\n        owner_id = builder.find_person(name=row.get(\"beneficial_owner\", \"\"),\n                                        dob=row.get(\"beneficial_owner_dob\", \"\"),\n                                        ref=f\"company:{row.get('company_id', '')}:owner\")\n        if owner_id:\n            builder._add_edge(\"BENEFICIALLY_OWNS\", owner_id, company_eid,\n                               dedupe_key=f\"{owner_id}:{company_eid}\")\n\n        # Registered address → Location\n        address = row.get(\"registered_address\", \"\")\n        if address:\n            loc_eid = builder.ensure_location(\n                address, location_type=row.get(\"registered_site_type\", \"\"),\n                city=row.get(\"registered_city\", \"\"),\n                country=row.get(\"registered_country\", \"\"),\n                source_ds=norm_company_registry.name,\n            )\n            builder._add_edge(\"REGISTERED_AT\", company_eid, loc_eid,\n                               dedupe_key=f\"{company_eid}:{loc_eid}\")\n\n    # --- Flight entities + BOOKED_ON, DEPARTED_FROM, ARRIVED_AT ---\n    for row in norm_flight_manifests.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            phone=row.get(\"phone_number\", \"\"),\n            name=row.get(\"passenger_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"flight:{row.get('manifest_id', '')}\",\n        )\n        flight_eid = builder._ensure_entity(\n            \"Flight\",\n            row.get(\"manifest_id\", \"\"),\n            f\"{row.get('flight_number', '')} · {row.get('passenger_name', '')}\",\n            {\n                \"manifestId\": row.get(\"manifest_id\", \"\"),\n                \"flightNumber\": row.get(\"flight_number\", \"\"),\n                \"departureTs\": row.get(\"departure_ts\", \"\"),\n                \"bookingReference\": row.get(\"booking_reference\", \"\"),\n                \"seat\": row.get(\"seat\", \"\"),\n                \"paymentCardLast4\": row.get(\"payment_card_last4\", \"\"),\n            },\n            norm_flight_manifests.name,\n        )\n        dep_eid = builder.ensure_airport(row.get(\"departure_airport\", \"\"))\n        arr_eid = builder.ensure_airport(row.get(\"arrival_airport\", \"\"))\n        if person_id:\n            builder._add_edge(\"BOOKED_ON\", person_id, flight_eid,\n                               dedupe_key=f\"{person_id}:{flight_eid}\")\n        builder._add_edge(\"DEPARTED_FROM\", flight_eid, dep_eid,\n                           dedupe_key=f\"{flight_eid}:{dep_eid}\")\n        builder._add_edge(\"ARRIVED_AT\", flight_eid, arr_eid,\n                           dedupe_key=f\"{flight_eid}:{arr_eid}\")\n\n    # --- Bank account ownership + TRANSFERRED_TO ---\n    for row in norm_bank_transactions.rows:\n        src_acc = row.get(\"source_account_id\", \"\")\n        dst_acc = row.get(\"destination_account_id\", \"\")\n        src_eid = builder.account_by_id.get(src_acc, \"\")\n        dst_eid = builder.account_by_id.get(dst_acc, \"\")\n\n        if src_eid:\n            builder.link_account_owner(src_eid, row.get(\"source_name\", \"\"))\n        if dst_eid:\n            builder.link_account_owner(dst_eid, row.get(\"destination_name\", \"\"))\n\n        if src_eid and dst_eid and row.get(\"txn_type\") == \"transfer\":\n            dedupe = f\"{src_eid}:{dst_eid}\"\n            edge_id = f\"transferred_to::{slug(dedupe)}\"\n            if edge_id in builder.edge_index:\n                idx = builder.edge_index[edge_id]\n                existing = builder.edges[idx]\n                count = int(existing[\"properties\"].get(\"count\", \"1\")) + 1\n                total = float(existing[\"properties\"].get(\"totalAmountUsd\", \"0\")) + float(row.get(\"amount_usd\") or 0)\n                existing[\"properties\"][\"count\"] = str(count)\n                existing[\"properties\"][\"totalAmountUsd\"] = f\"{total:.2f}\"\n                existing[\"properties\"][\"lastTxnTs\"] = row.get(\"txn_ts\", \"\")\n            else:\n                builder._add_edge(\n                    \"TRANSFERRED_TO\", src_eid, dst_eid,\n                    properties={\n                        \"count\": \"1\",\n                        \"totalAmountUsd\": str(row.get(\"amount_usd\", \"\") or \"\"),\n                        \"lastTxnTs\": row.get(\"txn_ts\", \"\"),\n                        \"sampleReference\": row.get(\"reference\", \"\"),\n                    },\n                    dedupe_key=dedupe,\n                )\n\n    # --- Device entities + USES_DEVICE + OBSERVED_AT ---\n    for row in norm_mobile_pings.rows:\n        device_id_str = row.get(\"device_id\", \"\")\n        phone = row.get(\"phone_number\", \"\")\n        observed = row.get(\"observed_name\", \"\")\n\n        device_eid = builder.ensure_device(device_id_str, phone, observed)\n\n        # Ping-only persons were already created by step 02's resolver.\n        person_id = builder.find_person(phone=phone, name=observed,\n                                        ref=f\"ping:{row.get('ping_id', '')}\")\n        if person_id:\n            builder._add_edge(\"USES_DEVICE\", person_id, device_eid,\n                               dedupe_key=f\"{person_id}:{device_eid}\")\n\n        loc_eid = builder.ensure_location(\n            row.get(\"location_label\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            cell_tower=row.get(\"cell_tower\", \"\"),\n            location_type=row.get(\"location_type\", \"\"),\n            city=row.get(\"city\", \"\"),\n            country=row.get(\"country\", \"\"),\n        )\n\n        dedupe = f\"{device_eid}:{loc_eid}\"\n        edge_id = f\"observed_at::{slug(dedupe)}\"\n        if edge_id in builder.edge_index:\n            idx = builder.edge_index[edge_id]\n            existing = builder.edges[idx]\n            count = int(existing[\"properties\"].get(\"sightingCount\", \"1\")) + 1\n            existing[\"properties\"][\"sightingCount\"] = str(count)\n            existing[\"properties\"][\"lastSeen\"] = row.get(\"timestamp\", \"\")\n        else:\n            builder._add_edge(\n                \"OBSERVED_AT\", device_eid, loc_eid,\n                properties={\n                    \"sightingCount\": \"1\",\n                    \"firstSeen\": row.get(\"timestamp\", \"\"),\n                    \"lastSeen\": row.get(\"timestamp\", \"\"),\n                    \"source\": row.get(\"source\", \"\"),\n                },\n                dedupe_key=dedupe,\n            )\n\n    # --- Residential Locations + RESIDES_AT (clinic rows, Phase 1) ---\n    for obs in clinic_observations(norm_clinic_registrations.rows):\n        person_id = resolver.clinic_by_ref.get(obs.ref)\n        if not person_id:\n            continue  # unattached clinic rows create no objects\n        row = obs.row\n        loc_eid = builder.ensure_location(\n            row.get(\"home_address\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            location_type=\"residential\",\n            city=row.get(\"home_city\", \"\"),\n            country=row.get(\"home_country\", \"\"),\n            source_ds=norm_clinic_registrations.name,\n        )\n        dedupe = f\"{person_id}:{loc_eid}\"\n        edge_id = f\"resides_at::{slug(dedupe)}\"\n        as_of = row.get(\"registered_on\", \"\")\n        if edge_id in builder.edge_index:\n            existing = builder.edges[builder.edge_index[edge_id]]\n            if as_of > str(existing[\"properties\"].get(\"asOf\", \"\")):\n                existing[\"properties\"][\"asOf\"] = as_of\n        else:\n            builder._add_edge(\"RESIDES_AT\", person_id, loc_eid,\n                               properties={\"asOf\": as_of, \"source\": row.get(\"source\", \"\")},\n                               dedupe_key=dedupe)\n\n    # --- Markings on every object and link (contract §3) ---\n    raw_inputs = [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                  norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations]\n    file_markings = {ds.derived_from[0]: ds.markings for ds in raw_inputs if ds.derived_from}\n    governance.annotate_objects(builder.entities, builder.edges, file_markings)\n\n    # --- Assemble output datasets ---\n    entities_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"sourceIds\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n        {\"field\": \"propertyMarkings\", \"type\": \"json\"},\n        {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n    ]\n    edges_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n        {\"field\": \"target\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n    ]\n\n    entities_ds = Dataset(\n        name=\"ontology_entities\",\n        rows=sorted(builder.entities, key=lambda e: (str(e[\"type\"]), str(e[\"label\"]))),\n        schema=entities_schema,\n    )\n    edges_ds = Dataset(\n        name=\"ontology_edges\",\n        rows=sorted(builder.edges, key=lambda e: (str(e[\"type\"]), str(e[\"source\"]), str(e[\"target\"]))),\n        schema=edges_schema,\n    )\n\n    ontology_inputs = [resolved_persons, resolved_companies, resolved_accounts] + raw_inputs\n    inherit_markings(entities_ds, ontology_inputs)\n    inherit_markings(edges_ds, ontology_inputs)\n\n    # Trivial lineage: each entity/edge row came from its sourceIds\n    entity_lineage = LineageRecord()\n    for out_idx, entity in enumerate(entities_ds.rows):\n        for src in entity.get(\"sourceIds\", []):\n            entity_lineage.add_source(out_idx, src, 0, note=entity[\"type\"])\n\n    edge_lineage = LineageRecord()\n    for out_idx, edge in enumerate(edges_ds.rows):\n        edge_lineage.add_source(out_idx, edge[\"type\"], 0, note=\"edge\")\n\n    return entities_ds, edges_ds, entity_lineage, edge_lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline import p01_normalize_sources as n01\n    from pipeline import p02_resolve_persons as n02\n    from pipeline import p03_resolve_companies as n03\n    from pipeline import p04_resolve_accounts as n04\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = n01.run(dataset_dir)\n    persons, _ = n02.run(wl, cr, fm, mp, cl)\n    companies, _ = n03.run(cr)\n    accounts, _ = n04.run(bt)\n    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp, cl)\n    print(f\"Entities: {len(entities_ds)}, Edges: {len(edges_ds)}\")\n",
-          "rowsIn": 9691,
-          "rowsOut": 7624,
-          "builtAt": "2026-11-04T16:20:00.672691Z"
+          "rowsIn": 9778,
+          "rowsOut": 7746,
+          "builtAt": "2026-11-04T17:35:57.828396Z"
         }
       ]
     },
@@ -18036,7 +20482,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 94,
+        "rowCount": 98,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -18418,7 +20864,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 756,
+        "rowCount": 763,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -18792,7 +21238,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 2208,
+        "rowCount": 2210,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -19536,7 +21982,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 60,
+        "rowCount": 123,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -19596,20 +22042,6 @@ window.foundrySeedCatalog = {
           },
           {
             "_source_row": 4,
-            "registration_id": "REG-0005",
-            "patient_name": "Kareem Haddad",
-            "dob": "1987-04-12",
-            "home_address": "12 Al Wasl Gardens, Dubai",
-            "home_city": "Dubai",
-            "home_country": "United Arab Emirates",
-            "lat": 25.1972,
-            "lon": 55.2422,
-            "clinic_code": "CLN-DXB-05",
-            "registered_on": "2022-03-09",
-            "source": "clinic-ehr"
-          },
-          {
-            "_source_row": 5,
             "registration_id": "REG-0006",
             "patient_name": "Dina Meyer",
             "dob": "1977-02-01",
@@ -19623,7 +22055,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 6,
+            "_source_row": 5,
             "registration_id": "REG-0007",
             "patient_name": "Owen Adler",
             "dob": "1997-04-28",
@@ -19637,7 +22069,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 7,
+            "_source_row": 6,
             "registration_id": "REG-0008",
             "patient_name": "Zane Ionescu",
             "dob": "1975-02-28",
@@ -19651,7 +22083,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 8,
+            "_source_row": 7,
             "registration_id": "REG-0009",
             "patient_name": "Dina Ionescu",
             "dob": "1981-04-01",
@@ -19665,7 +22097,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 9,
+            "_source_row": 8,
             "registration_id": "REG-0010",
             "patient_name": "Farah Ionescu",
             "dob": "1996-09-02",
@@ -19679,7 +22111,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 10,
+            "_source_row": 9,
             "registration_id": "REG-0011",
             "patient_name": "Owen Grant",
             "dob": "1998-03-11",
@@ -19693,7 +22125,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 11,
+            "_source_row": 10,
             "registration_id": "REG-0012",
             "patient_name": "Hanna Christou",
             "dob": "1951-10-23",
@@ -19707,7 +22139,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 12,
+            "_source_row": 11,
             "registration_id": "REG-0013",
             "patient_name": "Ines Christou",
             "dob": "1970-07-22",
@@ -19721,7 +22153,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 13,
+            "_source_row": 12,
             "registration_id": "REG-0014",
             "patient_name": "Zane Lopez",
             "dob": "1994-11-10",
@@ -19735,7 +22167,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 14,
+            "_source_row": 13,
             "registration_id": "REG-0015",
             "patient_name": "Elias Quinn",
             "dob": "1997-04-12",
@@ -19749,7 +22181,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 15,
+            "_source_row": 14,
             "registration_id": "REG-0016",
             "patient_name": "Elias Vale",
             "dob": "2001-03-29",
@@ -19763,7 +22195,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 16,
+            "_source_row": 15,
             "registration_id": "REG-0017",
             "patient_name": "Priya Silva",
             "dob": "1987-07-28",
@@ -19777,7 +22209,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 17,
+            "_source_row": 16,
             "registration_id": "REG-0018",
             "patient_name": "Farah Vale",
             "dob": "1985-03-30",
@@ -19791,7 +22223,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 18,
+            "_source_row": 17,
             "registration_id": "REG-0019",
             "patient_name": "Daniel Wu",
             "dob": "1985-06-14",
@@ -19805,7 +22237,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 19,
+            "_source_row": 18,
             "registration_id": "REG-0020",
             "patient_name": "Priya Costa",
             "dob": "2000-10-29",
@@ -19816,6 +22248,20 @@ window.foundrySeedCatalog = {
             "lon": 16.378311,
             "clinic_code": "CLN-VIE-04",
             "registered_on": "2023-10-05",
+            "source": "clinic-ehr"
+          },
+          {
+            "_source_row": 19,
+            "registration_id": "REG-0021",
+            "patient_name": "Clara Silva",
+            "dob": "1992-09-01",
+            "home_address": "45 Langstrasse, Zurich",
+            "home_city": "Zurich",
+            "home_country": "Switzerland",
+            "lat": 47.384496,
+            "lon": 8.551486,
+            "clinic_code": "CLN-ZRH-04",
+            "registered_on": "2023-10-31",
             "source": "clinic-ehr"
           }
         ],
@@ -20014,7 +22460,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 94,
+        "rowCount": 98,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -20400,7 +22846,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 756,
+        "rowCount": 763,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -20777,7 +23223,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 2208,
+        "rowCount": 2210,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -21527,7 +23973,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 60,
+        "rowCount": 123,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -21587,20 +24033,6 @@ window.foundrySeedCatalog = {
           },
           {
             "_source_row": 4,
-            "registration_id": "REG-0005",
-            "patient_name": "Kareem Haddad",
-            "dob": "1987-04-12",
-            "home_address": "12 Al Wasl Gardens, Dubai",
-            "home_city": "Dubai",
-            "home_country": "United Arab Emirates",
-            "lat": 25.1972,
-            "lon": 55.2422,
-            "clinic_code": "CLN-DXB-05",
-            "registered_on": "2022-03-09",
-            "source": "clinic-ehr"
-          },
-          {
-            "_source_row": 5,
             "registration_id": "REG-0006",
             "patient_name": "Dina Meyer",
             "dob": "1977-02-01",
@@ -21614,7 +24046,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 6,
+            "_source_row": 5,
             "registration_id": "REG-0007",
             "patient_name": "Owen Adler",
             "dob": "1997-04-28",
@@ -21628,7 +24060,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 7,
+            "_source_row": 6,
             "registration_id": "REG-0008",
             "patient_name": "Zane Ionescu",
             "dob": "1975-02-28",
@@ -21642,7 +24074,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 8,
+            "_source_row": 7,
             "registration_id": "REG-0009",
             "patient_name": "Dina Ionescu",
             "dob": "1981-04-01",
@@ -21656,7 +24088,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 9,
+            "_source_row": 8,
             "registration_id": "REG-0010",
             "patient_name": "Farah Ionescu",
             "dob": "1996-09-02",
@@ -21670,7 +24102,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 10,
+            "_source_row": 9,
             "registration_id": "REG-0011",
             "patient_name": "Owen Grant",
             "dob": "1998-03-11",
@@ -21684,7 +24116,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 11,
+            "_source_row": 10,
             "registration_id": "REG-0012",
             "patient_name": "Hanna Christou",
             "dob": "1951-10-23",
@@ -21698,7 +24130,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 12,
+            "_source_row": 11,
             "registration_id": "REG-0013",
             "patient_name": "Ines Christou",
             "dob": "1970-07-22",
@@ -21712,7 +24144,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 13,
+            "_source_row": 12,
             "registration_id": "REG-0014",
             "patient_name": "Zane Lopez",
             "dob": "1994-11-10",
@@ -21726,7 +24158,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 14,
+            "_source_row": 13,
             "registration_id": "REG-0015",
             "patient_name": "Elias Quinn",
             "dob": "1997-04-12",
@@ -21740,7 +24172,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 15,
+            "_source_row": 14,
             "registration_id": "REG-0016",
             "patient_name": "Elias Vale",
             "dob": "2001-03-29",
@@ -21754,7 +24186,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 16,
+            "_source_row": 15,
             "registration_id": "REG-0017",
             "patient_name": "Priya Silva",
             "dob": "1987-07-28",
@@ -21768,7 +24200,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 17,
+            "_source_row": 16,
             "registration_id": "REG-0018",
             "patient_name": "Farah Vale",
             "dob": "1985-03-30",
@@ -21782,7 +24214,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 18,
+            "_source_row": 17,
             "registration_id": "REG-0019",
             "patient_name": "Daniel Wu",
             "dob": "1985-06-14",
@@ -21796,7 +24228,7 @@ window.foundrySeedCatalog = {
             "source": "clinic-ehr"
           },
           {
-            "_source_row": 19,
+            "_source_row": 18,
             "registration_id": "REG-0020",
             "patient_name": "Priya Costa",
             "dob": "2000-10-29",
@@ -21807,6 +24239,20 @@ window.foundrySeedCatalog = {
             "lon": 16.378311,
             "clinic_code": "CLN-VIE-04",
             "registered_on": "2023-10-05",
+            "source": "clinic-ehr"
+          },
+          {
+            "_source_row": 19,
+            "registration_id": "REG-0021",
+            "patient_name": "Clara Silva",
+            "dob": "1992-09-01",
+            "home_address": "45 Langstrasse, Zurich",
+            "home_city": "Zurich",
+            "home_country": "Switzerland",
+            "lat": 47.384496,
+            "lon": 8.551486,
+            "clinic_code": "CLN-ZRH-04",
+            "registered_on": "2023-10-31",
             "source": "clinic-ehr"
           }
         ],
@@ -21888,7 +24334,7 @@ window.foundrySeedCatalog = {
             "type": "json"
           }
         ],
-        "rowCount": 186,
+        "rowCount": 191,
         "sampleRows": [
           {
             "id": "person::p8842101",
@@ -21900,8 +24346,8 @@ window.foundrySeedCatalog = {
             "passportId": "P8842101",
             "phoneNumber": "+971501118890",
             "riskTag": "sanctions-evasion",
-            "homeAddress": "7 Anexartisias Street, Limassol",
-            "clinicCode": "CLN-LIM-02",
+            "homeAddress": "",
+            "clinicCode": "",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -21975,8 +24421,8 @@ window.foundrySeedCatalog = {
             "passportId": "L1029921",
             "phoneNumber": "+381642201488",
             "riskTag": "procurement-network",
-            "homeAddress": "31 Kralja Petra, Belgrade",
-            "clinicCode": "CLN-BEG-01",
+            "homeAddress": "",
+            "clinicCode": "",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -22032,8 +24478,8 @@ window.foundrySeedCatalog = {
             "passportId": "N5538219",
             "phoneNumber": "+447700912410",
             "riskTag": "dual-use-broker",
-            "homeAddress": "22 Cromer Road, London",
-            "clinicCode": "CLN-LON-04",
+            "homeAddress": "",
+            "clinicCode": "",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -22048,6 +24494,7 @@ window.foundrySeedCatalog = {
                 "flight:NMF-0310",
                 "flight:NMF-0725",
                 "flight:NMF-0322",
+                "flight:MF-0007",
                 "ping:NPG-03141",
                 "ping:NPG-04615",
                 "ping:PG-0005",
@@ -22095,8 +24542,8 @@ window.foundrySeedCatalog = {
             "passportId": "B7730042",
             "phoneNumber": "+359883317821",
             "riskTag": "facilitator",
-            "homeAddress": "40 Vitosha Boulevard, Sofia",
-            "clinicCode": "CLN-SOF-03",
+            "homeAddress": "",
+            "clinicCode": "",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -22356,8 +24803,8 @@ window.foundrySeedCatalog = {
             "passportId": "X6363836",
             "phoneNumber": "+971780481547",
             "riskTag": "",
-            "homeAddress": "",
-            "clinicCode": "",
+            "homeAddress": "134 Praterstrasse, Vienna",
+            "clinicCode": "CLN-VIE-04",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -22527,8 +24974,8 @@ window.foundrySeedCatalog = {
             "passportId": "X7288789",
             "phoneNumber": "+44256304376",
             "riskTag": "",
-            "homeAddress": "",
-            "clinicCode": "",
+            "homeAddress": "110 Grigori Afxentiou Avenue, Larnaca",
+            "clinicCode": "CLN-LCA-03",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -22635,8 +25082,8 @@ window.foundrySeedCatalog = {
             "passportId": "X3583206",
             "phoneNumber": "+44869446962",
             "riskTag": "",
-            "homeAddress": "",
-            "clinicCode": "",
+            "homeAddress": "56 Gumpendorfer Strasse, Vienna",
+            "clinicCode": "CLN-VIE-04",
             "resolution": {
               "method": "passport",
               "confidence": 1.0,
@@ -22928,7 +25375,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 94,
+        "rowCount": 98,
         "sampleRows": [
           {
             "id": "company::co-101",
@@ -23139,7 +25586,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 280,
+        "rowCount": 282,
         "sampleRows": [
           {
             "id": "bankaccount::acct-np063",
@@ -23342,7 +25789,7 @@ window.foundrySeedCatalog = {
             "type": "json"
           }
         ],
-        "rowCount": 1571,
+        "rowCount": 1597,
         "sampleRows": [
           {
             "id": "airport::ath",
@@ -23614,6 +26061,25 @@ window.foundrySeedCatalog = {
             ]
           },
           {
+            "id": "bankaccount::acct-l041",
+            "type": "BankAccount",
+            "label": "ACCT-L041",
+            "properties": {
+              "accountId": "ACCT-L041",
+              "ownerName": "Oak Lane Lettings Ltd"
+            },
+            "sourceIds": [
+              "resolved_accounts"
+            ],
+            "markings": [
+              "FIN"
+            ],
+            "propertyMarkings": {},
+            "sourceMarkings": [
+              "FIN"
+            ]
+          },
+          {
             "id": "bankaccount::acct-nc001",
             "type": "BankAccount",
             "label": "ACCT-NC001",
@@ -23732,26 +26198,6 @@ window.foundrySeedCatalog = {
             "sourceMarkings": [
               "FIN"
             ]
-          },
-          {
-            "id": "bankaccount::acct-nc007",
-            "type": "BankAccount",
-            "label": "ACCT-NC007",
-            "properties": {
-              "accountId": "ACCT-NC007",
-              "ownerName": "Beacon Advisory Ltd",
-              "accountKind": "corporate"
-            },
-            "sourceIds": [
-              "resolved_accounts"
-            ],
-            "markings": [
-              "FIN"
-            ],
-            "propertyMarkings": {},
-            "sourceMarkings": [
-              "FIN"
-            ]
           }
         ],
         "producedBy": "build_ontology",
@@ -23841,7 +26287,7 @@ window.foundrySeedCatalog = {
             "type": "json"
           }
         ],
-        "rowCount": 6053,
+        "rowCount": 6149,
         "sampleRows": [
           {
             "id": "arrived_at::flight-mf-0001-airport-lca",
@@ -23893,6 +26339,69 @@ window.foundrySeedCatalog = {
             "type": "ARRIVED_AT",
             "source": "flight::mf-0006",
             "target": "airport::dxb",
+            "label": "ARRIVED_AT",
+            "properties": {},
+            "markings": []
+          },
+          {
+            "id": "arrived_at::flight-mf-0007-airport-ist",
+            "type": "ARRIVED_AT",
+            "source": "flight::mf-0007",
+            "target": "airport::ist",
+            "label": "ARRIVED_AT",
+            "properties": {},
+            "markings": []
+          },
+          {
+            "id": "arrived_at::flight-mf-0008-airport-ist",
+            "type": "ARRIVED_AT",
+            "source": "flight::mf-0008",
+            "target": "airport::ist",
+            "label": "ARRIVED_AT",
+            "properties": {},
+            "markings": []
+          },
+          {
+            "id": "arrived_at::flight-mf-0009-airport-lhr",
+            "type": "ARRIVED_AT",
+            "source": "flight::mf-0009",
+            "target": "airport::lhr",
+            "label": "ARRIVED_AT",
+            "properties": {},
+            "markings": []
+          },
+          {
+            "id": "arrived_at::flight-mf-0101-airport-vie",
+            "type": "ARRIVED_AT",
+            "source": "flight::mf-0101",
+            "target": "airport::vie",
+            "label": "ARRIVED_AT",
+            "properties": {},
+            "markings": []
+          },
+          {
+            "id": "arrived_at::flight-mf-0102-airport-ath",
+            "type": "ARRIVED_AT",
+            "source": "flight::mf-0102",
+            "target": "airport::ath",
+            "label": "ARRIVED_AT",
+            "properties": {},
+            "markings": []
+          },
+          {
+            "id": "arrived_at::flight-mf-0103-airport-ath",
+            "type": "ARRIVED_AT",
+            "source": "flight::mf-0103",
+            "target": "airport::ath",
+            "label": "ARRIVED_AT",
+            "properties": {},
+            "markings": []
+          },
+          {
+            "id": "arrived_at::flight-mf-0104-airport-lca",
+            "type": "ARRIVED_AT",
+            "source": "flight::mf-0104",
+            "target": "airport::lca",
             "label": "ARRIVED_AT",
             "properties": {},
             "markings": []
@@ -23956,69 +26465,6 @@ window.foundrySeedCatalog = {
             "type": "ARRIVED_AT",
             "source": "flight::nmf-0007",
             "target": "airport::vie",
-            "label": "ARRIVED_AT",
-            "properties": {},
-            "markings": []
-          },
-          {
-            "id": "arrived_at::flight-nmf-0008-airport-dxb",
-            "type": "ARRIVED_AT",
-            "source": "flight::nmf-0008",
-            "target": "airport::dxb",
-            "label": "ARRIVED_AT",
-            "properties": {},
-            "markings": []
-          },
-          {
-            "id": "arrived_at::flight-nmf-0009-airport-dxb",
-            "type": "ARRIVED_AT",
-            "source": "flight::nmf-0009",
-            "target": "airport::dxb",
-            "label": "ARRIVED_AT",
-            "properties": {},
-            "markings": []
-          },
-          {
-            "id": "arrived_at::flight-nmf-0010-airport-ath",
-            "type": "ARRIVED_AT",
-            "source": "flight::nmf-0010",
-            "target": "airport::ath",
-            "label": "ARRIVED_AT",
-            "properties": {},
-            "markings": []
-          },
-          {
-            "id": "arrived_at::flight-nmf-0011-airport-dxb",
-            "type": "ARRIVED_AT",
-            "source": "flight::nmf-0011",
-            "target": "airport::dxb",
-            "label": "ARRIVED_AT",
-            "properties": {},
-            "markings": []
-          },
-          {
-            "id": "arrived_at::flight-nmf-0012-airport-vie",
-            "type": "ARRIVED_AT",
-            "source": "flight::nmf-0012",
-            "target": "airport::vie",
-            "label": "ARRIVED_AT",
-            "properties": {},
-            "markings": []
-          },
-          {
-            "id": "arrived_at::flight-nmf-0013-airport-sof",
-            "type": "ARRIVED_AT",
-            "source": "flight::nmf-0013",
-            "target": "airport::sof",
-            "label": "ARRIVED_AT",
-            "properties": {},
-            "markings": []
-          },
-          {
-            "id": "arrived_at::flight-nmf-0014-airport-lca",
-            "type": "ARRIVED_AT",
-            "source": "flight::nmf-0014",
-            "target": "airport::lca",
             "label": "ARRIVED_AT",
             "properties": {},
             "markings": []
@@ -24266,6 +26712,43 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_bank_transactions",
               "row": 119,
+              "field": "destination_name",
+              "note": ""
+            }
+          ]
+        }
+      },
+      "bankaccount::acct-l041": {
+        "producedBy": "resolved_accounts",
+        "sourceRows": [
+          {
+            "dataset": "norm_bank_transactions",
+            "row": 2208,
+            "field": "",
+            "note": "account"
+          }
+        ],
+        "fieldProvenance": {
+          "id": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 2208,
+              "field": "destination_account_id",
+              "note": "key"
+            }
+          ],
+          "accountId": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 2208,
+              "field": "destination_account_id",
+              "note": ""
+            }
+          ],
+          "ownerName": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 2208,
               "field": "destination_name",
               "note": ""
             }
@@ -34484,6 +36967,43 @@ window.foundrySeedCatalog = {
           ]
         }
       },
+      "bankaccount::acct-p007": {
+        "producedBy": "resolved_accounts",
+        "sourceRows": [
+          {
+            "dataset": "norm_bank_transactions",
+            "row": 2208,
+            "field": "",
+            "note": "account"
+          }
+        ],
+        "fieldProvenance": {
+          "id": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 2208,
+              "field": "source_account_id",
+              "note": "key"
+            }
+          ],
+          "accountId": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 2208,
+              "field": "source_account_id",
+              "note": ""
+            }
+          ],
+          "ownerName": [
+            {
+              "dataset": "norm_bank_transactions",
+              "row": 2208,
+              "field": "source_name",
+              "note": ""
+            }
+          ]
+        }
+      },
       "company::nco-014": {
         "producedBy": "resolved_companies",
         "sourceRows": [
@@ -36127,6 +38647,59 @@ window.foundrySeedCatalog = {
           ]
         }
       },
+      "company::co-203": {
+        "producedBy": "resolved_companies",
+        "sourceRows": [
+          {
+            "dataset": "norm_company_registry",
+            "row": 96,
+            "field": "",
+            "note": "company"
+          }
+        ],
+        "fieldProvenance": {
+          "companyName": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 96,
+              "field": "company_name",
+              "note": ""
+            }
+          ],
+          "jurisdiction": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 96,
+              "field": "jurisdiction",
+              "note": ""
+            }
+          ],
+          "incorporationDate": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 96,
+              "field": "incorporation_date",
+              "note": ""
+            }
+          ],
+          "registeredAddress": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 96,
+              "field": "registered_address",
+              "note": ""
+            }
+          ],
+          "id": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 96,
+              "field": "company_id",
+              "note": "key"
+            }
+          ]
+        }
+      },
       "company::nco-011": {
         "producedBy": "resolved_companies",
         "sourceRows": [
@@ -37028,6 +39601,59 @@ window.foundrySeedCatalog = {
           ]
         }
       },
+      "company::co-204": {
+        "producedBy": "resolved_companies",
+        "sourceRows": [
+          {
+            "dataset": "norm_company_registry",
+            "row": 97,
+            "field": "",
+            "note": "company"
+          }
+        ],
+        "fieldProvenance": {
+          "companyName": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 97,
+              "field": "company_name",
+              "note": ""
+            }
+          ],
+          "jurisdiction": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 97,
+              "field": "jurisdiction",
+              "note": ""
+            }
+          ],
+          "incorporationDate": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 97,
+              "field": "incorporation_date",
+              "note": ""
+            }
+          ],
+          "registeredAddress": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 97,
+              "field": "registered_address",
+              "note": ""
+            }
+          ],
+          "id": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 97,
+              "field": "company_id",
+              "note": "key"
+            }
+          ]
+        }
+      },
       "company::nco-047": {
         "producedBy": "resolved_companies",
         "sourceRows": [
@@ -37340,6 +39966,59 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_company_registry",
               "row": 33,
+              "field": "company_id",
+              "note": "key"
+            }
+          ]
+        }
+      },
+      "company::co-202": {
+        "producedBy": "resolved_companies",
+        "sourceRows": [
+          {
+            "dataset": "norm_company_registry",
+            "row": 95,
+            "field": "",
+            "note": "company"
+          }
+        ],
+        "fieldProvenance": {
+          "companyName": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 95,
+              "field": "company_name",
+              "note": ""
+            }
+          ],
+          "jurisdiction": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 95,
+              "field": "jurisdiction",
+              "note": ""
+            }
+          ],
+          "incorporationDate": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 95,
+              "field": "incorporation_date",
+              "note": ""
+            }
+          ],
+          "registeredAddress": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 95,
+              "field": "registered_address",
+              "note": ""
+            }
+          ],
+          "id": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 95,
               "field": "company_id",
               "note": "key"
             }
@@ -39466,6 +42145,59 @@ window.foundrySeedCatalog = {
           ]
         }
       },
+      "company::co-201": {
+        "producedBy": "resolved_companies",
+        "sourceRows": [
+          {
+            "dataset": "norm_company_registry",
+            "row": 94,
+            "field": "",
+            "note": "company"
+          }
+        ],
+        "fieldProvenance": {
+          "companyName": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 94,
+              "field": "company_name",
+              "note": ""
+            }
+          ],
+          "jurisdiction": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 94,
+              "field": "jurisdiction",
+              "note": ""
+            }
+          ],
+          "incorporationDate": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 94,
+              "field": "incorporation_date",
+              "note": ""
+            }
+          ],
+          "registeredAddress": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 94,
+              "field": "registered_address",
+              "note": ""
+            }
+          ],
+          "id": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 94,
+              "field": "company_id",
+              "note": "key"
+            }
+          ]
+        }
+      },
       "device::dev-dw-05": {
         "producedBy": "build_ontology",
         "sourceRows": [],
@@ -40787,6 +43519,16 @@ window.foundrySeedCatalog = {
         "fieldProvenance": {}
       },
       "flight::nmf-0257": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "flight::mf-0104": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "flight::mf-0103": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -43636,6 +46378,11 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
+      "flight::mf-0102": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
       "flight::nmf-0477": {
         "producedBy": "build_ontology",
         "sourceRows": [],
@@ -43996,12 +46743,32 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
+      "flight::mf-0101": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
       "flight::nmf-0002": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
       },
       "flight::nmf-0273": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "flight::mf-0009": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "flight::mf-0007": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "flight::mf-0008": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -44176,6 +46943,11 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
+      "location::100-lordship-lane-london": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
       "location::102-ermou-street-larnaca": {
         "producedBy": "build_ontology",
         "sourceRows": [],
@@ -44206,7 +46978,7 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
-      "location::12-al-wasl-gardens-dubai": {
+      "location::12-mariahilfer-strasse-vienna": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -44221,7 +46993,22 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
+      "location::129-makariou-avenue-limassol": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "location::134-praterstrasse-vienna": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
       "location::138-halaskargazi-caddesi-istanbul": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "location::14-josefstaedter-strasse-vienna": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -44237,6 +47024,11 @@ window.foundrySeedCatalog = {
         "fieldProvenance": {}
       },
       "location::156-kallidromiou-street-athens": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "location::156-omonoias-avenue-limassol": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -44286,17 +47078,12 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
-      "location::22-cromer-road-london": {
-        "producedBy": "build_ontology",
-        "sourceRows": [],
-        "fieldProvenance": {}
-      },
       "location::27-ringstrasse-vienna": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
       },
-      "location::31-kralja-petra-belgrade": {
+      "location::3-mildmay-grove-london": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -44316,12 +47103,12 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
-      "location::40-vitosha-boulevard-sofia": {
+      "location::41-halaskargazi-caddesi-istanbul": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
       },
-      "location::41-halaskargazi-caddesi-istanbul": {
+      "location::41-oak-lane-birmingham": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -44356,17 +47143,27 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
+      "location::56-seefeldstrasse-zurich": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "location::58-rue-de-carouge-geneva": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "location::6-kirchgasse-zurich": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
       "location::63-bagdat-caddesi-istanbul": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
       },
       "location::7-agias-zonis-street-limassol": {
-        "producedBy": "build_ontology",
-        "sourceRows": [],
-        "fieldProvenance": {}
-      },
-      "location::7-anexartisias-street-limassol": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -44396,7 +47193,17 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
+      "location::91-al-manara-road-dubai": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
       "location::95-makariou-avenue-limassol": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "location::99-mildmay-grove-london": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -45977,7 +48784,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 37,
+            "row": 34,
             "field": "",
             "note": "clinic-registration"
           }
@@ -46404,7 +49211,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 37,
+              "row": 34,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -46412,7 +49219,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 37,
+              "row": 34,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -46628,7 +49435,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 33,
+            "row": 30,
             "field": "",
             "note": "clinic-registration"
           }
@@ -47103,7 +49910,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 33,
+              "row": 30,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -47111,7 +49918,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 33,
+              "row": 30,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -47368,7 +50175,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 36,
+            "row": 33,
             "field": "",
             "note": "clinic-registration"
           }
@@ -47783,7 +50590,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 36,
+              "row": 33,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -47791,7 +50598,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 36,
+              "row": 33,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -48591,6 +51398,12 @@ window.foundrySeedCatalog = {
             "row": 5613,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 116,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -48878,6 +51691,22 @@ window.foundrySeedCatalog = {
               "row": 5613,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 116,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 116,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -50077,6 +52906,12 @@ window.foundrySeedCatalog = {
             "row": 5991,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 82,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -50689,6 +53524,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 82,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 82,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -50904,6 +53755,12 @@ window.foundrySeedCatalog = {
             "row": 5367,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 99,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -51371,6 +54228,22 @@ window.foundrySeedCatalog = {
               "row": 5367,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 99,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 99,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -52648,6 +55521,18 @@ window.foundrySeedCatalog = {
             "row": 5993,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 95,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 118,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -53632,6 +56517,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 118,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 118,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -54096,7 +56997,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 25,
+            "row": 24,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 70,
             "field": "",
             "note": "clinic-registration"
           }
@@ -55159,7 +58066,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 25,
+              "row": 24,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -55167,7 +58074,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 25,
+              "row": 24,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -55427,6 +58334,12 @@ window.foundrySeedCatalog = {
             "row": 5921,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 120,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -55930,6 +58843,22 @@ window.foundrySeedCatalog = {
               "row": 5921,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 120,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 120,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -59131,6 +62060,12 @@ window.foundrySeedCatalog = {
             "row": 5945,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 56,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -59742,6 +62677,22 @@ window.foundrySeedCatalog = {
               "row": 5945,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 56,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 56,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -60003,7 +62954,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 51,
+            "row": 46,
             "field": "",
             "note": "clinic-registration"
           }
@@ -60610,7 +63561,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 51,
+              "row": 46,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -60618,7 +63569,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 51,
+              "row": 46,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -60870,7 +63821,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 42,
+            "row": 39,
             "field": "",
             "note": "clinic-registration"
           }
@@ -61417,7 +64368,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 42,
+              "row": 39,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -61425,7 +64376,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 42,
+              "row": 39,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -61620,6 +64571,12 @@ window.foundrySeedCatalog = {
             "row": 5662,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 64,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -62063,6 +65020,22 @@ window.foundrySeedCatalog = {
               "row": 5662,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 64,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 64,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -63163,7 +66136,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 38,
+            "row": 35,
             "field": "",
             "note": "clinic-registration"
           }
@@ -63686,7 +66659,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 38,
+              "row": 35,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -63694,7 +66667,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 38,
+              "row": 35,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -64440,6 +67413,12 @@ window.foundrySeedCatalog = {
             "row": 5819,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 57,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -64979,6 +67958,22 @@ window.foundrySeedCatalog = {
               "row": 5819,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 57,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 57,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -66040,6 +69035,12 @@ window.foundrySeedCatalog = {
             "row": 5849,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 110,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -66604,6 +69605,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 110,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 110,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -66777,6 +69794,12 @@ window.foundrySeedCatalog = {
             "row": 5971,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 90,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -67149,6 +70172,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 90,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 90,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -67367,7 +70406,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 27,
+            "row": 25,
             "field": "",
             "note": "clinic-registration"
           }
@@ -67878,7 +70917,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 27,
+              "row": 25,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -67886,7 +70925,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 27,
+              "row": 25,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -69766,6 +72805,12 @@ window.foundrySeedCatalog = {
             "row": 5947,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 114,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -70725,6 +73770,22 @@ window.foundrySeedCatalog = {
               "row": 5947,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 114,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 114,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -71974,7 +75035,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 20,
+            "row": 19,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 96,
             "field": "",
             "note": "clinic-registration"
           }
@@ -73193,7 +76260,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 20,
+              "row": 96,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -73201,7 +76268,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 20,
+              "row": 96,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -74411,7 +77478,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 18,
+            "row": 17,
             "field": "",
             "note": "clinic-registration"
           }
@@ -75006,7 +78073,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 18,
+              "row": 17,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -75014,7 +78081,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 18,
+              "row": 17,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -75401,6 +78468,12 @@ window.foundrySeedCatalog = {
             "row": 5858,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 65,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -76264,6 +79337,22 @@ window.foundrySeedCatalog = {
               "row": 5858,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 65,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 65,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -79640,13 +82729,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 8,
+            "row": 7,
             "field": "",
             "note": "clinic-registration"
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 58,
+            "row": 53,
             "field": "",
             "note": "clinic-registration"
           }
@@ -80085,7 +83174,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 58,
+              "row": 53,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -80093,7 +83182,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 58,
+              "row": 53,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -80117,7 +83206,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 5,
+            "row": 4,
             "field": "",
             "note": "clinic-registration"
           }
@@ -80154,7 +83243,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 5,
+              "row": 4,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -80162,7 +83251,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 5,
+              "row": 4,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -81072,7 +84161,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 22,
+            "row": 21,
             "field": "",
             "note": "clinic-registration"
           }
@@ -81667,7 +84756,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 22,
+              "row": 21,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -81675,7 +84764,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 22,
+              "row": 21,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -81942,6 +85031,12 @@ window.foundrySeedCatalog = {
             "row": 5322,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 97,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -82565,6 +85660,22 @@ window.foundrySeedCatalog = {
               "row": 5322,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 97,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 97,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -84374,6 +87485,12 @@ window.foundrySeedCatalog = {
             "row": 5973,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 98,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -84794,6 +87911,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 98,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 98,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -85198,13 +88331,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 34,
+            "row": 31,
             "field": "",
             "note": "clinic-registration"
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 54,
+            "row": 49,
             "field": "",
             "note": "clinic-registration"
           }
@@ -86111,7 +89244,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 54,
+              "row": 49,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -86119,7 +89252,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 54,
+              "row": 49,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -86664,7 +89797,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 45,
+            "row": 42,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 80,
             "field": "",
             "note": "clinic-registration"
           }
@@ -87763,7 +90902,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 45,
+              "row": 42,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -87771,7 +90910,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 45,
+              "row": 42,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -87966,6 +91105,12 @@ window.foundrySeedCatalog = {
             "row": 5957,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 63,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -88386,6 +91531,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 63,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 63,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -88640,7 +91801,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 14,
+            "row": 13,
             "field": "",
             "note": "clinic-registration"
           }
@@ -89175,7 +92336,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 14,
+              "row": 13,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -89183,7 +92344,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 14,
+              "row": 13,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -90999,7 +94160,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 15,
+            "row": 14,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 74,
             "field": "",
             "note": "clinic-registration"
           }
@@ -91990,7 +95157,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 15,
+              "row": 14,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -91998,7 +95165,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 15,
+              "row": 14,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -92911,6 +96078,12 @@ window.foundrySeedCatalog = {
             "row": 5051,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 122,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -93318,6 +96491,22 @@ window.foundrySeedCatalog = {
               "row": 5051,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 122,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 122,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -94406,7 +97595,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 9,
+            "row": 8,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 94,
             "field": "",
             "note": "clinic-registration"
           }
@@ -95325,7 +98520,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 9,
+              "row": 94,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -95333,7 +98528,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 9,
+              "row": 94,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -97272,6 +100467,12 @@ window.foundrySeedCatalog = {
             "row": 5975,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 83,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -97763,6 +100964,22 @@ window.foundrySeedCatalog = {
               "row": 5975,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 83,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 83,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -99024,7 +102241,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 17,
+            "row": 16,
             "field": "",
             "note": "clinic-registration"
           }
@@ -99061,7 +102278,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 17,
+              "row": 16,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -99069,7 +102286,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 17,
+              "row": 16,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -100029,13 +103246,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 44,
+            "row": 41,
             "field": "",
             "note": "clinic-registration"
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 55,
+            "row": 50,
             "field": "",
             "note": "clinic-registration"
           }
@@ -100534,7 +103751,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 55,
+              "row": 50,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -100542,7 +103759,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 55,
+              "row": 50,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -100820,6 +104037,12 @@ window.foundrySeedCatalog = {
             "row": 5806,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 84,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -101287,6 +104510,22 @@ window.foundrySeedCatalog = {
               "row": 5806,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 84,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 84,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -101551,6 +104790,12 @@ window.foundrySeedCatalog = {
             "row": 5867,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 91,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -102127,6 +105372,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 91,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 91,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -102318,6 +105579,12 @@ window.foundrySeedCatalog = {
             "row": 5767,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 73,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -102726,6 +105993,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 73,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 73,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -103019,6 +106302,12 @@ window.foundrySeedCatalog = {
             "row": 6005,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 78,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -103642,6 +106931,22 @@ window.foundrySeedCatalog = {
               "row": 6005,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 78,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 78,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -106119,7 +109424,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 21,
+            "row": 20,
             "field": "",
             "note": "clinic-registration"
           }
@@ -106570,7 +109875,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 21,
+              "row": 20,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -106578,7 +109883,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 21,
+              "row": 20,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -108103,12 +111408,6 @@ window.foundrySeedCatalog = {
             "row": 5834,
             "field": "",
             "note": "device-ping"
-          },
-          {
-            "dataset": "norm_clinic_registrations",
-            "row": 26,
-            "field": "",
-            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -108629,22 +111928,6 @@ window.foundrySeedCatalog = {
               "field": "phone_number",
               "note": ""
             }
-          ],
-          "homeAddress": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 26,
-              "field": "home_address",
-              "note": "latest registration"
-            }
-          ],
-          "clinicCode": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 26,
-              "field": "clinic_code",
-              "note": "latest registration"
-            }
           ]
         }
       },
@@ -108902,6 +112185,12 @@ window.foundrySeedCatalog = {
             "row": 6002,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 71,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -109465,6 +112754,22 @@ window.foundrySeedCatalog = {
               "row": 6002,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 71,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 71,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -109963,6 +113268,18 @@ window.foundrySeedCatalog = {
             "row": 5985,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 68,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 119,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -111030,6 +114347,22 @@ window.foundrySeedCatalog = {
               "row": 5985,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 119,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 119,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -114150,6 +117483,178 @@ window.foundrySeedCatalog = {
           ]
         }
       },
+      "person::jose-ferreira-1986-01-11": {
+        "producedBy": "resolved_persons",
+        "sourceRows": [
+          {
+            "dataset": "norm_company_registry",
+            "row": 97,
+            "field": "",
+            "note": "director"
+          },
+          {
+            "dataset": "norm_flight_manifests",
+            "row": 762,
+            "field": "",
+            "note": "flight-passenger"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 81,
+            "field": "",
+            "note": "clinic-registration"
+          }
+        ],
+        "fieldProvenance": {
+          "canonicalName": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 97,
+              "field": "director_name",
+              "note": ""
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 97,
+              "field": "beneficial_owner",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 762,
+              "field": "passenger_name",
+              "note": ""
+            }
+          ],
+          "dob": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 97,
+              "field": "director_dob",
+              "note": ""
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 97,
+              "field": "beneficial_owner_dob",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 762,
+              "field": "dob",
+              "note": ""
+            }
+          ],
+          "passportId": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 762,
+              "field": "passport_id",
+              "note": ""
+            }
+          ],
+          "phoneNumber": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 762,
+              "field": "phone_number",
+              "note": ""
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 81,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 81,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
+          ]
+        }
+      },
+      "person::jos-ferreira-1979-07-30": {
+        "producedBy": "resolved_persons",
+        "sourceRows": [
+          {
+            "dataset": "norm_company_registry",
+            "row": 96,
+            "field": "",
+            "note": "director"
+          },
+          {
+            "dataset": "norm_flight_manifests",
+            "row": 761,
+            "field": "",
+            "note": "flight-passenger"
+          }
+        ],
+        "fieldProvenance": {
+          "canonicalName": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 96,
+              "field": "director_name",
+              "note": ""
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 96,
+              "field": "beneficial_owner",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 761,
+              "field": "passenger_name",
+              "note": ""
+            }
+          ],
+          "dob": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 96,
+              "field": "director_dob",
+              "note": ""
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 96,
+              "field": "beneficial_owner_dob",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 761,
+              "field": "dob",
+              "note": ""
+            }
+          ],
+          "passportId": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 761,
+              "field": "passport_id",
+              "note": ""
+            }
+          ],
+          "phoneNumber": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 761,
+              "field": "phone_number",
+              "note": ""
+            }
+          ]
+        }
+      },
       "person::p8842101": {
         "producedBy": "resolved_persons",
         "sourceRows": [
@@ -114476,18 +117981,6 @@ window.foundrySeedCatalog = {
             "row": 5568,
             "field": "",
             "note": "device-ping"
-          },
-          {
-            "dataset": "norm_clinic_registrations",
-            "row": 4,
-            "field": "",
-            "note": "clinic-registration"
-          },
-          {
-            "dataset": "norm_clinic_registrations",
-            "row": 47,
-            "field": "",
-            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -115223,22 +118716,6 @@ window.foundrySeedCatalog = {
               "row": 5568,
               "field": "phone_number",
               "note": ""
-            }
-          ],
-          "homeAddress": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 47,
-              "field": "home_address",
-              "note": "latest registration"
-            }
-          ],
-          "clinicCode": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 47,
-              "field": "clinic_code",
-              "note": "latest registration"
             }
           ]
         }
@@ -116180,6 +119657,12 @@ window.foundrySeedCatalog = {
             "row": 6007,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 59,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -116587,6 +120070,22 @@ window.foundrySeedCatalog = {
               "row": 6007,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 59,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 59,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -117259,6 +120758,12 @@ window.foundrySeedCatalog = {
             "row": 5963,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 61,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -118794,6 +122299,22 @@ window.foundrySeedCatalog = {
               "row": 5963,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 61,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 61,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -119669,6 +123190,12 @@ window.foundrySeedCatalog = {
             "row": 5897,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 69,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -120269,6 +123796,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 69,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 69,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -120706,6 +124249,18 @@ window.foundrySeedCatalog = {
             "row": 5908,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 93,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 105,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -121677,6 +125232,22 @@ window.foundrySeedCatalog = {
               "row": 5908,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 105,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 105,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -121967,7 +125538,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 53,
+            "row": 48,
             "field": "",
             "note": "clinic-registration"
           }
@@ -122478,7 +126049,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 53,
+              "row": 48,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -122486,7 +126057,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 53,
+              "row": 48,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -122678,7 +126249,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 57,
+            "row": 52,
             "field": "",
             "note": "clinic-registration"
           }
@@ -123117,7 +126688,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 57,
+              "row": 52,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -123125,7 +126696,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 57,
+              "row": 52,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -124093,6 +127664,12 @@ window.foundrySeedCatalog = {
             "row": 5923,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 102,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -124500,6 +128077,22 @@ window.foundrySeedCatalog = {
               "row": 5923,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 102,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 102,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -124737,7 +128330,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 35,
+            "row": 32,
             "field": "",
             "note": "clinic-registration"
           }
@@ -125260,7 +128853,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 35,
+              "row": 32,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -125268,7 +128861,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 35,
+              "row": 32,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -125478,7 +129071,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 48,
+            "row": 44,
             "field": "",
             "note": "clinic-registration"
           }
@@ -125989,7 +129582,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 48,
+              "row": 44,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -125997,7 +129590,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 48,
+              "row": 44,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -126261,7 +129854,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 41,
+            "row": 38,
             "field": "",
             "note": "clinic-registration"
           }
@@ -126832,7 +130425,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 41,
+              "row": 38,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -126840,7 +130433,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 41,
+              "row": 38,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -127052,6 +130645,12 @@ window.foundrySeedCatalog = {
             "row": 5896,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 101,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -127447,6 +131046,172 @@ window.foundrySeedCatalog = {
               "row": 5896,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 101,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 101,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
+          ]
+        }
+      },
+      "person::mehmet-yilmaz-1991-10-02": {
+        "producedBy": "resolved_persons",
+        "sourceRows": [
+          {
+            "dataset": "norm_company_registry",
+            "row": 95,
+            "field": "",
+            "note": "director"
+          },
+          {
+            "dataset": "norm_flight_manifests",
+            "row": 760,
+            "field": "",
+            "note": "flight-passenger"
+          }
+        ],
+        "fieldProvenance": {
+          "canonicalName": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 95,
+              "field": "director_name",
+              "note": ""
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 95,
+              "field": "beneficial_owner",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 760,
+              "field": "passenger_name",
+              "note": ""
+            }
+          ],
+          "dob": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 95,
+              "field": "director_dob",
+              "note": ""
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 95,
+              "field": "beneficial_owner_dob",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 760,
+              "field": "dob",
+              "note": ""
+            }
+          ],
+          "passportId": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 760,
+              "field": "passport_id",
+              "note": ""
+            }
+          ],
+          "phoneNumber": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 760,
+              "field": "phone_number",
+              "note": ""
+            }
+          ]
+        }
+      },
+      "person::mehmet-y-lmaz-1983-05-17": {
+        "producedBy": "resolved_persons",
+        "sourceRows": [
+          {
+            "dataset": "norm_company_registry",
+            "row": 94,
+            "field": "",
+            "note": "director"
+          },
+          {
+            "dataset": "norm_flight_manifests",
+            "row": 759,
+            "field": "",
+            "note": "flight-passenger"
+          }
+        ],
+        "fieldProvenance": {
+          "canonicalName": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 94,
+              "field": "director_name",
+              "note": ""
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 94,
+              "field": "beneficial_owner",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 759,
+              "field": "passenger_name",
+              "note": ""
+            }
+          ],
+          "dob": [
+            {
+              "dataset": "norm_company_registry",
+              "row": 94,
+              "field": "director_dob",
+              "note": ""
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 94,
+              "field": "beneficial_owner_dob",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 759,
+              "field": "dob",
+              "note": ""
+            }
+          ],
+          "passportId": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 759,
+              "field": "passport_id",
+              "note": ""
+            }
+          ],
+          "phoneNumber": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 759,
+              "field": "phone_number",
+              "note": ""
             }
           ]
         }
@@ -129293,6 +133058,12 @@ window.foundrySeedCatalog = {
             "row": 5988,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 87,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -129772,6 +133543,22 @@ window.foundrySeedCatalog = {
               "row": 5988,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 87,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 87,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -130899,6 +134686,12 @@ window.foundrySeedCatalog = {
             "row": 5734,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 67,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -131570,6 +135363,22 @@ window.foundrySeedCatalog = {
               "row": 5734,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 67,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 67,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -131875,6 +135684,12 @@ window.foundrySeedCatalog = {
             "row": 5889,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 113,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -132379,6 +136194,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 113,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 113,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -132660,6 +136491,12 @@ window.foundrySeedCatalog = {
             "row": 6003,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 100,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -133295,6 +137132,22 @@ window.foundrySeedCatalog = {
               "row": 6003,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 100,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 100,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -134404,6 +138257,12 @@ window.foundrySeedCatalog = {
             "row": 5999,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 66,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -134823,6 +138682,22 @@ window.foundrySeedCatalog = {
               "row": 5999,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 66,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 66,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -136317,6 +140192,12 @@ window.foundrySeedCatalog = {
             "note": "flight-passenger"
           },
           {
+            "dataset": "norm_flight_manifests",
+            "row": 756,
+            "field": "",
+            "note": "flight-passenger"
+          },
+          {
             "dataset": "norm_mobile_pings",
             "row": 49,
             "field": "",
@@ -136507,12 +140388,6 @@ window.foundrySeedCatalog = {
             "row": 5817,
             "field": "",
             "note": "device-ping"
-          },
-          {
-            "dataset": "norm_clinic_registrations",
-            "row": 50,
-            "field": "",
-            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -136574,6 +140449,12 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_flight_manifests",
               "row": 664,
+              "field": "passenger_name",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 756,
               "field": "passenger_name",
               "note": ""
             }
@@ -136838,6 +140719,12 @@ window.foundrySeedCatalog = {
               "row": 664,
               "field": "dob",
               "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 756,
+              "field": "dob",
+              "note": ""
             }
           ],
           "nationality": [
@@ -136902,6 +140789,12 @@ window.foundrySeedCatalog = {
               "row": 664,
               "field": "passport_id",
               "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 756,
+              "field": "passport_id",
+              "note": ""
             }
           ],
           "riskTag": [
@@ -136958,6 +140851,12 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_flight_manifests",
               "row": 664,
+              "field": "phone_number",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 756,
               "field": "phone_number",
               "note": ""
             },
@@ -137153,11 +141052,92 @@ window.foundrySeedCatalog = {
               "field": "phone_number",
               "note": ""
             }
+          ]
+        }
+      },
+      "person::g5510077": {
+        "producedBy": "resolved_persons",
+        "sourceRows": [
+          {
+            "dataset": "norm_flight_manifests",
+            "row": 757,
+            "field": "",
+            "note": "flight-passenger"
+          },
+          {
+            "dataset": "norm_flight_manifests",
+            "row": 758,
+            "field": "",
+            "note": "flight-passenger"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 121,
+            "field": "",
+            "note": "clinic-registration"
+          }
+        ],
+        "fieldProvenance": {
+          "canonicalName": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 757,
+              "field": "passenger_name",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 758,
+              "field": "passenger_name",
+              "note": ""
+            }
+          ],
+          "dob": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 757,
+              "field": "dob",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 758,
+              "field": "dob",
+              "note": ""
+            }
+          ],
+          "passportId": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 757,
+              "field": "passport_id",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 758,
+              "field": "passport_id",
+              "note": ""
+            }
+          ],
+          "phoneNumber": [
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 757,
+              "field": "phone_number",
+              "note": ""
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 758,
+              "field": "phone_number",
+              "note": ""
+            }
           ],
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 50,
+              "row": 121,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -137165,7 +141145,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 50,
+              "row": 121,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -137429,7 +141409,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 6,
+            "row": 5,
             "field": "",
             "note": "clinic-registration"
           }
@@ -138012,7 +141992,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 6,
+              "row": 5,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -138020,7 +142000,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 6,
+              "row": 5,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -139327,7 +143307,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 10,
+            "row": 9,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 92,
             "field": "",
             "note": "clinic-registration"
           }
@@ -140282,7 +144268,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 10,
+              "row": 92,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -140290,7 +144276,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 10,
+              "row": 92,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -141299,6 +145285,12 @@ window.foundrySeedCatalog = {
             "row": 6006,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 62,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -141838,6 +145830,22 @@ window.foundrySeedCatalog = {
               "row": 6006,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 62,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 62,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -142662,7 +146670,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 46,
+            "row": 43,
             "field": "",
             "note": "clinic-registration"
           }
@@ -143125,7 +147133,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 46,
+              "row": 43,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -143133,7 +147141,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 46,
+              "row": 43,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -144146,7 +148154,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 19,
+            "row": 18,
             "field": "",
             "note": "clinic-registration"
           }
@@ -144729,7 +148737,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 19,
+              "row": 18,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -144737,7 +148745,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 19,
+              "row": 18,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -144938,6 +148946,12 @@ window.foundrySeedCatalog = {
             "row": 5961,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 86,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -145370,6 +149384,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 86,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 86,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -145528,7 +149558,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 30,
+            "row": 28,
             "field": "",
             "note": "clinic-registration"
           }
@@ -145883,7 +149913,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 30,
+              "row": 28,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -145891,7 +149921,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 30,
+              "row": 28,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -146509,7 +150539,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 28,
+            "row": 26,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 75,
             "field": "",
             "note": "clinic-registration"
           }
@@ -147872,7 +151908,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 28,
+              "row": 26,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -147880,7 +151916,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 28,
+              "row": 26,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -148084,7 +152120,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 24,
+            "row": 23,
             "field": "",
             "note": "clinic-registration"
           }
@@ -148523,7 +152559,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 24,
+              "row": 23,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -148531,7 +152567,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 24,
+              "row": 23,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -149470,7 +153506,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 16,
+            "row": 15,
             "field": "",
             "note": "clinic-registration"
           }
@@ -149981,7 +154017,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 16,
+              "row": 15,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -149989,7 +154025,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 16,
+              "row": 15,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -150400,6 +154436,18 @@ window.foundrySeedCatalog = {
             "row": 5980,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 76,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 103,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -151336,6 +155384,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 103,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 103,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -151655,13 +155719,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 52,
+            "row": 47,
             "field": "",
             "note": "clinic-registration"
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 56,
+            "row": 51,
             "field": "",
             "note": "clinic-registration"
           }
@@ -152328,7 +156392,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 56,
+              "row": 51,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -152336,7 +156400,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 56,
+              "row": 51,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -154673,7 +158737,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 43,
+            "row": 40,
             "field": "",
             "note": "clinic-registration"
           }
@@ -155604,7 +159668,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 43,
+              "row": 40,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -155612,7 +159676,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 43,
+              "row": 40,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -155855,6 +159919,12 @@ window.foundrySeedCatalog = {
             "row": 5994,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 106,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -156419,6 +160489,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 106,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 106,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -156694,6 +160780,12 @@ window.foundrySeedCatalog = {
             "row": 5948,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 60,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -157330,6 +161422,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 60,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 60,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -157773,6 +161881,18 @@ window.foundrySeedCatalog = {
             "row": 5950,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 89,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 109,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -158768,6 +162888,22 @@ window.foundrySeedCatalog = {
               "row": 5950,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 109,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 109,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -158960,6 +163096,12 @@ window.foundrySeedCatalog = {
             "row": 5607,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 55,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -159379,6 +163521,22 @@ window.foundrySeedCatalog = {
               "row": 5607,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 55,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 55,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -160476,6 +164634,12 @@ window.foundrySeedCatalog = {
             "row": 5934,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 79,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -161075,6 +165239,22 @@ window.foundrySeedCatalog = {
               "row": 5934,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 79,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 79,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -163552,13 +167732,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 40,
+            "row": 37,
             "field": "",
             "note": "clinic-registration"
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 59,
+            "row": 54,
             "field": "",
             "note": "clinic-registration"
           }
@@ -163997,7 +168177,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 59,
+              "row": 54,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -164005,7 +168185,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 59,
+              "row": 54,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -164236,12 +168416,6 @@ window.foundrySeedCatalog = {
             "row": 5651,
             "field": "",
             "note": "device-ping"
-          },
-          {
-            "dataset": "norm_clinic_registrations",
-            "row": 32,
-            "field": "",
-            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -164773,22 +168947,6 @@ window.foundrySeedCatalog = {
               "row": 5651,
               "field": "phone_number",
               "note": ""
-            }
-          ],
-          "homeAddress": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 32,
-              "field": "home_address",
-              "note": "latest registration"
-            }
-          ],
-          "clinicCode": [
-            {
-              "dataset": "norm_clinic_registrations",
-              "row": 32,
-              "field": "clinic_code",
-              "note": "latest registration"
             }
           ]
         }
@@ -165661,7 +169819,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 23,
+            "row": 22,
             "field": "",
             "note": "clinic-registration"
           }
@@ -166256,7 +170414,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 23,
+              "row": 22,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -166264,7 +170422,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 23,
+              "row": 22,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -167005,6 +171163,18 @@ window.foundrySeedCatalog = {
             "row": 5981,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 77,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 111,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -168661,6 +172831,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 111,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 111,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -168681,7 +172867,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 29,
+            "row": 27,
             "field": "",
             "note": "clinic-registration"
           }
@@ -168718,7 +172904,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 29,
+              "row": 27,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -168726,7 +172912,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 29,
+              "row": 27,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -169209,6 +173395,12 @@ window.foundrySeedCatalog = {
             "row": 5977,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 104,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -170229,6 +174421,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 104,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 104,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -170492,6 +174700,12 @@ window.foundrySeedCatalog = {
             "row": 5720,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 88,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -171079,6 +175293,22 @@ window.foundrySeedCatalog = {
               "row": 5720,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 88,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 88,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -171977,6 +176207,12 @@ window.foundrySeedCatalog = {
             "row": 5958,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 117,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -172493,6 +176729,22 @@ window.foundrySeedCatalog = {
               "field": "observed_name",
               "note": "ping alias"
             }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 117,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 117,
+              "field": "clinic_code",
+              "note": "latest registration"
+            }
           ]
         }
       },
@@ -172720,6 +176972,12 @@ window.foundrySeedCatalog = {
             "row": 5989,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 108,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -173211,6 +177469,22 @@ window.foundrySeedCatalog = {
               "row": 5989,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 108,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 108,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -174987,7 +179261,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 49,
+            "row": 45,
             "field": "",
             "note": "clinic-registration"
           }
@@ -175618,7 +179892,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 49,
+              "row": 45,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -175626,7 +179900,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 49,
+              "row": 45,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -175839,6 +180113,12 @@ window.foundrySeedCatalog = {
             "row": 5983,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 112,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -176270,6 +180550,22 @@ window.foundrySeedCatalog = {
               "row": 5983,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 112,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 112,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -176744,6 +181040,18 @@ window.foundrySeedCatalog = {
             "row": 5772,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 58,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 85,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -177799,6 +182107,22 @@ window.foundrySeedCatalog = {
               "row": 5772,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 85,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 85,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -177973,6 +182297,12 @@ window.foundrySeedCatalog = {
             "row": 5361,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 107,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -178344,6 +182674,22 @@ window.foundrySeedCatalog = {
               "row": 5361,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 107,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 107,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -178614,6 +182960,12 @@ window.foundrySeedCatalog = {
             "row": 5992,
             "field": "",
             "note": "device-ping"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 72,
+            "field": "",
+            "note": "clinic-registration"
           }
         ],
         "fieldProvenance": {
@@ -179213,6 +183565,22 @@ window.foundrySeedCatalog = {
               "row": 5992,
               "field": "observed_name",
               "note": "ping alias"
+            }
+          ],
+          "homeAddress": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 72,
+              "field": "home_address",
+              "note": "latest registration"
+            }
+          ],
+          "clinicCode": [
+            {
+              "dataset": "norm_clinic_registrations",
+              "row": 72,
+              "field": "clinic_code",
+              "note": "latest registration"
             }
           ]
         }
@@ -179672,7 +184040,13 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 7,
+            "row": 6,
+            "field": "",
+            "note": "clinic-registration"
+          },
+          {
+            "dataset": "norm_clinic_registrations",
+            "row": 115,
             "field": "",
             "note": "clinic-registration"
           }
@@ -180675,7 +185049,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 7,
+              "row": 115,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -180683,7 +185057,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 7,
+              "row": 115,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -181187,7 +185561,7 @@ window.foundrySeedCatalog = {
           },
           {
             "dataset": "norm_clinic_registrations",
-            "row": 13,
+            "row": 12,
             "field": "",
             "note": "clinic-registration"
           }
@@ -182370,7 +186744,7 @@ window.foundrySeedCatalog = {
           "homeAddress": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 13,
+              "row": 12,
               "field": "home_address",
               "note": "latest registration"
             }
@@ -182378,7 +186752,7 @@ window.foundrySeedCatalog = {
           "clinicCode": [
             {
               "dataset": "norm_clinic_registrations",
-              "row": 13,
+              "row": 12,
               "field": "clinic_code",
               "note": "latest registration"
             }
@@ -183329,6 +187703,25 @@ window.foundrySeedCatalog = {
           "accountId": "ACCT-C104",
           "ownerName": "Cedar Gate Holdings SA",
           "accountKind": "corporate"
+        },
+        "sourceIds": [
+          "resolved_accounts"
+        ],
+        "markings": [
+          "FIN"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "FIN"
+        ]
+      },
+      {
+        "id": "bankaccount::acct-l041",
+        "type": "BankAccount",
+        "label": "ACCT-L041",
+        "properties": {
+          "accountId": "ACCT-L041",
+          "ownerName": "Oak Lane Lettings Ltd"
         },
         "sourceIds": [
           "resolved_accounts"
@@ -188862,6 +193255,26 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "bankaccount::acct-p007",
+        "type": "BankAccount",
+        "label": "ACCT-P007",
+        "properties": {
+          "accountId": "ACCT-P007",
+          "ownerName": "Umar Rahman",
+          "accountKind": "personal"
+        },
+        "sourceIds": [
+          "resolved_accounts"
+        ],
+        "markings": [
+          "FIN"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "FIN"
+        ]
+      },
+      {
         "id": "company::nco-014",
         "type": "Company",
         "label": "Atlas Advisory Ltd",
@@ -189451,6 +193864,25 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "company::co-203",
+        "type": "Company",
+        "label": "Ferreira Imports GmbH",
+        "properties": {
+          "companyName": "Ferreira Imports GmbH",
+          "jurisdiction": "Switzerland",
+          "incorporationDate": "2018-05-22",
+          "registeredAddress": "6 Kirchgasse, Zurich"
+        },
+        "sourceIds": [
+          "resolved_companies"
+        ],
+        "markings": [],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "OPEN"
+        ]
+      },
+      {
         "id": "company::nco-011",
         "type": "Company",
         "label": "Granite Maritime Ltd",
@@ -189774,6 +194206,25 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "company::co-204",
+        "type": "Company",
+        "label": "Kirchgasse Freight AG",
+        "properties": {
+          "companyName": "Kirchgasse Freight AG",
+          "jurisdiction": "Switzerland",
+          "incorporationDate": "2023-09-14",
+          "registeredAddress": "6 Kirchgasse, Zurich"
+        },
+        "sourceIds": [
+          "resolved_companies"
+        ],
+        "markings": [],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "OPEN"
+        ]
+      },
+      {
         "id": "company::nco-047",
         "type": "Company",
         "label": "Lantern Advisory Ltd",
@@ -189877,6 +194328,25 @@ window.foundrySeedCatalog = {
           "jurisdiction": "Austria",
           "incorporationDate": "2025-05-31",
           "registeredAddress": "17 Kingsway, London"
+        },
+        "sourceIds": [
+          "resolved_companies"
+        ],
+        "markings": [],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "OPEN"
+        ]
+      },
+      {
+        "id": "company::co-202",
+        "type": "Company",
+        "label": "Mariahilf Logistics KG",
+        "properties": {
+          "companyName": "Mariahilf Logistics KG",
+          "jurisdiction": "Austria",
+          "incorporationDate": "2024-06-19",
+          "registeredAddress": "12 Mariahilfer Strasse, Vienna"
         },
         "sourceIds": [
           "resolved_companies"
@@ -190637,6 +195107,25 @@ window.foundrySeedCatalog = {
           "jurisdiction": "United Kingdom",
           "incorporationDate": "2023-12-22",
           "registeredAddress": "5 Harbor Row, Limassol"
+        },
+        "sourceIds": [
+          "resolved_companies"
+        ],
+        "markings": [],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "OPEN"
+        ]
+      },
+      {
+        "id": "company::co-201",
+        "type": "Company",
+        "label": "Yilmaz Textiles GmbH",
+        "properties": {
+          "companyName": "Yilmaz Textiles GmbH",
+          "jurisdiction": "Austria",
+          "incorporationDate": "2017-02-08",
+          "registeredAddress": "12 Mariahilfer Strasse, Vienna"
         },
         "sourceIds": [
           "resolved_companies"
@@ -196484,6 +200973,60 @@ window.foundrySeedCatalog = {
           "bookingReference": "PNR789D",
           "seat": "21F",
           "paymentCardLast4": "2036"
+        },
+        "sourceIds": [
+          "norm_flight_manifests"
+        ],
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "paymentCardLast4": [
+            "FIN"
+          ]
+        },
+        "sourceMarkings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "flight::mf-0104",
+        "type": "Flight",
+        "label": "A3-902 · Jose Ferreira",
+        "properties": {
+          "manifestId": "MF-0104",
+          "flightNumber": "A3-902",
+          "departureTs": "2026-04-08T10:10:00Z",
+          "bookingReference": "PNR79W",
+          "seat": "22E",
+          "paymentCardLast4": "8840"
+        },
+        "sourceIds": [
+          "norm_flight_manifests"
+        ],
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "paymentCardLast4": [
+            "FIN"
+          ]
+        },
+        "sourceMarkings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "flight::mf-0103",
+        "type": "Flight",
+        "label": "A3-911 · José Ferreira",
+        "properties": {
+          "manifestId": "MF-0103",
+          "flightNumber": "A3-911",
+          "departureTs": "2026-04-03T12:30:00Z",
+          "bookingReference": "PNR77S",
+          "seat": "6B",
+          "paymentCardLast4": "3318"
         },
         "sourceIds": [
           "norm_flight_manifests"
@@ -211864,6 +216407,33 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "flight::mf-0102",
+        "type": "Flight",
+        "label": "OS-836 · Mehmet Yilmaz",
+        "properties": {
+          "manifestId": "MF-0102",
+          "flightNumber": "OS-836",
+          "departureTs": "2026-04-07T15:40:00Z",
+          "bookingReference": "PNR74D",
+          "seat": "19A",
+          "paymentCardLast4": "5402"
+        },
+        "sourceIds": [
+          "norm_flight_manifests"
+        ],
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "paymentCardLast4": [
+            "FIN"
+          ]
+        },
+        "sourceMarkings": [
+          "PII"
+        ]
+      },
+      {
         "id": "flight::nmf-0477",
         "type": "Flight",
         "label": "OS-849 · C. Costa",
@@ -213808,6 +218378,33 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "flight::mf-0101",
+        "type": "Flight",
+        "label": "TK-1887 · Mehmet Yılmaz",
+        "properties": {
+          "manifestId": "MF-0101",
+          "flightNumber": "TK-1887",
+          "departureTs": "2026-04-05T06:20:00Z",
+          "bookingReference": "PNR71K",
+          "seat": "11C",
+          "paymentCardLast4": "2281"
+        },
+        "sourceIds": [
+          "norm_flight_manifests"
+        ],
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "paymentCardLast4": [
+            "FIN"
+          ]
+        },
+        "sourceMarkings": [
+          "PII"
+        ]
+      },
+      {
         "id": "flight::nmf-0002",
         "type": "Flight",
         "label": "TK-190 · Elias Keller",
@@ -213845,6 +218442,87 @@ window.foundrySeedCatalog = {
           "bookingReference": "PNR140W",
           "seat": "27F",
           "paymentCardLast4": "5314"
+        },
+        "sourceIds": [
+          "norm_flight_manifests"
+        ],
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "paymentCardLast4": [
+            "FIN"
+          ]
+        },
+        "sourceMarkings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "flight::mf-0009",
+        "type": "Flight",
+        "label": "TK-1971 · Umar Rahman",
+        "properties": {
+          "manifestId": "MF-0009",
+          "flightNumber": "TK-1971",
+          "departureTs": "2026-04-09T17:30:00Z",
+          "bookingReference": "PNR52H",
+          "seat": "30F",
+          "paymentCardLast4": "6630"
+        },
+        "sourceIds": [
+          "norm_flight_manifests"
+        ],
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "paymentCardLast4": [
+            "FIN"
+          ]
+        },
+        "sourceMarkings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "flight::mf-0007",
+        "type": "Flight",
+        "label": "TK-1980 · Omar Rahman",
+        "properties": {
+          "manifestId": "MF-0007",
+          "flightNumber": "TK-1980",
+          "departureTs": "2026-04-02T06:45:00Z",
+          "bookingReference": "PNR47T",
+          "seat": "21A",
+          "paymentCardLast4": "9088"
+        },
+        "sourceIds": [
+          "norm_flight_manifests"
+        ],
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "paymentCardLast4": [
+            "FIN"
+          ]
+        },
+        "sourceMarkings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "flight::mf-0008",
+        "type": "Flight",
+        "label": "TK-1986 · Omar Rahman",
+        "properties": {
+          "manifestId": "MF-0008",
+          "flightNumber": "TK-1986",
+          "departureTs": "2026-04-04T09:15:00Z",
+          "bookingReference": "PNR52H",
+          "seat": "32C",
+          "paymentCardLast4": "6630"
         },
         "sourceIds": [
           "norm_flight_manifests"
@@ -214780,6 +219458,29 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "location::100-lordship-lane-london",
+        "type": "Location",
+        "label": "100 Lordship Lane, London",
+        "properties": {
+          "label": "100 Lordship Lane, London",
+          "locationType": "residential",
+          "city": "London",
+          "country": "United Kingdom",
+          "lat": 51.520118,
+          "lon": -0.140408
+        },
+        "sourceIds": [
+          "norm_clinic_registrations"
+        ],
+        "markings": [
+          "HEALTH"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "location::102-ermou-street-larnaca",
         "type": "Location",
         "label": "102 Ermou Street, Larnaca",
@@ -214918,26 +219619,22 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "location::12-al-wasl-gardens-dubai",
+        "id": "location::12-mariahilfer-strasse-vienna",
         "type": "Location",
-        "label": "12 Al Wasl Gardens, Dubai",
+        "label": "12 Mariahilfer Strasse, Vienna",
         "properties": {
-          "label": "12 Al Wasl Gardens, Dubai",
-          "locationType": "residential",
-          "city": "Dubai",
-          "country": "United Arab Emirates",
-          "lat": 25.1972,
-          "lon": 55.2422
+          "label": "12 Mariahilfer Strasse, Vienna",
+          "locationType": "office",
+          "city": "Vienna",
+          "country": "Austria"
         },
         "sourceIds": [
-          "norm_clinic_registrations"
+          "norm_company_registry"
         ],
-        "markings": [
-          "HEALTH"
-        ],
+        "markings": [],
         "propertyMarkings": {},
         "sourceMarkings": [
-          "HEALTH"
+          "OPEN"
         ]
       },
       {
@@ -214987,6 +219684,52 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "location::129-makariou-avenue-limassol",
+        "type": "Location",
+        "label": "129 Makariou Avenue, Limassol",
+        "properties": {
+          "label": "129 Makariou Avenue, Limassol",
+          "locationType": "residential",
+          "city": "Limassol",
+          "country": "Cyprus",
+          "lat": 34.685264,
+          "lon": 33.04577
+        },
+        "sourceIds": [
+          "norm_clinic_registrations"
+        ],
+        "markings": [
+          "HEALTH"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "location::134-praterstrasse-vienna",
+        "type": "Location",
+        "label": "134 Praterstrasse, Vienna",
+        "properties": {
+          "label": "134 Praterstrasse, Vienna",
+          "locationType": "residential",
+          "city": "Vienna",
+          "country": "Austria",
+          "lat": 48.20665,
+          "lon": 16.368901
+        },
+        "sourceIds": [
+          "norm_clinic_registrations"
+        ],
+        "markings": [
+          "HEALTH"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "location::138-halaskargazi-caddesi-istanbul",
         "type": "Location",
         "label": "138 Halaskargazi Caddesi, Istanbul",
@@ -214997,6 +219740,29 @@ window.foundrySeedCatalog = {
           "country": "Turkey",
           "lat": 41.013417,
           "lon": 28.981072
+        },
+        "sourceIds": [
+          "norm_clinic_registrations"
+        ],
+        "markings": [
+          "HEALTH"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "location::14-josefstaedter-strasse-vienna",
+        "type": "Location",
+        "label": "14 Josefstaedter Strasse, Vienna",
+        "properties": {
+          "label": "14 Josefstaedter Strasse, Vienna",
+          "locationType": "residential",
+          "city": "Vienna",
+          "country": "Austria",
+          "lat": 48.223258,
+          "lon": 16.366092
         },
         "sourceIds": [
           "norm_clinic_registrations"
@@ -215066,6 +219832,29 @@ window.foundrySeedCatalog = {
           "country": "Greece",
           "lat": 37.985395,
           "lon": 23.744837
+        },
+        "sourceIds": [
+          "norm_clinic_registrations"
+        ],
+        "markings": [
+          "HEALTH"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "location::156-omonoias-avenue-limassol",
+        "type": "Location",
+        "label": "156 Omonoias Avenue, Limassol",
+        "properties": {
+          "label": "156 Omonoias Avenue, Limassol",
+          "locationType": "residential",
+          "city": "Limassol",
+          "country": "Cyprus",
+          "lat": 34.684102,
+          "lon": 33.044616
         },
         "sourceIds": [
           "norm_clinic_registrations"
@@ -215275,29 +220064,6 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "location::22-cromer-road-london",
-        "type": "Location",
-        "label": "22 Cromer Road, London",
-        "properties": {
-          "label": "22 Cromer Road, London",
-          "locationType": "residential",
-          "city": "London",
-          "country": "United Kingdom",
-          "lat": 51.5462,
-          "lon": -0.1103
-        },
-        "sourceIds": [
-          "norm_clinic_registrations"
-        ],
-        "markings": [
-          "HEALTH"
-        ],
-        "propertyMarkings": {},
-        "sourceMarkings": [
-          "HEALTH"
-        ]
-      },
-      {
         "id": "location::27-ringstrasse-vienna",
         "type": "Location",
         "label": "27 Ringstrasse, Vienna",
@@ -215317,16 +220083,16 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "location::31-kralja-petra-belgrade",
+        "id": "location::3-mildmay-grove-london",
         "type": "Location",
-        "label": "31 Kralja Petra, Belgrade",
+        "label": "3 Mildmay Grove, London",
         "properties": {
-          "label": "31 Kralja Petra, Belgrade",
+          "label": "3 Mildmay Grove, London",
           "locationType": "residential",
-          "city": "Belgrade",
-          "country": "Serbia",
-          "lat": 44.8196,
-          "lon": 20.4553
+          "city": "London",
+          "country": "United Kingdom",
+          "lat": 51.494732,
+          "lon": -0.117683
         },
         "sourceIds": [
           "norm_clinic_registrations"
@@ -215409,16 +220175,16 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "location::40-vitosha-boulevard-sofia",
+        "id": "location::41-halaskargazi-caddesi-istanbul",
         "type": "Location",
-        "label": "40 Vitosha Boulevard, Sofia",
+        "label": "41 Halaskargazi Caddesi, Istanbul",
         "properties": {
-          "label": "40 Vitosha Boulevard, Sofia",
+          "label": "41 Halaskargazi Caddesi, Istanbul",
           "locationType": "residential",
-          "city": "Sofia",
-          "country": "Bulgaria",
-          "lat": 42.6909,
-          "lon": 23.3196
+          "city": "Istanbul",
+          "country": "Turkey",
+          "lat": 41.004135,
+          "lon": 28.967687
         },
         "sourceIds": [
           "norm_clinic_registrations"
@@ -215432,16 +220198,16 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "location::41-halaskargazi-caddesi-istanbul",
+        "id": "location::41-oak-lane-birmingham",
         "type": "Location",
-        "label": "41 Halaskargazi Caddesi, Istanbul",
+        "label": "41 Oak Lane, Birmingham",
         "properties": {
-          "label": "41 Halaskargazi Caddesi, Istanbul",
+          "label": "41 Oak Lane, Birmingham",
           "locationType": "residential",
-          "city": "Istanbul",
-          "country": "Turkey",
-          "lat": 41.004135,
-          "lon": 28.967687
+          "city": "Birmingham",
+          "country": "United Kingdom",
+          "lat": 52.4421,
+          "lon": -1.9368
         },
         "sourceIds": [
           "norm_clinic_registrations"
@@ -215585,6 +220351,71 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "location::56-seefeldstrasse-zurich",
+        "type": "Location",
+        "label": "56 Seefeldstrasse, Zurich",
+        "properties": {
+          "label": "56 Seefeldstrasse, Zurich",
+          "locationType": "residential",
+          "city": "Zurich",
+          "country": "Switzerland",
+          "lat": 47.362699,
+          "lon": 8.548637
+        },
+        "sourceIds": [
+          "norm_clinic_registrations"
+        ],
+        "markings": [
+          "HEALTH"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "location::58-rue-de-carouge-geneva",
+        "type": "Location",
+        "label": "58 Rue de Carouge, Geneva",
+        "properties": {
+          "label": "58 Rue de Carouge, Geneva",
+          "locationType": "residential",
+          "city": "Geneva",
+          "country": "Switzerland",
+          "lat": 46.1934,
+          "lon": 6.1424
+        },
+        "sourceIds": [
+          "norm_clinic_registrations"
+        ],
+        "markings": [
+          "HEALTH"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "location::6-kirchgasse-zurich",
+        "type": "Location",
+        "label": "6 Kirchgasse, Zurich",
+        "properties": {
+          "label": "6 Kirchgasse, Zurich",
+          "locationType": "office",
+          "city": "Zurich",
+          "country": "Switzerland"
+        },
+        "sourceIds": [
+          "norm_company_registry"
+        ],
+        "markings": [],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "OPEN"
+        ]
+      },
+      {
         "id": "location::63-bagdat-caddesi-istanbul",
         "type": "Location",
         "label": "63 Bagdat Caddesi, Istanbul",
@@ -215618,29 +220449,6 @@ window.foundrySeedCatalog = {
           "country": "Cyprus",
           "lat": 34.682675,
           "lon": 33.042949
-        },
-        "sourceIds": [
-          "norm_clinic_registrations"
-        ],
-        "markings": [
-          "HEALTH"
-        ],
-        "propertyMarkings": {},
-        "sourceMarkings": [
-          "HEALTH"
-        ]
-      },
-      {
-        "id": "location::7-anexartisias-street-limassol",
-        "type": "Location",
-        "label": "7 Anexartisias Street, Limassol",
-        "properties": {
-          "label": "7 Anexartisias Street, Limassol",
-          "locationType": "residential",
-          "city": "Limassol",
-          "country": "Cyprus",
-          "lat": 34.6762,
-          "lon": 33.0427
         },
         "sourceIds": [
           "norm_clinic_registrations"
@@ -215765,6 +220573,29 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "location::91-al-manara-road-dubai",
+        "type": "Location",
+        "label": "91 Al Manara Road, Dubai",
+        "properties": {
+          "label": "91 Al Manara Road, Dubai",
+          "locationType": "residential",
+          "city": "Dubai",
+          "country": "United Arab Emirates",
+          "lat": 25.196214,
+          "lon": 55.289529
+        },
+        "sourceIds": [
+          "norm_clinic_registrations"
+        ],
+        "markings": [
+          "HEALTH"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "location::95-makariou-avenue-limassol",
         "type": "Location",
         "label": "95 Makariou Avenue, Limassol",
@@ -215775,6 +220606,29 @@ window.foundrySeedCatalog = {
           "country": "Cyprus",
           "lat": 34.673593,
           "lon": 33.019195
+        },
+        "sourceIds": [
+          "norm_clinic_registrations"
+        ],
+        "markings": [
+          "HEALTH"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "location::99-mildmay-grove-london",
+        "type": "Location",
+        "label": "99 Mildmay Grove, London",
+        "properties": {
+          "label": "99 Mildmay Grove, London",
+          "locationType": "residential",
+          "city": "London",
+          "country": "United Kingdom",
+          "lat": 51.516794,
+          "lon": -0.118285
         },
         "sourceIds": [
           "norm_clinic_registrations"
@@ -216572,7 +221426,9 @@ window.foundrySeedCatalog = {
           "aliases": "A. Nasser",
           "dob": "1986-04-25",
           "passportId": "X1822825",
-          "phoneNumber": "+49900122509"
+          "phoneNumber": "+49900122509",
+          "homeAddress": "100 Lordship Lane, London",
+          "clinicCode": "CLN-LON-01"
         },
         "sourceIds": [
           "resolved_persons"
@@ -216629,7 +221485,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -216734,7 +221591,9 @@ window.foundrySeedCatalog = {
           "aliases": "A. Silva",
           "dob": "1994-09-22",
           "passportId": "X1909393",
-          "phoneNumber": "+33656670062"
+          "phoneNumber": "+33656670062",
+          "homeAddress": "99 Mildmay Grove, London",
+          "clinicCode": "CLN-LON-05"
         },
         "sourceIds": [
           "resolved_persons"
@@ -216814,7 +221673,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -216826,7 +221686,9 @@ window.foundrySeedCatalog = {
           "aliases": "A. Byrne",
           "dob": "2000-03-16",
           "passportId": "X9436429",
-          "phoneNumber": "+971670292350"
+          "phoneNumber": "+971670292350",
+          "homeAddress": "33 Makariou Avenue, Limassol",
+          "clinicCode": "CLN-LIM-04"
         },
         "sourceIds": [
           "resolved_persons"
@@ -216897,7 +221759,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -216995,7 +221858,9 @@ window.foundrySeedCatalog = {
           "aliases": "A. Keller",
           "dob": "1993-10-10",
           "passportId": "X7003042",
-          "phoneNumber": "+90241102355"
+          "phoneNumber": "+90241102355",
+          "homeAddress": "56 Seefeldstrasse, Zurich",
+          "clinicCode": "CLN-ZRH-02"
         },
         "sourceIds": [
           "resolved_persons"
@@ -217104,7 +221969,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -217286,7 +222152,9 @@ window.foundrySeedCatalog = {
           "aliases": "B. Costa",
           "dob": "1995-10-20",
           "passportId": "X9937326",
-          "phoneNumber": "+971235034324"
+          "phoneNumber": "+971235034324",
+          "homeAddress": "7 Agias Zonis Street, Limassol",
+          "clinicCode": "CLN-LIM-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -217358,7 +222226,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -217836,7 +222705,9 @@ window.foundrySeedCatalog = {
           "aliases": "B. Keller",
           "dob": "1988-08-27",
           "passportId": "X7970985",
-          "phoneNumber": "+33315601773"
+          "phoneNumber": "+33315601773",
+          "homeAddress": "55 Umm Suqeim Street, Dubai",
+          "clinicCode": "CLN-DXB-05"
         },
         "sourceIds": [
           "resolved_persons"
@@ -217913,7 +222784,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -218108,7 +222980,9 @@ window.foundrySeedCatalog = {
           "aliases": "B. Orlov",
           "dob": "1992-04-14",
           "passportId": "X8816912",
-          "phoneNumber": "+44166857303"
+          "phoneNumber": "+44166857303",
+          "homeAddress": "129 Makariou Avenue, Limassol",
+          "clinicCode": "CLN-LIM-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -218174,7 +223048,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -218440,7 +223315,9 @@ window.foundrySeedCatalog = {
           "aliases": "B. Vale",
           "dob": "1991-02-28",
           "passportId": "X5040453",
-          "phoneNumber": "+44726160204"
+          "phoneNumber": "+44726160204",
+          "homeAddress": "33 Makariou Avenue, Limassol",
+          "clinicCode": "CLN-LIM-04"
         },
         "sourceIds": [
           "resolved_persons"
@@ -218515,7 +223392,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -218617,7 +223495,9 @@ window.foundrySeedCatalog = {
           "aliases": "C. Costa",
           "dob": "1991-12-23",
           "passportId": "X2242892",
-          "phoneNumber": "+49775862179"
+          "phoneNumber": "+49775862179",
+          "homeAddress": "100 Lordship Lane, London",
+          "clinicCode": "CLN-LON-01"
         },
         "sourceIds": [
           "resolved_persons"
@@ -218690,7 +223570,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -218702,7 +223583,9 @@ window.foundrySeedCatalog = {
           "aliases": "C. Ionescu",
           "dob": "1982-01-04",
           "passportId": "X5453786",
-          "phoneNumber": "+30216396351"
+          "phoneNumber": "+30216396351",
+          "homeAddress": "95 Makariou Avenue, Limassol",
+          "clinicCode": "CLN-LIM-02"
         },
         "sourceIds": [
           "resolved_persons"
@@ -218766,7 +223649,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -218983,7 +223867,9 @@ window.foundrySeedCatalog = {
           "aliases": "C. Patel",
           "dob": "1979-04-09",
           "passportId": "X3583206",
-          "phoneNumber": "+44869446962"
+          "phoneNumber": "+44869446962",
+          "homeAddress": "56 Gumpendorfer Strasse, Vienna",
+          "clinicCode": "CLN-VIE-04"
         },
         "sourceIds": [
           "resolved_persons"
@@ -219091,7 +223977,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -219596,7 +224483,9 @@ window.foundrySeedCatalog = {
           "aliases": "D. Costa",
           "dob": "1995-01-23",
           "passportId": "X6680114",
-          "phoneNumber": "+971645179180"
+          "phoneNumber": "+971645179180",
+          "homeAddress": "129 Makariou Avenue, Limassol",
+          "clinicCode": "CLN-LIM-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -219695,7 +224584,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -220440,7 +225330,9 @@ window.foundrySeedCatalog = {
           "aliases": "D. Quinn",
           "dob": "1998-08-30",
           "passportId": "X5446912",
-          "phoneNumber": "+49751325257"
+          "phoneNumber": "+49751325257",
+          "homeAddress": "75 Kallidromiou Street, Athens",
+          "clinicCode": "CLN-ATH-06"
         },
         "sourceIds": [
           "resolved_persons"
@@ -220518,7 +225410,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -220747,7 +225640,9 @@ window.foundrySeedCatalog = {
           "aliases": "D. Turner",
           "dob": "1999-11-06",
           "passportId": "X5076817",
-          "phoneNumber": "+971607850824"
+          "phoneNumber": "+971607850824",
+          "homeAddress": "33 Mildmay Grove, London",
+          "clinicCode": "CLN-LON-06"
         },
         "sourceIds": [
           "resolved_persons"
@@ -220813,7 +225708,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -221120,7 +226016,9 @@ window.foundrySeedCatalog = {
           "aliases": "E. Orlov",
           "dob": "1989-04-06",
           "passportId": "X3608513",
-          "phoneNumber": "+33919795579"
+          "phoneNumber": "+33919795579",
+          "homeAddress": "36 Al Safa Street, Dubai",
+          "clinicCode": "CLN-DXB-04"
         },
         "sourceIds": [
           "resolved_persons"
@@ -221186,7 +226084,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -221707,7 +226606,9 @@ window.foundrySeedCatalog = {
           "aliases": "F. Elias",
           "dob": "1975-02-05",
           "passportId": "X5107776",
-          "phoneNumber": "+44756350429"
+          "phoneNumber": "+44756350429",
+          "homeAddress": "110 Grigori Afxentiou Avenue, Larnaca",
+          "clinicCode": "CLN-LCA-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -221770,7 +226671,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -221867,8 +226769,8 @@ window.foundrySeedCatalog = {
           "dob": "1977-08-23",
           "passportId": "X5024269",
           "phoneNumber": "+971154544899",
-          "homeAddress": "114 Al Manara Road, Dubai",
-          "clinicCode": "CLN-DXB-05"
+          "homeAddress": "157 Praterstrasse, Vienna",
+          "clinicCode": "CLN-VIE-06"
         },
         "sourceIds": [
           "resolved_persons"
@@ -222164,7 +227066,9 @@ window.foundrySeedCatalog = {
           "aliases": "F. Meyer",
           "dob": "1985-08-03",
           "passportId": "X5691890",
-          "phoneNumber": "+49852890318"
+          "phoneNumber": "+49852890318",
+          "homeAddress": "117 Athinon Avenue, Larnaca",
+          "clinicCode": "CLN-LCA-02"
         },
         "sourceIds": [
           "resolved_persons"
@@ -222238,7 +227142,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -222713,7 +227618,9 @@ window.foundrySeedCatalog = {
           "aliases": "H. Farouk",
           "dob": "1992-03-25",
           "passportId": "X9075854",
-          "phoneNumber": "+33530613729"
+          "phoneNumber": "+33530613729",
+          "homeAddress": "3 Mildmay Grove, London",
+          "clinicCode": "CLN-LON-01"
         },
         "sourceIds": [
           "resolved_persons"
@@ -222782,7 +227689,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -222794,7 +227702,9 @@ window.foundrySeedCatalog = {
           "aliases": "H. Keller",
           "dob": "2000-02-02",
           "passportId": "X8939993",
-          "phoneNumber": "+49670073085"
+          "phoneNumber": "+49670073085",
+          "homeAddress": "134 Praterstrasse, Vienna",
+          "clinicCode": "CLN-VIE-04"
         },
         "sourceIds": [
           "resolved_persons"
@@ -222872,7 +227782,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -222884,7 +227795,9 @@ window.foundrySeedCatalog = {
           "aliases": "H. Rossi",
           "dob": "1992-06-26",
           "passportId": "X4020853",
-          "phoneNumber": "+33287979290"
+          "phoneNumber": "+33287979290",
+          "homeAddress": "156 Kallidromiou Street, Athens",
+          "clinicCode": "CLN-ATH-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -222951,7 +227864,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -222963,7 +227877,9 @@ window.foundrySeedCatalog = {
           "aliases": "H. Turner",
           "dob": "1991-03-07",
           "passportId": "X7891662",
-          "phoneNumber": "+30441639230"
+          "phoneNumber": "+30441639230",
+          "homeAddress": "91 Al Manara Road, Dubai",
+          "clinicCode": "CLN-DXB-06"
         },
         "sourceIds": [
           "resolved_persons"
@@ -223047,7 +227963,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -223603,9 +228520,7 @@ window.foundrySeedCatalog = {
           "nationality": "Serbian",
           "passportId": "L1029921",
           "phoneNumber": "+381642201488",
-          "riskTag": "procurement-network",
-          "homeAddress": "31 Kralja Petra, Belgrade",
-          "clinicCode": "CLN-BEG-01"
+          "riskTag": "procurement-network"
         },
         "sourceIds": [
           "resolved_persons"
@@ -223678,7 +228593,6 @@ window.foundrySeedCatalog = {
           "OPEN",
           "PII",
           "TELECOM",
-          "HEALTH",
           "LE-SENSITIVE"
         ]
       },
@@ -223691,7 +228605,9 @@ window.foundrySeedCatalog = {
           "aliases": "J. Grant",
           "dob": "1976-08-16",
           "passportId": "X2022698",
-          "phoneNumber": "+90436730606"
+          "phoneNumber": "+90436730606",
+          "homeAddress": "110 Grigori Afxentiou Avenue, Larnaca",
+          "clinicCode": "CLN-LCA-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -223768,7 +228684,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -223780,7 +228697,9 @@ window.foundrySeedCatalog = {
           "aliases": "J. Hale",
           "dob": "1986-03-10",
           "passportId": "X6363836",
-          "phoneNumber": "+971780481547"
+          "phoneNumber": "+971780481547",
+          "homeAddress": "134 Praterstrasse, Vienna",
+          "clinicCode": "CLN-VIE-04"
         },
         "sourceIds": [
           "resolved_persons"
@@ -223898,7 +228817,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -224248,6 +229168,107 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "person::jose-ferreira-1986-01-11",
+        "type": "Person",
+        "label": "Jose Ferreira",
+        "properties": {
+          "canonicalName": "Jose Ferreira",
+          "dob": "1986-01-11",
+          "passportId": "X1414213",
+          "phoneNumber": "+41791234567",
+          "homeAddress": "9 Langstrasse, Zurich",
+          "clinicCode": "CLN-ZRH-03"
+        },
+        "sourceIds": [
+          "resolved_persons"
+        ],
+        "resolution": {
+          "method": "passport",
+          "confidence": 1.0,
+          "mergedFrom": [
+            "company:CO-204:director",
+            "company:CO-204:owner",
+            "flight:MF-0104"
+          ],
+          "splitRisk": false,
+          "note": ""
+        },
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "phoneNumber": [
+            "TELECOM"
+          ],
+          "riskTag": [
+            "LE-SENSITIVE"
+          ],
+          "passportId": [
+            "PII"
+          ],
+          "homeAddress": [
+            "HEALTH"
+          ],
+          "clinicCode": [
+            "HEALTH"
+          ]
+        },
+        "sourceMarkings": [
+          "OPEN",
+          "PII",
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "person::jos-ferreira-1979-07-30",
+        "type": "Person",
+        "label": "José Ferreira",
+        "properties": {
+          "canonicalName": "José Ferreira",
+          "dob": "1979-07-30",
+          "passportId": "X5772156",
+          "phoneNumber": "+351912345670"
+        },
+        "sourceIds": [
+          "resolved_persons"
+        ],
+        "resolution": {
+          "method": "passport",
+          "confidence": 1.0,
+          "mergedFrom": [
+            "company:CO-203:director",
+            "company:CO-203:owner",
+            "flight:MF-0103"
+          ],
+          "splitRisk": false,
+          "note": ""
+        },
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "phoneNumber": [
+            "TELECOM"
+          ],
+          "riskTag": [
+            "LE-SENSITIVE"
+          ],
+          "passportId": [
+            "PII"
+          ],
+          "homeAddress": [
+            "HEALTH"
+          ],
+          "clinicCode": [
+            "HEALTH"
+          ]
+        },
+        "sourceMarkings": [
+          "OPEN",
+          "PII"
+        ]
+      },
+      {
         "id": "person::p8842101",
         "type": "Person",
         "label": "Kareem Haddad",
@@ -224258,9 +229279,7 @@ window.foundrySeedCatalog = {
           "nationality": "Lebanese",
           "passportId": "P8842101",
           "phoneNumber": "+971501118890",
-          "riskTag": "sanctions-evasion",
-          "homeAddress": "7 Anexartisias Street, Limassol",
-          "clinicCode": "CLN-LIM-02"
+          "riskTag": "sanctions-evasion"
         },
         "sourceIds": [
           "resolved_persons"
@@ -224351,7 +229370,6 @@ window.foundrySeedCatalog = {
           "OPEN",
           "PII",
           "TELECOM",
-          "HEALTH",
           "LE-SENSITIVE"
         ]
       },
@@ -224450,7 +229468,9 @@ window.foundrySeedCatalog = {
           "aliases": "L. Byrne",
           "dob": "1987-02-28",
           "passportId": "X7288789",
-          "phoneNumber": "+44256304376"
+          "phoneNumber": "+44256304376",
+          "homeAddress": "110 Grigori Afxentiou Avenue, Larnaca",
+          "clinicCode": "CLN-LCA-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -224516,7 +229536,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -224528,7 +229549,9 @@ window.foundrySeedCatalog = {
           "aliases": "L. Demir",
           "dob": "1985-02-25",
           "passportId": "X4191175",
-          "phoneNumber": "+49581695135"
+          "phoneNumber": "+49581695135",
+          "homeAddress": "91 Al Manara Road, Dubai",
+          "clinicCode": "CLN-DXB-06"
         },
         "sourceIds": [
           "resolved_persons"
@@ -224675,7 +229698,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -224765,7 +229789,9 @@ window.foundrySeedCatalog = {
           "aliases": "L. Ionescu",
           "dob": "1988-07-02",
           "passportId": "X7780932",
-          "phoneNumber": "+971652543518"
+          "phoneNumber": "+971652543518",
+          "homeAddress": "156 Omonoias Avenue, Limassol",
+          "clinicCode": "CLN-LIM-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -224845,7 +229871,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -224857,7 +229884,9 @@ window.foundrySeedCatalog = {
           "aliases": "L. Lopez",
           "dob": "1991-01-03",
           "passportId": "X8072684",
-          "phoneNumber": "+44844826434"
+          "phoneNumber": "+44844826434",
+          "homeAddress": "9 Langstrasse, Zurich",
+          "clinicCode": "CLN-ZRH-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -224965,7 +229994,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -225280,7 +230310,9 @@ window.foundrySeedCatalog = {
           "aliases": "M. Orlov",
           "dob": "1998-09-09",
           "passportId": "X6902401",
-          "phoneNumber": "+90587205269"
+          "phoneNumber": "+90587205269",
+          "homeAddress": "9 Langstrasse, Zurich",
+          "clinicCode": "CLN-ZRH-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -225344,7 +230376,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -225664,7 +230697,9 @@ window.foundrySeedCatalog = {
           "aliases": "M. Singh",
           "dob": "1992-09-21",
           "passportId": "I6117009",
-          "phoneNumber": "+919845107723"
+          "phoneNumber": "+919845107723",
+          "homeAddress": "58 Rue de Carouge, Geneva",
+          "clinicCode": "CLN-GVA-01"
         },
         "sourceIds": [
           "resolved_persons"
@@ -225728,7 +230763,106 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "person::mehmet-yilmaz-1991-10-02",
+        "type": "Person",
+        "label": "Mehmet Yilmaz",
+        "properties": {
+          "canonicalName": "Mehmet Yilmaz",
+          "dob": "1991-10-02",
+          "passportId": "X2718281",
+          "phoneNumber": "+491761230045"
+        },
+        "sourceIds": [
+          "resolved_persons"
+        ],
+        "resolution": {
+          "method": "passport",
+          "confidence": 1.0,
+          "mergedFrom": [
+            "company:CO-202:director",
+            "company:CO-202:owner",
+            "flight:MF-0102"
+          ],
+          "splitRisk": false,
+          "note": ""
+        },
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "phoneNumber": [
+            "TELECOM"
+          ],
+          "riskTag": [
+            "LE-SENSITIVE"
+          ],
+          "passportId": [
+            "PII"
+          ],
+          "homeAddress": [
+            "HEALTH"
+          ],
+          "clinicCode": [
+            "HEALTH"
+          ]
+        },
+        "sourceMarkings": [
+          "OPEN",
+          "PII"
+        ]
+      },
+      {
+        "id": "person::mehmet-y-lmaz-1983-05-17",
+        "type": "Person",
+        "label": "Mehmet Yılmaz",
+        "properties": {
+          "canonicalName": "Mehmet Yılmaz",
+          "dob": "1983-05-17",
+          "passportId": "X3141592",
+          "phoneNumber": "+905321184407"
+        },
+        "sourceIds": [
+          "resolved_persons"
+        ],
+        "resolution": {
+          "method": "passport",
+          "confidence": 1.0,
+          "mergedFrom": [
+            "company:CO-201:director",
+            "company:CO-201:owner",
+            "flight:MF-0101"
+          ],
+          "splitRisk": false,
+          "note": ""
+        },
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "phoneNumber": [
+            "TELECOM"
+          ],
+          "riskTag": [
+            "LE-SENSITIVE"
+          ],
+          "passportId": [
+            "PII"
+          ],
+          "homeAddress": [
+            "HEALTH"
+          ],
+          "clinicCode": [
+            "HEALTH"
+          ]
+        },
+        "sourceMarkings": [
+          "OPEN",
+          "PII"
         ]
       },
       {
@@ -225912,7 +231046,9 @@ window.foundrySeedCatalog = {
           "aliases": "N. Farouk",
           "dob": "1994-12-19",
           "passportId": "X9961107",
-          "phoneNumber": "+30523076025"
+          "phoneNumber": "+30523076025",
+          "homeAddress": "41 Halaskargazi Caddesi, Istanbul",
+          "clinicCode": "CLN-IST-05"
         },
         "sourceIds": [
           "resolved_persons"
@@ -225985,7 +231121,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -226086,7 +231223,9 @@ window.foundrySeedCatalog = {
           "aliases": "N. Meyer",
           "dob": "1993-08-26",
           "passportId": "X8574680",
-          "phoneNumber": "+30366186631"
+          "phoneNumber": "+30366186631",
+          "homeAddress": "36 Al Safa Street, Dubai",
+          "clinicCode": "CLN-DXB-04"
         },
         "sourceIds": [
           "resolved_persons"
@@ -226168,7 +231307,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -226226,7 +231366,9 @@ window.foundrySeedCatalog = {
           "aliases": "N. Nasser",
           "dob": "1982-11-24",
           "passportId": "X5074336",
-          "phoneNumber": "+30848605284"
+          "phoneNumber": "+30848605284",
+          "homeAddress": "122 Patision Street, Athens",
+          "clinicCode": "CLN-ATH-05"
         },
         "sourceIds": [
           "resolved_persons"
@@ -226300,7 +231442,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -226312,7 +231455,9 @@ window.foundrySeedCatalog = {
           "aliases": "N. Orlov",
           "dob": "1998-02-22",
           "passportId": "X4700025",
-          "phoneNumber": "+44335602191"
+          "phoneNumber": "+44335602191",
+          "homeAddress": "113 Grigori Afxentiou Avenue, Larnaca",
+          "clinicCode": "CLN-LCA-05"
         },
         "sourceIds": [
           "resolved_persons"
@@ -226394,7 +231539,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -226499,7 +231645,9 @@ window.foundrySeedCatalog = {
           "aliases": "N. Quinn",
           "dob": "1991-12-05",
           "passportId": "X3475836",
-          "phoneNumber": "+90838328947"
+          "phoneNumber": "+90838328947",
+          "homeAddress": "157 Praterstrasse, Vienna",
+          "clinicCode": "CLN-VIE-06"
         },
         "sourceIds": [
           "resolved_persons"
@@ -226567,7 +231715,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -226749,9 +231898,7 @@ window.foundrySeedCatalog = {
           "nationality": "Jordanian",
           "passportId": "N5538219",
           "phoneNumber": "+447700912410",
-          "riskTag": "dual-use-broker",
-          "homeAddress": "22 Cromer Road, London",
-          "clinicCode": "CLN-LON-04"
+          "riskTag": "dual-use-broker"
         },
         "sourceIds": [
           "resolved_persons"
@@ -226770,6 +231917,7 @@ window.foundrySeedCatalog = {
             "flight:NMF-0310",
             "flight:NMF-0725",
             "flight:NMF-0322",
+            "flight:MF-0007",
             "ping:NPG-03141",
             "ping:NPG-04615",
             "ping:PG-0005",
@@ -226830,8 +231978,57 @@ window.foundrySeedCatalog = {
           "OPEN",
           "PII",
           "TELECOM",
-          "HEALTH",
           "LE-SENSITIVE"
+        ]
+      },
+      {
+        "id": "person::g5510077",
+        "type": "Person",
+        "label": "Omar Rahman",
+        "properties": {
+          "canonicalName": "Omar Rahman",
+          "dob": "1979-02-02",
+          "passportId": "G5510077",
+          "phoneNumber": "+447911223344",
+          "homeAddress": "41 Oak Lane, Birmingham",
+          "clinicCode": "CLN-BHM-02"
+        },
+        "sourceIds": [
+          "resolved_persons"
+        ],
+        "resolution": {
+          "method": "passport",
+          "confidence": 1.0,
+          "mergedFrom": [
+            "flight:MF-0008",
+            "flight:MF-0009"
+          ],
+          "splitRisk": false,
+          "note": ""
+        },
+        "markings": [
+          "PII"
+        ],
+        "propertyMarkings": {
+          "phoneNumber": [
+            "TELECOM"
+          ],
+          "riskTag": [
+            "LE-SENSITIVE"
+          ],
+          "passportId": [
+            "PII"
+          ],
+          "homeAddress": [
+            "HEALTH"
+          ],
+          "clinicCode": [
+            "HEALTH"
+          ]
+        },
+        "sourceMarkings": [
+          "PII",
+          "HEALTH"
         ]
       },
       {
@@ -227025,8 +232222,8 @@ window.foundrySeedCatalog = {
           "dob": "1998-03-11",
           "passportId": "X8231838",
           "phoneNumber": "+41554814084",
-          "homeAddress": "171 Josefstaedter Strasse, Vienna",
-          "clinicCode": "CLN-VIE-04"
+          "homeAddress": "157 Praterstrasse, Vienna",
+          "clinicCode": "CLN-VIE-06"
         },
         "sourceIds": [
           "resolved_persons"
@@ -227276,7 +232473,9 @@ window.foundrySeedCatalog = {
           "aliases": "O. Quinn",
           "dob": "1998-11-27",
           "passportId": "X8987516",
-          "phoneNumber": "+90864334960"
+          "phoneNumber": "+90864334960",
+          "homeAddress": "154 Seefeldstrasse, Zurich",
+          "clinicCode": "CLN-ZRH-04"
         },
         "sourceIds": [
           "resolved_persons"
@@ -227352,7 +232551,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -227704,7 +232904,9 @@ window.foundrySeedCatalog = {
           "aliases": "P. Costa",
           "dob": "1984-06-21",
           "passportId": "X4318855",
-          "phoneNumber": "+44223240112"
+          "phoneNumber": "+44223240112",
+          "homeAddress": "113 Grigori Afxentiou Avenue, Larnaca",
+          "clinicCode": "CLN-LCA-05"
         },
         "sourceIds": [
           "resolved_persons"
@@ -227771,7 +232973,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -228268,7 +233471,9 @@ window.foundrySeedCatalog = {
           "aliases": "P. Silva",
           "dob": "1978-05-24",
           "passportId": "X1247595",
-          "phoneNumber": "+30909134796"
+          "phoneNumber": "+30909134796",
+          "homeAddress": "41 Halaskargazi Caddesi, Istanbul",
+          "clinicCode": "CLN-IST-05"
         },
         "sourceIds": [
           "resolved_persons"
@@ -228370,7 +233575,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -228878,7 +234084,9 @@ window.foundrySeedCatalog = {
           "aliases": "R. Keller",
           "dob": "1984-04-28",
           "passportId": "X6910964",
-          "phoneNumber": "+33783563240"
+          "phoneNumber": "+33783563240",
+          "homeAddress": "157 Praterstrasse, Vienna",
+          "clinicCode": "CLN-VIE-06"
         },
         "sourceIds": [
           "resolved_persons"
@@ -228952,7 +234160,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -228964,7 +234173,9 @@ window.foundrySeedCatalog = {
           "aliases": "R. Nasser",
           "dob": "1991-04-27",
           "passportId": "X3551903",
-          "phoneNumber": "+44139749508"
+          "phoneNumber": "+44139749508",
+          "homeAddress": "109 Halaskargazi Caddesi, Istanbul",
+          "clinicCode": "CLN-IST-02"
         },
         "sourceIds": [
           "resolved_persons"
@@ -229045,7 +234256,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -229057,7 +234269,9 @@ window.foundrySeedCatalog = {
           "aliases": "R. Patel",
           "dob": "1985-08-17",
           "passportId": "X5936453",
-          "phoneNumber": "+971935021998"
+          "phoneNumber": "+971935021998",
+          "homeAddress": "16 Ermou Street, Larnaca",
+          "clinicCode": "CLN-LCA-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -229165,7 +234379,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -229177,7 +234392,9 @@ window.foundrySeedCatalog = {
           "aliases": "R. Silva",
           "dob": "1975-08-12",
           "passportId": "X2147909",
-          "phoneNumber": "+33777703980"
+          "phoneNumber": "+33777703980",
+          "homeAddress": "36 Al Safa Street, Dubai",
+          "clinicCode": "CLN-DXB-04"
         },
         "sourceIds": [
           "resolved_persons"
@@ -229243,7 +234460,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -229344,7 +234562,9 @@ window.foundrySeedCatalog = {
           "aliases": "S. Ionescu",
           "dob": "1998-10-26",
           "passportId": "X2921859",
-          "phoneNumber": "+90676567501"
+          "phoneNumber": "+90676567501",
+          "homeAddress": "54 Langstrasse, Zurich",
+          "clinicCode": "CLN-ZRH-05"
         },
         "sourceIds": [
           "resolved_persons"
@@ -229425,7 +234645,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -229821,9 +235042,7 @@ window.foundrySeedCatalog = {
           "nationality": "Bulgarian",
           "passportId": "B7730042",
           "phoneNumber": "+359883317821",
-          "riskTag": "facilitator",
-          "homeAddress": "40 Vitosha Boulevard, Sofia",
-          "clinicCode": "CLN-SOF-03"
+          "riskTag": "facilitator"
         },
         "sourceIds": [
           "resolved_persons"
@@ -229897,7 +235116,6 @@ window.foundrySeedCatalog = {
           "OPEN",
           "PII",
           "TELECOM",
-          "HEALTH",
           "LE-SENSITIVE"
         ]
       },
@@ -230084,7 +235302,9 @@ window.foundrySeedCatalog = {
           "aliases": "T. Elias",
           "dob": "1986-04-22",
           "passportId": "X1914794",
-          "phoneNumber": "+49413679331"
+          "phoneNumber": "+49413679331",
+          "homeAddress": "33 Makariou Avenue, Limassol",
+          "clinicCode": "CLN-LIM-04"
         },
         "sourceIds": [
           "resolved_persons"
@@ -230242,7 +235462,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -230302,7 +235523,9 @@ window.foundrySeedCatalog = {
           "aliases": "T. Hale",
           "dob": "1980-09-07",
           "passportId": "X4842788",
-          "phoneNumber": "+971134467368"
+          "phoneNumber": "+971134467368",
+          "homeAddress": "122 Patision Street, Athens",
+          "clinicCode": "CLN-ATH-05"
         },
         "sourceIds": [
           "resolved_persons"
@@ -230416,7 +235639,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -230428,7 +235652,9 @@ window.foundrySeedCatalog = {
           "aliases": "T. Keller",
           "dob": "1978-08-25",
           "passportId": "X5437001",
-          "phoneNumber": "+30214929002"
+          "phoneNumber": "+30214929002",
+          "homeAddress": "138 Halaskargazi Caddesi, Istanbul",
+          "clinicCode": "CLN-IST-01"
         },
         "sourceIds": [
           "resolved_persons"
@@ -230507,7 +235733,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -230644,7 +235871,9 @@ window.foundrySeedCatalog = {
           "aliases": "T. Silva",
           "dob": "1990-12-03",
           "passportId": "X6398528",
-          "phoneNumber": "+971302563940"
+          "phoneNumber": "+971302563940",
+          "homeAddress": "164 Al Safa Street, Dubai",
+          "clinicCode": "CLN-DXB-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -230718,7 +235947,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -230730,7 +235960,9 @@ window.foundrySeedCatalog = {
           "aliases": "Y. Demir",
           "dob": "1977-04-15",
           "passportId": "X4576135",
-          "phoneNumber": "+49384756779"
+          "phoneNumber": "+49384756779",
+          "homeAddress": "157 Praterstrasse, Vienna",
+          "clinicCode": "CLN-VIE-06"
         },
         "sourceIds": [
           "resolved_persons"
@@ -230802,7 +236034,8 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -231125,7 +236358,9 @@ window.foundrySeedCatalog = {
           "aliases": "Y. Quinn",
           "dob": "1980-08-31",
           "passportId": "X9125900",
-          "phoneNumber": "+41456954682"
+          "phoneNumber": "+41456954682",
+          "homeAddress": "33 Mildmay Grove, London",
+          "clinicCode": "CLN-LON-06"
         },
         "sourceIds": [
           "resolved_persons"
@@ -231195,7 +236430,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -231207,7 +236443,9 @@ window.foundrySeedCatalog = {
           "aliases": "Y. Turner",
           "dob": "1975-03-21",
           "passportId": "X8190929",
-          "phoneNumber": "+33595744935"
+          "phoneNumber": "+33595744935",
+          "homeAddress": "117 Athinon Avenue, Larnaca",
+          "clinicCode": "CLN-LCA-02"
         },
         "sourceIds": [
           "resolved_persons"
@@ -231321,7 +236559,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -231333,7 +236572,9 @@ window.foundrySeedCatalog = {
           "aliases": "Z. Byrne",
           "dob": "2001-05-07",
           "passportId": "X2664863",
-          "phoneNumber": "+971323110563"
+          "phoneNumber": "+971323110563",
+          "homeAddress": "85 Solonos Street, Athens",
+          "clinicCode": "CLN-ATH-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -231397,7 +236638,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -231409,7 +236651,9 @@ window.foundrySeedCatalog = {
           "aliases": "Z. Elias",
           "dob": "1984-09-13",
           "passportId": "X8945036",
-          "phoneNumber": "+90222824732"
+          "phoneNumber": "+90222824732",
+          "homeAddress": "95 Makariou Avenue, Limassol",
+          "clinicCode": "CLN-LIM-02"
         },
         "sourceIds": [
           "resolved_persons"
@@ -231489,7 +236733,8 @@ window.foundrySeedCatalog = {
         "sourceMarkings": [
           "OPEN",
           "PII",
-          "TELECOM"
+          "TELECOM",
+          "HEALTH"
         ]
       },
       {
@@ -231502,8 +236747,8 @@ window.foundrySeedCatalog = {
           "dob": "1975-02-28",
           "passportId": "X4840714",
           "phoneNumber": "+90997603725",
-          "homeAddress": "55 Umm Suqeim Street, Dubai",
-          "clinicCode": "CLN-DXB-05"
+          "homeAddress": "179 Lordship Lane, London",
+          "clinicCode": "CLN-LON-03"
         },
         "sourceIds": [
           "resolved_persons"
@@ -231977,6 +237222,69 @@ window.foundrySeedCatalog = {
         "type": "ARRIVED_AT",
         "source": "flight::mf-0006",
         "target": "airport::dxb",
+        "label": "ARRIVED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "arrived_at::flight-mf-0007-airport-ist",
+        "type": "ARRIVED_AT",
+        "source": "flight::mf-0007",
+        "target": "airport::ist",
+        "label": "ARRIVED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "arrived_at::flight-mf-0008-airport-ist",
+        "type": "ARRIVED_AT",
+        "source": "flight::mf-0008",
+        "target": "airport::ist",
+        "label": "ARRIVED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "arrived_at::flight-mf-0009-airport-lhr",
+        "type": "ARRIVED_AT",
+        "source": "flight::mf-0009",
+        "target": "airport::lhr",
+        "label": "ARRIVED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "arrived_at::flight-mf-0101-airport-vie",
+        "type": "ARRIVED_AT",
+        "source": "flight::mf-0101",
+        "target": "airport::vie",
+        "label": "ARRIVED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "arrived_at::flight-mf-0102-airport-ath",
+        "type": "ARRIVED_AT",
+        "source": "flight::mf-0102",
+        "target": "airport::ath",
+        "label": "ARRIVED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "arrived_at::flight-mf-0103-airport-ath",
+        "type": "ARRIVED_AT",
+        "source": "flight::mf-0103",
+        "target": "airport::ath",
+        "label": "ARRIVED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "arrived_at::flight-mf-0104-airport-lca",
+        "type": "ARRIVED_AT",
+        "source": "flight::mf-0104",
+        "target": "airport::lca",
         "label": "ARRIVED_AT",
         "properties": {},
         "markings": []
@@ -239137,6 +244445,24 @@ window.foundrySeedCatalog = {
         "markings": []
       },
       {
+        "id": "beneficially_owns::person-jos-ferreira-1979-07-30-company-co-203",
+        "type": "BENEFICIALLY_OWNS",
+        "source": "person::jos-ferreira-1979-07-30",
+        "target": "company::co-203",
+        "label": "BENEFICIALLY_OWNS",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "beneficially_owns::person-jose-ferreira-1986-01-11-company-co-204",
+        "type": "BENEFICIALLY_OWNS",
+        "source": "person::jose-ferreira-1986-01-11",
+        "target": "company::co-204",
+        "label": "BENEFICIALLY_OWNS",
+        "properties": {},
+        "markings": []
+      },
+      {
         "id": "beneficially_owns::person-l1029921-company-co-103",
         "type": "BENEFICIALLY_OWNS",
         "source": "person::l1029921",
@@ -239195,6 +244521,24 @@ window.foundrySeedCatalog = {
         "type": "BENEFICIALLY_OWNS",
         "source": "person::marcus-grant-1985-12-23",
         "target": "company::nco-020",
+        "label": "BENEFICIALLY_OWNS",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "beneficially_owns::person-mehmet-y-lmaz-1983-05-17-company-co-201",
+        "type": "BENEFICIALLY_OWNS",
+        "source": "person::mehmet-y-lmaz-1983-05-17",
+        "target": "company::co-201",
+        "label": "BENEFICIALLY_OWNS",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "beneficially_owns::person-mehmet-yilmaz-1991-10-02-company-co-202",
+        "type": "BENEFICIALLY_OWNS",
+        "source": "person::mehmet-yilmaz-1991-10-02",
+        "target": "company::co-202",
         "label": "BENEFICIALLY_OWNS",
         "properties": {},
         "markings": []
@@ -240579,6 +245923,28 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "booked_on::person-g5510077-flight-mf-0008",
+        "type": "BOOKED_ON",
+        "source": "person::g5510077",
+        "target": "flight::mf-0008",
+        "label": "BOOKED_ON",
+        "properties": {},
+        "markings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "booked_on::person-g5510077-flight-mf-0009",
+        "type": "BOOKED_ON",
+        "source": "person::g5510077",
+        "target": "flight::mf-0009",
+        "label": "BOOKED_ON",
+        "properties": {},
+        "markings": [
+          "PII"
+        ]
+      },
+      {
         "id": "booked_on::person-hugo-demir-1989-11-12-flight-nmf-0443",
         "type": "BOOKED_ON",
         "source": "person::hugo-demir-1989-11-12",
@@ -240858,6 +246224,28 @@ window.foundrySeedCatalog = {
         "type": "BOOKED_ON",
         "source": "person::jonah-rossi-1986-04-07",
         "target": "flight::nmf-0617",
+        "label": "BOOKED_ON",
+        "properties": {},
+        "markings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "booked_on::person-jos-ferreira-1979-07-30-flight-mf-0103",
+        "type": "BOOKED_ON",
+        "source": "person::jos-ferreira-1979-07-30",
+        "target": "flight::mf-0103",
+        "label": "BOOKED_ON",
+        "properties": {},
+        "markings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "booked_on::person-jose-ferreira-1986-01-11-flight-mf-0104",
+        "type": "BOOKED_ON",
+        "source": "person::jose-ferreira-1986-01-11",
+        "target": "flight::mf-0104",
         "label": "BOOKED_ON",
         "properties": {},
         "markings": [
@@ -241360,10 +246748,43 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "booked_on::person-mehmet-y-lmaz-1983-05-17-flight-mf-0101",
+        "type": "BOOKED_ON",
+        "source": "person::mehmet-y-lmaz-1983-05-17",
+        "target": "flight::mf-0101",
+        "label": "BOOKED_ON",
+        "properties": {},
+        "markings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "booked_on::person-mehmet-yilmaz-1991-10-02-flight-mf-0102",
+        "type": "BOOKED_ON",
+        "source": "person::mehmet-yilmaz-1991-10-02",
+        "target": "flight::mf-0102",
+        "label": "BOOKED_ON",
+        "properties": {},
+        "markings": [
+          "PII"
+        ]
+      },
+      {
         "id": "booked_on::person-n5538219-flight-mf-0003",
         "type": "BOOKED_ON",
         "source": "person::n5538219",
         "target": "flight::mf-0003",
+        "label": "BOOKED_ON",
+        "properties": {},
+        "markings": [
+          "PII"
+        ]
+      },
+      {
+        "id": "booked_on::person-n5538219-flight-mf-0007",
+        "type": "BOOKED_ON",
+        "source": "person::n5538219",
+        "target": "flight::mf-0007",
         "label": "BOOKED_ON",
         "properties": {},
         "markings": [
@@ -247943,6 +253364,69 @@ window.foundrySeedCatalog = {
         "type": "DEPARTED_FROM",
         "source": "flight::mf-0006",
         "target": "airport::lca",
+        "label": "DEPARTED_FROM",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "departed_from::flight-mf-0007-airport-lhr",
+        "type": "DEPARTED_FROM",
+        "source": "flight::mf-0007",
+        "target": "airport::lhr",
+        "label": "DEPARTED_FROM",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "departed_from::flight-mf-0008-airport-lhr",
+        "type": "DEPARTED_FROM",
+        "source": "flight::mf-0008",
+        "target": "airport::lhr",
+        "label": "DEPARTED_FROM",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "departed_from::flight-mf-0009-airport-ist",
+        "type": "DEPARTED_FROM",
+        "source": "flight::mf-0009",
+        "target": "airport::ist",
+        "label": "DEPARTED_FROM",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "departed_from::flight-mf-0101-airport-ist",
+        "type": "DEPARTED_FROM",
+        "source": "flight::mf-0101",
+        "target": "airport::ist",
+        "label": "DEPARTED_FROM",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "departed_from::flight-mf-0102-airport-vie",
+        "type": "DEPARTED_FROM",
+        "source": "flight::mf-0102",
+        "target": "airport::vie",
+        "label": "DEPARTED_FROM",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "departed_from::flight-mf-0103-airport-lca",
+        "type": "DEPARTED_FROM",
+        "source": "flight::mf-0103",
+        "target": "airport::lca",
+        "label": "DEPARTED_FROM",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "departed_from::flight-mf-0104-airport-ath",
+        "type": "DEPARTED_FROM",
+        "source": "flight::mf-0104",
+        "target": "airport::ath",
         "label": "DEPARTED_FROM",
         "properties": {},
         "markings": []
@@ -255112,6 +260596,24 @@ window.foundrySeedCatalog = {
         "markings": []
       },
       {
+        "id": "directs::person-jos-ferreira-1979-07-30-company-co-203",
+        "type": "DIRECTS",
+        "source": "person::jos-ferreira-1979-07-30",
+        "target": "company::co-203",
+        "label": "DIRECTS",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "directs::person-jose-ferreira-1986-01-11-company-co-204",
+        "type": "DIRECTS",
+        "source": "person::jose-ferreira-1986-01-11",
+        "target": "company::co-204",
+        "label": "DIRECTS",
+        "properties": {},
+        "markings": []
+      },
+      {
         "id": "directs::person-l1029921-company-co-101",
         "type": "DIRECTS",
         "source": "person::l1029921",
@@ -255188,6 +260690,24 @@ window.foundrySeedCatalog = {
         "type": "DIRECTS",
         "source": "person::maya-singh-1992-09-21",
         "target": "company::co-104",
+        "label": "DIRECTS",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "directs::person-mehmet-y-lmaz-1983-05-17-company-co-201",
+        "type": "DIRECTS",
+        "source": "person::mehmet-y-lmaz-1983-05-17",
+        "target": "company::co-201",
+        "label": "DIRECTS",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "directs::person-mehmet-yilmaz-1991-10-02-company-co-202",
+        "type": "DIRECTS",
+        "source": "person::mehmet-yilmaz-1991-10-02",
+        "target": "company::co-202",
         "label": "DIRECTS",
         "properties": {},
         "markings": []
@@ -292407,6 +297927,17 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "owns_account::person-g5510077-bankaccount-acct-p007",
+        "type": "OWNS_ACCOUNT",
+        "source": "person::g5510077",
+        "target": "bankaccount::acct-p007",
+        "label": "OWNS_ACCOUNT",
+        "properties": {},
+        "markings": [
+          "FIN"
+        ]
+      },
+      {
         "id": "owns_account::person-h-costa-49336456621-bankaccount-acct-np030",
         "type": "OWNS_ACCOUNT",
         "source": "person::h-costa-49336456621",
@@ -294192,6 +299723,42 @@ window.foundrySeedCatalog = {
         "markings": []
       },
       {
+        "id": "registered_at::company-co-201-location-12-mariahilfer-strasse-vienna",
+        "type": "REGISTERED_AT",
+        "source": "company::co-201",
+        "target": "location::12-mariahilfer-strasse-vienna",
+        "label": "REGISTERED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "registered_at::company-co-202-location-12-mariahilfer-strasse-vienna",
+        "type": "REGISTERED_AT",
+        "source": "company::co-202",
+        "target": "location::12-mariahilfer-strasse-vienna",
+        "label": "REGISTERED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "registered_at::company-co-203-location-6-kirchgasse-zurich",
+        "type": "REGISTERED_AT",
+        "source": "company::co-203",
+        "target": "location::6-kirchgasse-zurich",
+        "label": "REGISTERED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
+        "id": "registered_at::company-co-204-location-6-kirchgasse-zurich",
+        "type": "REGISTERED_AT",
+        "source": "company::co-204",
+        "target": "location::6-kirchgasse-zurich",
+        "label": "REGISTERED_AT",
+        "properties": {},
+        "markings": []
+      },
+      {
         "id": "registered_at::company-nco-001-location-9-al-noor-park-dubai",
         "type": "REGISTERED_AT",
         "source": "company::nco-001",
@@ -295030,10 +300597,10 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "resides_at::person-b7730042-location-40-vitosha-boulevard-sofia",
+        "id": "resides_at::person-aisha-byrne-2000-03-16-location-33-makariou-avenue-limassol",
         "type": "RESIDES_AT",
-        "source": "person::b7730042",
-        "target": "location::40-vitosha-boulevard-sofia",
+        "source": "person::aisha-byrne-2000-03-16",
+        "target": "location::33-makariou-avenue-limassol",
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2024-07-15",
@@ -295051,6 +300618,48 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2025-07-15",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-clara-ionescu-1982-01-04-location-95-makariou-avenue-limassol",
+        "type": "RESIDES_AT",
+        "source": "person::clara-ionescu-1982-01-04",
+        "target": "location::95-makariou-avenue-limassol",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-10-14",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-clara-patel-1979-04-09-location-56-gumpendorfer-strasse-vienna",
+        "type": "RESIDES_AT",
+        "source": "person::clara-patel-1979-04-09",
+        "target": "location::56-gumpendorfer-strasse-vienna",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-07-17",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-dina-costa-1995-01-23-location-129-makariou-avenue-limassol",
+        "type": "RESIDES_AT",
+        "source": "person::dina-costa-1995-01-23",
+        "target": "location::129-makariou-avenue-limassol",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-07-12",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295128,6 +300737,20 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "resides_at::person-elias-vale-2001-03-29-location-100-lordship-lane-london",
+        "type": "RESIDES_AT",
+        "source": "person::elias-vale-2001-03-29",
+        "target": "location::100-lordship-lane-london",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-12-03",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "resides_at::person-elias-vale-2001-03-29-location-163-moda-caddesi-istanbul",
         "type": "RESIDES_AT",
         "source": "person::elias-vale-2001-03-29",
@@ -295142,6 +300765,20 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "resides_at::person-farah-meyer-1985-08-03-location-117-athinon-avenue-larnaca",
+        "type": "RESIDES_AT",
+        "source": "person::farah-meyer-1985-08-03",
+        "target": "location::117-athinon-avenue-larnaca",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-07-15",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "resides_at::person-farah-vale-1985-03-30-location-179-lordship-lane-london",
         "type": "RESIDES_AT",
         "source": "person::farah-vale-1985-03-30",
@@ -295149,6 +300786,20 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2023-08-31",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-g5510077-location-41-oak-lane-birmingham",
+        "type": "RESIDES_AT",
+        "source": "person::g5510077",
+        "target": "location::41-oak-lane-birmingham",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2026-03-12",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295184,13 +300835,139 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "resides_at::person-l1029921-location-31-kralja-petra-belgrade",
+        "id": "resides_at::person-hugo-rossi-1992-06-26-location-156-kallidromiou-street-athens",
         "type": "RESIDES_AT",
-        "source": "person::l1029921",
-        "target": "location::31-kralja-petra-belgrade",
+        "source": "person::hugo-rossi-1992-06-26",
+        "target": "location::156-kallidromiou-street-athens",
         "label": "RESIDES_AT",
         "properties": {
-          "asOf": "2024-02-06",
+          "asOf": "2022-10-27",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-hugo-turner-1991-03-07-location-91-al-manara-road-dubai",
+        "type": "RESIDES_AT",
+        "source": "person::hugo-turner-1991-03-07",
+        "target": "location::91-al-manara-road-dubai",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-05-08",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-i6117009-location-58-rue-de-carouge-geneva",
+        "type": "RESIDES_AT",
+        "source": "person::i6117009",
+        "target": "location::58-rue-de-carouge-geneva",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2024-11-05",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-jonah-hale-1986-03-10-location-114-al-manara-road-dubai",
+        "type": "RESIDES_AT",
+        "source": "person::jonah-hale-1986-03-10",
+        "target": "location::114-al-manara-road-dubai",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-08-03",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-jonah-hale-1986-03-10-location-134-praterstrasse-vienna",
+        "type": "RESIDES_AT",
+        "source": "person::jonah-hale-1986-03-10",
+        "target": "location::134-praterstrasse-vienna",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2026-01-22",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-jose-ferreira-1986-01-11-location-9-langstrasse-zurich",
+        "type": "RESIDES_AT",
+        "source": "person::jose-ferreira-1986-01-11",
+        "target": "location::9-langstrasse-zurich",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-06-24",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-lena-byrne-1987-02-28-location-110-grigori-afxentiou-avenue-larnaca",
+        "type": "RESIDES_AT",
+        "source": "person::lena-byrne-1987-02-28",
+        "target": "location::110-grigori-afxentiou-avenue-larnaca",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-03-06",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-lena-demir-1985-02-25-location-91-al-manara-road-dubai",
+        "type": "RESIDES_AT",
+        "source": "person::lena-demir-1985-02-25",
+        "target": "location::91-al-manara-road-dubai",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-05-17",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-lena-ionescu-1988-07-02-location-156-omonoias-avenue-limassol",
+        "type": "RESIDES_AT",
+        "source": "person::lena-ionescu-1988-07-02",
+        "target": "location::156-omonoias-avenue-limassol",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-08-09",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-lena-lopez-1991-01-03-location-9-langstrasse-zurich",
+        "type": "RESIDES_AT",
+        "source": "person::lena-lopez-1991-01-03",
+        "target": "location::9-langstrasse-zurich",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-02-13",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295212,13 +300989,27 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "resides_at::person-n5538219-location-22-cromer-road-london",
+        "id": "resides_at::person-nadia-orlov-1998-02-22-location-113-grigori-afxentiou-avenue-larnaca",
         "type": "RESIDES_AT",
-        "source": "person::n5538219",
-        "target": "location::22-cromer-road-london",
+        "source": "person::nadia-orlov-1998-02-22",
+        "target": "location::113-grigori-afxentiou-avenue-larnaca",
         "label": "RESIDES_AT",
         "properties": {
-          "asOf": "2025-11-27",
+          "asOf": "2024-09-23",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-owen-grant-1998-03-11-location-157-praterstrasse-vienna",
+        "type": "RESIDES_AT",
+        "source": "person::owen-grant-1998-03-11",
+        "target": "location::157-praterstrasse-vienna",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-11-26",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295240,27 +301031,13 @@ window.foundrySeedCatalog = {
         ]
       },
       {
-        "id": "resides_at::person-p8842101-location-12-al-wasl-gardens-dubai",
+        "id": "resides_at::person-owen-quinn-1998-11-27-location-154-seefeldstrasse-zurich",
         "type": "RESIDES_AT",
-        "source": "person::p8842101",
-        "target": "location::12-al-wasl-gardens-dubai",
+        "source": "person::owen-quinn-1998-11-27",
+        "target": "location::154-seefeldstrasse-zurich",
         "label": "RESIDES_AT",
         "properties": {
-          "asOf": "2022-03-09",
-          "source": "clinic-ehr"
-        },
-        "markings": [
-          "HEALTH"
-        ]
-      },
-      {
-        "id": "resides_at::person-p8842101-location-7-anexartisias-street-limassol",
-        "type": "RESIDES_AT",
-        "source": "person::p8842101",
-        "target": "location::7-anexartisias-street-limassol",
-        "label": "RESIDES_AT",
-        "properties": {
-          "asOf": "2025-09-18",
+          "asOf": "2022-05-30",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295289,6 +301066,20 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2024-05-15",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-priya-keller-1982-12-08-location-113-grigori-afxentiou-avenue-larnaca",
+        "type": "RESIDES_AT",
+        "source": "person::priya-keller-1982-12-08",
+        "target": "location::113-grigori-afxentiou-avenue-larnaca",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-01-25",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295380,6 +301171,62 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "resides_at::person-rami-nasser-1991-04-27-location-109-halaskargazi-caddesi-istanbul",
+        "type": "RESIDES_AT",
+        "source": "person::rami-nasser-1991-04-27",
+        "target": "location::109-halaskargazi-caddesi-istanbul",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-05-10",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-sara-ionescu-1998-10-26-location-54-langstrasse-zurich",
+        "type": "RESIDES_AT",
+        "source": "person::sara-ionescu-1998-10-26",
+        "target": "location::54-langstrasse-zurich",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-06-04",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-tomas-elias-1986-04-22-location-14-josefstaedter-strasse-vienna",
+        "type": "RESIDES_AT",
+        "source": "person::tomas-elias-1986-04-22",
+        "target": "location::14-josefstaedter-strasse-vienna",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-04-02",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-tomas-elias-1986-04-22-location-33-makariou-avenue-limassol",
+        "type": "RESIDES_AT",
+        "source": "person::tomas-elias-1986-04-22",
+        "target": "location::33-makariou-avenue-limassol",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-06-09",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "resides_at::person-tomas-hale-1988-07-19-location-164-al-safa-street-dubai",
         "type": "RESIDES_AT",
         "source": "person::tomas-hale-1988-07-19",
@@ -295387,6 +301234,34 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2024-03-24",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-tomas-keller-1978-08-25-location-138-halaskargazi-caddesi-istanbul",
+        "type": "RESIDES_AT",
+        "source": "person::tomas-keller-1978-08-25",
+        "target": "location::138-halaskargazi-caddesi-istanbul",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-09-13",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-tomas-silva-1990-12-03-location-164-al-safa-street-dubai",
+        "type": "RESIDES_AT",
+        "source": "person::tomas-silva-1990-12-03",
+        "target": "location::164-al-safa-street-dubai",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-11-01",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295408,6 +301283,34 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "resides_at::person-x1247595-location-41-halaskargazi-caddesi-istanbul",
+        "type": "RESIDES_AT",
+        "source": "person::x1247595",
+        "target": "location::41-halaskargazi-caddesi-istanbul",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-01-11",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x1247595-location-55-umm-suqeim-street-dubai",
+        "type": "RESIDES_AT",
+        "source": "person::x1247595",
+        "target": "location::55-umm-suqeim-street-dubai",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-02-22",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "resides_at::person-x1430812-location-154-seefeldstrasse-zurich",
         "type": "RESIDES_AT",
         "source": "person::x1430812",
@@ -295415,6 +301318,20 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2025-08-21",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x1430812-location-157-praterstrasse-vienna",
+        "type": "RESIDES_AT",
+        "source": "person::x1430812",
+        "target": "location::157-praterstrasse-vienna",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-06-22",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295436,6 +301353,20 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "resides_at::person-x1822825-location-100-lordship-lane-london",
+        "type": "RESIDES_AT",
+        "source": "person::x1822825",
+        "target": "location::100-lordship-lane-london",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-09-21",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "resides_at::person-x1873851-location-163-moda-caddesi-istanbul",
         "type": "RESIDES_AT",
         "source": "person::x1873851",
@@ -295443,6 +301374,20 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2025-02-10",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x1909393-location-99-mildmay-grove-london",
+        "type": "RESIDES_AT",
+        "source": "person::x1909393",
+        "target": "location::99-mildmay-grove-london",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-07-13",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295464,6 +301409,48 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "resides_at::person-x2022698-location-110-grigori-afxentiou-avenue-larnaca",
+        "type": "RESIDES_AT",
+        "source": "person::x2022698",
+        "target": "location::110-grigori-afxentiou-avenue-larnaca",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-09-13",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x2147909-location-36-al-safa-street-dubai",
+        "type": "RESIDES_AT",
+        "source": "person::x2147909",
+        "target": "location::36-al-safa-street-dubai",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-01-03",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x2242892-location-100-lordship-lane-london",
+        "type": "RESIDES_AT",
+        "source": "person::x2242892",
+        "target": "location::100-lordship-lane-london",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-05-27",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "resides_at::person-x3090865-location-171-patision-street-athens",
         "type": "RESIDES_AT",
         "source": "person::x3090865",
@@ -295471,6 +301458,34 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2025-12-10",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x3386328-location-122-patision-street-athens",
+        "type": "RESIDES_AT",
+        "source": "person::x3386328",
+        "target": "location::122-patision-street-athens",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-02-03",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x3475836-location-157-praterstrasse-vienna",
+        "type": "RESIDES_AT",
+        "source": "person::x3475836",
+        "target": "location::157-praterstrasse-vienna",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-07-17",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295520,6 +301535,20 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "resides_at::person-x3608513-location-36-al-safa-street-dubai",
+        "type": "RESIDES_AT",
+        "source": "person::x3608513",
+        "target": "location::36-al-safa-street-dubai",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-06-12",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "resides_at::person-x3670896-location-102-ermou-street-larnaca",
         "type": "RESIDES_AT",
         "source": "person::x3670896",
@@ -295562,6 +301591,34 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "resides_at::person-x4318855-location-113-grigori-afxentiou-avenue-larnaca",
+        "type": "RESIDES_AT",
+        "source": "person::x4318855",
+        "target": "location::113-grigori-afxentiou-avenue-larnaca",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-08-23",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x4344717-location-3-mildmay-grove-london",
+        "type": "RESIDES_AT",
+        "source": "person::x4344717",
+        "target": "location::3-mildmay-grove-london",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-09-02",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "resides_at::person-x4344717-location-75-kallidromiou-street-athens",
         "type": "RESIDES_AT",
         "source": "person::x4344717",
@@ -295569,6 +301626,20 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2024-01-13",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x4576135-location-157-praterstrasse-vienna",
+        "type": "RESIDES_AT",
+        "source": "person::x4576135",
+        "target": "location::157-praterstrasse-vienna",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-05-06",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295596,7 +301667,7 @@ window.foundrySeedCatalog = {
         "target": "location::45-langstrasse-zurich",
         "label": "RESIDES_AT",
         "properties": {
-          "asOf": "2023-10-31",
+          "asOf": "2024-06-07",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295618,6 +301689,174 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "resides_at::person-x5024269-location-157-praterstrasse-vienna",
+        "type": "RESIDES_AT",
+        "source": "person::x5024269",
+        "target": "location::157-praterstrasse-vienna",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2024-01-04",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x5040453-location-33-makariou-avenue-limassol",
+        "type": "RESIDES_AT",
+        "source": "person::x5040453",
+        "target": "location::33-makariou-avenue-limassol",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-01-11",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x5074336-location-122-patision-street-athens",
+        "type": "RESIDES_AT",
+        "source": "person::x5074336",
+        "target": "location::122-patision-street-athens",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-07-16",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x5076817-location-33-mildmay-grove-london",
+        "type": "RESIDES_AT",
+        "source": "person::x5076817",
+        "target": "location::33-mildmay-grove-london",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2024-07-08",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x5107776-location-110-grigori-afxentiou-avenue-larnaca",
+        "type": "RESIDES_AT",
+        "source": "person::x5107776",
+        "target": "location::110-grigori-afxentiou-avenue-larnaca",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2026-03-13",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x5446912-location-75-kallidromiou-street-athens",
+        "type": "RESIDES_AT",
+        "source": "person::x5446912",
+        "target": "location::75-kallidromiou-street-athens",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2024-07-07",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x5652512-location-109-halaskargazi-caddesi-istanbul",
+        "type": "RESIDES_AT",
+        "source": "person::x5652512",
+        "target": "location::109-halaskargazi-caddesi-istanbul",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-09-30",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x5652512-location-16-ermou-street-larnaca",
+        "type": "RESIDES_AT",
+        "source": "person::x5652512",
+        "target": "location::16-ermou-street-larnaca",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-05-09",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x6902401-location-9-langstrasse-zurich",
+        "type": "RESIDES_AT",
+        "source": "person::x6902401",
+        "target": "location::9-langstrasse-zurich",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2024-12-29",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x6910964-location-157-praterstrasse-vienna",
+        "type": "RESIDES_AT",
+        "source": "person::x6910964",
+        "target": "location::157-praterstrasse-vienna",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-03-11",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x7121355-location-56-seefeldstrasse-zurich",
+        "type": "RESIDES_AT",
+        "source": "person::x7121355",
+        "target": "location::56-seefeldstrasse-zurich",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-12-03",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x7121355-location-75-kallidromiou-street-athens",
+        "type": "RESIDES_AT",
+        "source": "person::x7121355",
+        "target": "location::75-kallidromiou-street-athens",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2024-04-15",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "resides_at::person-x7523941-location-179-lordship-lane-london",
         "type": "RESIDES_AT",
         "source": "person::x7523941",
@@ -295625,6 +301864,20 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2023-11-27",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x7970985-location-55-umm-suqeim-street-dubai",
+        "type": "RESIDES_AT",
+        "source": "person::x7970985",
+        "target": "location::55-umm-suqeim-street-dubai",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-01-11",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295716,6 +301969,62 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "resides_at::person-x8574680-location-36-al-safa-street-dubai",
+        "type": "RESIDES_AT",
+        "source": "person::x8574680",
+        "target": "location::36-al-safa-street-dubai",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-07-28",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x8816912-location-129-makariou-avenue-limassol",
+        "type": "RESIDES_AT",
+        "source": "person::x8816912",
+        "target": "location::129-makariou-avenue-limassol",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-07-06",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x8939993-location-134-praterstrasse-vienna",
+        "type": "RESIDES_AT",
+        "source": "person::x8939993",
+        "target": "location::134-praterstrasse-vienna",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-10-22",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x9075854-location-3-mildmay-grove-london",
+        "type": "RESIDES_AT",
+        "source": "person::x9075854",
+        "target": "location::3-mildmay-grove-london",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-08-18",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
         "id": "resides_at::person-x9517485-location-45-langstrasse-zurich",
         "type": "RESIDES_AT",
         "source": "person::x9517485",
@@ -295723,6 +302032,34 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2024-11-19",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x9937326-location-7-agias-zonis-street-limassol",
+        "type": "RESIDES_AT",
+        "source": "person::x9937326",
+        "target": "location::7-agias-zonis-street-limassol",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2026-03-02",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-x9961107-location-41-halaskargazi-caddesi-istanbul",
+        "type": "RESIDES_AT",
+        "source": "person::x9961107",
+        "target": "location::41-halaskargazi-caddesi-istanbul",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-09-12",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -295751,6 +302088,90 @@ window.foundrySeedCatalog = {
         "label": "RESIDES_AT",
         "properties": {
           "asOf": "2025-11-19",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-yara-quinn-1980-08-31-location-33-mildmay-grove-london",
+        "type": "RESIDES_AT",
+        "source": "person::yara-quinn-1980-08-31",
+        "target": "location::33-mildmay-grove-london",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-06-18",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-yara-turner-1975-03-21-location-117-athinon-avenue-larnaca",
+        "type": "RESIDES_AT",
+        "source": "person::yara-turner-1975-03-21",
+        "target": "location::117-athinon-avenue-larnaca",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2023-08-18",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-yara-turner-1975-03-21-location-122-patision-street-athens",
+        "type": "RESIDES_AT",
+        "source": "person::yara-turner-1975-03-21",
+        "target": "location::122-patision-street-athens",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-01-19",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-zane-byrne-2001-05-07-location-85-solonos-street-athens",
+        "type": "RESIDES_AT",
+        "source": "person::zane-byrne-2001-05-07",
+        "target": "location::85-solonos-street-athens",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-04-24",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-zane-elias-1984-09-13-location-95-makariou-avenue-limassol",
+        "type": "RESIDES_AT",
+        "source": "person::zane-elias-1984-09-13",
+        "target": "location::95-makariou-avenue-limassol",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2022-10-07",
+          "source": "clinic-ehr"
+        },
+        "markings": [
+          "HEALTH"
+        ]
+      },
+      {
+        "id": "resides_at::person-zane-ionescu-1975-02-28-location-179-lordship-lane-london",
+        "type": "RESIDES_AT",
+        "source": "person::zane-ionescu-1975-02-28",
+        "target": "location::179-lordship-lane-london",
+        "label": "RESIDES_AT",
+        "properties": {
+          "asOf": "2025-07-29",
           "source": "clinic-ehr"
         },
         "markings": [
@@ -307924,6 +314345,22 @@ window.foundrySeedCatalog = {
           "totalAmountUsd": "880.0",
           "lastTxnTs": "2026-04-03T12:05:00Z",
           "sampleReference": "ops"
+        },
+        "markings": [
+          "FIN"
+        ]
+      },
+      {
+        "id": "transferred_to::bankaccount-acct-p007-bankaccount-acct-l041",
+        "type": "TRANSFERRED_TO",
+        "source": "bankaccount::acct-p007",
+        "target": "bankaccount::acct-l041",
+        "label": "TRANSFERRED_TO",
+        "properties": {
+          "count": "2",
+          "totalAmountUsd": "1820.00",
+          "lastTxnTs": "2026-04-01T08:05:00Z",
+          "sampleReference": "rent March"
         },
         "markings": [
           "FIN"

@@ -7,7 +7,8 @@ priority:
   1. passport_id (strong cross-source identifier)
   2. phone_number
   3. normalized canonical_name + dob
-  4. alias lookup
+  4. alias lookup (never onto a watchlisted person with a different passport,
+     and a watchlisted person's names are never re-pointed to someone else)
 
 This step adds what Foundry needs on top: for each resolved person, all
 contributing source rows from the source datasets are recorded in the
@@ -34,7 +35,10 @@ Output Dataset: person entities
   resolution       — {method, confidence, mergedFrom, splitRisk, note}
 
 The resolver itself is attached to the output dataset as
-``dataset.resolver`` so step 05 links edges with the same lookups.
+``dataset.resolver`` so step 05 links edges with the same lookups, and the
+seed builder scores cross-person candidate pairs from it
+(``pipeline/candidates.py``; the browser's Resolution tab merges them above a
+threshold).
 """
 
 from __future__ import annotations

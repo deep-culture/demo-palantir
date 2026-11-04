@@ -79,6 +79,12 @@
 
     .mk { display: inline-block; font-family: var(--dc-mono); font-size: 0.75rem; font-weight: 700;
       padding: 0 0.45rem; border: 1px solid var(--dc-ink); border-radius: 3px; }
+    .defs { margin: 0.8rem 0 1.2rem; }
+    .def { padding: 0.7rem 1rem; border-left: 4px solid var(--dc-purple); background: var(--dc-paper-2); border-radius: 0 4px 4px 0; margin: 0.6rem 0; scroll-margin-top: 1rem; }
+    .def:target, .def.flash { box-shadow: 0 0 0 3px var(--dc-purple-line); }
+    .def dt { font-weight: 500; display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+    .def dd { margin: 0.3rem 0 0; }
+    .def .dterm { font-size: 0.75rem; color: var(--dc-grey-dark); font-weight: 400; }
     .source-note { font-size: 0.82rem; color: var(--dc-grey-dark); margin-top: 0.4rem; }
     .note { padding: 0.75rem 1rem; background: var(--dc-purple-tint); border-left: 4px solid var(--dc-purple); border-radius: 0 4px 4px 0; }
     footer { margin-top: 3rem; font-size: 0.82rem; color: var(--dc-grey-dark); }
@@ -150,7 +156,7 @@
         <tr id="term-link-type"><td>Link type / link</td><td>Relationship type / edge</td><td>A typed connection between two objects</td></tr>
         <tr id="term-object-set"><td>Object set</td><td>(none)</td><td>A saved, shareable set of objects</td></tr>
         <tr id="term-backing-dataset"><td>Backing dataset</td><td>Source mapping</td><td>The dataset whose rows become objects of a type</td></tr>
-        <tr id="term-action-type"><td>Action type / Action</td><td>Scenario action string</td><td>A permitted, parameterised, logged change to objects</td></tr>
+        <tr id="term-action-type"><td>Action type / Action</td><td>Scenario action string</td><td>A permitted, parameterised, logged change to objects (see <a href="#action-type">below</a>)</td></tr>
         <tr id="term-marking"><td>Marking</td><td>(none)</td><td>A mandatory security label that travels with data</td></tr>
         <tr id="term-checkpoint"><td>Checkpoint</td><td>(none)</td><td>A purpose-justification prompt before a sensitive operation</td></tr>
         <tr id="term-interface"><td>Interface</td><td>(none)</td><td>A shared shape several object types satisfy (mentioned only, not modelled)</td></tr>
@@ -160,6 +166,44 @@
         <tr id="term-transform"><td>Transform</td><td>Transform</td><td>Code that produces a new dataset from existing ones</td></tr>
       </tbody>
     </table>
+
+    <h2 id="session2">Actions, entity resolution and purposes</h2>
+    <p>Terms introduced in Session 2. Each has its own anchor, so the apps and the guides can link to it.</p>
+    <dl class="defs">
+      <div class="def" id="action-type">
+        <dt>Action type <span class="dterm">Palantir term</span></dt>
+        <dd>A named, permitted change to the Ontology, such as <em>Add to watchlist</em> or <em>Unmerge person</em>. It declares the object type it applies to, its parameters (with validation), which roles may run it, whether a Checkpoint comes first, and its effects. Every run is recorded as an Action with the values before and after. In the demo the Action types live in the Investigate seed (<code>ontology.actionTypes</code>).</dd>
+      </div>
+      <div class="def" id="writeback">
+        <dt>Kinetic layer and writeback <span class="dterm">Palantir terms</span></dt>
+        <dd>Palantir describes the Ontology as a semantic layer (objects and links: the nouns) plus a kinetic layer (Actions: the verbs). <strong>Writeback</strong> is the part of an Action that changes something outside the Ontology, such as a message to another organisation's system. Here a writeback is only a line in that system's simulated inbox, but it shows that a click in an analysis tool can travel to a border desk or a bank.</dd>
+      </div>
+      <div class="def" id="external-system">
+        <dt>External system</dt>
+        <dd>A system outside the platform that receives writebacks. The demo has three, all simulated: the border watch system (<code>border-watch</code>), the bank compliance desk (<code>bank-compliance</code>) and case management (<code>case-management</code>).</dd>
+      </div>
+      <div class="def" id="candidate-pair">
+        <dt>Candidate pair</dt>
+        <dd>Two Persons the pipeline kept apart but that might be the same individual. Only pairs that share something cheap to compare (the same surname, phone or address: this is called <em>blocking</em>) are scored. Each pair gets a score between 0 and 1: the sum of the weights of the signals it shows (same name +, shared route +, dates of birth differ −). The Resolution tab in Build lists every pair with its signals and weights.</dd>
+      </div>
+      <div class="def" id="threshold">
+        <dt>Threshold</dt>
+        <dd>The score at or above which two candidates count as the same person. The default, 0.75, is what the pipeline did. Lowering it merges more pairs; above 0.75 nothing splits, because the pipeline's own rule-based merges are fixed in this build. The threshold is shared by Build and Investigate, and each change is logged. Who sets it, and who pays for a false merge, is the discussion.</dd>
+      </div>
+      <div class="def" id="union-find">
+        <dt>Union-find merge</dt>
+        <dd>The way the browser turns pairs into people. Start with every Person on their own; for each pair that scores at or above the threshold, put the two groups together. Merging is transitive: if A matches B and B matches C, all three become one person, even if A and C look nothing alike. The merged person gets every property of its members, and a watchlisted member's risk tag wins. An <strong>Unmerge</strong> Action records a rejection for one pair, which then stays apart at every threshold.</dd>
+      </div>
+      <div class="def" id="purpose-rule">
+        <dt>Purpose rule</dt>
+        <dd>A rule about which purposes data may be combined for, written so that software can check it. Every dataset carries the purpose it was collected for (healthcare, border security, financial crime…) and a legal basis; the session carries the purpose the user states. Example, rule R2: <q>Data collected for healthcare may not be combined with law-enforcement purposes.</q></dd>
+      </div>
+      <div class="def" id="karlsruhe-mode">
+        <dt>Karlsruhe mode <span class="hl-chip extension">Teaching extension</span></dt>
+        <dd>A switch in the session strip that enforces the purpose rules. When it is off, nothing is blocked but each expansion, rule run and Action logs the purposes involved. When it is on, an operation that breaks a rule shows a red <em>Blocked by rule R2</em> card with a <em>Request exception</em> button, and Build marks each transform that combines incompatible purposes with a red rule badge. Named after the seat of Germany's Federal Constitutional Court, whose February 2023 ruling on automated data analysis by the police is the discussion case. It does not mirror a Palantir feature.
+          <p class="source-note" id="legal-basis-note">Our abstraction of the BVerfG 2023 ruling's logic, not its text [to verify against the press release before teaching as the court's criteria].</p></dd>
+      </div>
+    </dl>
 
     <h2 id="markings">Markings and roles</h2>
     <p>Markings say what a role needs in order to see a dataset, an object or a single property. A dataset derived from a marked dataset inherits the marking; only the data protection officer can remove one, and only after a Checkpoint.</p>
@@ -210,6 +254,7 @@
         { id: "build.pipelines", kind: "simplified", label: "Pipelines", text: "Real Python transforms, run once at build time. Foundry adds builds, branches, schedules and dataset versions, which are not modelled.", docUrl: "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/" },
         { id: "build.datasets", kind: "simplified", label: "Datasets", text: "Schema, sample rows and governance tags. Foundry versions datasets through transactions; that is not modelled.", docUrl: "" },
         { id: "build.lineage", kind: "extension", label: "Lineage", text: "Row- and field-level provenance goes beyond Foundry's dataset-level lineage.", docUrl: "" },
+        { id: "build.resolution", kind: "simplified", label: "Resolution", text: "Real entity resolution uses confidence scores and thresholds, and false merges are a known risk. Our scorer is a transparent weighted sum of a few signals so that students can read and dispute every weight.", docUrl: "" },
         { id: "build.markings", kind: "mirrors", label: "Markings", text: "Markings are inherited down lineage: a dataset derived from a marked dataset carries the marking, and only a privileged user can remove it.", docUrl: "https://palantir.com/docs/foundry/security/markings/" },
         { id: "oversight.audit", kind: "simplified", label: "Oversight", text: "A hash-chained log kept in this browser stands in for platform audit logging.", docUrl: "" },
         { id: "session.roles", kind: "simplified", label: "Roles", text: "Five roles stand in for groups, projects and organisations. Enforcement runs in your browser: a model of access control, not access control.", docUrl: "https://palantir.com/docs/foundry/security/markings/" },
@@ -321,11 +366,14 @@
           const loaded = await loadScript(src);
           const found = loaded ? governanceOf(read()) : null;
           if (found) {
-            renderEntries(found.g.honesty);
+            const ids = new Set(found.g.honesty.map(h => h.id));
+            const missing = FALLBACK_HONESTY.filter(h => !ids.has(h.id));
+            renderEntries(found.g.honesty.concat(missing));
+            if (found.g.legalBasisNote) document.getElementById("legal-basis-note").textContent = found.g.legalBasisNote;
             if (Array.isArray(found.g.markings) && found.g.markings.length) {
               renderMarkings(found.g.markings, Array.isArray(found.g.roles) && found.g.roles.length ? found.g.roles : FALLBACK_ROLES);
             }
-            note.textContent = `Entries read from ${src} (${found.key} dataset, governance.honesty: ${found.g.honesty.length} entries).`;
+            note.textContent = `Entries read from ${src} (${found.key} dataset, governance.honesty: ${found.g.honesty.length} entries${missing.length ? `; ${missing.length} more from this page's built-in copy` : ""}).`;
             jumpToHash();
             return;
           }

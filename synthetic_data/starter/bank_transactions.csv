@@ -31,3 +31,5 @@ NTX-00015,ACCT-P001,Kareem Haddad,ACCT-NC002,Ivory Advisory Ltd,245.75,transfer,
 NTX-00010,ACCT-NP009,Ben Byrne,,Cash withdrawal,48.50,cash_withdrawal,ATM-AT-19,2026-04-10T10:35:00Z,settlement
 NTX-00021,ACCT-NP003,Ben Grant,ACCT-P004,Sofia Petrov,1250.00,transfer,Mediterranean Commerce Bank,2026-04-10T14:22:00Z,fuel
 NTX-00017,ACCT-NC006,Evergreen Solutions Ltd,ACCT-NC006,Evergreen Solutions Ltd,72.20,transfer,Mediterranean Commerce Bank,2026-04-11T08:14:00Z,travel
+TX-0009,ACCT-P007,Umar Rahman,ACCT-L041,Oak Lane Lettings Ltd,910.00,transfer,Midland Community Bank,2026-03-02T08:05:00Z,rent March
+TX-0010,ACCT-P007,Umar Rahman,ACCT-L041,Oak Lane Lettings Ltd,910.00,transfer,Midland Community Bank,2026-04-01T08:05:00Z,rent April

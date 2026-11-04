@@ -1,0 +1,208 @@
+/*
+ * demo/actions.css — Phase 2 surfaces in Investigate: Action drawer (F5), External systems panel,
+ * merged persons (F6), Karlsruhe-mode states (F9) and the discussion panel. White workspace; the
+ * External systems inbox and writeback previews are black and monospace ("code", spec §2.5).
+ */
+
+/* ── Action drawer: a side sheet over the workspace ── */
+.action-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  background: rgba(11, 11, 11, 0.28);
+}
+.action-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1501;
+  width: min(560px, 100vw);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: var(--dc-ink);
+  box-shadow: -18px 0 50px rgba(0, 0, 0, 0.25);
+}
+.action-drawer-head {
+  position: relative;
+  padding: 1rem 3rem 0.9rem 1.25rem;
+  background: var(--dc-purple);
+  color: #fff;
+}
+.action-drawer-kicker {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.action-drawer-head h2 { margin: 0.35rem 0 0.25rem; font-size: 1.3rem; font-weight: 500; }
+.action-drawer-sub { font-size: 0.8rem; opacity: 0.95; }
+.action-drawer-sub code { color: #fff; }
+.action-drawer-close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.7rem;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.action-drawer-close:focus-visible { outline: 2px solid var(--dc-green); outline-offset: 2px; }
+.action-drawer-body { flex: 1 1 auto; overflow: auto; padding: 1rem 1.25rem 4rem; }
+.action-type-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
+.action-type {
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--dc-purple);
+  cursor: pointer;
+}
+.action-type.active { background: var(--dc-purple); border-color: var(--dc-purple); color: #fff; }
+.action-type.not-permitted { border-style: dashed; color: var(--muted); }
+.action-type.active.not-permitted { background: var(--dc-grey-dark); border-color: var(--dc-grey-dark); color: #fff; }
+.action-type.active .muted { color: rgba(255, 255, 255, 0.85); }
+.action-form h3 { margin: 0 0 0.25rem; font-size: 1.1rem; font-weight: 500; }
+.action-form .field { margin: 0.6rem 0; }
+.action-form .field label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--dc-purple-dark); margin-bottom: 0.25rem; }
+.action-form .field-inline { display: flex; align-items: center; gap: 0.45rem; }
+.action-form .field-inline label { margin: 0; }
+.action-form textarea,
+.action-form select {
+  width: 100%;
+  font: inherit;
+  font-size: 0.88rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--dc-ink);
+}
+.action-form [aria-invalid="true"] { border-color: var(--danger); }
+.field-error { min-height: 1em; font-size: 0.78rem; color: var(--danger); font-weight: 500; margin-top: 0.2rem; }
+.chip-sensitive { font-size: 0.7rem; padding: 0.1rem 0.5rem; border-color: var(--danger); color: var(--danger); background: #fff; vertical-align: middle; }
+
+.action-steps { margin: 0.8rem 0; padding: 0; list-style: none; counter-reset: step; }
+.action-steps > li {
+  position: relative;
+  margin: 0 0 0.55rem;
+  padding: 0.55rem 0.7rem 0.55rem 2.3rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  counter-increment: step;
+}
+.action-steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0.6rem;
+  top: 0.55rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  background: var(--dc-purple);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2rem;
+}
+.action-steps > li.step-ok::before { background: var(--dc-green-dark); }
+.action-steps > li.step-no { border-color: var(--danger); }
+.action-steps > li.step-no::before { background: var(--danger); }
+.step-label { display: block; font-weight: 600; color: var(--dc-purple-dark); margin-bottom: 0.2rem; }
+.action-steps .dc-blocked { margin: 0.35rem 0 0; }
+
+.action-diff { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.25rem; }
+.action-diff th,
+.action-diff td { padding: 0.3rem 0.4rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.action-diff thead th { font-weight: 500; color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.action-diff .diff-before { background: #fdf0ef; text-decoration: line-through; text-decoration-color: rgba(180, 35, 24, 0.5); }
+.action-diff .diff-after { background: #eefbe9; font-weight: 500; }
+.action-diff .diff-before .muted,
+.action-diff .diff-after .muted { text-decoration: none; }
+
+.writeback-preview { margin-top: 0.3rem; }
+.writeback-preview pre { margin: 0.2rem 0 0.4rem; white-space: pre-wrap; word-break: break-word; font: inherit; color: #fff; }
+.wb-system { color: var(--dc-green); font-weight: 600; }
+.wb-state { color: #9a9a9a; }
+
+.action-problem {
+  margin: 0.4rem 0;
+  padding: 0.55rem 0.7rem;
+  border-left: 4px solid var(--warning);
+  background: #fff7ea;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+.action-note { margin: 0.2rem 0; }
+.action-result { margin-top: 0.9rem; padding: 0.7rem 0.8rem; border-radius: 4px; font-size: 0.85rem; line-height: 1.45; }
+.action-result-ok { border: 1px solid var(--dc-green-dark); background: #f3fdef; }
+.action-result-no { border: 1px solid var(--danger); background: #fdf0ef; color: var(--danger); font-weight: 500; }
+.action-result .dc-systems { margin-top: 0.4rem; }
+
+/* scenario card and inspector */
+.action-card-object { padding: 0.5rem 0; border-top: 1px solid var(--border); }
+.action-card-object:first-of-type { border-top: none; }
+.ghost-button.not-permitted { border-style: dashed; color: var(--muted); }
+.inspector-actions .inline-actions { flex-wrap: wrap; }
+
+/* External systems panel: the panel itself turns black */
+.panel.dc-systems { background: var(--dc-black); border-color: #2a2a2a; color: #e6e6e6; }
+.panel.dc-systems h3,
+.panel.dc-systems h4 { color: var(--dc-green); }
+.systems-note { margin: 0 0 0.3rem; color: #a9a9a9; font-family: var(--dc-font); font-size: 0.74rem; }
+
+/* footnote under "Watchlist operators" */
+.rule-footnote { margin: 0.6rem 0 0; font-size: 0.8rem; color: var(--dc-purple-dark); }
+
+/* ── merged persons (F6) ── */
+.merge-chip {
+  display: inline-block;
+  margin: 0.25rem 0.3rem 0 0;
+  padding: 0.08rem 0.5rem;
+  border-radius: 3px;
+  border: 1px solid var(--warning);
+  background: #fff7ea;
+  color: #7a4a00;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.action-drawer-sub .merge-chip { margin: 0; }
+td .merge-chip { margin-left: 0.4rem; }
+.list-item .merge-chip { display: block; width: fit-content; }
+.merge-section { border-left: 3px solid var(--warning); padding-left: 0.6rem; }
+.merge-explain { margin-top: 0.45rem; }
+.merge-step { margin: 0.3rem 0; padding: 0.4rem 0.5rem; background: var(--dc-purple-tint); border-radius: 4px; font-size: 0.8rem; }
+.signal-list { margin: 0.25rem 0 0.2rem; padding-left: 1.1rem; }
+.signal-list li { margin: 0.05rem 0; }
+.signal-negative strong { color: var(--danger); }
+.merge-conflicts { margin-top: 0.45rem; font-size: 0.8rem; }
+.topbar .chip-threshold { border-style: dashed; }
+
+/* ── Karlsruhe mode (F9) ── */
+.stat-blocked,
+.chip-blocked { border-color: var(--danger); color: var(--danger); background: #fdf0ef; }
+.blocked-rules-note {
+  margin: 0 0 0.9rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 4px solid var(--danger);
+  background: #fdf0ef;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.rule-note { margin-top: 0.3rem; color: var(--danger); }
+.rule-blocked h3 { color: var(--danger); }
+
+/* ── discussion panel ── */
+.discussion-panel h3 { margin: 0 0 0.4rem; }

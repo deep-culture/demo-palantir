@@ -41,7 +41,7 @@ Point out:
 - the dataset switcher (`starter` / `simulator`)
 - the object, link and dataset counts in the header
 - the **session strip** under the header: the same role as in Investigate (default *Financial-crime analyst*), the audit count and the Oversight link; the **audit strip** at the bottom shows the latest events
-- the four tabs: **Pipelines**, **Datasets**, **Lineage**, **Markings**, each with an honesty label (*Simplified*, *Simplified*, *Teaching extension*, *Mirrors Foundry*) that links to the glossary
+- the five tabs: **Pipelines**, **Datasets**, **Lineage**, **Markings**, **Resolution**, each with an honesty label (*Simplified*, *Simplified*, *Teaching extension*, *Mirrors Foundry*, *Simplified*) that links to the glossary
 - the deliberately different aesthetic — dark, monospace, IDE-like — versus the white analyst workspace
 
 Talking point:

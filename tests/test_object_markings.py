@@ -127,9 +127,13 @@ def test_clinic_props_identical_between_seeds(gotham, foundry, dataset):
 
 def test_starter_core_people_have_homes(gotham):
     homes = {p["id"]: p["properties"].get("homeAddress") for p in persons(gotham["starter"])}
-    assert homes["person::p8842101"] == "7 Anexartisias Street, Limassol"   # Kareem Haddad
-    assert homes["person::n5538219"] == "22 Cromer Road, London"            # Omar Rahman
-    assert sum(1 for h in homes.values() if h) == 8
+    # Phase 2 clinic rework: no watchlisted person has a clinic registration.
+    for watchlisted in ("person::p8842101", "person::l1029921", "person::n5538219", "person::b7730042"):
+        assert homes[watchlisted] is None, watchlisted
+    assert homes["person::g5510077"] == "41 Oak Lane, Birmingham"          # the namesake Omar Rahman
+    assert homes["person::daniel-wu-1985-06-14"] == "1210 Corcoran Street NW, Washington, D.C."
+    assert homes["person::maya-singh-1992-09-21"] == "58 Rue de Carouge, Geneva"
+    assert sum(1 for h in homes.values() if h) == 10
 
 
 @pytest.fixture(scope="module")

@@ -6,11 +6,22 @@ import { withheldNoteHtml } from "./banners.js";
 import { honestyChip, renderPanelHeader, severityClass } from "./common.js";
 import { renderRoleWithheldSummary, renderTelecomExpansion } from "./inspector.js";
 import { buildEntityGraph } from "./graph.js";
+import { renderActionCard } from "./action-drawer.js";
+import { actionsActive } from "../actions-ui.js";
+
+// Rules blocked by a purpose rule (Karlsruhe mode) build no scenario: say so where the scenarios were.
+function renderBlockedRulesNote() {
+  const blocked = analysisState.analytics.filter((rule) => rule.blocked);
+  if (!blocked.length) return "";
+  return `<div class="blocked-rules-note" role="status"><strong>${blocked.length} rule${blocked.length === 1 ? "" : "s"} blocked by Karlsruhe mode</strong>: ${blocked
+    .map((rule) => `${escapeHtml(rule.title)} (rule ${escapeHtml(rule.blocked.rule.id)})`)
+    .join(", ")}. Scenarios built from them are not shown. See Analytics for the rule text and to request an exception.</div>`;
+}
 
 export function renderInvestigationsTool() {
   const selectedScenario = analysisState.investigations.find((scenario) => scenario.id === ui.selectedScenarioId);
   if (!selectedScenario) {
-    return `<div class="panel">${renderPanelHeader("Investigation workspace", "inv.investigations", "Guided scenarios derived from the current graph.")}<div class="empty-state">No investigation scenarios are available for what your role can see.</div>${renderRoleWithheldSummary()}</div>`;
+    return `<div class="panel">${renderPanelHeader("Investigation workspace", "inv.investigations", "Guided scenarios derived from the current graph.")}${renderBlockedRulesNote()}<div class="empty-state">No investigation scenarios are available for what your role can see.</div>${renderRoleWithheldSummary()}</div>`;
   }
   const graph = buildEntityGraph(selectedScenario.graph.nodes, selectedScenario.graph.edges, selectedScenario.focusEntityIds, ui.selectedGraphNodeId);
   return `
@@ -21,6 +32,7 @@ export function renderInvestigationsTool() {
             <p class="microcopy">Move from ontology design into case analysis using guided scenarios derived from the current graph.</p>
           </div>
         </div>
+        ${renderBlockedRulesNote()}
         <div class="scenario-grid">
           ${analysisState.investigations
           .map(
@@ -56,24 +68,7 @@ export function renderInvestigationsTool() {
               ${withheldNoteHtml(selectedScenario.withheld, "around this case")}
               ${selectedScenario.focusEntityIds.map((id) => entityById(id)).filter((entity) => entity && (entity.type === "Person" || entity.type === "Location")).slice(0, 2).map(renderTelecomExpansion).join("")}
             </div>
-            <div class="property-card">
-              <h3>Recommended Actions</h3>
-              <p class="microcopy">In a production system, these actions would be permissioned and audited. Click to log an action.</p>
-              <div class="inline-actions">
-                ${selectedScenario.actions.map(
-                (actionLabel) => `<button class="ghost-button" data-action="execute-scenario-action" data-scenario-id="${escapeHtml(selectedScenario.id)}" data-scenario-title="${escapeHtml(selectedScenario.title)}" data-action-label="${escapeHtml(actionLabel)}">${escapeHtml(actionLabel)}</button>`
-              ).join("")}
-              </div>
-              <div class="action-log">
-                ${analysisState.actionLog.filter((entry) => entry.scenarioId === selectedScenario.id).length
-                ? analysisState.actionLog
-                    .filter((entry) => entry.scenarioId === selectedScenario.id)
-                    .map((entry) => `<div class="action-log-entry"><span class="action-log-ts">${escapeHtml(entry.ts)}</span> — ${escapeHtml(entry.action)}</div>`)
-                    .join("")
-                : `<div class="action-log-empty">No actions taken yet.</div>`
-              }
-              </div>
-            </div>
+            ${actionsActive() ? renderActionCard(selectedScenario) : renderRecommendedActions(selectedScenario)}
             <div class="property-card">
               <h3>Saved graph paths</h3>
               <div class="stack-list">
@@ -158,5 +153,29 @@ export function renderInvestigationsTool() {
           </div>
         </div>
       </div>
+    `;
+}
+
+// Seeds without ontology.actionTypes keep the Phase 1 card: buttons that only log "scenario.action".
+function renderRecommendedActions(selectedScenario) {
+  return `
+            <div class="property-card">
+              <h3>Recommended Actions</h3>
+              <p class="microcopy">In a production system, these actions would be permissioned and audited. Click to log an action.</p>
+              <div class="inline-actions">
+                ${selectedScenario.actions.map(
+                (actionLabel) => `<button class="ghost-button" data-action="execute-scenario-action" data-scenario-id="${escapeHtml(selectedScenario.id)}" data-scenario-title="${escapeHtml(selectedScenario.title)}" data-action-label="${escapeHtml(actionLabel)}">${escapeHtml(actionLabel)}</button>`
+              ).join("")}
+              </div>
+              <div class="action-log">
+                ${analysisState.actionLog.filter((entry) => entry.scenarioId === selectedScenario.id).length
+                ? analysisState.actionLog
+                    .filter((entry) => entry.scenarioId === selectedScenario.id)
+                    .map((entry) => `<div class="action-log-entry"><span class="action-log-ts">${escapeHtml(entry.ts)}</span> — ${escapeHtml(entry.action)}</div>`)
+                    .join("")
+                : `<div class="action-log-empty">No actions taken yet.</div>`
+              }
+              </div>
+            </div>
     `;
 }

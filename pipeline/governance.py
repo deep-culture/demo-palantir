@@ -12,7 +12,9 @@ What lives here
 ---------------
 ``governance_block()``
     The ``catalog[ds].governance`` object written into both seeds:
-    ``{markings, roles, purposes, checkpoints, honesty}``.
+    ``{markings, roles, defaultRole, purposes, checkpoints, honesty,
+    purposeRules, legalBasisNote, discussions}`` (the last three are Phase 2,
+    PHASE2_CONTRACT.md §4–§5).
 
 ``SOURCE_DATASETS``
     Per raw dataset: file, markings, purpose, legal basis, retention.  The
@@ -161,7 +163,54 @@ CHECKPOINTS: List[Dict[str, Any]] = [
         "minLength": 20,
         "refusalText": "Your role cannot remove markings. This attempt has been logged.",
     },
+    # Phase 2 (PHASE2_CONTRACT.md §4)
+    {
+        "id": "cp-action-sensitive",
+        "trigger": "action.execute",
+        "prompt": "You are about to run an Action that changes data and sends a message to an external system. State why it is needed and for what purpose.",
+        "requiresPurpose": True,
+        "allowedRoles": ["fin-analyst", "dpo"],
+        "refusalText": "Your role cannot run sensitive Actions. This attempt has been logged.",
+    },
+    {
+        "id": "cp-danger-statement",
+        "trigger": "expand.danger",
+        "prompt": "Describe the concrete danger that justifies widening this analysis beyond the first hop.",
+        "requiresPurpose": False,
+        "allowedRoles": ["patrol", "fin-analyst", "dpo"],
+        "minLength": 30,
+        "refusalText": "Your role cannot widen an analysis beyond the first hop. This attempt has been logged.",
+    },
+    {
+        "id": "cp-exception",
+        "trigger": "purpose.exception",
+        "prompt": "You are asking for an exception to a purpose rule. State the legal basis and why the rule should not apply in this case. The request is recorded as an exception for the data protection officer.",
+        "requiresPurpose": True,
+        "allowedRoles": ["fin-analyst", "dpo"],
+        "minLength": 20,
+        "tag": "exception",
+        "refusalText": "Your role cannot request exceptions to purpose rules. This attempt has been logged.",
+    },
 ]
+
+# ---------------------------------------------------------------------------
+# Purpose rules ("Karlsruhe mode", PHASE2_CONTRACT.md §4)
+# ---------------------------------------------------------------------------
+
+PURPOSE_RULES: List[Dict[str, Any]] = [
+    {"id": "R1", "text": "Automated cross-dataset analysis needs a stated purpose on the session.",
+     "operations": ["expand", "rule", "action"], "requires": "sessionPurpose", "effect": "block"},
+    {"id": "R2", "text": "Data collected for healthcare may not be combined with law-enforcement purposes.",
+     "operations": ["expand", "rule", "action", "view"],
+     "incompatible": {"data": ["healthcare"], "session": ["public-order", "financial-crime"]}, "effect": "block"},
+    {"id": "R3", "text": "Expansion beyond the first hop requires a concrete, logged danger statement.",
+     "operations": ["expand"], "depthOver": 1, "effect": "checkpoint", "checkpointId": "cp-danger-statement"},
+]
+LEGAL_BASIS_NOTE = ("Our abstraction of the BVerfG 2023 ruling's logic, not its text "
+                    "[to verify against the press release before teaching as the court's criteria].")
+
+# Marking -> purpose of the data it marks (contract §4: HEALTH => healthcare).
+MARKING_PURPOSE: Dict[str, str] = {"HEALTH": "healthcare"}
 
 # ---------------------------------------------------------------------------
 # Honesty labels (contract §2; spec §2.1; research report §B and §G)
@@ -175,6 +224,8 @@ DOC_CHECKPOINTS = "https://palantir.com/docs/foundry/checkpoints/overview/"
 DOC_CHECKPOINTS_CONCEPTS = "https://palantir.com/docs/foundry/checkpoints/core-concepts/"
 DOC_AGENT_STUDIO = "https://www.palantir.com/docs/foundry/agent-studio/overview"
 DOC_PEPR = "https://fpf.org/wp-content/uploads/2021/06/Session-8-2-Lightweight-Purpose-by-Jagasia-Wee.pdf"
+DOC_BVERFG = "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html"
+DOC_ALEPH = "https://docs.aleph.occrp.org/developers/mappings"
 
 HONESTY_LABELS = {
     "mirrors": "Mirrors Foundry",
@@ -268,11 +319,126 @@ HONESTY: List[Dict[str, Any]] = [
         "text": "A purpose-justification prompt before sensitive searches, exports or network expansion. The record keeps the user, the time, the prompt exactly as shown, the justification and the items involved, as in Foundry Checkpoints (Jagasia & Wee, PEPR '21). Nothing stops you typing 'routine'.",
         "docUrl": DOC_CHECKPOINTS,
     },
+    # Phase 2
+    {
+        "id": "inv.actions", "kind": "mirrors", "title": "Actions",
+        "text": "Action types with parameters, validation, permissions, side effects, logs and writeback to operational systems: the Ontology's kinetic layer, as in Foundry. Simplified: the receiving systems are panels in this page, not real APIs.",
+        "docUrl": DOC_CORE_CONCEPTS,
+    },
+    {
+        "id": "inv.karlsruhe", "kind": "extension", "title": "Karlsruhe mode",
+        "text": "Purpose rules that block combining data collected for incompatible purposes. Not a Palantir feature: our abstraction of the logic of the German Constitutional Court's 2023 ruling on automated data analysis, not its text.",
+        "docUrl": DOC_BVERFG,
+    },
+    {
+        "id": "build.resolution", "kind": "simplified", "title": "Entity resolution",
+        "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
+        "docUrl": DOC_ALEPH,
+    },
 ]
 for _entry in HONESTY:
     _entry["label"] = HONESTY_LABELS[_entry["kind"]]
 
 HONESTY_IDS: List[str] = [h["id"] for h in HONESTY]
+
+# ---------------------------------------------------------------------------
+# Discussion cards (PHASE2_CONTRACT.md §5; spec §5.4; research report §D, §G)
+# ---------------------------------------------------------------------------
+
+DISCUSSION_DISCLAIMER = "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+
+DISCUSSIONS: List[Dict[str, Any]] = [
+    {
+        "id": "disc-ice-elite",
+        "title": "ICE: ImmigrationOS and ELITE (2025\u201326)",
+        "attachedTo": ["build.markings"],
+        "summary": ("In April 2025 US Immigration and Customs Enforcement gave Palantir a $30m contract, without competition, "
+                    "for an \"ImmigrationOS\" targeting and removal platform. ELITE, reported in January 2026, is a map-based app "
+                    "for finding people that draws on Medicaid, USCIS and Thomson Reuters CLEAR data and shows a 0\u2013100 "
+                    "\"address confidence score\". Court filings in July 2026 describe Medicaid data, shared beyond what a court "
+                    "order allowed, reaching Palantir through a Teams chat; Palantir says the data was deleted."),
+        "questions": [
+            "What would a HEALTH marking have prevented here, and what would it not have prevented?",
+            "What does \"deleted\" mean once derived datasets have been built from the data?",
+        ],
+        "sources": [
+            "https://immpolicytracking.org/policies/reported-palantir-awarded-30-million-to-build-immigrationos-surveillance-platform-for-ice",
+            "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite",
+            "https://www.hppr.org/npr-news/2026-07-17/ice-shared-medicaid-data-it-wasnt-supposed-to-have-with-palantir",
+        ],
+    },
+    {
+        "id": "disc-bverfg-2023",
+        "title": "German Constitutional Court, 16 February 2023 (1 BvR 1547/19, 1 BvR 2634/20)",
+        "attachedTo": ["session.checkpoints", "inv.karlsruhe"],
+        "summary": ("On 16 February 2023 the court ruled on police powers for automated data analysis in Hamburg and Hesse. Hamburg's provision was "
+                    "void outright; Hesse's was unconstitutional but stayed in force until 30 September 2023. Bavaria's system "
+                    "(VeRA, built on Palantir) went live in September 2024 and a constitutional complaint followed in July 2025. "
+                    "By 2026 many states had passed new laws; the complaint against North Rhine-Westphalia was not accepted "
+                    "(February 2026), those against Bavaria and Hesse are pending, and the federal government is reviewing "
+                    "nationwide use."),
+        "questions": [
+            "Is a free-text Checkpoint the kind of threshold the court had in mind?",
+            "Can a rule engine implement a proportionality test, or only imitate one?",
+        ],
+        "sources": [
+            "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html",
+            "https://verfassungsblog.de/?p=106048",
+            "https://posteo.de/en/news/germany-legal-challenge-alleges-unconstitutional-data-analysis-by-bavarian-police",
+            "https://www.yahoo.com/news/articles/germany-weighs-nationwide-palantirs-controversial-161014140.html",
+        ],
+    },
+    {
+        "id": "disc-raffinaderij",
+        "title": "Dutch police: the \"Raffinaderij\" platform",
+        "attachedTo": ["oversight.audit"],
+        "summary": ("Dutch police have used Palantir software since 2012 inside a platform called the \"Raffinaderij\" "
+                    "(refinery). Its use became public through Open Government Act (Woo) requests by de Volkskrant; about 99% "
+                    "of the released documents were redacted (Buro Jansen & Janssen). The Ministry of Defence plans an "
+                    "alternative within two years."),
+        "questions": [
+            "What does an audit log mean if the public cannot see that the system exists?",
+            "Who is the auditor here, and who audits them?",
+        ],
+        "sources": [
+            "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir",
+        ],
+    },
+    {
+        "id": "disc-nhs-fdp",
+        "title": "NHS England: the Federated Data Platform",
+        "attachedTo": ["session.roles", "build.markings"],
+        "summary": ("NHS England awarded the Federated Data Platform contract to Palantir in November 2023, worth up "
+                    "to \u00a3330m over seven years; 137 NHS trusts were using it by April 2026. Palantir says it is not the "
+                    "data controller, a claim that is contested in practice, and in February 2026 the British Medical "
+                    "Association urged doctors to limit their use of the platform."),
+        "questions": [
+            "Does \"not the controller\" survive once the vendor's software decides what each role can see?",
+            "Who should define the roles and markings on a health platform: the hospital, the ministry or the vendor?",
+        ],
+        "sources": [
+            "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform",
+        ],
+    },
+    {
+        "id": "disc-pol-intel",
+        "title": "Denmark: POL-INTEL and European exits",
+        "attachedTo": ["build.pipelines"],
+        "summary": ("Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under "
+                    "the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, "
+                    "and other European governments are re-evaluating their agreements with US defence-technology suppliers."),
+        "questions": [
+            "What is sovereignty when the platform, and its updates, are delivered by the vendor?",
+            "Which decisions in a pipeline are technical, and which are policy made by whoever writes the transforms?",
+        ],
+        "sources": [
+            "https://researcher.itu.dk/p/en/research-outputs/scientification-through-privatization-pol-intel-in-denmark",
+            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor",
+        ],
+    },
+]
+for _card in DISCUSSIONS:
+    _card["disclaimer"] = DISCUSSION_DISCLAIMER
 
 
 def governance_block() -> Dict[str, Any]:
@@ -289,6 +455,9 @@ def governance_block() -> Dict[str, Any]:
         "purposes": PURPOSES,
         "checkpoints": CHECKPOINTS,
         "honesty": honesty,
+        "purposeRules": PURPOSE_RULES,
+        "legalBasisNote": LEGAL_BASIS_NOTE,
+        "discussions": DISCUSSIONS,
     })
 
 

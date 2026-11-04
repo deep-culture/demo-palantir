@@ -17,7 +17,24 @@ matched to an existing Person by the first key that hits, in this priority:
   3. normalised name + date of birth
   4. normalised name or alias (last writer wins)
 
-If nothing matches, a new Person is created.  Because matching is greedy and
+If nothing matches, a new Person is created.
+
+Watchlisted identities are curated (Phase 2).  Two guards keep a name alone
+from reaching them:
+
+  * a record that carries a passport is never matched *by name* to a
+    watchlisted Person who holds a different passport (a different passport
+    is a different person);
+  * a later record never re-points a name already held by a watchlisted
+    Person to somebody else, so name-only lookups (bank account owners) keep
+    finding the watchlisted Person.
+
+On the Phase 0/1 data both guards change nothing (tests compare every Person
+with the pre-Phase-2 seed); they are what keeps the namesake Omar Rahman
+(``person::g5510077``) a separate Person.  Whether he *should* be merged is
+then a scoring question: see ``pipeline/candidates.py``.
+
+Because matching is greedy and
 order-dependent, a weak record that arrives first (a ping observed as
 "C. Silva") can create a Person that a later, stronger record (a registry
 entry for "Clara Silva", b. 1977-11-25) never joins.  These splits are kept
@@ -201,6 +218,8 @@ class PersonRecord:
     has_record_name_dob: bool = False
     has_record: bool = False
     created_by: str = ""
+    passports: List[str] = field(default_factory=list)
+    watchlisted: bool = False
 
     @property
     def method(self) -> str:
@@ -279,8 +298,15 @@ class PersonResolver:
         if norm and dob and f"{norm}|{dob}" in self.by_name_dob:
             return self.by_name_dob[f"{norm}|{dob}"]
         if norm and norm in self.by_alias:
-            return self.by_alias[norm]
+            pid = self.by_alias[norm]
+            if passport and self._curated_conflict(pid, passport):
+                return None  # same name, different passport, watchlisted: not by name alone
+            return pid
         return None
+
+    def _curated_conflict(self, pid: str, passport: str) -> bool:
+        record = self.records.get(pid)
+        return bool(record and record.watchlisted and record.passports and passport not in record.passports)
 
     def person_for(self, ref: str, name: str = "", dob: str = "", passport: str = "", phone: str = "") -> Optional[str]:
         """Person that source record ``ref`` was resolved into during the pass.
@@ -327,6 +353,9 @@ class PersonResolver:
         for alias in (name, *aliases):
             alias_norm = normalize_name(alias)
             if alias_norm:
+                owner = self.by_alias.get(alias_norm)
+                if owner and owner != pid and self.records[owner].watchlisted:
+                    continue  # a watchlisted Person keeps their names
                 self.by_alias[alias_norm] = pid
         return record, created
 
@@ -358,6 +387,10 @@ class PersonResolver:
                 record.dobs.append(obs.dob)
             if obs.passport:
                 record.has_passport = True
+                if obs.passport not in record.passports:
+                    record.passports.append(obs.passport)
+            if obs.kind == "watchlist":
+                record.watchlisted = True
             if obs.phone:
                 record.has_record_phone = True
             if obs.name and obs.dob:

@@ -17,6 +17,9 @@ datasets and collects:
     pipeline/governance.py, identical to the Gotham seed's
   - Per dataset: markings, markingProvenance, purpose, legalBasis,
     retentionDays, inputPurposes and derivedFrom (union rule, contract §4)
+  - Phase 2: ``ontology`` (``actionTypes``, ``externalSystems`` from
+    pipeline/actions.py) and ``resolution`` (candidate pairs from
+    pipeline/candidates.py), identical to the Gotham seed's
 
 Output
 ------
@@ -37,7 +40,7 @@ from typing import Any, Dict, List, Optional, Tuple
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from pipeline import governance
+from pipeline import actions, candidates, governance
 from pipeline.lib import Dataset, LineageRecord
 from pipeline.seedmeta import build_metadata
 
@@ -228,7 +231,7 @@ def build_catalog_entry(
         {
             "id": "resolve_persons",
             "name": "02 Resolve Persons",
-            "description": "Entity-resolve persons across watchlist, registry, flights and pings by passport_id > phone_number > name+dob > alias, then attach clinic registrations by name + dob only (a clinic row never creates a person). Records full field-level provenance.",
+            "description": "Entity-resolve persons across watchlist, registry, flights and pings by passport_id > phone_number > name+dob > alias, then attach clinic registrations by name + dob only (a clinic row never creates a person). A name alone never extends or re-points a watchlisted identity. Records full field-level provenance; candidate pairs for the Resolution tab are scored afterwards (pipeline/candidates.py).",
             "inputs": ["norm_watchlist", "norm_company_registry", "norm_flight_manifests",
                        "norm_mobile_pings", "norm_clinic_registrations"],
             "output": "resolved_persons",
@@ -325,9 +328,13 @@ def build_catalog_entry(
         "generatedAt": generated_at,
     }
 
+    resolution = candidates.resolution_block(dataset_key, persons_ds.resolver, wl.rows, cr.rows, fm.rows, mp.rows)
+
     return {
         "metadata": metadata,
         "governance": governance.governance_block(),
+        "ontology": actions.ontology_block(),
+        "resolution": resolution,
         "pipeline": {
             "generatedAt": generated_at,
             "transforms": transforms,

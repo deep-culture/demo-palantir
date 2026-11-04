@@ -111,11 +111,17 @@ Clinic rows are health data collected for care. They are only ever *attached* to
 
 ### 5.1 Starter dataset
 
-The starter dataset is small enough for classroom explanation and manual inspection. Its 8 clinic rows cover 5 core people (Kareem Haddad, Elena Markovic, Omar Rahman, Sofia Petrov, Daniel Wu) and 3 noise people, all attached.
+The starter dataset is small enough for classroom explanation and manual inspection. 24 Persons (the Phase 1 23 plus the namesake).
+
+Phase 2 (PHASE2_CONTRACT.md §1) reworked the clinic data to follow the spec: no watchlisted person has a clinic registration, so health data on a watchlisted person can only come from a false merge. The starter's 10 clinic rows cover the namesake Omar Rahman (b. 1979-02-02), Daniel Wu, Maya Singh and 7 of the 12 noise people (about 60%), all attached. The Phase 1 rows of the four watchlisted people were removed; their registration IDs are not reused, so the file shows the gaps (REG-0003, -0004, -0007, -0008).
+
+**The namesake (PER-007).** `person::g5510077`, Omar Rahman, b. 1979-02-02, passport `G5510077`, phone `+447911223344`, a care worker at *41 Oak Lane, Birmingham* (clinic registration, HEALTH). He flies LHR→IST (`MF-0008`) and back (`MF-0009`, where the manifest spells him **Umar Rahman**); the watchlisted Omar Rahman (`N5538219`) flies LHR→IST on `MF-0007`, so they share a route. He pays rent by bank transfer (`TX-0009`, `TX-0010`, account `ACCT-P007` → `ACCT-L041` Oak Lane Lettings Ltd); the bank writes his name "Umar Rahman", because account owners are linked by name only and "Omar Rahman" already belongs to the watchlisted man. No watchlist entry. Nationality (British) and occupation are storyline facts that no source carries for non-watchlisted people. At the default threshold he is a separate Person; his candidate pair with `person::n5538219` scores 0.55 (§8.8).
 
 ### 5.2 Simulator dataset
 
-The simulator dataset preserves the same shape but scales row counts substantially. It has 60 clinic rows: the 5 core people (Kareem twice: he moved from Dubai to Limassol), 44 noise people (6 of them registered twice), and 4 patients who appear in no other source and therefore stay unattached. Two clinic rows for two different "Rami Keller"s (different birth dates) attach to the same Person, because the Phase 0 resolver had already merged them by alias: a false merge now carries health data.
+The simulator dataset preserves the same shape but scales row counts substantially. It has 123 clinic rows: the namesake, Daniel Wu, Maya Singh, 110 of the 184 noise people (60%; 6 of them registered twice), and 4 patients who appear in no other source and therefore stay unattached. The Phase 1 rows of the watchlisted people (Kareem twice, Elena, Sofia, Omar) were removed.
+
+Two further namesake pairs among the background people (Phase 2) give the resolution table more than one row: **Mehmet Yılmaz** (b. 1983-05-17) / **Mehmet Yilmaz** (b. 1991-10-02), and **José Ferreira** (b. 1979-07-30) / **Jose Ferreira** (b. 1986-01-11). Each pair directs companies at one shared address (`CO-201`/`CO-202`, `CO-203`/`CO-204`); the Ferreiras also share a route. The pipeline's ASCII normaliser keeps each pair apart ("mehmet y lmaz" ≠ "mehmet yilmaz"), the candidate scorer folds accents and pairs them (0.50 and 0.60). Two clinic rows for two different "Rami Keller"s (different birth dates) attach to the same Person, because the Phase 0 resolver had already merged them by alias: a false merge now carries health data.
 
 ## 6. Ontology model
 
@@ -190,8 +196,11 @@ The browser consumes a seed payload with the following top-level shape:
   sources: [...],
   ontology: {
     entityTypes: [...],
-    relationshipTypes: [...]
+    relationshipTypes: [...],
+    actionTypes: [...],      // Phase 2, §7.1d
+    externalSystems: [...]   // Phase 2, §7.1d
   },
+  resolution: {...},         // Phase 2, §7.1c
   mappings: [...],
   entities: [...],
   edges: [...]
@@ -243,6 +252,44 @@ governance: {
 ```
 
 `label` on an honesty entry is the chip text ("Mirrors Foundry", "Simplified", "Teaching extension"); `title` is the surface name; `docUrl` is a source from the research report §G, or `null`. Marking lists are always in the order of `governance.markings`.
+
+Phase 2 additions (PHASE2_CONTRACT.md §4–§5), same module:
+
+```js
+governance: {
+  ...,
+  checkpoints: [...,   // + cp-action-sensitive (action.execute), cp-danger-statement (expand.danger, minLength 30),
+                       //   cp-exception (purpose.exception, requiresPurpose, tag: "exception")
+  ],
+  honesty: [...,       // + inv.actions (mirrors), inv.karlsruhe (extension), build.resolution (simplified)
+  ],
+  purposeRules: [{id: "R1"|"R2"|"R3", text, operations, requires?, incompatible?: {data, session}, depthOver?, effect, checkpointId?}],
+  legalBasisNote: "Our abstraction of the BVerfG 2023 ruling's logic, not its text [...]",
+  discussions: [{id, title, attachedTo: [surface ids], summary, questions: [q1, q2], sources: [url], disclaimer}]
+}
+```
+
+Discussion cards: `disc-ice-elite` (build.markings), `disc-bverfg-2023` (session.checkpoints, inv.karlsruhe), `disc-raffinaderij` (oversight.audit), `disc-nhs-fdp` (session.roles, build.markings), `disc-pol-intel` (build.pipelines). Summaries paraphrase research report §D; every source URL is from §G.
+
+### 7.1c Resolution block (Phase 2)
+
+Identical in both seeds, built by `pipeline/candidates.py` `resolution_block()` (PHASE2_CONTRACT.md §2):
+
+```js
+resolution: {
+  defaultThreshold: 0.75,   // = the pipeline's own Persons; no candidate reaches it
+  minThreshold: 0.30,       // candidates below this are dropped
+  fixedNote: "Merges made by the pipeline's deterministic rules are fixed in this build — see each person's resolution record.",
+  signals: [{id, weight, label, note, markings}],
+  candidates: [{id, left, right, score, signals: [signalId], block, explanation, markings}]
+}
+```
+
+`id` is `cand-<left id tail>--<right id tail>` (stable across rebuilds), e.g. `cand-n5538219--g5510077`. `left` is the watchlisted member when exactly one is watchlisted, else the lower ID. `block` is `surname:<folded surname>`, `phone` (never the number) or `address:<folded company address>`. `markings` lists the markings of the data the candidate's signals used. Candidates are sorted by score, descending. Starter: 6 candidates; simulator: 43 (limits 40 / 400).
+
+### 7.1d Action types (Phase 2)
+
+`ontology.actionTypes` and `ontology.externalSystems` are identical in both seeds (the Foundry seed has an `ontology` key holding only these two), built by `pipeline/actions.py` (PHASE2_CONTRACT.md §3): `act-add-to-watchlist`, `act-remove-from-watchlist`, `act-flag-account` (BankAccount), `act-request-border-watch`, `act-unmerge-person`; systems `border-watch`, `bank-compliance`, `case-management`. Effect operations are documented in the module. Two additions to the contract's op list: `setProperty` may carry `onlyIfSetByAction` + `refusal` (Remove from watchlist refuses on feed-sourced tags) and `deleteLinked` may carry `onlyCreatedByAction`; Unmerge uses a sixth op, `{op: "resolutionOverride", candidateId: "param:candidateId", decision: "reject"}`. To give the effects valid targets, the entity types gain `BankAccount.reviewFlag` and `WatchlistRecord.reason`, `addedBy`, `addedAt`, `origin` (`"action"` on Action-created records). No seeded object carries these properties.
 
 ### 7.2 Source descriptors
 
@@ -331,6 +378,8 @@ and otherwise creates a Person. Aliases and observed names are registered for la
 
 `canonicalName`/`label` is the longest name from a watchlist, registry or flight record; for ping-only persons, the most frequent observed name (first seen on ties). No Person is labelled with its ID.
 
+Phase 2 guards for watchlisted (curated) identities: a record carrying a passport is never matched *by name* to a watchlisted Person holding a different passport, and a later record never re-points a name held by a watchlisted Person. Built on the Phase 1 data they change nothing (every entity and edge identical); they are what keeps the namesake `person::g5510077` separate from `person::n5538219` and keeps `ACCT-P003` ("Omar Rahman" in the bank feed) with the watchlisted man.
+
 ### 8.2 Company resolution
 
 Companies are keyed by registry `company_id` or company name fallback.
@@ -354,6 +403,12 @@ Locations are keyed by normalized label. The generator guarantees that no reside
 ### 8.7 Clinic attachment (Phase 1)
 
 After the greedy pass, `resolution.attach_clinic_rows` attaches each clinic row to the Person whose normalised name + date of birth matches exactly (`PersonResolver.attach`). No passport, phone or alias fallback; no new Person; no lookup keys registered; no change to names, `method` or `mergedFrom`. Every Phase 0 entity ID, edge and `resolution` block is therefore unchanged (tested by building with and without the clinic file). Clinic references are deliberately *not* added to `mergedFrom`: the resolution block is unmarked, so `clinic:REG-…` there would reveal a health record to every role. The latest registration (by `registered_on`) supplies `homeAddress` and `clinicCode`.
+
+### 8.8 Candidate pairs (Phase 2)
+
+`pipeline/candidates.py` scores pairs of *separate* Persons as a transparent weighted sum, `score = clamp(Σ weights, 0, 1)` rounded to 0.01: `name-exact` +0.45 (after folding case, punctuation and accents), `surname+initial` +0.25 (only without an exact name), `name-translit` +0.15 (a further pair of names equal only after Omar/Umar-style mapping), `dob-exact` +0.15, `dob-conflict` −0.15, `phone-exact` +0.30, `shared-route` +0.10, `shared-address` +0.20 (company register only), `same-nationality` +0.05, `passport-exact` +1.00 (never on a candidate). Clinic addresses are never a signal (HEALTH data is not used to decide identity). Explanations are plain English and never print a phone or passport number.
+
+Blocking: same accent-folded surname, a shared phone, or a shared company address. Constraints (tested): no candidate ≥ 0.75; the strongest real pairs are split duplicates with the same name and date of birth at 0.60–0.70. The namesake pair scores 0.55: "Same name 'Omar Rahman' (+0.45), also spelled 'Omar Rahman' / 'Umar Rahman' (+0.15), different dates of birth 1984-08-19 / 1979-02-02 (−0.15), shared route LHR–IST (+0.10)". At 0.55 it merges and the merged person is risk-tagged; the penalty for a different date of birth is too small, which is the lesson.
 
 ## 9. Edge construction rules
 
@@ -520,6 +575,10 @@ Migration: the pre-redesign key `ontology-studio-demo-v2:{datasetKey}` is read o
 | `render/agent.js`, `investigations.js`, `analytics.js`, `map.js`, `object-types.js`, `properties.js`, `link-types.js`, `backing-datasets.js`, `objects.js`, `graph.js` | one file per tab |
 | `events.js` | `CLICK_ACTIONS` (keyed by `data-action`), `CHANGE_SCOPES` and `INPUT_SCOPES` (keyed by `data-scope`), `handleKeydown` |
 | `mutations.js` | ontology edits, `exportJson`, `persistAndRender` |
+| `resolution-view.js` | `resolveFullData` (merged Persons and remapped links before the role view), `mergeChipText` (§31.2) |
+| `purpose-gate.js` | Karlsruhe mode in Investigate: `gateRules`, `expansionCheck`, `requestPurposeException`, `purposePayload` (§31.3) |
+| `actions-ui.js` | Action drawer state and handlers (`ACTION_CLICKS`, `ACTION_INPUTS`, `ACTION_CHANGES`), the applier `applyEffects`, `riskTaggedByActions` (§31.1) |
+| `render/action-drawer.js`, `render/resolution.js` | the drawer, scenario Action card, inspector Actions and External systems, the rule footnote; merge chip, merge explanation, threshold chip |
 
 Modules import each other in cycles (render ↔ state ↔ derive …). That is safe because no module does work at evaluation time except declaring constants; everything else happens in `main.js`, which is the entry point (nothing imports it), so every other module has finished evaluating before its body runs. Boot order in `main.js`:
 
@@ -527,7 +586,8 @@ Modules import each other in cycles (render ↔ state ↔ derive …). That is s
 2. `initState()`: `initGovernance` → `seedData` → `fullData = loadState()` → `rebuildRoleView()` → `derived = buildDerivedState()`
 3. click / change / input / keydown listeners on `#app`
 4. `applyDeepLink(location.hash)` (may switch dataset and select an object), then the first `render()`
-5. re-render on `DC.session.onChange`, `DC.markings.onChange` and `hashchange`
+2b. `DC.actions.registerApplier(applyEffects)` (Phase 2)
+5. re-render on `DC.session.onChange`, `DC.markings.onChange`, `DC.resolution.onChange`, `DC.actions.onChange` (other tabs) — batched — and `hashchange`
 
 ## 12. Derived indexes
 
@@ -858,7 +918,7 @@ Responsible for:
 - clinic registrations and residential addresses (Phase 1) from a separate random stream
 - `manifest.json` per profile (values from `pipeline/governance.py`)
 
-Two seeds: `--legacy-seed` (default 42) drives the five Phase 0 files; `--seed` (default 20260401) drives only the clinic data. CSVs are written with LF line endings, so a fresh run is byte-identical to the committed files.
+Three seeds: `--legacy-seed` (default 42) drives the five Phase 0 files; `--seed` (default 20260401) drives the Phase 1 clinic data; `--phase2-seed` (default 20261104) chooses which further noise people get a clinic registration. Phase 2 rows (the namesake's and N5538219's LHR–IST flights, the rent transfers, the simulator pairs' flights and companies) are fixed and appended after the Phase 0 rows, so every Phase 0 line stays byte-identical (tested against the commits before Phase 1 and Phase 2). The namesake is not added to `CORE_PEOPLE`, which the noise generators draw from. CSVs are written with LF line endings, so a fresh run is byte-identical to the committed files.
 
 ### 21.2 `build_ontology_seed.py`
 
@@ -870,6 +930,7 @@ Responsible for:
 - entity and edge generation
 - clinic attachment, residential Locations and `RESIDES_AT` (via `pipeline/resolution.py`)
 - markings on objects, properties and links, and the governance block (via `pipeline/governance.py`)
+- the `resolution` candidate block (via `pipeline/candidates.py`) and `ontology.actionTypes` / `externalSystems` (via `pipeline/actions.py`)
 - source descriptors with manifest markings and purposes
 - seed metadata (via `pipeline/seedmeta.py`)
 - writing bundled seed catalog
@@ -1119,5 +1180,51 @@ The audit strip (sticky, black, bottom of the page) shows the last three events,
 - **Export** CSV / JSON of the filtered events (logged as `audit.export.csv|json`).
 - **Clear audit (instructor)**: needs a reason; `DC.audit.clear(reason)`.
 
-Action history with before/after arrives with Actions (F5, Phase 2).
+Phase 2 panels (Action history, resolution events, exception filter, discussion card): §31.4.
 
+
+## 31. Actions, entity resolution and Karlsruhe mode in Investigate and Oversight (Phase 2)
+
+Spec: `REDESIGN_SPEC.md` §4.5 (F5), §4.6 (F6), §4.9 (F9), §5.4; contract `context/PHASE2_CONTRACT.md` (authoritative). Every feature is driven by optional seed fields (`ontology.actionTypes`, `ontology.externalSystems`, `resolution`, `governance.purposeRules`, `governance.discussions`); when a field is absent the feature is hidden and behaviour is exactly Phase 1 (e.g. the scenario keeps the old "Recommended actions" card).
+
+Core load order (both apps and Oversight): `store, governance, session, audit, markings, checkpoints, purposes, resolution, actions, ui`.
+
+| File | API (contract §6) | Additions |
+|---|---|---|
+| `purposes.js` | `init(rules)`, `enabled()`, `setEnabled(bool)`, `check(op, {dataPurposes, depth, sessionPurpose})` | `isActive()`, `rules()`, `rule(id)`, `legalBasisNote()`, `purposesForMarkings()`, `dataPurposesOf(items)`, `registerSources(datasets)`, `setMarkingPurposes()`, `requestException(result, ctx, fn)`, `onChange()`; `check` accepts `except: [ruleId]` and returns `{allowed, rule, effect: "log"|"allow"|"block"|"checkpoint", checkpointId, purposes, sessionPurpose, enabled}` |
+| `resolution.js` | `init(seedResolution)`, `threshold()`, `setThreshold(t)`, `resolveAt(t?)`, `overrides()`, `reject(candidateId, reason)`, `explain(personId)` | `isActive()`, `config()`, `candidate(id)`, `signal(id)`, `candidatesFor(personId)`, `setWatchlisted(ids)`, `restore(id, reason)`, `clearOverrides()`, `onChange()`, `FIXED_NOTE`, `MAX_THRESHOLD`; `setThreshold(t, {log:false})` |
+| `actions.js` | `init(types, systems)`, `applicable(type, role)`, `applyAction(typeId, objectId, params, opts)`, `pending()`, `approveAction(id)`, `rejectAction(id)`, `log(filter)`, `inbox(systemId)` | `isActive()`, `types()`, `type(id)`, `systems()`, `system(id)`, `forType(type)`, `checkpointFor(type)`, `validate(typeId, params)`, `plan(typeId, object, params, opts)` (preview), `setByAction()`, `objectsSetByAction()`, `registerApplier(fn)`, `onChange()` |
+| `ui.js` | `discussionCard(id)`, `discussionCardsFor(surface)`, `karlsruheToggle` (in the session strip) | `purposeChip(id)`, `blockedCard(checkResult, {buttonAttrs, exception})`; `discussionCardsFor` takes an id or a list and `{exclude}` |
+| `checkpoints.js` | — | records carry `tags` (checkpoint.tags ∪ context.tags; `cp-exception` always `exception`), `rule`, `purposes` in the payload; `minLength` enforced |
+| `governance.js`, `session.js` | — | `get()` carries `purposeRules`, `discussions`, `legalBasisNote`; `discussion(id)`; session flag `karlsruhe` |
+
+Storage: `dc-palantir:governance` gains `threshold`, `resolutionOverrides[]`, `actionLog[]` (cap 1,000) and `pendingActions[]` (each module read-modify-writes only its keys; `markings.clearOverrides` no longer drops the others). `dc-palantir:session.flags.karlsruhe` is the mode. Audit kinds: `action` (`action.apply` with `payload.outcome` applied | refused | blocked | not-applicable, `before`, `after`, `writebacks`, `purposes`; `action.writeback`; `action.stage|approve|reject`), `resolution` (`resolution.setThreshold`, `resolution.unmerge`, `resolution.restore`), `session` (`session.setFlag` for the mode, `purpose.exception.granted`).
+
+### 31.1 Actions (F5)
+
+`applyAction` order: validate parameters (required, enum, `minLength`) → role in `allowedRoles` (else `refused`, logged) → `purposes.check("action")` (else `blocked`, logged) → `plan()` (problems → `not-applicable`, logged) → `staged` ? pending only : Checkpoint (`checkpointId`, or `cp-action-sensitive` when `sensitive`) → `opts.apply(effects, ctx)` → instance written → events. The core resolves effect values (`param:x`, `value:…`, `object:prop`, `session:role`, `now`) and writeback templates (`{label}`, `{passportId}`, any param or property); the app performs them. A type with `deleteLinked` is a reversal: its `setProperty … "value:"` restores the value from before the Action that set the property, and it is refused (with the reason shown) when the current value was not set by an Action — so *Remove from watchlist* cannot clear a source watchlist tag. `act-unmerge-person` rejects the person's merge candidates through `DC.resolution.reject`.
+
+Investigate: the **Action drawer** (a side sheet, `render/action-drawer.js`) opens from the scenario's Action card (replacing "Recommended actions") and from the inspector for any Person or Bank Account. It lists all Action types for the object type (others greyed with the roles allowed), the parameter form with validation messages, then numbered steps: role check, Checkpoint, purpose rules (mode off: the purposes to be logged; mode on: the red blocked card with *Request exception*), the before/after diff (created and deleted objects and links included) and the writeback as it would be sent; after a run it shows the instance, the actual diff and the delivered writeback. `applyEffects` writes to `fullData` and persists, so analytics see the change on the next render and **Reset dataset** clears it; created objects carry `createdByAction` and copy markings from an existing object/link of the same type. The **External systems** panel (black, monospace) in the inspector shows the three inboxes. "Watchlist operators" has the footnote *n objects risk-tagged by Actions in this session* (`DC.actions.objectsSetByAction("riskTag", …, {sessionId, datasetId})`).
+
+### 31.2 Entity resolution (F6)
+
+`rebuildRoleView()` now runs `resolveFullData(fullData)` first (spec §6.3 order). Persons with a `riskTag` are passed to `setWatchlisted`, so the representative of a cluster is the lowest watchlisted id, else the lowest id. A merged Person takes the representative's values, fills blanks from the others, unions `aliases` (with the other members' names), markings, `propertyMarkings`, `sourceMarkings`, `sourceIds` and `resolution.mergedFrom`, and records `_merge {threshold, members, candidates, conflicts}`; the watchlisted member's `riskTag` wins. Links of every member are remapped to the representative (self-loops dropped). `fullData` is never changed, so a higher threshold or an unmerge restores the separate people. UI: chip *merged at 0.55 — 2 source identities* (inspector, Objects list, analytics hits, drawer header), the inspector's **Merged person** section with the merge explanation (`DC.resolution.explain`: candidate, score ≥ threshold, each signal with its weight, the pipeline's explanation), conflicting values and **Unmerge person…**, and a header chip with the shared threshold. The threshold is set in Build (Resolution tab); a change there, or an unmerge, reaches an open Investigate tab through the `storage` event.
+
+### 31.3 Purposes and Karlsruhe mode (F9)
+
+The toggle sits in every session strip (shown when the seed has purpose rules); with the mode on the strip shows the session purpose as a chip, or "no purpose — R1 blocks analysis". Data purposes come from markings ∪ `sourceMarkings` through the marking → purpose map that `registerSources(seed.sources)` derives from the dataset manifests (HEALTH ⇒ healthcare). Where it applies in Investigate:
+
+- **Rules** (`gateRules`, every render): purposes of the rule's hits; a blocked rule keeps no ranking (`blockedHits`), the rule card says *blocked · rule R2*, the Analytics panel shows the red card, the BVerfG discussion card and *Request exception*; scenarios built from a blocked rule are not shown (a note says so on Investigations).
+- **Expansions** (telecom, depth 2): R1/R2 replace the expand button with the red card; R3 swaps `cp-expand-telecom` for `cp-danger-statement` (30+ characters, so "routine" fails).
+- **Actions**: the drawer's purpose step; `applyAction` enforces it.
+
+*Request exception* runs `cp-exception` (fin-analyst, DPO; purpose required; record tagged `exception`); a granted exception holds for that rule, expansion or Action for the page session (`ui.purposeExceptions`). Mode off: nothing is blocked; `rule.open`, `scenario.open`, `graph.expand.telecom` and every Action log `payload.purposes` and `karlsruhe: false`. R2's `view` operation is not applied to object views in Investigate (only the DPO sees HEALTH, and the DPO's purpose is oversight).
+
+Discussion cards (`DC.ui.discussionCard`) are purple, collapsible `<details>` (open state survives re-renders) with summary, questions, sources and the disclaimer. Investigate's inspector has a **Discussion** panel for `session.roles`, `session.checkpoints` and, with the mode on, `inv.karlsruhe`; a blocked rule shows the `inv.karlsruhe` cards beside it. Honesty chips `inv.actions` (labelled *Mirrors Foundry*) and `inv.karlsruhe` appear on those surfaces.
+
+### 31.4 Oversight additions (`audit/oversight-actions.js`)
+
+- **Action history**: instance, time, role, Action (staged-by-agent marker), object, reason, before → after, writebacks per system, Checkpoint record, exception record, approver; below it the attempts that were refused, blocked or not applicable.
+- **Entity resolution**: current threshold and rejected merges, then every `resolution` event (threshold from → to with the merged candidates, unmerges with score and Action id).
+- **Checkpoint records**: an *Exception records only* filter; exception records are marked `exception · R2`.
+- The **Raffinaderij** discussion card (`oversight.audit`) under the chain status. The redaction toggle covers the new tables.

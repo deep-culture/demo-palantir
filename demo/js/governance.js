@@ -3,6 +3,7 @@
 import { analysisState, core, derived, lastViewedId, roleView, setLastViewedId, ui } from "./state.js";
 import { entityById, incomingEdges, outgoingEdges } from "./derive.js";
 import { render } from "./render/index.js";
+import { expansionCheck, purposePayload, purposesOfIds, TELECOM_EXPANSION_DEPTH } from "./purpose-gate.js";
 
 // ── Governance: role view, withheld objects, telecom checkpoint, phone search, audit ──
 // Spec §4.1, §4.3, §4.4, §6.3; contract §3, §6. Evaluation order on every render:
@@ -118,8 +119,24 @@ export function expandTelecom(entityId) {
   const entity = entityById(entityId);
   if (!entity) return;
   const targets = telecomExpansionTargets(entity);
+  // Purpose rules (F9): blocked → the inspector shows the red card; R3 → the danger statement replaces
+  // the telecom Checkpoint. Mode off: allowed, and the purposes are logged.
+  const gate = expansionCheck(entity.id, targets.objectIds);
+  const purposeInfo = purposePayload(gate);
+  if (!gate.allowed && gate.effect === "block") {
+    logEvent({
+      kind: "expand",
+      verb: "graph.expand.telecom",
+      objectIds: [entity.id],
+      payload: { from: entity.id, depth: TELECOM_EXPANSION_DEPTH, outcome: "blocked", ...purposeInfo },
+    }).then(() => render());
+    return;
+  }
+  const danger = gate.effect === "checkpoint" && gate.checkpointId && checkpointDefined(gate.checkpointId);
+  const checkpoint = danger ? gate.checkpointId : "graph.expand.telecom";
+  const summary = danger ? `${targets.summary} — beyond the first hop (rule ${gate.rule.id})` : targets.summary;
   core.checkpoints
-    .withCheckpoint("graph.expand.telecom", { surface: "investigate", objectIds: targets.objectIds, summary: targets.summary }, (record) => {
+    .withCheckpoint(checkpoint, { surface: "investigate", objectIds: targets.objectIds, summary, rule: danger ? gate.rule.id : null, purposes: gate.purposes }, (record) => {
       ui.telecomExpanded.add(entity.id);
       ui.telecomRecords[entity.id] = record ? record.recordId : "";
       return logEvent({
@@ -127,7 +144,7 @@ export function expandTelecom(entityId) {
         verb: "graph.expand.telecom",
         objectIds: targets.objectIds,
         checkpointId: record ? record.recordId : null,
-        payload: { from: entity.id, depth: 2, resultCount: targets.count },
+        payload: { from: entity.id, depth: TELECOM_EXPANSION_DEPTH, resultCount: targets.count, ...purposeInfo, ...(danger ? { checkpoint } : {}) },
       });
     })
     .then(() => render());
@@ -198,14 +215,32 @@ export function logScenarioOpen(scenarioId) {
     kind: "view",
     verb: "scenario.open",
     objectIds: scenario.focusEntityIds,
-    payload: { scenarioId, title: scenario.title, score: scenario.score },
+    payload: { scenarioId, title: scenario.title, score: scenario.score, ...scenarioPurposes(scenario) },
   });
 }
 
 export function logRuleOpen(ruleId) {
   const rule = analysisState.analytics.find((item) => item.id === ruleId);
   if (!rule) return;
-  logEvent({ kind: "view", verb: "rule.open", payload: { ruleId, title: rule.title, hits: rule.hits.length } });
+  // A rule run: the purposes of the data it ranks are logged (mode on or off); a blocked rule logs the rule.
+  const purposes = rule.purposes || purposesOfIds(rule.hits.flatMap((hit) => hit.focusEntityIds || []));
+  logEvent({
+    kind: "view",
+    verb: "rule.open",
+    payload: {
+      ruleId,
+      title: rule.title,
+      hits: rule.hits.length,
+      purposes,
+      karlsruhe: Boolean(core.purposes && core.purposes.enabled()),
+      ...(rule.blocked ? { outcome: "blocked", rule: rule.blocked.rule.id } : {}),
+    },
+  });
+}
+
+function scenarioPurposes(scenario) {
+  if (!core.purposes || !core.purposes.isActive()) return {};
+  return { purposes: purposesOfIds(scenario.graph.nodes.map((node) => node.id)), karlsruhe: core.purposes.enabled() };
 }
 
 export function logSearch(scope, query, resultCount) {

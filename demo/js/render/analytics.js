@@ -3,6 +3,27 @@ import { escapeHtml } from "../util.js";
 import { analysisState, data, ui } from "../state.js";
 import { honestyChip, renderPanelHeader, severityClass } from "./common.js";
 import { renderRoleWithheldSummary } from "./inspector.js";
+import { renderActionFootnote } from "./action-drawer.js";
+import { mergeChip } from "./resolution.js";
+import { entityById } from "../derive.js";
+import { core } from "../state.js";
+
+// Karlsruhe mode (F9): a blocked rule shows the rule instead of a ranking.
+function renderBlockedRule(rule) {
+  const hidden = (rule.blockedHits || []).length;
+  return `
+        <div class="property-card rule-blocked">
+          <h3>Ranking blocked</h3>
+          ${core.ui.blockedCard(rule.blocked, { operation: "rule", buttonAttrs: `data-action="purpose-exception" data-op="rule" data-key="rule:${escapeHtml(rule.id)}" data-id="${escapeHtml(rule.id)}"` })}
+          <p class="microcopy">${escapeHtml(`${hidden} hit${hidden === 1 ? "" : "s"} not ranked. With the mode off the rule runs and only the audit log remembers which purposes it combined.`)}</p>
+          ${core.ui.discussionCardsFor("inv.karlsruhe")}
+        </div>`;
+}
+
+function hitLabel(hit) {
+  const entity = hit.focusEntityIds && hit.focusEntityIds.length === 1 ? entityById(hit.focusEntityIds[0]) : null;
+  return `${escapeHtml(hit.label)}${entity ? mergeChip(entity) : ""}`;
+}
 
 export function renderAnalyticsTool() {
   const selectedRule = analysisState.analytics.find((rule) => rule.id === ui.selectedAnalyticsRuleId);
@@ -28,7 +49,9 @@ export function renderAnalyticsTool() {
                   </div>
                   <div class="microcopy">${escapeHtml(rule.description)}</div>
                   <div class="chip-row">
-                    <span class="stat-pill">${escapeHtml(`${rule.hits.length} hits`)}</span>
+                    ${rule.blocked
+                      ? `<span class="stat-pill stat-blocked">${escapeHtml(`blocked · rule ${rule.blocked.rule.id}`)}</span>`
+                      : `<span class="stat-pill">${escapeHtml(`${rule.hits.length} hits`)}</span>`}
                   </div>
                 </button>
               `
@@ -41,10 +64,15 @@ export function renderAnalyticsTool() {
             <p class="microcopy">${escapeHtml(selectedRule.description)}</p>
             <div class="chip-row">
               <span class="severity-badge ${severityClass(selectedRule.severity)}">${escapeHtml(selectedRule.severity)}</span>
-              <span class="chip">${escapeHtml(`${selectedRule.hits.length} surfaced hits`)}</span>
+              ${selectedRule.blocked
+                ? `<span class="chip chip-blocked">${escapeHtml(`blocked by rule ${selectedRule.blocked.rule.id}`)}</span>`
+                : `<span class="chip">${escapeHtml(`${selectedRule.hits.length} surfaced hits`)}</span>`}
+              ${(selectedRule.purposes || []).map(core.ui.purposeChip).join("")}
             </div>
+            ${selectedRule.exception ? `<p class="microcopy">Exception granted under Checkpoint record <code>${escapeHtml(selectedRule.exception.recordId || "")}</code> (rule ${escapeHtml(selectedRule.exception.rules.join(", "))}).</p>` : ""}
+            ${renderActionFootnote(selectedRule)}
           </div>
-          <div class="property-card">
+          ${selectedRule.blocked ? renderBlockedRule(selectedRule) : `<div class="property-card">
             <h3>Top hits</h3>
             <div class="table-shell">
               <table>
@@ -60,7 +88,7 @@ export function renderAnalyticsTool() {
                   .map(
                     (hit) => `
                         <tr>
-                          <td>${escapeHtml(hit.label)}</td>
+                          <td>${hitLabel(hit)}</td>
                           <td>${escapeHtml(String(hit.score))}</td>
                           <td>${escapeHtml(hit.detail)}</td>
                         </tr>
@@ -70,7 +98,7 @@ export function renderAnalyticsTool() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </div>`}
         </div>
       </div>
     `;

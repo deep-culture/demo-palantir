@@ -19,6 +19,8 @@ import { renderRelationshipsTool } from "./link-types.js";
 import { renderMappingsTool } from "./backing-datasets.js";
 import { renderInstancesTool } from "./objects.js";
 import { renderGraphTool } from "./graph.js";
+import { renderActionDrawer } from "./action-drawer.js";
+import { gateRules } from "../purpose-gate.js";
 
 export function ensureUiSelection() {
   if (!entityTypeById(ui.selectedEntityTypeId)) {
@@ -54,7 +56,8 @@ export function ensureUiSelection() {
 
 export function render() {
   refreshView();
-  analysisState.analytics = buildAnalytics();
+  // Purpose rules (F9) run per rule; a blocked rule keeps no ranking, so no scenario is built from it.
+  analysisState.analytics = gateRules(buildAnalytics());
   analysisState.investigations = buildInvestigations(analysisState.analytics);
   if (copilotState.query) {
     // A question holding a phone number waits for the Checkpoint (see runCopilotQuery).
@@ -76,6 +79,7 @@ export function render() {
           <aside class="inspector">${renderInspector()}</aside>
         </div>
         ${renderWalkthroughCard()}
+        ${renderActionDrawer()}
         <div id="dc-audit-slot"></div>
       </div>
     `;

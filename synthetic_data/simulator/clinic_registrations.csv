@@ -3,7 +3,6 @@ REG-0001,Priya Meyer,1987-09-10,"16 Ermou Street, Larnaca",Larnaca,Cyprus,34.916
 REG-0002,Lena Orlov,1985-02-17,"102 Ermou Street, Larnaca",Larnaca,Cyprus,34.921735,33.61946,CLN-LCA-04,2022-01-23,clinic-ehr
 REG-0003,Rami Keller,1991-12-19,"110 Grigori Afxentiou Avenue, Larnaca",Larnaca,Cyprus,34.913278,33.626997,CLN-LCA-03,2022-02-17,clinic-ehr
 REG-0004,Ben Grant,1984-06-08,"171 Patision Street, Athens",Athens,Greece,37.982986,23.711948,CLN-ATH-03,2022-02-26,clinic-ehr
-REG-0005,Kareem Haddad,1987-04-12,"12 Al Wasl Gardens, Dubai",Dubai,United Arab Emirates,25.1972,55.2422,CLN-DXB-05,2022-03-09,clinic-ehr
 REG-0006,Dina Meyer,1977-02-01,"36 Al Safa Street, Dubai",Dubai,United Arab Emirates,25.193937,55.25534,CLN-DXB-04,2022-04-08,clinic-ehr
 REG-0007,Owen Adler,1997-04-28,"156 Kallidromiou Street, Athens",Athens,Greece,37.985395,23.744837,CLN-ATH-03,2022-04-13,clinic-ehr
 REG-0008,Zane Ionescu,1975-02-28,"55 Umm Suqeim Street, Dubai",Dubai,United Arab Emirates,25.199352,55.28004,CLN-DXB-05,2022-04-21,clinic-ehr
@@ -25,13 +24,11 @@ REG-0023,Dina Quinn,1978-08-08,"7 Agias Zonis Street, Limassol",Limassol,Cyprus,
 REG-0024,Tomas Byrne,1990-07-25,"122 Patision Street, Athens",Athens,Greece,37.980042,23.735212,CLN-ATH-05,2023-12-28,clinic-ehr
 REG-0025,Priya Lopez,1982-04-09,"179 Lordship Lane, London",London,United Kingdom,51.489515,-0.117947,CLN-LON-03,2024-01-08,clinic-ehr
 REG-0026,Ben Byrne,1984-03-22,"75 Kallidromiou Street, Athens",Athens,Greece,37.977632,23.747402,CLN-ATH-06,2024-01-13,clinic-ehr
-REG-0027,Elena Markovic,1990-11-03,"31 Kralja Petra, Belgrade",Belgrade,Serbia,44.8196,20.4553,CLN-BEG-01,2024-02-06,clinic-ehr
 REG-0028,Clara Meyer,1987-10-18,"95 Makariou Avenue, Limassol",Limassol,Cyprus,34.673593,33.019195,CLN-LIM-02,2024-02-20,clinic-ehr
 REG-0029,Priya Keller,1992-12-22,"41 Halaskargazi Caddesi, Istanbul",Istanbul,Turkey,41.004135,28.967687,CLN-IST-05,2024-03-15,clinic-ehr
 REG-0030,Tomas Hale,1988-07-19,"164 Al Safa Street, Dubai",Dubai,United Arab Emirates,25.212773,55.284016,CLN-DXB-03,2024-03-24,clinic-ehr
 REG-0031,Priya Elias,1994-11-04,"33 Mildmay Grove, London",London,United Kingdom,51.508454,-0.123697,CLN-LON-06,2024-05-15,clinic-ehr
 REG-0032,Hanna Moreau,2003-06-08,"114 Al Manara Road, Dubai",Dubai,United Arab Emirates,25.200613,55.271738,CLN-DXB-05,2024-05-19,clinic-ehr
-REG-0033,Sofia Petrov,1988-02-27,"40 Vitosha Boulevard, Sofia",Sofia,Bulgaria,42.6909,23.3196,CLN-SOF-03,2024-07-15,clinic-ehr
 REG-0034,Adam Demir,1993-01-26,"114 Al Manara Road, Dubai",Dubai,United Arab Emirates,25.200613,55.271738,CLN-DXB-05,2024-08-23,clinic-ehr
 REG-0035,Elias Byrne,1985-09-02,"33 Makariou Avenue, Limassol",Limassol,Cyprus,34.702515,33.025204,CLN-LIM-04,2024-08-29,clinic-ehr
 REG-0036,Marcus Rossi,1991-12-06,"113 Grigori Afxentiou Avenue, Larnaca",Larnaca,Cyprus,34.912022,33.617465,CLN-LCA-05,2024-09-26,clinic-ehr
@@ -46,10 +43,8 @@ REG-0044,Rami Keller,1975-06-19,"85 Solonos Street, Athens",Athens,Greece,37.969
 REG-0045,Hugo Demir,1989-11-12,"171 Josefstaedter Strasse, Vienna",Vienna,Austria,48.226912,16.361844,CLN-VIE-04,2025-08-12,clinic-ehr
 REG-0046,Elias Keller,1978-11-07,"154 Seefeldstrasse, Zurich",Zurich,Switzerland,47.373476,8.522646,CLN-ZRH-04,2025-08-21,clinic-ehr
 REG-0047,Owen Turner,1991-12-01,"55 Umm Suqeim Street, Dubai",Dubai,United Arab Emirates,25.199352,55.28004,CLN-DXB-05,2025-09-02,clinic-ehr
-REG-0048,Kareem Haddad,1987-04-12,"7 Anexartisias Street, Limassol",Limassol,Cyprus,34.6762,33.0427,CLN-LIM-02,2025-09-18,clinic-ehr
 REG-0049,Marcus Turner,1987-06-03,"171 Patision Street, Athens",Athens,Greece,37.982986,23.711948,CLN-ATH-03,2025-11-15,clinic-ehr
 REG-0050,Yara Orlov,1996-01-22,"55 Umm Suqeim Street, Dubai",Dubai,United Arab Emirates,25.199352,55.28004,CLN-DXB-05,2025-11-19,clinic-ehr
-REG-0051,Omar Rahman,1984-08-19,"22 Cromer Road, London",London,United Kingdom,51.5462,-0.1103,CLN-LON-04,2025-11-27,clinic-ehr
 REG-0052,Ben Lopez,1988-01-31,"171 Patision Street, Athens",Athens,Greece,37.982986,23.711948,CLN-ATH-03,2025-12-10,clinic-ehr
 REG-0053,Rami Costa,1976-02-11,"9 Langstrasse, Zurich",Zurich,Switzerland,47.372227,8.561091,CLN-ZRH-03,2025-12-12,clinic-ehr
 REG-0054,Lena Orlov,1985-02-17,"9 Langstrasse, Zurich",Zurich,Switzerland,47.372227,8.561091,CLN-ZRH-03,2026-01-03,clinic-ehr
@@ -59,3 +54,71 @@ REG-0057,Rami Costa,1976-02-11,"63 Bagdat Caddesi, Istanbul",Istanbul,Turkey,41.
 REG-0058,Lena Patel,1996-08-23,"163 Moda Caddesi, Istanbul",Istanbul,Turkey,41.012616,28.995176,CLN-IST-02,2026-02-16,clinic-ehr
 REG-0059,Dina Ionescu,1981-04-01,"109 Halaskargazi Caddesi, Istanbul",Istanbul,Turkey,41.014255,28.972589,CLN-IST-02,2026-02-24,clinic-ehr
 REG-0060,Sara Quinn,1984-09-24,"154 Seefeldstrasse, Zurich",Zurich,Switzerland,47.373476,8.522646,CLN-ZRH-04,2026-03-17,clinic-ehr
+REG-0061,Rami Silva,1975-08-12,"36 Al Safa Street, Dubai",Dubai,United Arab Emirates,25.193937,55.25534,CLN-DXB-04,2022-01-03,clinic-ehr
+REG-0062,Ben Keller,1988-08-27,"55 Umm Suqeim Street, Dubai",Dubai,United Arab Emirates,25.199352,55.28004,CLN-DXB-05,2022-01-11,clinic-ehr
+REG-0063,Ben Vale,1991-02-28,"33 Makariou Avenue, Limassol",Limassol,Cyprus,34.702515,33.025204,CLN-LIM-04,2022-01-11,clinic-ehr
+REG-0064,Yara Turner,1975-03-21,"122 Patision Street, Athens",Athens,Greece,37.980042,23.735212,CLN-ATH-05,2022-01-19,clinic-ehr
+REG-0065,Lena Byrne,1987-02-28,"110 Grigori Afxentiou Avenue, Larnaca",Larnaca,Cyprus,34.913278,33.626997,CLN-LCA-03,2022-03-06,clinic-ehr
+REG-0066,Rami Nasser,1991-04-27,"109 Halaskargazi Caddesi, Istanbul",Istanbul,Turkey,41.014255,28.972589,CLN-IST-02,2022-05-10,clinic-ehr
+REG-0067,Lena Demir,1978-02-28,"91 Al Manara Road, Dubai",Dubai,United Arab Emirates,25.196214,55.289529,CLN-DXB-06,2022-05-17,clinic-ehr
+REG-0068,Owen Quinn,1998-11-27,"154 Seefeldstrasse, Zurich",Zurich,Switzerland,47.373476,8.522646,CLN-ZRH-04,2022-05-30,clinic-ehr
+REG-0069,Elias Orlov,1989-04-06,"36 Al Safa Street, Dubai",Dubai,United Arab Emirates,25.193937,55.25534,CLN-DXB-04,2022-06-12,clinic-ehr
+REG-0070,Ben Orlov,1992-04-14,"129 Makariou Avenue, Limassol",Limassol,Cyprus,34.685264,33.04577,CLN-LIM-03,2022-07-06,clinic-ehr
+REG-0071,Dina Costa,1986-05-24,"129 Makariou Avenue, Limassol",Limassol,Cyprus,34.685264,33.04577,CLN-LIM-03,2022-07-12,clinic-ehr
+REG-0072,Nadia Quinn,1991-12-05,"157 Praterstrasse, Vienna",Vienna,Austria,48.224906,16.353954,CLN-VIE-06,2022-07-17,clinic-ehr
+REG-0073,Nadia Meyer,1993-08-26,"36 Al Safa Street, Dubai",Dubai,United Arab Emirates,25.193937,55.25534,CLN-DXB-04,2022-07-28,clinic-ehr
+REG-0074,Jonah Hale,1986-03-10,"114 Al Manara Road, Dubai",Dubai,United Arab Emirates,25.200613,55.271738,CLN-DXB-05,2022-08-03,clinic-ehr
+REG-0075,Lena Ionescu,1988-07-02,"156 Omonoias Avenue, Limassol",Limassol,Cyprus,34.684102,33.044616,CLN-LIM-03,2022-08-09,clinic-ehr
+REG-0076,Ben Byrne,1975-05-24,"3 Mildmay Grove, London",London,United Kingdom,51.494732,-0.117683,CLN-LON-01,2022-09-02,clinic-ehr
+REG-0077,Jonah Grant,1976-08-16,"110 Grigori Afxentiou Avenue, Larnaca",Larnaca,Cyprus,34.913278,33.626997,CLN-LCA-03,2022-09-13,clinic-ehr
+REG-0078,Zane Elias,1984-09-13,"95 Makariou Avenue, Limassol",Limassol,Cyprus,34.673593,33.019195,CLN-LIM-02,2022-10-07,clinic-ehr
+REG-0079,Hugo Rossi,1992-06-26,"156 Kallidromiou Street, Athens",Athens,Greece,37.985395,23.744837,CLN-ATH-03,2022-10-27,clinic-ehr
+REG-0080,Elias Vale,1999-07-13,"100 Lordship Lane, London",London,United Kingdom,51.520118,-0.140408,CLN-LON-01,2022-12-03,clinic-ehr
+REG-0081,Priya Keller,1982-12-08,"113 Grigori Afxentiou Avenue, Larnaca",Larnaca,Cyprus,34.912022,33.617465,CLN-LCA-05,2023-01-25,clinic-ehr
+REG-0082,Priya Silva,1978-05-24,"55 Umm Suqeim Street, Dubai",Dubai,United Arab Emirates,25.199352,55.28004,CLN-DXB-05,2023-02-22,clinic-ehr
+REG-0083,Tomas Elias,1986-04-22,"14 Josefstaedter Strasse, Vienna",Vienna,Austria,48.223258,16.366092,CLN-VIE-03,2023-04-02,clinic-ehr
+REG-0084,Hugo Turner,1991-03-07,"91 Al Manara Road, Dubai",Dubai,United Arab Emirates,25.196214,55.289529,CLN-DXB-06,2023-05-08,clinic-ehr
+REG-0085,Sara Ionescu,1998-10-26,"54 Langstrasse, Zurich",Zurich,Switzerland,47.373811,8.531288,CLN-ZRH-05,2023-06-04,clinic-ehr
+REG-0086,Elias Keller,2000-09-10,"157 Praterstrasse, Vienna",Vienna,Austria,48.224906,16.353954,CLN-VIE-06,2023-06-22,clinic-ehr
+REG-0087,Jose Ferreira,1986-01-11,"9 Langstrasse, Zurich",Zurich,Switzerland,47.372227,8.561091,CLN-ZRH-03,2023-06-24,clinic-ehr
+REG-0088,Adam Silva,1994-09-22,"99 Mildmay Grove, London",London,United Kingdom,51.516794,-0.118285,CLN-LON-05,2023-07-13,clinic-ehr
+REG-0089,Farah Meyer,1985-08-03,"117 Athinon Avenue, Larnaca",Larnaca,Cyprus,34.902891,33.609961,CLN-LCA-02,2023-07-15,clinic-ehr
+REG-0090,Hugo Farouk,1992-03-25,"3 Mildmay Grove, London",London,United Kingdom,51.494732,-0.117683,CLN-LON-01,2023-08-18,clinic-ehr
+REG-0091,Yara Turner,1974-12-06,"117 Athinon Avenue, Larnaca",Larnaca,Cyprus,34.902891,33.609961,CLN-LCA-02,2023-08-18,clinic-ehr
+REG-0092,Priya Costa,1984-06-21,"113 Grigori Afxentiou Avenue, Larnaca",Larnaca,Cyprus,34.912022,33.617465,CLN-LCA-05,2023-08-23,clinic-ehr
+REG-0093,Nadia Farouk,1994-12-19,"41 Halaskargazi Caddesi, Istanbul",Istanbul,Turkey,41.004135,28.967687,CLN-IST-05,2023-09-12,clinic-ehr
+REG-0094,Tomas Keller,1978-08-25,"138 Halaskargazi Caddesi, Istanbul",Istanbul,Turkey,41.013417,28.981072,CLN-IST-01,2023-09-13,clinic-ehr
+REG-0095,Rami Patel,1985-08-17,"109 Halaskargazi Caddesi, Istanbul",Istanbul,Turkey,41.014255,28.972589,CLN-IST-02,2023-09-30,clinic-ehr
+REG-0096,Clara Ionescu,1982-01-04,"95 Makariou Avenue, Limassol",Limassol,Cyprus,34.673593,33.019195,CLN-LIM-02,2023-10-14,clinic-ehr
+REG-0097,Hugo Keller,2000-02-02,"134 Praterstrasse, Vienna",Vienna,Austria,48.20665,16.368901,CLN-VIE-04,2023-10-22,clinic-ehr
+REG-0098,Owen Grant,1978-03-26,"157 Praterstrasse, Vienna",Vienna,Austria,48.224906,16.353954,CLN-VIE-06,2023-11-26,clinic-ehr
+REG-0099,Lena Lopez,1991-01-03,"9 Langstrasse, Zurich",Zurich,Switzerland,47.372227,8.561091,CLN-ZRH-03,2023-12-17,clinic-ehr
+REG-0100,Farah Ionescu,1977-08-23,"157 Praterstrasse, Vienna",Vienna,Austria,48.224906,16.353954,CLN-VIE-06,2024-01-04,clinic-ehr
+REG-0101,Aisha Keller,1993-10-10,"75 Kallidromiou Street, Athens",Athens,Greece,37.977632,23.747402,CLN-ATH-06,2024-04-15,clinic-ehr
+REG-0102,Clara Silva,1977-11-25,"45 Langstrasse, Zurich",Zurich,Switzerland,47.384496,8.551486,CLN-ZRH-04,2024-06-07,clinic-ehr
+REG-0103,Dina Quinn,1998-08-30,"75 Kallidromiou Street, Athens",Athens,Greece,37.977632,23.747402,CLN-ATH-06,2024-07-07,clinic-ehr
+REG-0104,Dina Turner,1999-11-06,"33 Mildmay Grove, London",London,United Kingdom,51.508454,-0.123697,CLN-LON-06,2024-07-08,clinic-ehr
+REG-0105,Aisha Byrne,2000-03-16,"33 Makariou Avenue, Limassol",Limassol,Cyprus,34.702515,33.025204,CLN-LIM-04,2024-07-15,clinic-ehr
+REG-0106,Nadia Orlov,1998-02-22,"113 Grigori Afxentiou Avenue, Larnaca",Larnaca,Cyprus,34.912022,33.617465,CLN-LCA-05,2024-09-23,clinic-ehr
+REG-0107,Maya Singh,1992-09-21,"58 Rue de Carouge, Geneva",Geneva,Switzerland,46.1934,6.1424,CLN-GVA-01,2024-11-05,clinic-ehr
+REG-0108,Marcus Orlov,1998-09-09,"9 Langstrasse, Zurich",Zurich,Switzerland,47.372227,8.561091,CLN-ZRH-03,2024-12-29,clinic-ehr
+REG-0109,Priya Silva,1980-06-27,"41 Halaskargazi Caddesi, Istanbul",Istanbul,Turkey,41.004135,28.967687,CLN-IST-05,2025-01-11,clinic-ehr
+REG-0110,Tomas Hale,1980-09-07,"122 Patision Street, Athens",Athens,Greece,37.980042,23.735212,CLN-ATH-05,2025-02-03,clinic-ehr
+REG-0111,Lena Lopez,1978-09-10,"9 Langstrasse, Zurich",Zurich,Switzerland,47.372227,8.561091,CLN-ZRH-03,2025-02-13,clinic-ehr
+REG-0112,Rami Keller,1984-04-28,"157 Praterstrasse, Vienna",Vienna,Austria,48.224906,16.353954,CLN-VIE-06,2025-03-11,clinic-ehr
+REG-0113,Zane Byrne,2001-05-07,"85 Solonos Street, Athens",Athens,Greece,37.969722,23.713346,CLN-ATH-03,2025-04-24,clinic-ehr
+REG-0114,Yara Demir,1977-04-15,"157 Praterstrasse, Vienna",Vienna,Austria,48.224906,16.353954,CLN-VIE-06,2025-05-06,clinic-ehr
+REG-0115,Rami Patel,1974-10-10,"16 Ermou Street, Larnaca",Larnaca,Cyprus,34.916319,33.642425,CLN-LCA-03,2025-05-09,clinic-ehr
+REG-0116,Clara Costa,1991-12-23,"100 Lordship Lane, London",London,United Kingdom,51.520118,-0.140408,CLN-LON-01,2025-05-27,clinic-ehr
+REG-0117,Tomas Elias,1982-08-10,"33 Makariou Avenue, Limassol",Limassol,Cyprus,34.702515,33.025204,CLN-LIM-04,2025-06-09,clinic-ehr
+REG-0118,Yara Quinn,1980-08-31,"33 Mildmay Grove, London",London,United Kingdom,51.508454,-0.123697,CLN-LON-06,2025-06-18,clinic-ehr
+REG-0119,Nadia Nasser,1982-11-24,"122 Patision Street, Athens",Athens,Greece,37.980042,23.735212,CLN-ATH-05,2025-07-16,clinic-ehr
+REG-0120,Clara Patel,1979-04-09,"56 Gumpendorfer Strasse, Vienna",Vienna,Austria,48.201721,16.378311,CLN-VIE-04,2025-07-17,clinic-ehr
+REG-0121,Zane Ionescu,1975-12-13,"179 Lordship Lane, London",London,United Kingdom,51.489515,-0.117947,CLN-LON-03,2025-07-29,clinic-ehr
+REG-0122,Adam Nasser,1986-04-25,"100 Lordship Lane, London",London,United Kingdom,51.520118,-0.140408,CLN-LON-01,2025-09-21,clinic-ehr
+REG-0123,Tomas Silva,1990-12-03,"164 Al Safa Street, Dubai",Dubai,United Arab Emirates,25.212773,55.284016,CLN-DXB-03,2025-11-01,clinic-ehr
+REG-0124,Aisha Keller,1990-05-11,"56 Seefeldstrasse, Zurich",Zurich,Switzerland,47.362699,8.548637,CLN-ZRH-02,2025-12-03,clinic-ehr
+REG-0125,Jonah Hale,1978-01-20,"134 Praterstrasse, Vienna",Vienna,Austria,48.20665,16.368901,CLN-VIE-04,2026-01-22,clinic-ehr
+REG-0126,Ben Costa,1995-10-20,"7 Agias Zonis Street, Limassol",Limassol,Cyprus,34.682675,33.042949,CLN-LIM-03,2026-03-02,clinic-ehr
+REG-0127,Omar Rahman,1979-02-02,"41 Oak Lane, Birmingham",Birmingham,United Kingdom,52.4421,-1.9368,CLN-BHM-02,2026-03-12,clinic-ehr
+REG-0128,Farah Elias,1975-02-05,"110 Grigori Afxentiou Avenue, Larnaca",Larnaca,Cyprus,34.913278,33.626997,CLN-LCA-03,2026-03-13,clinic-ehr

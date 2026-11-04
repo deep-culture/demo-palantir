@@ -18,7 +18,10 @@
  *   - No checkpoint defined (older seed without governance): fn runs directly, outcome "no-checkpoint".
  *
  *   record = {recordId: "cpr-YYYYMMDD-NNNN", checkpointId, trigger, promptText, justification,
- *             purpose, outcome, objectIds, datasetId, summary, eventId}
+ *             purpose, outcome, objectIds, datasetId, summary, tags, rule, eventId}
+ *   Phase 2: tags = checkpoint.tags ∪ context.tags (e.g. ["exception"] for cp-exception), written to
+ *   payload.tags; context.rule (purpose rule id) and context.purposes go to payload.rule / .purposes.
+ *   checkpoint.minLength is enforced (cp-marking-remove 20, cp-danger-statement 30).
  *   The audit event: kind "checkpoint", verb = trigger, checkpointId = recordId,
  *   payload = {checkpoint, promptText, justification, purpose, outcome, summary}.
  *   Pass record.recordId as checkpointId on the event of the operation itself, so they join.
@@ -128,6 +131,7 @@
   }
 
   function writeRecord(checkpoint, context, fields) {
+    const tags = [...new Set([...(Array.isArray(checkpoint.tags) ? checkpoint.tags : []), ...(Array.isArray(context.tags) ? context.tags : []), ...(checkpoint.id === "cp-exception" ? ["exception"] : [])])];
     const record = {
       recordId: recordId(),
       checkpointId: checkpoint.id,
@@ -139,6 +143,8 @@
       objectIds: (context.objectIds || []).filter(Boolean),
       datasetId: context.datasetId || null,
       summary: context.summary || "",
+      tags,
+      rule: context.rule || null,
       eventId: null,
     };
     if (!DC.audit) return Promise.resolve(record);
@@ -157,6 +163,9 @@
           purpose: record.purpose,
           outcome: record.outcome,
           summary: record.summary,
+          ...(tags.length ? { tags } : {}),
+          ...(record.rule ? { rule: record.rule } : {}),
+          ...(Array.isArray(context.purposes) && context.purposes.length ? { purposes: context.purposes } : {}),
         },
       })
       .then((event) => {

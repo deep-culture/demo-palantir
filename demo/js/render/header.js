@@ -1,5 +1,6 @@
 // demo/js/render/header.js — Header (dataset selector, counts, withheld chip) and tab bar.
 import { escapeHtml } from "../util.js";
+import { renderThresholdChip } from "./resolution.js";
 import {
   ANALYST_TOOLS,
   APP_TITLE,
@@ -42,6 +43,7 @@ export function renderHeader() {
                 `${withheldObjects} object${withheldObjects === 1 ? "" : "s"} and ${withheldLinks} link${withheldLinks === 1 ? "" : "s"} withheld from your role`
               )}${roleView.redactedCount ? escapeHtml(` · ${roleView.redactedCount} objects partly withheld`) : ""}</span>`
             : ""}
+            ${renderThresholdChip()}
           </div>
         </div>
         <div class="actions">
