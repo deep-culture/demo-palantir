@@ -42,6 +42,9 @@ import { render } from "./render/index.js";
 import { WALKTHROUGH_STEPS } from "./render/walkthrough.js";
 import { buildInstanceGraph } from "./render/graph.js";
 import { ACTION_CHANGES, ACTION_CLICKS, ACTION_INPUTS } from "./actions-ui.js";
+import { AGENT_CLICKS } from "./agent-run.js";
+import { LEAD_CHANGES, LEAD_CLICKS, LEAD_INPUTS } from "./leads.js";
+import { SET_CHANGES, SET_CLICKS } from "./object-sets.js";
 import {
   addEntity,
   createEdge,
@@ -57,8 +60,11 @@ import {
 
 // Click handlers keyed by the data-action of the clicked element (or its nearest ancestor).
 export const CLICK_ACTIONS = {
-  // Action drawer, purpose-rule exceptions (actions-ui.js).
+  // Action drawer, purpose-rule exceptions (actions-ui.js); agent run (agent-run.js); leads; object sets.
   ...ACTION_CLICKS,
+  ...AGENT_CLICKS,
+  ...LEAD_CLICKS,
+  ...SET_CLICKS,
 
   "start-walkthrough"(actionTarget) {
     walkthroughState.active = true;
@@ -379,6 +385,8 @@ export function handleClick(event) {
 // Change handlers keyed by the data-scope of the changed control.
 export const CHANGE_SCOPES = {
   ...ACTION_CHANGES,
+  ...LEAD_CHANGES,
+  ...SET_CHANGES,
 
   "dataset"(target) {
     switchDataset(target.value);
@@ -488,6 +496,7 @@ export function handleChange(event) {
 // Input handlers keyed by the data-scope of the edited control.
 export const INPUT_SCOPES = {
   ...ACTION_INPUTS,
+  ...LEAD_INPUTS,
 
   "entity-property"(target) {
     const entity = storedEntityById(target.dataset.entityId);
@@ -501,9 +510,6 @@ export const INPUT_SCOPES = {
 
   "copilot"(target) {
     copilotState.query = target.value;
-    if (!copilotState.query.trim()) {
-      copilotState.result = null;
-    }
     render();
   },
 

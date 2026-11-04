@@ -7,7 +7,7 @@ Usage
 -----
     python3 scripts/build_foundry_seed.py [--output foundry-demo/seed.js]
 
-The script runs the full five-step pipeline for both 'starter' and 'simulator'
+The script runs the full six-step pipeline for both 'starter' and 'simulator'
 datasets and collects:
   - Pipeline DAG descriptor (transforms with embedded source code)
   - Dataset snapshots (schema, sample rows, row counts, lineage links)
@@ -20,6 +20,10 @@ datasets and collects:
   - Phase 2: ``ontology`` (``actionTypes``, ``externalSystems`` from
     pipeline/actions.py) and ``resolution`` (candidate pairs from
     pipeline/candidates.py), identical to the Gotham seed's
+  - Phase 3: transform ``build_leads`` (pipeline/06_build_leads.py) and the
+    ``leads`` dataset (sample rows = the top leads, with row lineage, the
+    formula and the weights); the Gotham seed carries every lead in
+    ``catalog[ds].leads`` (pipeline/leads.py, same items)
 
 Output
 ------
@@ -40,7 +44,7 @@ from typing import Any, Dict, List, Optional, Tuple
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from pipeline import actions, candidates, governance
+from pipeline import actions, candidates, governance, leads
 from pipeline.lib import Dataset, LineageRecord
 from pipeline.seedmeta import build_metadata
 
@@ -62,6 +66,7 @@ step02 = _load_pipeline_module("02_resolve_persons", "step02")
 step03 = _load_pipeline_module("03_resolve_companies", "step03")
 step04 = _load_pipeline_module("04_resolve_accounts", "step04")
 step05 = _load_pipeline_module("05_build_ontology", "step05")
+step06 = _load_pipeline_module("06_build_leads", "step06")
 
 
 # ---------------------------------------------------------------------------
@@ -74,6 +79,7 @@ PIPELINE_CODE_PATHS = {
     "resolve_companies": "pipeline/03_resolve_companies.py",
     "resolve_accounts": "pipeline/04_resolve_accounts.py",
     "build_ontology": "pipeline/05_build_ontology.py",
+    "build_leads": "pipeline/06_build_leads.py",
 }
 
 
@@ -89,6 +95,7 @@ def _load_code(rel_path: str) -> str:
 # ---------------------------------------------------------------------------
 
 SAMPLE_ROWS = 20
+LEAD_SAMPLE_ROWS = 50   # the top leads; every lead is in the Investigate seed
 PAGE_ROWS = 10
 
 
@@ -98,9 +105,10 @@ def _serialise_dataset(
     consumed_by: Optional[List[str]] = None,
     dataset_id: Optional[str] = None,
     raw: bool = False,
+    sample_rows: int = SAMPLE_ROWS,
 ) -> Dict[str, Any]:
     did = dataset_id or ds.name
-    rows_sample = ds.rows[:SAMPLE_ROWS]
+    rows_sample = ds.rows[:sample_rows]
     # JSON-safe: replace any non-serialisable values
     safe_rows = []
     for row in rows_sample:
@@ -126,8 +134,28 @@ def _serialise_dataset(
         # recomputed) from the seed alone.
         "derivedFrom": [] if raw else list(ds.derived_from),
         **ds.governance(),
-        **({"asOf": getattr(ds, "as_of", "")} if raw or produced_by == "normalize_sources" else {}),
+        **({"asOf": getattr(ds, "as_of", "")} if raw or produced_by in ("normalize_sources", "build_leads") else {}),
     }
+
+
+def _serialise_leads(leads_ds: Dataset, lineage: LineageRecord) -> Dict[str, Any]:
+    """The ``leads`` dataset: top rows, their row lineage, formula and weights."""
+    entry = _serialise_dataset(leads_ds, produced_by="build_leads", consumed_by=[],
+                               sample_rows=LEAD_SAMPLE_ROWS)
+    entry["formula"] = leads.FORMULA
+    entry["decayDays"] = leads.DECAY_DAYS
+    entry["weights"] = leads.leads_weights()
+    entry["objectType"] = "Lead"
+    entry["properties"] = [dict(p) for p in leads.LEAD_PROPERTIES]
+    # Row lineage for the sample rows, keyed by lead id (Build's lineage view).
+    entry["rowLineage"] = {
+        row["id"]: {
+            "sourceRows": lineage.sources.get(i, []),
+            "fieldProvenance": lineage.field_provenance.get(i, {}),
+        }
+        for i, row in enumerate(leads_ds.rows[:LEAD_SAMPLE_ROWS])
+    }
+    return entry
 
 
 # ---------------------------------------------------------------------------
@@ -213,6 +241,9 @@ def build_catalog_entry(
         persons_ds, companies_ds, accounts_ds, wl, cr, fm, bt, mp, cl
     )
 
+    # Step 06: Build leads (Phase 3)
+    leads_ds, leads_lineage = step06.run(persons_ds, cl, mp, cr)
+
     # --- Pipeline DAG ---
     transforms = [
         {
@@ -279,6 +310,18 @@ def build_catalog_entry(
             "rowsOut": len(entities_ds) + len(edges_ds),
             "builtAt": generated_at,
         },
+        {
+            "id": "build_leads",
+            "name": "06 Build Leads",
+            "description": "Score each person's best address from three sources: clinic registrations (HEALTH, weight 0.5), mobile location pings (TELECOM, 0.4) and the company registry (OPEN, 0.3), each decayed by age: score = 100 · min(1, Σ weight · exp(−ageDays / 365)). One lead per person with an address source; the output inherits every input's markings.",
+            "inputs": ["resolved_persons", "norm_clinic_registrations", "norm_mobile_pings", "norm_company_registry"],
+            "output": "leads",
+            "codePath": PIPELINE_CODE_PATHS["build_leads"],
+            "code": codes["build_leads"],
+            "rowsIn": len(persons_ds) + len(cl) + len(mp) + len(cr),
+            "rowsOut": len(leads_ds),
+            "builtAt": generated_at,
+        },
     ]
 
     # Fix rowsIn for normalize_sources
@@ -294,15 +337,15 @@ def build_catalog_entry(
 
     norm_datasets = [
         _serialise_dataset(wl, produced_by="normalize_sources", consumed_by=["resolve_persons", "build_ontology"]),
-        _serialise_dataset(cr, produced_by="normalize_sources", consumed_by=["resolve_persons", "resolve_companies", "build_ontology"]),
+        _serialise_dataset(cr, produced_by="normalize_sources", consumed_by=["resolve_persons", "resolve_companies", "build_ontology", "build_leads"]),
         _serialise_dataset(fm, produced_by="normalize_sources", consumed_by=["resolve_persons", "build_ontology"]),
         _serialise_dataset(bt, produced_by="normalize_sources", consumed_by=["resolve_accounts", "build_ontology"]),
-        _serialise_dataset(mp, produced_by="normalize_sources", consumed_by=["resolve_persons", "build_ontology"]),
-        _serialise_dataset(cl, produced_by="normalize_sources", consumed_by=["resolve_persons", "build_ontology"]),
+        _serialise_dataset(mp, produced_by="normalize_sources", consumed_by=["resolve_persons", "build_ontology", "build_leads"]),
+        _serialise_dataset(cl, produced_by="normalize_sources", consumed_by=["resolve_persons", "build_ontology", "build_leads"]),
     ]
 
     resolved_datasets = [
-        _serialise_dataset(persons_ds, produced_by="resolve_persons", consumed_by=["build_ontology"]),
+        _serialise_dataset(persons_ds, produced_by="resolve_persons", consumed_by=["build_ontology", "build_leads"]),
         _serialise_dataset(companies_ds, produced_by="resolve_companies", consumed_by=["build_ontology"]),
         _serialise_dataset(accounts_ds, produced_by="resolve_accounts", consumed_by=["build_ontology"]),
     ]
@@ -310,6 +353,7 @@ def build_catalog_entry(
     final_datasets = [
         _serialise_dataset(entities_ds, produced_by="build_ontology", consumed_by=[]),
         _serialise_dataset(edges_ds, produced_by="build_ontology", consumed_by=[]),
+        _serialise_leads(leads_ds, leads_lineage),
     ]
 
     all_datasets = raw_datasets + norm_datasets + resolved_datasets + final_datasets

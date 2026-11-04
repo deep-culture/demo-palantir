@@ -226,6 +226,9 @@ DOC_AGENT_STUDIO = "https://www.palantir.com/docs/foundry/agent-studio/overview"
 DOC_PEPR = "https://fpf.org/wp-content/uploads/2021/06/Session-8-2-Lightweight-Purpose-by-Jagasia-Wee.pdf"
 DOC_BVERFG = "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html"
 DOC_ALEPH = "https://docs.aleph.occrp.org/developers/mappings"
+DOC_ELITE = "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite"
+DOC_APOLLO = "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379"
+DOC_MAVEN = "https://defensescoop.com/2025/05/23/dod-palantir-maven-smart-system-contract-increase/"
 
 HONESTY_LABELS = {
     "mirrors": "Mirrors Foundry",
@@ -236,7 +239,9 @@ HONESTY_LABELS = {
 HONESTY: List[Dict[str, Any]] = [
     {
         "id": "inv.agent", "kind": "simplified", "title": "Agent (simulated AIP)",
-        "text": "Rule-based stand-in for an AIP chatbot; it cannot invent objects. Real AIP uses an LLM with tools and stages edits for review.",
+        "text": ("Scripted stand-in for an AIP agent, with no language model: it plans tool calls from your question by fixed rules, "
+                 "runs each call through your role, the purpose rules, Checkpoints and the audit log, cites the objects behind "
+                 "its claims and stages edits for review. Real AIP agents use an LLM with tools; here the failures are scripted for teaching."),
         "docUrl": DOC_AGENT_STUDIO,
     },
     {
@@ -335,6 +340,33 @@ HONESTY: List[Dict[str, Any]] = [
         "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
         "docUrl": DOC_ALEPH,
     },
+    # Phase 3 (PHASE3_CONTRACT.md §1)
+    {
+        "id": "inv.leads", "kind": "simplified", "title": "Leads",
+        "text": ("A 0\u2013100 address confidence score from source type and age, in the style of ICE's ELITE app. "
+                 "Simplified: the formula is ours; ELITE's is not public. Here every weight, age and source is shown."),
+        "docUrl": DOC_ELITE,
+    },
+    {
+        "id": "inv.object-sets", "kind": "mirrors", "title": "Object sets",
+        "text": ("Saved, shareable lists of objects whose membership changes over time, as with Foundry object sets. "
+                 "Here versions and sharing are kept in your browser, and sharing is simulated by role."),
+        "docUrl": DOC_CORE_CONCEPTS,
+    },
+    {
+        "id": "build.retention", "kind": "simplified", "title": "Retention",
+        "text": ("Each dataset carries a retention period; the slider greys out rows past it and counts derived rows that still "
+                 "carry them. Simplified: nothing is ever deleted here, and in a real platform deletion has to reach every "
+                 "derived dataset, export and copy."),
+        "docUrl": None,
+    },
+    {
+        "id": "deployment", "kind": "extension", "title": "Deployment",
+        "text": ("Where this classroom tool lives: static files on GitHub Pages, map tiles from OpenStreetMap, and the session, "
+                 "audit log and governance in your own browser's localStorage, with nothing on a server. Not a Palantir view: "
+                 "real deployments run in the customer's cloud or on premises, updated by Apollo."),
+        "docUrl": DOC_APOLLO,
+    },
 ]
 for _entry in HONESTY:
     _entry["label"] = HONESTY_LABELS[_entry["kind"]]
@@ -351,7 +383,7 @@ DISCUSSIONS: List[Dict[str, Any]] = [
     {
         "id": "disc-ice-elite",
         "title": "ICE: ImmigrationOS and ELITE (2025\u201326)",
-        "attachedTo": ["build.markings"],
+        "attachedTo": ["build.markings", "inv.leads"],
         "summary": ("In April 2025 US Immigration and Customs Enforcement gave Palantir a $30m contract, without competition, "
                     "for an \"ImmigrationOS\" targeting and removal platform. ELITE, reported in January 2026, is a map-based app "
                     "for finding people that draws on Medicaid, USCIS and Thomson Reuters CLEAR data and shows a 0\u2013100 "
@@ -423,7 +455,7 @@ DISCUSSIONS: List[Dict[str, Any]] = [
     {
         "id": "disc-pol-intel",
         "title": "Denmark: POL-INTEL and European exits",
-        "attachedTo": ["build.pipelines"],
+        "attachedTo": ["build.pipelines", "deployment"],
         "summary": ("Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under "
                     "the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, "
                     "and other European governments are re-evaluating their agreements with US defence-technology suppliers."),
@@ -435,6 +467,22 @@ DISCUSSIONS: List[Dict[str, Any]] = [
             "https://researcher.itu.dk/p/en/research-outputs/scientification-through-privatization-pol-intel-in-denmark",
             "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor",
         ],
+    },
+    # Phase 3 (PHASE3_CONTRACT.md §1; spec §5.4; research §A, §C.7)
+    {
+        "id": "disc-maven",
+        "title": "Maven Smart System",
+        "attachedTo": ["inv.agent"],
+        "summary": ("Maven Smart System is the Pentagon's AI and data-fusion system for command and targeting, built on "
+                    "Palantir software: it detects, tags and tracks. In May 2025 the contract ceiling rose to about $1.3bn "
+                    "through 2029, with more than 20,000 users. There is a NATO version, and Denmark has a deal combining "
+                    "Maven with Foundry. Like an AIP agent, it puts machine suggestions in front of people who decide "
+                    "what to act on; at that scale, how closely each suggestion is checked is an open question."),
+        "questions": [
+            "What does \"human in the loop\" mean when more than 20,000 users each review machine suggestions?",
+            "Which of this agent's scripted failures would be hardest to catch at that scale, and who would notice?",
+        ],
+        "sources": [DOC_MAVEN],
     },
 ]
 for _card in DISCUSSIONS:

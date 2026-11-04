@@ -141,7 +141,7 @@ export function renderInspector() {
 
 export function getInspectorSelection() {
   if (ui.activeTool === "copilot") {
-    return copilotState.result || { query: copilotState.query };
+    return copilotState.run || { query: copilotState.query };
   }
   if (ui.activeTool === "map") {
     const mapData = buildMapData();
@@ -252,23 +252,20 @@ export function renderInsightPanel(selection) {
   }
 
   if (tool === "copilot") {
-    const result = copilotState.result;
-    if (!result) return `<p class="microcopy">Ask the agent a question to see its evidence here.</p>`;
-    const focusEntity = result.focusEntities?.[0];
+    const run = copilotState.run;
+    if (!run) return `<p class="microcopy">Ask the agent a question to see its evidence here.</p>`;
+    const focus = entityById(ui.selectedEntityId) || entityById(run.focusIds?.[0]);
+    const denied = run.steps.filter((step) => step.denied).length;
     return `
-        ${focusEntity ? `
+        ${insightRow("Run", `${run.id} · ${run.steps.length} tool calls${denied ? ` · ${denied} denied` : ""}`)}
+        ${focus ? `
           <div class="insight-section">
-            <div class="insight-label">Primary focus</div>
-            <div class="insight-value" style="font-weight:600">${escapeHtml(focusEntity.label)}</div>
-            <div class="microcopy">${escapeHtml(focusEntity.type)}</div>
-          </div>
-          <div class="insight-section">
-            <div class="insight-label">Why this object</div>
-            <div class="microcopy">${escapeHtml(focusEntity.reason)}</div>
+            <div class="insight-label">Selected object</div>
+            <div class="insight-value" style="font-weight:600">${escapeHtml(focus.label)}</div>
+            <div class="microcopy">${escapeHtml(focus.type)} · ${escapeHtml(summarizeEntityForCopilot(focus).headline)}</div>
           </div>
         ` : ""}
-        ${result.evidence?.length ? `<div class="insight-section"><div class="insight-label">Linked evidence</div>${insightEvidenceList(result.evidence.slice(0, 5))}</div>` : ""}
-        <div class="teaching-tip"><strong>Teaching tip</strong>This answer is assembled from graph links, not generated text. Ask students how it would change if a source link was missing.</div>
+        <div class="teaching-tip"><strong>Teaching tip</strong>The answer is assembled from tool results, and each sentence names what it rests on. Ask students which citation they would check first, and what “approve all” saves and costs.</div>
       `;
   }
 

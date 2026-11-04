@@ -2,20 +2,20 @@ window.foundrySeedCatalog = {
   "starter": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:381f3334efbd8d5343955cdda58a51b6fbc3d744b3b4b973ee7b1d557d04ba51",
+      "buildId": "sha256:fd63e98044f8b3ba46a74a972a482879313adab58ca19d77a9f5d309b9e9b7d7",
       "sources": {
         "bank_transactions.csv": "sha256:0a88981afca6d5f129af59d9eddd670b4fd4786b8d2cca104bbf905f06e94687",
         "clinic_registrations.csv": "sha256:68a6e5270a055ceb0bf89c3b136a110405c95408ba7e9943137a72548b57588d",
         "company_registry.csv": "sha256:61b9b813d730ad7e821efb2fe8235972cbd2bc0c7bcd7914da0cc876da623a1c",
         "flight_manifests.csv": "sha256:4c2e299db65b59c5b85a359c1303f5d656d3b28011d95c3c0cc65d949b9893b8",
         "manifest.json": "sha256:1b5b5a5204a6e1508552fef76f1fc4c3490241e1ab4ba09eda8d3accdece7004",
-        "mobile_location_pings.jsonl": "sha256:eb565ce866d9b7cbe93345f0781dd446b67fe07edf67ab573d472cc6d3ccfe48",
+        "mobile_location_pings.jsonl": "sha256:cac9ef6d62b0f0edaff019fc012eeabc151ecb3a7622ea27b4adf36475b36be8",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_foundry_seed.py@c3b5739",
+      "builder": "build_foundry_seed.py@dd0e658",
       "title": "Foundry Studio Demo",
       "dataset": "starter",
-      "generatedAt": "2026-11-04T17:35:57.828396Z"
+      "generatedAt": "2026-11-04T18:51:31.555357Z"
     },
     "governance": {
       "markings": [
@@ -269,7 +269,7 @@ window.foundrySeedCatalog = {
           "kind": "simplified",
           "label": "Simplified",
           "title": "Agent (simulated AIP)",
-          "text": "Rule-based stand-in for an AIP chatbot; it cannot invent objects. Real AIP uses an LLM with tools and stages edits for review.",
+          "text": "Scripted stand-in for an AIP agent, with no language model: it plans tool calls from your question by fixed rules, runs each call through your role, the purpose rules, Checkpoints and the audit log, cites the objects behind its claims and stages edits for review. Real AIP agents use an LLM with tools; here the failures are scripted for teaching.",
           "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview"
         },
         {
@@ -423,6 +423,38 @@ window.foundrySeedCatalog = {
           "title": "Entity resolution",
           "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
           "docUrl": "https://docs.aleph.occrp.org/developers/mappings"
+        },
+        {
+          "id": "inv.leads",
+          "kind": "simplified",
+          "label": "Simplified",
+          "title": "Leads",
+          "text": "A 0–100 address confidence score from source type and age, in the style of ICE's ELITE app. Simplified: the formula is ours; ELITE's is not public. Here every weight, age and source is shown.",
+          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite"
+        },
+        {
+          "id": "inv.object-sets",
+          "kind": "mirrors",
+          "label": "Mirrors Foundry",
+          "title": "Object sets",
+          "text": "Saved, shareable lists of objects whose membership changes over time, as with Foundry object sets. Here versions and sharing are kept in your browser, and sharing is simulated by role.",
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+        },
+        {
+          "id": "build.retention",
+          "kind": "simplified",
+          "label": "Simplified",
+          "title": "Retention",
+          "text": "Each dataset carries a retention period; the slider greys out rows past it and counts derived rows that still carry them. Simplified: nothing is ever deleted here, and in a real platform deletion has to reach every derived dataset, export and copy.",
+          "docUrl": null
+        },
+        {
+          "id": "deployment",
+          "kind": "extension",
+          "label": "Teaching extension",
+          "title": "Deployment",
+          "text": "Where this classroom tool lives: static files on GitHub Pages, map tiles from OpenStreetMap, and the session, audit log and governance in your own browser's localStorage, with nothing on a server. Not a Palantir view: real deployments run in the customer's cloud or on premises, updated by Apollo.",
+          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379"
         }
       ],
       "purposeRules": [
@@ -474,7 +506,8 @@ window.foundrySeedCatalog = {
           "id": "disc-ice-elite",
           "title": "ICE: ImmigrationOS and ELITE (2025–26)",
           "attachedTo": [
-            "build.markings"
+            "build.markings",
+            "inv.leads"
           ],
           "summary": "In April 2025 US Immigration and Customs Enforcement gave Palantir a $30m contract, without competition, for an \"ImmigrationOS\" targeting and removal platform. ELITE, reported in January 2026, is a map-based app for finding people that draws on Medicaid, USCIS and Thomson Reuters CLEAR data and shows a 0–100 \"address confidence score\". Court filings in July 2026 describe Medicaid data, shared beyond what a court order allowed, reaching Palantir through a Teams chat; Palantir says the data was deleted.",
           "questions": [
@@ -545,7 +578,8 @@ window.foundrySeedCatalog = {
           "id": "disc-pol-intel",
           "title": "Denmark: POL-INTEL and European exits",
           "attachedTo": [
-            "build.pipelines"
+            "build.pipelines",
+            "deployment"
           ],
           "summary": "Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, and other European governments are re-evaluating their agreements with US defence-technology suppliers.",
           "questions": [
@@ -555,6 +589,22 @@ window.foundrySeedCatalog = {
           "sources": [
             "https://researcher.itu.dk/p/en/research-outputs/scientification-through-privatization-pol-intel-in-denmark",
             "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-maven",
+          "title": "Maven Smart System",
+          "attachedTo": [
+            "inv.agent"
+          ],
+          "summary": "Maven Smart System is the Pentagon's AI and data-fusion system for command and targeting, built on Palantir software: it detects, tags and tracks. In May 2025 the contract ceiling rose to about $1.3bn through 2029, with more than 20,000 users. There is a NATO version, and Denmark has a deal combining Maven with Foundry. Like an AIP agent, it puts machine suggestions in front of people who decide what to act on; at that scale, how closely each suggestion is checked is an open question.",
+          "questions": [
+            "What does \"human in the loop\" mean when more than 20,000 users each review machine suggestions?",
+            "Which of this agent's scripted failures would be hardest to catch at that scale, and who would notice?"
+          ],
+          "sources": [
+            "https://defensescoop.com/2025/05/23/dod-palantir-maven-smart-system-contract-increase/"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         }
@@ -791,6 +841,60 @@ window.foundrySeedCatalog = {
           ],
           "feedsAnalytics": true,
           "honesty": "inv.actions"
+        },
+        {
+          "id": "act-close-lead",
+          "label": "Close lead",
+          "objectType": "Lead",
+          "sensitive": false,
+          "description": "Close an address lead with an outcome and send it to case management. The lead stays in the list, marked closed.",
+          "parameters": [
+            {
+              "id": "outcome",
+              "label": "Outcome",
+              "type": "enum",
+              "required": true,
+              "options": [
+                "no-action",
+                "referred",
+                "address-wrong"
+              ]
+            },
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst"
+          ],
+          "effects": [
+            {
+              "op": "setProperty",
+              "property": "status",
+              "from": "value:closed"
+            },
+            {
+              "op": "setProperty",
+              "property": "outcome",
+              "from": "param:outcome"
+            },
+            {
+              "op": "setProperty",
+              "property": "closeReason",
+              "from": "param:reason"
+            },
+            {
+              "op": "writeback",
+              "system": "case-management",
+              "template": "CLOSE LEAD {id} for {personId} ({outcome}, score {score}) by {role}: {reason}"
+            }
+          ],
+          "feedsAnalytics": false,
+          "honesty": "inv.actions"
         }
       ],
       "externalSystems": [
@@ -807,7 +911,7 @@ window.foundrySeedCatalog = {
         {
           "id": "case-management",
           "label": "Case management",
-          "description": "Simulated case file system. Receives identity corrections such as unmerges."
+          "description": "Simulated case file system. Receives identity corrections such as unmerges, and closed leads."
         }
       ]
     },
@@ -1001,7 +1105,7 @@ window.foundrySeedCatalog = {
       ]
     },
     "pipeline": {
-      "generatedAt": "2026-11-04T17:35:57.828396Z",
+      "generatedAt": "2026-11-04T18:51:31.555357Z",
       "transforms": [
         {
           "id": "normalize_sources",
@@ -1019,8 +1123,8 @@ window.foundrySeedCatalog = {
           "codePath": "pipeline/01_normalize_sources.py",
           "code": "\"\"\"\npipeline/01_normalize_sources.py — Read and normalize all six raw source files.\n\nFor each source:\n- Strip whitespace from all string fields\n- Parse date/datetime strings to ISO format (leave as-is if already ISO)\n- Split pipe-delimited alias fields into Python lists\n- Tag each row with its original 0-based row index as ``_source_row``\n- Copy the dataset's markings, purpose, legal basis and retention from\n  ``manifest.json`` (Dataset.markings / Dataset.purpose / ...), with\n  ``markingProvenance`` pointing at the raw file\n\nReturns six Dataset objects (one per source file).  The clinic file is\noptional: a profile without it yields an empty ``norm_clinic_registrations``.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport csv\nimport json\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\n# Allow imports from the repo root when run directly\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _strip(value: Any) -> Any:\n    if isinstance(value, str):\n        return value.strip()\n    return value\n\n\ndef _clean_row(row: Dict[str, Any]) -> Dict[str, Any]:\n    return {k: _strip(v) for k, v in row.items()}\n\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\n\n\ndef source_label(path: Path) -> str:\n    \"\"\"Repo-relative POSIX path of a raw source file (absolute if outside the repo).\"\"\"\n    resolved = Path(path).resolve()\n    try:\n        return resolved.relative_to(REPO_ROOT).as_posix()\n    except ValueError:\n        return resolved.as_posix()\n\n\ndef read_csv_raw(path: Path) -> List[Dict[str, str]]:\n    with path.open(newline=\"\", encoding=\"utf-8\") as fh:\n        return list(csv.DictReader(fh))\n\n\ndef read_jsonl_raw(path: Path) -> List[Dict[str, Any]]:\n    with path.open(encoding=\"utf-8\") as fh:\n        return [json.loads(line) for line in fh if line.strip()]\n\n\n# ---------------------------------------------------------------------------\n# Per-source normalizers\n# ---------------------------------------------------------------------------\n\ndef normalize_watchlist(path: Path) -> Dataset:\n    \"\"\"watchlist.csv → cleaned rows with aliases as list.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        # Split pipe-delimited aliases\n        raw_alias = row.get(\"alias\", \"\")\n        alias_list = [a.strip() for a in raw_alias.split(\"|\") if a.strip()] if raw_alias else []\n        out.append({\n            \"_source_row\": i,\n            \"watchlist_id\": row.get(\"watchlist_id\", \"\"),\n            \"canonical_name\": row.get(\"canonical_name\", \"\"),\n            \"aliases\": alias_list,\n            \"dob\": row.get(\"dob\", \"\"),\n            \"nationality\": row.get(\"nationality\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"risk_tag\": row.get(\"risk_tag\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"watchlist_id\", \"type\": \"string\"},\n        {\"field\": \"canonical_name\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"json\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"risk_tag\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_watchlist\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_company_registry(path: Path) -> Dataset:\n    \"\"\"company_registry.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"company_id\": row.get(\"company_id\", \"\"),\n            \"company_name\": row.get(\"company_name\", \"\"),\n            \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n            \"incorporation_date\": row.get(\"incorporation_date\", \"\"),\n            \"registered_address\": row.get(\"registered_address\", \"\"),\n            \"director_name\": row.get(\"director_name\", \"\"),\n            \"director_dob\": row.get(\"director_dob\", \"\"),\n            \"beneficial_owner\": row.get(\"beneficial_owner\", \"\"),\n            \"beneficial_owner_dob\": row.get(\"beneficial_owner_dob\", \"\"),\n            \"registered_city\": row.get(\"registered_city\", \"\"),\n            \"registered_country\": row.get(\"registered_country\", \"\"),\n            \"registered_site_type\": row.get(\"registered_site_type\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"company_id\", \"type\": \"string\"},\n        {\"field\": \"company_name\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporation_date\", \"type\": \"date\"},\n        {\"field\": \"registered_address\", \"type\": \"string\"},\n        {\"field\": \"director_name\", \"type\": \"string\"},\n        {\"field\": \"director_dob\", \"type\": \"date\"},\n        {\"field\": \"beneficial_owner\", \"type\": \"string\"},\n        {\"field\": \"beneficial_owner_dob\", \"type\": \"date\"},\n        {\"field\": \"registered_city\", \"type\": \"string\"},\n        {\"field\": \"registered_country\", \"type\": \"string\"},\n        {\"field\": \"registered_site_type\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_company_registry\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_flight_manifests(path: Path) -> Dataset:\n    \"\"\"flight_manifests.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"manifest_id\": row.get(\"manifest_id\", \"\"),\n            \"flight_number\": row.get(\"flight_number\", \"\"),\n            \"departure_airport\": row.get(\"departure_airport\", \"\"),\n            \"arrival_airport\": row.get(\"arrival_airport\", \"\"),\n            \"departure_ts\": row.get(\"departure_ts\", \"\"),\n            \"booking_reference\": row.get(\"booking_reference\", \"\"),\n            \"passenger_name\": row.get(\"passenger_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"phone_number\": row.get(\"phone_number\", \"\"),\n            \"seat\": row.get(\"seat\", \"\"),\n            \"payment_card_last4\": row.get(\"payment_card_last4\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"manifest_id\", \"type\": \"string\"},\n        {\"field\": \"flight_number\", \"type\": \"string\"},\n        {\"field\": \"departure_airport\", \"type\": \"string\"},\n        {\"field\": \"arrival_airport\", \"type\": \"string\"},\n        {\"field\": \"departure_ts\", \"type\": \"date\"},\n        {\"field\": \"booking_reference\", \"type\": \"string\"},\n        {\"field\": \"passenger_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"seat\", \"type\": \"string\"},\n        {\"field\": \"payment_card_last4\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_flight_manifests\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_bank_transactions(path: Path) -> Dataset:\n    \"\"\"bank_transactions.csv → cleaned rows with numeric amount.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        amount_raw = row.get(\"amount_usd\", \"\")\n        try:\n            amount = float(amount_raw) if amount_raw else None\n        except ValueError:\n            amount = None\n        out.append({\n            \"_source_row\": i,\n            \"transaction_id\": row.get(\"transaction_id\", \"\"),\n            \"source_account_id\": row.get(\"source_account_id\", \"\"),\n            \"source_name\": row.get(\"source_name\", \"\"),\n            \"destination_account_id\": row.get(\"destination_account_id\", \"\"),\n            \"destination_name\": row.get(\"destination_name\", \"\"),\n            \"amount_usd\": amount,\n            \"txn_type\": row.get(\"txn_type\", \"\"),\n            \"merchant_or_bank\": row.get(\"merchant_or_bank\", \"\"),\n            \"txn_ts\": row.get(\"txn_ts\", \"\"),\n            \"reference\": row.get(\"reference\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"transaction_id\", \"type\": \"string\"},\n        {\"field\": \"source_account_id\", \"type\": \"string\"},\n        {\"field\": \"source_name\", \"type\": \"string\"},\n        {\"field\": \"destination_account_id\", \"type\": \"string\"},\n        {\"field\": \"destination_name\", \"type\": \"string\"},\n        {\"field\": \"amount_usd\", \"type\": \"float\"},\n        {\"field\": \"txn_type\", \"type\": \"string\"},\n        {\"field\": \"merchant_or_bank\", \"type\": \"string\"},\n        {\"field\": \"txn_ts\", \"type\": \"date\"},\n        {\"field\": \"reference\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_bank_transactions\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_mobile_pings(path: Path) -> Dataset:\n    \"\"\"mobile_location_pings.jsonl → cleaned rows with numeric lat/lon.\"\"\"\n    rows = read_jsonl_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        out.append({\n            \"_source_row\": i,\n            \"ping_id\": str(row.get(\"ping_id\", \"\")),\n            \"device_id\": str(row.get(\"device_id\", \"\")),\n            \"phone_number\": str(row.get(\"phone_number\", \"\")),\n            \"observed_name\": str(row.get(\"observed_name\", \"\")),\n            \"timestamp\": str(row.get(\"timestamp\", \"\")),\n            \"location_label\": str(row.get(\"location_label\", \"\")),\n            \"location_type\": str(row.get(\"location_type\", \"\")),\n            \"city\": str(row.get(\"city\", \"\")),\n            \"country\": str(row.get(\"country\", \"\")),\n            \"lat\": row.get(\"lat\"),\n            \"lon\": row.get(\"lon\"),\n            \"cell_tower\": str(row.get(\"cell_tower\", \"\")),\n            \"source\": str(row.get(\"source\", \"\")),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"ping_id\", \"type\": \"string\"},\n        {\"field\": \"device_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"observed_name\", \"type\": \"string\"},\n        {\"field\": \"timestamp\", \"type\": \"date\"},\n        {\"field\": \"location_label\", \"type\": \"string\"},\n        {\"field\": \"location_type\", \"type\": \"string\"},\n        {\"field\": \"city\", \"type\": \"string\"},\n        {\"field\": \"country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"cell_tower\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_mobile_pings\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef _float_or_none(value: Any) -> Any:\n    try:\n        return float(value) if value not in (None, \"\") else None\n    except ValueError:\n        return None\n\n\ndef normalize_clinic(path: Path) -> Dataset:\n    \"\"\"clinic_registrations.csv → cleaned rows with numeric lat/lon.\n\n    Health data: rows are only ever *attached* to people who already exist\n    (by name + dob, in step 02); an unmatched row stays in this dataset.\n    \"\"\"\n    rows = read_csv_raw(path) if path.exists() else []\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"registration_id\": row.get(\"registration_id\", \"\"),\n            \"patient_name\": row.get(\"patient_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"home_address\": row.get(\"home_address\", \"\"),\n            \"home_city\": row.get(\"home_city\", \"\"),\n            \"home_country\": row.get(\"home_country\", \"\"),\n            \"lat\": _float_or_none(row.get(\"lat\")),\n            \"lon\": _float_or_none(row.get(\"lon\")),\n            \"clinic_code\": row.get(\"clinic_code\", \"\"),\n            \"registered_on\": row.get(\"registered_on\", \"\"),\n            \"source\": row.get(\"source\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"registration_id\", \"type\": \"string\"},\n        {\"field\": \"patient_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"home_address\", \"type\": \"string\"},\n        {\"field\": \"home_city\", \"type\": \"string\"},\n        {\"field\": \"home_country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"clinic_code\", \"type\": \"string\"},\n        {\"field\": \"registered_on\", \"type\": \"date\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_clinic_registrations\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef apply_manifest(ds: Dataset, manifest: Dict[str, Dict[str, Any]], file_name: str) -> Dataset:\n    \"\"\"Copy markings, purpose, legal basis and retention from the manifest.\"\"\"\n    entry = governance.manifest_entry_for_file(manifest, file_name)\n    ds.set_governance(governance.raw_governance(file_name, entry))\n    ds.as_of = entry.get(\"asOf\", \"\")  # type: ignore[attr-defined]\n    ds.derived_from = [file_name]\n    return ds\n\n\n# ---------------------------------------------------------------------------\n# Public entry point\n# ---------------------------------------------------------------------------\n\nRAW_FILES = (\n    \"watchlist.csv\", \"company_registry.csv\", \"flight_manifests.csv\",\n    \"bank_transactions.csv\", \"mobile_location_pings.jsonl\", \"clinic_registrations.csv\",\n)\n\n\ndef run(dataset_dir: Path) -> Tuple[Dataset, Dataset, Dataset, Dataset, Dataset, Dataset]:\n    \"\"\"Normalize all six sources under *dataset_dir*.\n\n    Returns\n    -------\n    (norm_watchlist, norm_company_registry, norm_flight_manifests,\n     norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations)\n    \"\"\"\n    dataset_dir = Path(dataset_dir)\n    manifest = governance.load_manifest(dataset_dir)\n    wl = normalize_watchlist(dataset_dir / \"watchlist.csv\")\n    cr = normalize_company_registry(dataset_dir / \"company_registry.csv\")\n    fm = normalize_flight_manifests(dataset_dir / \"flight_manifests.csv\")\n    bt = normalize_bank_transactions(dataset_dir / \"bank_transactions.csv\")\n    mp = normalize_mobile_pings(dataset_dir / \"mobile_location_pings.jsonl\")\n    cl = normalize_clinic(dataset_dir / \"clinic_registrations.csv\")\n\n    datasets = (wl, cr, fm, bt, mp, cl)\n    for ds, file_name in zip(datasets, RAW_FILES):\n        apply_manifest(ds, manifest, file_name)\n    return datasets\n\n\nif __name__ == \"__main__\":\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    datasets = run(dataset_dir)\n    for ds in datasets:\n        print(f\"{ds.name}: {len(ds)} rows\")\n",
           "rowsIn": 0,
-          "rowsOut": 172,
-          "builtAt": "2026-11-04T17:35:57.828396Z"
+          "rowsOut": 175,
+          "builtAt": "2026-11-04T18:51:31.555357Z"
         },
         {
           "id": "resolve_persons",
@@ -1036,9 +1140,9 @@ window.foundrySeedCatalog = {
           "output": "resolved_persons",
           "codePath": "pipeline/02_resolve_persons.py",
           "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (HEALTH)\n  clinicCode       — latest clinic registration (HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
-          "rowsIn": 138,
+          "rowsIn": 141,
           "rowsOut": 24,
-          "builtAt": "2026-11-04T17:35:57.828396Z"
+          "builtAt": "2026-11-04T18:51:31.555357Z"
         },
         {
           "id": "resolve_companies",
@@ -1052,7 +1156,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/03_resolve_companies.py — Entity resolution for Company entities.\n\nKeyed by company_id from the normalized company_registry dataset.\n\nOutput Dataset: company entities\n  id                 — company::{slug(company_id)}\n  companyName\n  jurisdiction\n  incorporationDate\n  registeredAddress\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef run(norm_company_registry: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve Company entities from the normalized company_registry dataset.\"\"\"\n    seen: Dict[str, int] = {}   # company_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for row in norm_company_registry.rows:\n        company_id = row.get(\"company_id\", \"\")\n        if not company_id:\n            continue\n\n        src_row = int(row[\"_source_row\"])\n        ds_name = norm_company_registry.name\n\n        if company_id in seen:\n            # Merge into existing — update any empty fields\n            out_idx = seen[company_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                val = row.get(src_field, \"\")\n                if val and not existing.get(out_field):\n                    existing[out_field] = val\n                    fp.setdefault(out_field, []).append(\n                        {\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"merge\"}\n                    )\n        else:\n            out_idx = len(output_rows)\n            seen[company_id] = out_idx\n            entity_id = f\"company::{slug(company_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"Company\",\n                \"companyName\": row.get(\"company_name\", \"\"),\n                \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n                \"incorporationDate\": row.get(\"incorporation_date\", \"\"),\n                \"registeredAddress\": row.get(\"registered_address\", \"\"),\n            }\n            fp: Dict[str, List[Dict[str, Any]]] = {}\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                if row.get(src_field):\n                    fp[out_field] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"\"}]\n            fp[\"id\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": \"company_id\", \"note\": \"key\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp)\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"companyName\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporationDate\", \"type\": \"date\"},\n        {\"field\": \"registeredAddress\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_companies\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_company_registry])\n    lineage = LineageRecord()\n\n    for out_idx, (out_row, fp) in enumerate(zip(output_rows, fp_per_row)):\n        # Row-level: find the original source row index\n        src_refs = fp.get(\"id\", fp.get(\"companyName\", []))\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"company\")\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, cr, _, _, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(cr)\n    print(f\"Resolved {len(ds)} companies\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"companyName\"])\n",
           "rowsIn": 10,
           "rowsOut": 10,
-          "builtAt": "2026-11-04T17:35:57.828396Z"
+          "builtAt": "2026-11-04T18:51:31.555357Z"
         },
         {
           "id": "resolve_accounts",
@@ -1066,7 +1170,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/04_resolve_accounts.py — Entity resolution for BankAccount entities.\n\nKeyed by account_id from the normalized bank_transactions dataset.\nBoth source and destination accounts are extracted.\n\nOutput Dataset: bank account entities\n  id           — bankaccount::{slug(account_id)}\n  accountId\n  ownerName\n  accountKind  — \"personal\" | \"corporate\" | \"\" (resolved downstream in step 05)\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\ndef run(norm_bank_transactions: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve BankAccount entities from the normalized bank_transactions dataset.\"\"\"\n    seen: Dict[str, int] = {}   # account_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n    ds_name = norm_bank_transactions.name\n\n    def upsert(account_id: str, owner_name: str, src_row: int, id_field: str, name_field: str) -> None:\n        if not account_id:\n            return\n        if account_id in seen:\n            out_idx = seen[account_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            if owner_name and not existing.get(\"ownerName\"):\n                existing[\"ownerName\"] = owner_name\n                fp.setdefault(\"ownerName\", []).append(\n                    {\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"merge\"}\n                )\n        else:\n            out_idx = len(output_rows)\n            seen[account_id] = out_idx\n            entity_id = f\"bankaccount::{slug(account_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"BankAccount\",\n                \"accountId\": account_id,\n                \"ownerName\": owner_name,\n                \"accountKind\": \"\",\n            }\n            fp_entry: Dict[str, List[Dict[str, Any]]] = {\n                \"id\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"key\"}],\n                \"accountId\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"\"}],\n            }\n            if owner_name:\n                fp_entry[\"ownerName\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp_entry)\n\n    for row in norm_bank_transactions.rows:\n        src_row = int(row[\"_source_row\"])\n        upsert(\n            row.get(\"source_account_id\", \"\"),\n            row.get(\"source_name\", \"\"),\n            src_row,\n            \"source_account_id\",\n            \"source_name\",\n        )\n        upsert(\n            row.get(\"destination_account_id\", \"\"),\n            row.get(\"destination_name\", \"\"),\n            src_row,\n            \"destination_account_id\",\n            \"destination_name\",\n        )\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"accountId\", \"type\": \"string\"},\n        {\"field\": \"ownerName\", \"type\": \"string\"},\n        {\"field\": \"accountKind\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_accounts\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_bank_transactions])\n    lineage = LineageRecord()\n\n    for out_idx, fp in enumerate(fp_per_row):\n        src_refs = fp.get(\"id\", [])\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"account\")\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, _, _, bt, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(bt)\n    print(f\"Resolved {len(ds)} bank accounts\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"ownerName\"])\n",
           "rowsIn": 34,
           "rowsOut": 25,
-          "builtAt": "2026-11-04T17:35:57.828396Z"
+          "builtAt": "2026-11-04T18:51:31.555357Z"
         },
         {
           "id": "build_ontology",
@@ -1086,9 +1190,26 @@ window.foundrySeedCatalog = {
           "output": "ontology",
           "codePath": "pipeline/05_build_ontology.py",
           "code": "\"\"\"\npipeline/05_build_ontology.py — Build the full ontology entity and edge sets.\n\nTakes all resolved entity datasets + normalized sources.  Produces:\n  - Additional entity types: Device, Flight, Airport, Location, WatchlistRecord\n  - All edges:\n      LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT,\n      OWNS_ACCOUNT, HAS_CORP_ACCOUNT, TRANSFERRED_TO,\n      BOOKED_ON, DEPARTED_FROM, ARRIVED_AT,\n      USES_DEVICE, OBSERVED_AT,\n      RESIDES_AT (Phase 1: Person → residential Location, from clinic rows)\n\nClinic rows that the shared resolver attached to a Person (name + dob) become\na residential ``Location`` (``locationType: \"residential\"``) and a\n``RESIDES_AT`` link with ``{asOf, source}``.  Unattached rows produce nothing.\n\nBoth output datasets inherit the union of their inputs' markings, and every\nentity and edge gets contract §3 markings from ``pipeline/governance.py``.\n\nPerson lookups go through the shared resolver in ``pipeline/resolution.py``\n(the same one the Gotham seed builder uses), passing every key the source row\ncarries — passport, phone, name and date of birth — so both demos attach\neach edge to the same person.\n\nReturns:\n  entities_dataset  — all entities (persons + companies + accounts + new types)\n  edges_dataset     — all edges\n  entity_lineage    — LineageRecord for entities\n  edge_lineage      — LineageRecord for edges\n\"\"\"\n\nfrom __future__ import annotations\n\nimport re\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Optional, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\nfrom pipeline.resolution import PersonResolver, attach_clinic_rows, clinic_observations, resolve_people\n\n# ---------------------------------------------------------------------------\n# Airport reference data (from build_ontology_seed.py)\n# ---------------------------------------------------------------------------\nAIRPORT_COORDS: Dict[str, Dict[str, Any]] = {\n    \"ATH\": {\"name\": \"Athens International Airport\", \"city\": \"Athens\", \"country\": \"Greece\", \"lat\": 37.9364, \"lon\": 23.9475},\n    \"BEG\": {\"name\": \"Belgrade Nikola Tesla Airport\", \"city\": \"Belgrade\", \"country\": \"Serbia\", \"lat\": 44.8184, \"lon\": 20.3091},\n    \"DXB\": {\"name\": \"Dubai International Airport\", \"city\": \"Dubai\", \"country\": \"United Arab Emirates\", \"lat\": 25.2532, \"lon\": 55.3657},\n    \"IAD\": {\"name\": \"Washington Dulles International Airport\", \"city\": \"Washington, D.C.\", \"country\": \"United States\", \"lat\": 38.9531, \"lon\": -77.4565},\n    \"IST\": {\"name\": \"Istanbul Airport\", \"city\": \"Istanbul\", \"country\": \"Turkey\", \"lat\": 41.2753, \"lon\": 28.7519},\n    \"LCA\": {\"name\": \"Larnaca International Airport\", \"city\": \"Larnaca\", \"country\": \"Cyprus\", \"lat\": 34.8751, \"lon\": 33.6249},\n    \"LHR\": {\"name\": \"Heathrow Airport\", \"city\": \"London\", \"country\": \"United Kingdom\", \"lat\": 51.4700, \"lon\": -0.4543},\n    \"SOF\": {\"name\": \"Sofia Airport\", \"city\": \"Sofia\", \"country\": \"Bulgaria\", \"lat\": 42.6950, \"lon\": 23.4062},\n    \"VIE\": {\"name\": \"Vienna International Airport\", \"city\": \"Vienna\", \"country\": \"Austria\", \"lat\": 48.1103, \"lon\": 16.5697},\n}\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _norm(value: str) -> str:\n    cleaned = re.sub(r\"[^a-z0-9]+\", \" \", value.lower()).strip()\n    return re.sub(r\"\\s+\", \" \", cleaned)\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Ontology builder\n# ---------------------------------------------------------------------------\n\nclass OntologyBuilder:\n    def __init__(\n        self,\n        resolved_persons: Dataset,\n        resolved_companies: Dataset,\n        resolved_accounts: Dataset,\n        resolver: PersonResolver,\n    ) -> None:\n        # Start with resolved entities\n        self.entities: List[Dict[str, Any]] = []\n        self.entity_index: Dict[str, int] = {}  # entity_id → index in self.entities\n        self.edges: List[Dict[str, Any]] = []\n        self.edge_index: Dict[str, int] = {}\n\n        # Entity lineage: entity_id → list of source refs\n        self.entity_src: Dict[str, List[Dict[str, Any]]] = {}\n        self.entity_field_prov: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}\n\n        # Lookup tables (persons: the shared resolver from step 02)\n        self.resolver = resolver\n        self.company_by_name: Dict[str, str] = {}\n        self.account_by_id: Dict[str, str] = {}\n        self.device_by_id: Dict[str, str] = {}\n        self.airport_by_code: Dict[str, str] = {}\n        self.location_by_label: Dict[str, str] = {}\n\n        # Ingest persons\n        for row in resolved_persons.rows:\n            self._add_entity_row(row, resolved_persons.name)\n\n        # Ingest companies\n        for row in resolved_companies.rows:\n            self._add_entity_row(row, resolved_companies.name)\n            self.company_by_name[_norm(row.get(\"companyName\", \"\"))] = row[\"id\"]\n\n        # Ingest accounts\n        for row in resolved_accounts.rows:\n            self._add_entity_row(row, resolved_accounts.name)\n            self.account_by_id[row[\"accountId\"]] = row[\"id\"]\n\n    def _add_entity_row(self, row: Dict[str, Any], source_ds: str) -> str:\n        eid = row[\"id\"]\n        if eid in self.entity_index:\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        # Build Gotham-compatible entity shape\n        props = {k: v for k, v in row.items() if k not in (\"id\", \"type\", \"resolution\") and v not in (None, \"\")}\n        entity = {\n            \"id\": eid,\n            \"type\": row[\"type\"],\n            \"label\": props.get(\"canonicalName\") or props.get(\"companyName\") or props.get(\"accountId\") or eid,\n            \"properties\": props,\n            \"sourceIds\": [source_ds],\n        }\n        if row.get(\"resolution\"):\n            entity[\"resolution\"] = row[\"resolution\"]\n        self.entities.append(entity)\n        return eid\n\n    def _add_edge(\n        self,\n        rel_type: str,\n        source_id: str,\n        target_id: str,\n        properties: Optional[Dict[str, Any]] = None,\n        dedupe_key: Optional[str] = None,\n    ) -> str:\n        base_key = dedupe_key or f\"{rel_type}:{source_id}:{target_id}\"\n        edge_id = f\"{rel_type.lower()}::{slug(base_key)}\"\n        if edge_id in self.edge_index:\n            idx = self.edge_index[edge_id]\n            if properties:\n                for k, v in properties.items():\n                    if v not in (None, \"\"):\n                        self.edges[idx][\"properties\"][k] = v\n            return edge_id\n        idx = len(self.edges)\n        self.edge_index[edge_id] = idx\n        self.edges.append({\n            \"id\": edge_id,\n            \"type\": rel_type,\n            \"source\": source_id,\n            \"target\": target_id,\n            \"label\": rel_type,\n            \"properties\": {k: v for k, v in (properties or {}).items() if v not in (None, \"\")},\n        })\n        return edge_id\n\n    def _ensure_entity(\n        self, type_id: str, external_key: str, label: str,\n        properties: Dict[str, Any], source_ds: str,\n    ) -> str:\n        eid = f\"{type_id.lower()}::{slug(external_key)}\"\n        if eid in self.entity_index:\n            # Merge\n            existing = self.entities[self.entity_index[eid]]\n            for k, v in properties.items():\n                if v not in (None, \"\") and existing[\"properties\"].get(k) in (None, \"\"):\n                    existing[\"properties\"][k] = v\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        clean_props = {k: v for k, v in properties.items() if v not in (None, \"\")}\n        self.entities.append({\n            \"id\": eid,\n            \"type\": type_id,\n            \"label\": label or external_key,\n            \"properties\": clean_props,\n            \"sourceIds\": [source_ds],\n        })\n        return eid\n\n    def ensure_airport(self, code: str) -> str:\n        if code in self.airport_by_code:\n            return self.airport_by_code[code]\n        info = AIRPORT_COORDS.get(code, {\"name\": code, \"city\": \"\", \"country\": \"\", \"lat\": None, \"lon\": None})\n        eid = self._ensure_entity(\n            \"Airport\", code, info[\"name\"],\n            {\"code\": code, \"airportName\": info[\"name\"], \"city\": info[\"city\"],\n             \"country\": info[\"country\"], \"lat\": info[\"lat\"], \"lon\": info[\"lon\"]},\n            \"norm_flight_manifests\",\n        )\n        self.airport_by_code[code] = eid\n        return eid\n\n    def ensure_location(\n        self, label: str, lat: Any = None, lon: Any = None,\n        cell_tower: str = \"\", location_type: str = \"\", city: str = \"\", country: str = \"\",\n        source_ds: str = \"norm_mobile_pings\",\n    ) -> str:\n        norm = _norm(label)\n        if norm in self.location_by_label:\n            eid = self.location_by_label[norm]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            for k, v in {\"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower,\n                         \"locationType\": location_type, \"city\": city, \"country\": country}.items():\n                if v not in (None, \"\") and props.get(k) in (None, \"\"):\n                    props[k] = v\n            return eid\n        eid = self._ensure_entity(\n            \"Location\", label, label,\n            {\"label\": label, \"locationType\": location_type, \"city\": city, \"country\": country,\n             \"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower},\n            source_ds,\n        )\n        self.location_by_label[norm] = eid\n        return eid\n\n    def ensure_device(self, device_id: str, phone: str, observed_name: str) -> str:\n        if device_id in self.device_by_id:\n            eid = self.device_by_id[device_id]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            if phone:\n                props[\"phoneNumber\"] = _merge(str(props.get(\"phoneNumber\", \"\")), phone)\n            if observed_name:\n                props[\"lastObservedName\"] = _merge(str(props.get(\"lastObservedName\", \"\")), observed_name)\n            return eid\n        eid = self._ensure_entity(\n            \"Device\", device_id, device_id,\n            {\"deviceId\": device_id, \"phoneNumber\": phone, \"lastObservedName\": observed_name},\n            \"norm_mobile_pings\",\n        )\n        self.device_by_id[device_id] = eid\n        return eid\n\n    def find_person(self, passport_id: str = \"\", phone: str = \"\", name: str = \"\", dob: str = \"\",\n                    ref: str = \"\") -> Optional[str]:\n        \"\"\"Person for a source record (``ref``) or, failing that, by key lookup.\"\"\"\n        if ref:\n            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone)\n        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone)\n\n    def link_account_owner(self, account_eid: str, owner_name: str) -> None:\n        norm = _norm(owner_name)\n        acct_props = self.entities[self.entity_index[account_eid]][\"properties\"]\n        if norm in self.company_by_name:\n            company_id = self.company_by_name[norm]\n            self._add_edge(\"HAS_CORP_ACCOUNT\", company_id, account_eid, dedupe_key=f\"{company_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"corporate\"\n            return\n        person_id = self.find_person(name=owner_name)\n        if person_id:\n            self._add_edge(\"OWNS_ACCOUNT\", person_id, account_eid, dedupe_key=f\"{person_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"personal\"\n\n\n# ---------------------------------------------------------------------------\n# Main run\n# ---------------------------------------------------------------------------\n\ndef run(\n    resolved_persons: Dataset,\n    resolved_companies: Dataset,\n    resolved_accounts: Dataset,\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_bank_transactions: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, Dataset, LineageRecord, LineageRecord]:\n\n    resolver = getattr(resolved_persons, \"resolver\", None)\n    if resolver is None:\n        # Rebuild the identical resolver state from the normalised sources.\n        resolver = resolve_people(norm_watchlist.rows, norm_company_registry.rows,\n                                  norm_flight_manifests.rows, norm_mobile_pings.rows)\n        attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts, resolver)\n\n    # --- WatchlistRecord entities + LISTED_ON edges ---\n    for row in norm_watchlist.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            name=row.get(\"canonical_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"watchlist:{row.get('watchlist_id', '')}\",\n        )\n        record_eid = builder._ensure_entity(\n            \"WatchlistRecord\",\n            row.get(\"watchlist_id\", \"\"),\n            row.get(\"watchlist_id\", \"\"),\n            {\n                \"watchlistId\": row.get(\"watchlist_id\", \"\"),\n                \"alias\": \" | \".join(row.get(\"aliases\", [])),\n                \"dob\": row.get(\"dob\", \"\"),\n                \"nationality\": row.get(\"nationality\", \"\"),\n                \"passportId\": row.get(\"passport_id\", \"\"),\n                \"riskTag\": row.get(\"risk_tag\", \"\"),\n            },\n            norm_watchlist.name,\n        )\n        if person_id:\n            builder._add_edge(\"LISTED_ON\", person_id, record_eid,\n                               dedupe_key=f\"{person_id}:{record_eid}\")\n\n    # --- Company edges: DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT ---\n    for row in norm_company_registry.rows:\n        company_eid = f\"company::{slug(row.get('company_id', ''))}\"\n        if company_eid not in builder.entity_index:\n            continue\n\n        # Director\n        director_id = builder.find_person(name=row.get(\"director_name\", \"\"),\n                                           dob=row.get(\"director_dob\", \"\"),\n                                           ref=f\"company:{row.get('company_id', '')}:director\")\n        if director_id:\n            builder._add_edge(\"DIRECTS\", director_id, company_eid,\n                               dedupe_key=f\"{director_id}:{company_eid}\")\n\n        # Beneficial owner\n        owner_id = builder.find_person(name=row.get(\"beneficial_owner\", \"\"),\n                                        dob=row.get(\"beneficial_owner_dob\", \"\"),\n                                        ref=f\"company:{row.get('company_id', '')}:owner\")\n        if owner_id:\n            builder._add_edge(\"BENEFICIALLY_OWNS\", owner_id, company_eid,\n                               dedupe_key=f\"{owner_id}:{company_eid}\")\n\n        # Registered address → Location\n        address = row.get(\"registered_address\", \"\")\n        if address:\n            loc_eid = builder.ensure_location(\n                address, location_type=row.get(\"registered_site_type\", \"\"),\n                city=row.get(\"registered_city\", \"\"),\n                country=row.get(\"registered_country\", \"\"),\n                source_ds=norm_company_registry.name,\n            )\n            builder._add_edge(\"REGISTERED_AT\", company_eid, loc_eid,\n                               dedupe_key=f\"{company_eid}:{loc_eid}\")\n\n    # --- Flight entities + BOOKED_ON, DEPARTED_FROM, ARRIVED_AT ---\n    for row in norm_flight_manifests.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            phone=row.get(\"phone_number\", \"\"),\n            name=row.get(\"passenger_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"flight:{row.get('manifest_id', '')}\",\n        )\n        flight_eid = builder._ensure_entity(\n            \"Flight\",\n            row.get(\"manifest_id\", \"\"),\n            f\"{row.get('flight_number', '')} · {row.get('passenger_name', '')}\",\n            {\n                \"manifestId\": row.get(\"manifest_id\", \"\"),\n                \"flightNumber\": row.get(\"flight_number\", \"\"),\n                \"departureTs\": row.get(\"departure_ts\", \"\"),\n                \"bookingReference\": row.get(\"booking_reference\", \"\"),\n                \"seat\": row.get(\"seat\", \"\"),\n                \"paymentCardLast4\": row.get(\"payment_card_last4\", \"\"),\n            },\n            norm_flight_manifests.name,\n        )\n        dep_eid = builder.ensure_airport(row.get(\"departure_airport\", \"\"))\n        arr_eid = builder.ensure_airport(row.get(\"arrival_airport\", \"\"))\n        if person_id:\n            builder._add_edge(\"BOOKED_ON\", person_id, flight_eid,\n                               dedupe_key=f\"{person_id}:{flight_eid}\")\n        builder._add_edge(\"DEPARTED_FROM\", flight_eid, dep_eid,\n                           dedupe_key=f\"{flight_eid}:{dep_eid}\")\n        builder._add_edge(\"ARRIVED_AT\", flight_eid, arr_eid,\n                           dedupe_key=f\"{flight_eid}:{arr_eid}\")\n\n    # --- Bank account ownership + TRANSFERRED_TO ---\n    for row in norm_bank_transactions.rows:\n        src_acc = row.get(\"source_account_id\", \"\")\n        dst_acc = row.get(\"destination_account_id\", \"\")\n        src_eid = builder.account_by_id.get(src_acc, \"\")\n        dst_eid = builder.account_by_id.get(dst_acc, \"\")\n\n        if src_eid:\n            builder.link_account_owner(src_eid, row.get(\"source_name\", \"\"))\n        if dst_eid:\n            builder.link_account_owner(dst_eid, row.get(\"destination_name\", \"\"))\n\n        if src_eid and dst_eid and row.get(\"txn_type\") == \"transfer\":\n            dedupe = f\"{src_eid}:{dst_eid}\"\n            edge_id = f\"transferred_to::{slug(dedupe)}\"\n            if edge_id in builder.edge_index:\n                idx = builder.edge_index[edge_id]\n                existing = builder.edges[idx]\n                count = int(existing[\"properties\"].get(\"count\", \"1\")) + 1\n                total = float(existing[\"properties\"].get(\"totalAmountUsd\", \"0\")) + float(row.get(\"amount_usd\") or 0)\n                existing[\"properties\"][\"count\"] = str(count)\n                existing[\"properties\"][\"totalAmountUsd\"] = f\"{total:.2f}\"\n                existing[\"properties\"][\"lastTxnTs\"] = row.get(\"txn_ts\", \"\")\n            else:\n                builder._add_edge(\n                    \"TRANSFERRED_TO\", src_eid, dst_eid,\n                    properties={\n                        \"count\": \"1\",\n                        \"totalAmountUsd\": str(row.get(\"amount_usd\", \"\") or \"\"),\n                        \"lastTxnTs\": row.get(\"txn_ts\", \"\"),\n                        \"sampleReference\": row.get(\"reference\", \"\"),\n                    },\n                    dedupe_key=dedupe,\n                )\n\n    # --- Device entities + USES_DEVICE + OBSERVED_AT ---\n    for row in norm_mobile_pings.rows:\n        device_id_str = row.get(\"device_id\", \"\")\n        phone = row.get(\"phone_number\", \"\")\n        observed = row.get(\"observed_name\", \"\")\n\n        device_eid = builder.ensure_device(device_id_str, phone, observed)\n\n        # Ping-only persons were already created by step 02's resolver.\n        person_id = builder.find_person(phone=phone, name=observed,\n                                        ref=f\"ping:{row.get('ping_id', '')}\")\n        if person_id:\n            builder._add_edge(\"USES_DEVICE\", person_id, device_eid,\n                               dedupe_key=f\"{person_id}:{device_eid}\")\n\n        loc_eid = builder.ensure_location(\n            row.get(\"location_label\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            cell_tower=row.get(\"cell_tower\", \"\"),\n            location_type=row.get(\"location_type\", \"\"),\n            city=row.get(\"city\", \"\"),\n            country=row.get(\"country\", \"\"),\n        )\n\n        dedupe = f\"{device_eid}:{loc_eid}\"\n        edge_id = f\"observed_at::{slug(dedupe)}\"\n        if edge_id in builder.edge_index:\n            idx = builder.edge_index[edge_id]\n            existing = builder.edges[idx]\n            count = int(existing[\"properties\"].get(\"sightingCount\", \"1\")) + 1\n            existing[\"properties\"][\"sightingCount\"] = str(count)\n            existing[\"properties\"][\"lastSeen\"] = row.get(\"timestamp\", \"\")\n        else:\n            builder._add_edge(\n                \"OBSERVED_AT\", device_eid, loc_eid,\n                properties={\n                    \"sightingCount\": \"1\",\n                    \"firstSeen\": row.get(\"timestamp\", \"\"),\n                    \"lastSeen\": row.get(\"timestamp\", \"\"),\n                    \"source\": row.get(\"source\", \"\"),\n                },\n                dedupe_key=dedupe,\n            )\n\n    # --- Residential Locations + RESIDES_AT (clinic rows, Phase 1) ---\n    for obs in clinic_observations(norm_clinic_registrations.rows):\n        person_id = resolver.clinic_by_ref.get(obs.ref)\n        if not person_id:\n            continue  # unattached clinic rows create no objects\n        row = obs.row\n        loc_eid = builder.ensure_location(\n            row.get(\"home_address\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            location_type=\"residential\",\n            city=row.get(\"home_city\", \"\"),\n            country=row.get(\"home_country\", \"\"),\n            source_ds=norm_clinic_registrations.name,\n        )\n        dedupe = f\"{person_id}:{loc_eid}\"\n        edge_id = f\"resides_at::{slug(dedupe)}\"\n        as_of = row.get(\"registered_on\", \"\")\n        if edge_id in builder.edge_index:\n            existing = builder.edges[builder.edge_index[edge_id]]\n            if as_of > str(existing[\"properties\"].get(\"asOf\", \"\")):\n                existing[\"properties\"][\"asOf\"] = as_of\n        else:\n            builder._add_edge(\"RESIDES_AT\", person_id, loc_eid,\n                               properties={\"asOf\": as_of, \"source\": row.get(\"source\", \"\")},\n                               dedupe_key=dedupe)\n\n    # --- Markings on every object and link (contract §3) ---\n    raw_inputs = [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                  norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations]\n    file_markings = {ds.derived_from[0]: ds.markings for ds in raw_inputs if ds.derived_from}\n    governance.annotate_objects(builder.entities, builder.edges, file_markings)\n\n    # --- Assemble output datasets ---\n    entities_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"sourceIds\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n        {\"field\": \"propertyMarkings\", \"type\": \"json\"},\n        {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n    ]\n    edges_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n        {\"field\": \"target\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n    ]\n\n    entities_ds = Dataset(\n        name=\"ontology_entities\",\n        rows=sorted(builder.entities, key=lambda e: (str(e[\"type\"]), str(e[\"label\"]))),\n        schema=entities_schema,\n    )\n    edges_ds = Dataset(\n        name=\"ontology_edges\",\n        rows=sorted(builder.edges, key=lambda e: (str(e[\"type\"]), str(e[\"source\"]), str(e[\"target\"]))),\n        schema=edges_schema,\n    )\n\n    ontology_inputs = [resolved_persons, resolved_companies, resolved_accounts] + raw_inputs\n    inherit_markings(entities_ds, ontology_inputs)\n    inherit_markings(edges_ds, ontology_inputs)\n\n    # Trivial lineage: each entity/edge row came from its sourceIds\n    entity_lineage = LineageRecord()\n    for out_idx, entity in enumerate(entities_ds.rows):\n        for src in entity.get(\"sourceIds\", []):\n            entity_lineage.add_source(out_idx, src, 0, note=entity[\"type\"])\n\n    edge_lineage = LineageRecord()\n    for out_idx, edge in enumerate(edges_ds.rows):\n        edge_lineage.add_source(out_idx, edge[\"type\"], 0, note=\"edge\")\n\n    return entities_ds, edges_ds, entity_lineage, edge_lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline import p01_normalize_sources as n01\n    from pipeline import p02_resolve_persons as n02\n    from pipeline import p03_resolve_companies as n03\n    from pipeline import p04_resolve_accounts as n04\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = n01.run(dataset_dir)\n    persons, _ = n02.run(wl, cr, fm, mp, cl)\n    companies, _ = n03.run(cr)\n    accounts, _ = n04.run(bt)\n    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp, cl)\n    print(f\"Entities: {len(entities_ds)}, Edges: {len(edges_ds)}\")\n",
-          "rowsIn": 231,
-          "rowsOut": 397,
-          "builtAt": "2026-11-04T17:35:57.828396Z"
+          "rowsIn": 234,
+          "rowsOut": 401,
+          "builtAt": "2026-11-04T18:51:31.555357Z"
+        },
+        {
+          "id": "build_leads",
+          "name": "06 Build Leads",
+          "description": "Score each person's best address from three sources: clinic registrations (HEALTH, weight 0.5), mobile location pings (TELECOM, 0.4) and the company registry (OPEN, 0.3), each decayed by age: score = 100 · min(1, Σ weight · exp(−ageDays / 365)). One lead per person with an address source; the output inherits every input's markings.",
+          "inputs": [
+            "resolved_persons",
+            "norm_clinic_registrations",
+            "norm_mobile_pings",
+            "norm_company_registry"
+          ],
+          "output": "leads",
+          "codePath": "pipeline/06_build_leads.py",
+          "code": "\"\"\"\npipeline/06_build_leads.py — Build address-confidence leads (F8, PHASE3_CONTRACT.md §1).\n\nOne lead per Person with at least one address source.  The scorer lives in\n``pipeline/leads.py`` (shared with the Investigate seed builder, so both apps\nshow the same leads); this step wraps it as a Transform with row- and\nfield-level lineage, like steps 02–05.\n\nInputs\n  resolved_persons            — who each source record belongs to (the shared resolver)\n  norm_clinic_registrations   — HEALTH,  weight 0.5, home_address, registered_on\n  norm_mobile_pings           — TELECOM, weight 0.4, location label, latest ping timestamp\n  norm_company_registry       — OPEN,    weight 0.3, registered_address, incorporation_date\n\n    score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))\n\n``ageDays`` counts from ``asOf``, the latest date in the inputs.  The best\naddress is the component with the largest contribution.  The output inherits\nthe union of its inputs' markings (HEALTH, TELECOM and OPEN from the sources,\nPII and LE-SENSITIVE through resolved_persons), so the dataset is HEALTH-marked\neven for leads with no clinic component: markings work per dataset, not per row.\n\nOutput Dataset ``leads``:\n  id             — lead::<personId>\n  personId\n  address        — best address (largest contribution)\n  lat, lon       — coordinates of the best address\n  score          — 0–100, 1 decimal\n  status         — \"open\" (the Close lead Action changes it in the browser)\n  components     — [{source, marking, weight, ageDays, decay, contribution, address, ...}]\n  formula, asOf\n  addressSource  — dataset of the best address's component\n  sourceMarkings — markings of the contributing sources\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.leads import compute_leads\nfrom pipeline.lib import Dataset, LineageRecord, Transform\n\nTRANSFORM_ID = \"build_leads\"\nOUTPUT_NAME = \"leads\"\n\nSCHEMA = [\n    {\"field\": \"id\", \"type\": \"string\"},\n    {\"field\": \"personId\", \"type\": \"string\"},\n    {\"field\": \"address\", \"type\": \"string\"},\n    {\"field\": \"lat\", \"type\": \"float\"},\n    {\"field\": \"lon\", \"type\": \"float\"},\n    {\"field\": \"score\", \"type\": \"float\"},\n    {\"field\": \"status\", \"type\": \"string\"},\n    {\"field\": \"components\", \"type\": \"json\"},\n    {\"field\": \"formula\", \"type\": \"string\"},\n    {\"field\": \"asOf\", \"type\": \"date\"},\n    {\"field\": \"addressSource\", \"type\": \"string\"},\n    {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n]\n\n\ndef _build(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[List[Dict[str, Any]], List[Dict[str, List[Dict[str, Any]]]]]:\n    resolver = resolved_persons.resolver  # type: ignore[attr-defined]\n    rows, provenance, _as_of = compute_leads(\n        resolver, norm_clinic_registrations.rows, norm_mobile_pings.rows, norm_company_registry.rows,\n    )\n    person_row = {row[\"id\"]: i for i, row in enumerate(resolved_persons.rows)}\n    for lead, fp in zip(rows, provenance):\n        ref = {\"dataset\": resolved_persons.name, \"row\": person_row.get(lead[\"personId\"], -1),\n               \"field\": \"id\", \"note\": \"person\"}\n        fp[\"personId\"] = [ref] + fp[\"personId\"]\n        fp[\"id\"] = [ref]\n    return rows, provenance\n\n\ndef run(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    transform = Transform(\n        TRANSFORM_ID,\n        \"Score each person's best address from clinic, ping and registry records.\",\n        [resolved_persons, norm_clinic_registrations, norm_mobile_pings, norm_company_registry],\n        _build,\n    )\n    leads_ds, lineage = transform.run()\n    leads_ds.name = OUTPUT_NAME\n    leads_ds.schema = [dict(f) for f in SCHEMA]\n    leads_ds.as_of = leads_ds.rows[0][\"asOf\"] if leads_ds.rows else \"\"  # type: ignore[attr-defined]\n    return leads_ds, lineage\n\n\nif __name__ == \"__main__\":\n    import importlib.util\n\n    def _load(stem: str):\n        path = Path(__file__).resolve().parent / f\"{stem}.py\"\n        spec = importlib.util.spec_from_file_location(stem, path)\n        module = importlib.util.module_from_spec(spec)\n        spec.loader.exec_module(module)\n        return module\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = _load(\"01_normalize_sources\").run(dataset_dir)\n    persons, _ = _load(\"02_resolve_persons\").run(wl, cr, fm, mp, cl)\n    leads_ds, _ = run(persons, cl, mp, cr)\n    print(f\"Leads: {len(leads_ds)} (asOf {leads_ds.as_of})\")\n    for lead in leads_ds.rows[:5]:\n        print(f\"  {lead['score']:5.1f}  {lead['personId']}  {lead['address']}\")\n",
+          "rowsIn": 136,
+          "rowsOut": 24,
+          "builtAt": "2026-11-04T18:51:31.555357Z"
         }
       ]
     },
@@ -2216,7 +2337,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 89,
+        "rowCount": 92,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -3109,7 +3230,8 @@ window.foundrySeedCatalog = {
         "consumedBy": [
           "resolve_persons",
           "resolve_companies",
-          "build_ontology"
+          "build_ontology",
+          "build_leads"
         ],
         "derivedFrom": [
           "company_registry.csv"
@@ -3914,7 +4036,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 89,
+        "rowCount": 92,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -4240,7 +4362,8 @@ window.foundrySeedCatalog = {
         "producedBy": "normalize_sources",
         "consumedBy": [
           "resolve_persons",
-          "build_ontology"
+          "build_ontology",
+          "build_leads"
         ],
         "derivedFrom": [
           "mobile_location_pings.jsonl"
@@ -4461,7 +4584,8 @@ window.foundrySeedCatalog = {
         "producedBy": "normalize_sources",
         "consumedBy": [
           "resolve_persons",
-          "build_ontology"
+          "build_ontology",
+          "build_leads"
         ],
         "derivedFrom": [
           "clinic_registrations.csv"
@@ -5072,7 +5196,10 @@ window.foundrySeedCatalog = {
               "confidence": 1.0,
               "mergedFrom": [
                 "flight:MF-0008",
-                "flight:MF-0009"
+                "flight:MF-0009",
+                "ping:PG-0101",
+                "ping:PG-0102",
+                "ping:PG-0103"
               ],
               "splitRisk": false,
               "note": ""
@@ -5081,7 +5208,8 @@ window.foundrySeedCatalog = {
         ],
         "producedBy": "resolve_persons",
         "consumedBy": [
-          "build_ontology"
+          "build_ontology",
+          "build_leads"
         ],
         "derivedFrom": [
           "norm_watchlist",
@@ -5489,7 +5617,7 @@ window.foundrySeedCatalog = {
             "type": "json"
           }
         ],
-        "rowCount": 142,
+        "rowCount": 144,
         "sampleRows": [
           {
             "id": "airport::ath",
@@ -5987,7 +6115,7 @@ window.foundrySeedCatalog = {
             "type": "json"
           }
         ],
-        "rowCount": 255,
+        "rowCount": 257,
         "sampleRows": [
           {
             "id": "arrived_at::flight-mf-0001-airport-lca",
@@ -6222,6 +6350,4786 @@ window.foundrySeedCatalog = {
           "sanctions-screening",
           "telecom-billing"
         ]
+      },
+      {
+        "id": "leads",
+        "name": "leads",
+        "sourceFile": "",
+        "schema": [
+          {
+            "field": "id",
+            "type": "string"
+          },
+          {
+            "field": "personId",
+            "type": "string"
+          },
+          {
+            "field": "address",
+            "type": "string"
+          },
+          {
+            "field": "lat",
+            "type": "float"
+          },
+          {
+            "field": "lon",
+            "type": "float"
+          },
+          {
+            "field": "score",
+            "type": "float"
+          },
+          {
+            "field": "status",
+            "type": "string"
+          },
+          {
+            "field": "components",
+            "type": "json"
+          },
+          {
+            "field": "formula",
+            "type": "string"
+          },
+          {
+            "field": "asOf",
+            "type": "date"
+          },
+          {
+            "field": "addressSource",
+            "type": "string"
+          },
+          {
+            "field": "sourceMarkings",
+            "type": "json"
+          }
+        ],
+        "rowCount": 24,
+        "sampleRows": [
+          {
+            "id": "lead::person::g5510077",
+            "personId": "person::g5510077",
+            "address": "41 Oak Lane, Birmingham",
+            "lat": 52.4421,
+            "lon": -1.9368,
+            "score": 85.8,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 31,
+                "decay": 0.9186,
+                "contribution": 45.9,
+                "address": "41 Oak Lane, Birmingham",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-03-12",
+                "lat": 52.4421,
+                "lon": -1.9368,
+                "record": "clinic:REG-0014"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "Oak Lane, Birmingham",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 52.443012,
+                "lon": -1.935174,
+                "record": "ping:PG-0103",
+                "pingCount": 3
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::elias-silva-1984-12-24",
+            "personId": "person::elias-silva-1984-12-24",
+            "address": "Larnaca Marina",
+            "lat": 34.932353,
+            "lon": 33.633483,
+            "score": 75.3,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 351,
+                "decay": 0.3823,
+                "contribution": 19.1,
+                "address": "99 Mildmay Grove, London",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-04-26",
+                "lat": 51.516794,
+                "lon": -0.118285,
+                "record": "clinic:REG-0013"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 10,
+                "decay": 0.973,
+                "contribution": 38.9,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-02",
+                "lat": 34.932353,
+                "lon": 33.633483,
+                "record": "ping:NPG-00072",
+                "pingCount": 1
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 202,
+                "decay": 0.575,
+                "contribution": 17.2,
+                "address": "5 Harbor Row, Limassol",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-09-22",
+                "lat": 34.6712,
+                "lon": 33.0436,
+                "record": "company:NCO-001:director",
+                "companyId": "NCO-001",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::clara-nasser-1986-06-21",
+            "personId": "person::clara-nasser-1986-06-21",
+            "address": "88 Marina Free Zone, Dubai",
+            "lat": 25.086274,
+            "lon": 55.143646,
+            "score": 64.1,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 282,
+                "decay": 0.4618,
+                "contribution": 23.1,
+                "address": "114 Al Manara Road, Dubai",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-07-04",
+                "lat": 25.200613,
+                "lon": 55.271738,
+                "record": "clinic:REG-0006"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 25.086274,
+                "lon": 55.143646,
+                "record": "ping:NPG-00027",
+                "pingCount": 2
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 1155,
+                "decay": 0.0422,
+                "contribution": 1.3,
+                "address": "48 Bahnhofstrasse, Zurich",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2023-02-12",
+                "lat": 47.3707,
+                "lon": 8.5392,
+                "record": "company:NCO-003:owner",
+                "companyId": "NCO-003",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x1445199",
+            "personId": "person::x1445199",
+            "address": "14 Seabright Ave, Limassol",
+            "lat": 34.686905,
+            "lon": 33.043331,
+            "score": 55.1,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 425,
+                "decay": 0.3121,
+                "contribution": 15.6,
+                "address": "171 Josefstaedter Strasse, Vienna",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-02-11",
+                "lat": 48.226912,
+                "lon": 16.361844,
+                "record": "clinic:REG-0005"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 5,
+                "decay": 0.9864,
+                "contribution": 39.5,
+                "address": "14 Seabright Ave, Limassol",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-07",
+                "lat": 34.686905,
+                "lon": 33.043331,
+                "record": "ping:NPG-00060",
+                "pingCount": 2
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::l1029921",
+            "personId": "person::l1029921",
+            "address": "Geneva Business District",
+            "lat": 46.209047,
+            "lon": 6.135003,
+            "score": 51.9,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 46.209047,
+                "lon": 6.135003,
+                "record": "ping:NPG-00077",
+                "pingCount": 1
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 331,
+                "decay": 0.4038,
+                "contribution": 12.1,
+                "address": "17 Kingsway, London",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-05-16",
+                "lat": 51.5155,
+                "lon": -0.1189,
+                "record": "company:NCO-006:director",
+                "companyId": "NCO-006",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::b7730042",
+            "personId": "person::b7730042",
+            "address": "14 Seabright Ave, Limassol",
+            "lat": 34.6796,
+            "lon": 33.0444,
+            "score": 51.2,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 8,
+                "decay": 0.9783,
+                "contribution": 39.1,
+                "address": "14 Seabright Ave, Limassol",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-04",
+                "lat": 34.6796,
+                "lon": 33.0444,
+                "record": "ping:PG-0008",
+                "pingCount": 1
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 331,
+                "decay": 0.4038,
+                "contribution": 12.1,
+                "address": "17 Kingsway, London",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-05-16",
+                "lat": 51.5155,
+                "lon": -0.1189,
+                "record": "company:NCO-006:owner",
+                "companyId": "NCO-006",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::zane-ionescu-1975-12-13",
+            "personId": "person::zane-ionescu-1975-12-13",
+            "address": "Geneva Business District",
+            "lat": 46.196009,
+            "lon": 6.133997,
+            "score": 48.9,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 0,
+                "decay": 1.0,
+                "contribution": 40.0,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-12",
+                "lat": 46.196009,
+                "lon": 6.133997,
+                "record": "ping:NPG-00048",
+                "pingCount": 1
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 443,
+                "decay": 0.2971,
+                "contribution": 8.9,
+                "address": "27 Ringstrasse, Vienna",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-01-24",
+                "lat": 48.2046,
+                "lon": 16.3652,
+                "record": "company:NCO-005:director",
+                "companyId": "NCO-005",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::daniel-wu-1985-06-14",
+            "personId": "person::daniel-wu-1985-06-14",
+            "address": "88 Marina Free Zone, Dubai",
+            "lat": 25.077999,
+            "lon": 55.148185,
+            "score": 43.6,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 923,
+                "decay": 0.0798,
+                "contribution": 4.0,
+                "address": "1210 Corcoran Street NW, Washington, D.C.",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2023-10-02",
+                "lat": 38.9113,
+                "lon": -77.0287,
+                "record": "clinic:REG-0002"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 5,
+                "decay": 0.9864,
+                "contribution": 39.5,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-07",
+                "lat": 25.077999,
+                "lon": 55.148185,
+                "record": "ping:NPG-00059",
+                "pingCount": 1
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 1825,
+                "decay": 0.0067,
+                "contribution": 0.2,
+                "address": "9 Al Noor Park, Dubai",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2021-04-13",
+                "lat": 25.1124,
+                "lon": 55.2001,
+                "record": "company:NCO-004:director",
+                "companyId": "NCO-004",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::c-silva-30131994523",
+            "personId": "person::c-silva-30131994523",
+            "address": "Larnaca Marina",
+            "lat": 34.921901,
+            "lon": 33.632625,
+            "score": 39.9,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 34.921901,
+                "lon": 33.632625,
+                "record": "ping:NPG-00022",
+                "pingCount": 1
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::i6117009",
+            "personId": "person::i6117009",
+            "address": "88 Marina Free Zone, Dubai",
+            "lat": 25.079653,
+            "lon": 55.141163,
+            "score": 39.7,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 3,
+                "decay": 0.9918,
+                "contribution": 39.7,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-09",
+                "lat": 25.079653,
+                "lon": 55.141163,
+                "record": "ping:NPG-00070",
+                "pingCount": 1
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::e-orlov-33919795579",
+            "personId": "person::e-orlov-33919795579",
+            "address": "Geneva Business District",
+            "lat": 46.196112,
+            "lon": 6.147601,
+            "score": 39.5,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 5,
+                "decay": 0.9864,
+                "contribution": 39.5,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-07",
+                "lat": 46.196112,
+                "lon": 6.147601,
+                "record": "ping:NPG-00031",
+                "pingCount": 1
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::n5538219",
+            "personId": "person::n5538219",
+            "address": "North Quay Warehouse",
+            "lat": 34.655879,
+            "lon": 33.012769,
+            "score": 39.5,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 5,
+                "decay": 0.9864,
+                "contribution": 39.5,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-07",
+                "lat": 34.655879,
+                "lon": 33.012769,
+                "record": "ping:NPG-00067",
+                "pingCount": 1
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 2104,
+                "decay": 0.0031,
+                "contribution": 0.1,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2020-07-08",
+                "lat": 25.08124,
+                "lon": 55.143229,
+                "record": "company:CO-102:director",
+                "companyId": "CO-102",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::p8842101",
+            "personId": "person::p8842101",
+            "address": "88 Marina Free Zone, Dubai",
+            "lat": 25.0797,
+            "lon": 55.1395,
+            "score": 39.5,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 6,
+                "decay": 0.9837,
+                "contribution": 39.3,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-06",
+                "lat": 25.0797,
+                "lon": 55.1395,
+                "record": "ping:PG-0009",
+                "pingCount": 1
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 1850,
+                "decay": 0.0063,
+                "contribution": 0.2,
+                "address": "14 Seabright Ave, Limassol",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2021-03-19",
+                "lat": 34.682357,
+                "lon": 33.049456,
+                "record": "company:CO-101:owner",
+                "companyId": "CO-101",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::x2338687",
+            "personId": "person::x2338687",
+            "address": "14 Seabright Ave, Limassol",
+            "lat": 34.678729,
+            "lon": 33.050428,
+            "score": 39.3,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 6,
+                "decay": 0.9837,
+                "contribution": 39.3,
+                "address": "14 Seabright Ave, Limassol",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-06",
+                "lat": 34.678729,
+                "lon": 33.050428,
+                "record": "ping:NPG-00009",
+                "pingCount": 1
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::tomas-orlov-971106977991",
+            "personId": "person::tomas-orlov-971106977991",
+            "address": "North Quay Warehouse",
+            "lat": 34.666879,
+            "lon": 33.023025,
+            "score": 39.2,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 7,
+                "decay": 0.981,
+                "contribution": 39.2,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-05",
+                "lat": 34.666879,
+                "lon": 33.023025,
+                "record": "ping:NPG-00006",
+                "pingCount": 1
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::x2622631",
+            "personId": "person::x2622631",
+            "address": "North Quay Warehouse",
+            "lat": 34.659765,
+            "lon": 33.028868,
+            "score": 39.2,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 7,
+                "decay": 0.981,
+                "contribution": 39.2,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-05",
+                "lat": 34.659765,
+                "lon": 33.028868,
+                "record": "ping:NPG-00076",
+                "pingCount": 1
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::n-costa-49306468299",
+            "personId": "person::n-costa-49306468299",
+            "address": "Geneva Business District",
+            "lat": 46.214398,
+            "lon": 6.140199,
+            "score": 39.0,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 9,
+                "decay": 0.9756,
+                "contribution": 39.0,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-03",
+                "lat": 46.214398,
+                "lon": 6.140199,
+                "record": "ping:NPG-00020",
+                "pingCount": 1
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::x4744854",
+            "personId": "person::x4744854",
+            "address": "Geneva Business District",
+            "lat": 46.197531,
+            "lon": 6.14137,
+            "score": 39.0,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 9,
+                "decay": 0.9756,
+                "contribution": 39.0,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-03",
+                "lat": 46.197531,
+                "lon": 6.14137,
+                "record": "ping:NPG-00044",
+                "pingCount": 1
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::clara-silva-1977-11-25",
+            "personId": "person::clara-silva-1977-11-25",
+            "address": "5 Harbor Row, Limassol",
+            "lat": 34.6712,
+            "lon": 33.0436,
+            "score": 19.7,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 1095,
+                "decay": 0.0498,
+                "contribution": 2.5,
+                "address": "95 Makariou Avenue, Limassol",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2023-04-13",
+                "lat": 34.673593,
+                "lon": 33.019195,
+                "record": "clinic:REG-0010"
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 202,
+                "decay": 0.575,
+                "contribution": 17.2,
+                "address": "5 Harbor Row, Limassol",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-09-22",
+                "lat": 34.6712,
+                "lon": 33.0436,
+                "record": "company:NCO-001:owner",
+                "companyId": "NCO-001",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_company_registry",
+            "sourceMarkings": [
+              "OPEN",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x2197935",
+            "personId": "person::x2197935",
+            "address": "56 Seefeldstrasse, Zurich",
+            "lat": 47.362699,
+            "lon": 8.548637,
+            "score": 14.5,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 453,
+                "decay": 0.2891,
+                "contribution": 14.5,
+                "address": "56 Seefeldstrasse, Zurich",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-01-14",
+                "lat": 47.362699,
+                "lon": 8.548637,
+                "record": "clinic:REG-0012"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::maya-singh-1992-09-21",
+            "personId": "person::maya-singh-1992-09-21",
+            "address": "58 Rue de Carouge, Geneva",
+            "lat": 46.1934,
+            "lon": 6.1424,
+            "score": 12.0,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 523,
+                "decay": 0.2386,
+                "contribution": 11.9,
+                "address": "58 Rue de Carouge, Geneva",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2024-11-05",
+                "lat": 46.1934,
+                "lon": 6.1424,
+                "record": "clinic:REG-0011"
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 2351,
+                "decay": 0.0016,
+                "contribution": 0.0,
+                "address": "21 Rue des Acacias, Geneva",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2019-11-04",
+                "lat": 46.1921,
+                "lon": 6.1338,
+                "record": "company:CO-104:director",
+                "companyId": "CO-104",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "OPEN",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::lena-demir-1978-02-28",
+            "personId": "person::lena-demir-1978-02-28",
+            "address": "27 Ringstrasse, Vienna",
+            "lat": 48.2046,
+            "lon": 16.3652,
+            "score": 11.6,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 1068,
+                "decay": 0.0536,
+                "contribution": 2.7,
+                "address": "95 Makariou Avenue, Limassol",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2023-05-10",
+                "lat": 34.673593,
+                "lon": 33.019195,
+                "record": "clinic:REG-0001"
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 443,
+                "decay": 0.2971,
+                "contribution": 8.9,
+                "address": "27 Ringstrasse, Vienna",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-01-24",
+                "lat": 48.2046,
+                "lon": 16.3652,
+                "record": "company:NCO-005:owner",
+                "companyId": "NCO-005",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_company_registry",
+            "sourceMarkings": [
+              "OPEN",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::elias-orlov-1989-04-06",
+            "personId": "person::elias-orlov-1989-04-06",
+            "address": "99 Mildmay Grove, London",
+            "lat": 51.516794,
+            "lon": -0.118285,
+            "score": 1.4,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 1549,
+                "decay": 0.0144,
+                "contribution": 0.7,
+                "address": "99 Mildmay Grove, London",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2022-01-14",
+                "lat": 51.516794,
+                "lon": -0.118285,
+                "record": "clinic:REG-0009"
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 1359,
+                "decay": 0.0242,
+                "contribution": 0.7,
+                "address": "17 Kingsway, London",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2022-07-23",
+                "lat": 51.5155,
+                "lon": -0.1189,
+                "record": "company:NCO-002:director",
+                "companyId": "NCO-002",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "OPEN",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::clara-adler-1986-05-04",
+            "personId": "person::clara-adler-1986-05-04",
+            "address": "48 Bahnhofstrasse, Zurich",
+            "lat": 47.3707,
+            "lon": 8.5392,
+            "score": 1.3,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 1155,
+                "decay": 0.0422,
+                "contribution": 1.3,
+                "address": "48 Bahnhofstrasse, Zurich",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2023-02-12",
+                "lat": 47.3707,
+                "lon": 8.5392,
+                "record": "company:NCO-003:director",
+                "companyId": "NCO-003",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_company_registry",
+            "sourceMarkings": [
+              "OPEN"
+            ]
+          }
+        ],
+        "producedBy": "build_leads",
+        "consumedBy": [],
+        "derivedFrom": [
+          "resolved_persons",
+          "norm_clinic_registrations",
+          "norm_mobile_pings",
+          "norm_company_registry"
+        ],
+        "markings": [
+          "OPEN",
+          "PII",
+          "TELECOM",
+          "HEALTH",
+          "LE-SENSITIVE"
+        ],
+        "markingProvenance": {
+          "OPEN": [
+            "company_registry.csv"
+          ],
+          "PII": [
+            "flight_manifests.csv"
+          ],
+          "TELECOM": [
+            "mobile_location_pings.jsonl"
+          ],
+          "HEALTH": [
+            "clinic_registrations.csv"
+          ],
+          "LE-SENSITIVE": [
+            "watchlist.csv"
+          ]
+        },
+        "purpose": "financial-crime",
+        "legalBasis": "Not recorded: this derived dataset combines inputs collected for other purposes (see inputPurposes).",
+        "retentionDays": 180,
+        "inputPurposes": [
+          "border-security",
+          "healthcare",
+          "public-record",
+          "sanctions-screening",
+          "telecom-billing"
+        ],
+        "asOf": "2026-04-12",
+        "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+        "decayDays": 365,
+        "weights": [
+          {
+            "source": "norm_clinic_registrations",
+            "rawSource": "clinic_registrations.csv",
+            "label": "Clinic registration",
+            "marking": "HEALTH",
+            "weight": 0.5,
+            "addressField": "home_address",
+            "dateField": "registered_on"
+          },
+          {
+            "source": "norm_mobile_pings",
+            "rawSource": "mobile_location_pings.jsonl",
+            "label": "Mobile location pings",
+            "marking": "TELECOM",
+            "weight": 0.4,
+            "addressField": "location_label",
+            "dateField": "timestamp"
+          },
+          {
+            "source": "norm_company_registry",
+            "rawSource": "company_registry.csv",
+            "label": "Company registry",
+            "marking": "OPEN",
+            "weight": 0.3,
+            "addressField": "registered_address",
+            "dateField": "incorporation_date"
+          }
+        ],
+        "objectType": "Lead",
+        "properties": [
+          {
+            "id": "id",
+            "label": "Lead ID",
+            "type": "string"
+          },
+          {
+            "id": "personId",
+            "label": "Person",
+            "type": "string"
+          },
+          {
+            "id": "address",
+            "label": "Best address",
+            "type": "string"
+          },
+          {
+            "id": "lat",
+            "label": "Latitude",
+            "type": "float"
+          },
+          {
+            "id": "lon",
+            "label": "Longitude",
+            "type": "float"
+          },
+          {
+            "id": "score",
+            "label": "Address confidence (0-100)",
+            "type": "float"
+          },
+          {
+            "id": "status",
+            "label": "Status",
+            "type": "string"
+          },
+          {
+            "id": "outcome",
+            "label": "Outcome",
+            "type": "string"
+          },
+          {
+            "id": "closeReason",
+            "label": "Reason for closing",
+            "type": "string"
+          },
+          {
+            "id": "components",
+            "label": "Score components",
+            "type": "json"
+          },
+          {
+            "id": "formula",
+            "label": "Formula",
+            "type": "string"
+          },
+          {
+            "id": "asOf",
+            "label": "As of",
+            "type": "date"
+          },
+          {
+            "id": "addressSource",
+            "label": "Source of the best address",
+            "type": "string"
+          },
+          {
+            "id": "sourceMarkings",
+            "label": "Markings of the sources",
+            "type": "json"
+          }
+        ],
+        "rowLineage": {
+          "lead::person::g5510077": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 19,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 9,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 91,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 19,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 9,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 9,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 91,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 91,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 9,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 9,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 9,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 9,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 91,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 9,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 9,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 9,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 9,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 91,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 91,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 91,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 91,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 19,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::elias-silva-1984-12-24": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 6,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 8,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 8,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 4,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 6,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 8,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 8,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 8,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 8,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 8,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 8,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 8,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 8,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 8,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 8,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 8,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 8,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 8,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 8,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 8,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 8,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 8,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 6,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::clara-nasser-1986-06-21": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 11,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 3,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 78,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 6,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 11,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 3,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 3,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 78,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 78,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 6,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 6,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 78,
+                  "field": "location_label",
+                  "note": "2 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 78,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 78,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 3,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 78,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 6,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 3,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 3,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 3,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 3,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 78,
+                  "field": "location_label",
+                  "note": "2 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 78,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 78,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 78,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 6,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 6,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 11,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x1445199": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 13,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 2,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 53,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 13,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 2,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 2,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 53,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 53,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 53,
+                  "field": "location_label",
+                  "note": "2 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 53,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 53,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 2,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 53,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 2,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 2,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 2,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 2,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 53,
+                  "field": "location_label",
+                  "note": "2 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 53,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 53,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 53,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 13,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::l1029921": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 1,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 79,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 9,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 1,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 79,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 79,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 9,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 9,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 79,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 79,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 79,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 79,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 9,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 79,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 79,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 79,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 79,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 9,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 9,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 1,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::b7730042": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 3,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 24,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 9,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 3,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 24,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 24,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 9,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 9,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 24,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 24,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 24,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 24,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 9,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 24,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 24,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 24,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 24,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 9,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 9,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 3,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::zane-ionescu-1975-12-13": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 9,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 88,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 8,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 9,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 88,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 88,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 8,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 8,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 88,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 88,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 88,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 88,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 8,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 88,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 88,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 88,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 88,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 8,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 8,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 9,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::daniel-wu-1985-06-14": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 5,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 1,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 52,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 7,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 5,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 1,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 1,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 52,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 52,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 7,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 7,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 52,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 52,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 52,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 1,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 52,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 7,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 1,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 1,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 1,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 1,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 52,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 52,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 52,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 52,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 7,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 7,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 5,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::c-silva-30131994523": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 23,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 84,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 23,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 84,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 84,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 84,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 84,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 84,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 84,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 84,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 84,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 84,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 84,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 23,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::i6117009": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 15,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 72,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 15,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 72,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 72,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 72,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 72,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 72,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 72,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 72,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 72,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 72,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 72,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 15,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::e-orlov-33919795579": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 21,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 51,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 21,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 51,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 51,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 51,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 51,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 51,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 51,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 51,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 51,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 51,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 51,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 21,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::n5538219": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 2,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 55,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 1,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 7,
+                "field": "",
+                "note": "same address"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 2,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 55,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 55,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 1,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 1,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 55,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 55,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 55,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 55,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 1,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 55,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 55,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 55,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 55,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 1,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 1,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 7,
+                  "field": "lat",
+                  "note": "same address"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 7,
+                  "field": "lon",
+                  "note": "same address"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 2,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::p8842101": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 0,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 39,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 0,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5,
+                "field": "",
+                "note": "same address"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 0,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 39,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 39,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 0,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 0,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 39,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 39,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 39,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 39,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 0,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 39,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 39,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 39,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 39,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 0,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 0,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5,
+                  "field": "lat",
+                  "note": "same address"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5,
+                  "field": "lon",
+                  "note": "same address"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 0,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x2338687": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 17,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 44,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 17,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 44,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 44,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 44,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 44,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 44,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 44,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 44,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 44,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 44,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 44,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 17,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::tomas-orlov-971106977991": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 20,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 33,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 20,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 33,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 33,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 33,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 33,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 33,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 33,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 33,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 33,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 33,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 33,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 20,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x2622631": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 16,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 30,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 16,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 30,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 30,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 30,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 30,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 30,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 30,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 30,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 30,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 30,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 30,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 16,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::n-costa-49306468299": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 22,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 11,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 22,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 11,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 11,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 11,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 11,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 11,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 11,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 11,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 11,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 11,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 11,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 22,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x4744854": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 18,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 10,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 18,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 10,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 10,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 10,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 10,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 10,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 10,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 10,
+                  "field": "location_label",
+                  "note": "1 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 10,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 10,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 10,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 18,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::clara-silva-1977-11-25": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 7,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 5,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 4,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 7,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 5,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 5,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "registered_address",
+                  "note": "owner"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 5,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 5,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 5,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 5,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 5,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 7,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x2197935": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 14,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 7,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 14,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 7,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 7,
+                  "field": "dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 7,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 7,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 7,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 7,
+                  "field": "registered_on",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 7,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 7,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 7,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 7,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 14,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::maya-singh-1992-09-21": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 4,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 6,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 3,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 4,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 6,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 6,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 3,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 3,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 6,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 6,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 6,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 6,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 3,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 6,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 6,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 6,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 6,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 3,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 3,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 4,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::lena-demir-1978-02-28": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 12,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 0,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 8,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 12,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 0,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 0,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 8,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 8,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 8,
+                  "field": "registered_address",
+                  "note": "owner"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 0,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 8,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 0,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 0,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 0,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 0,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 8,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 8,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 12,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::elias-orlov-1989-04-06": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 8,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 4,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 5,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 8,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 4,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 4,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 5,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 5,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 4,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 4,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 4,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 4,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 5,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 4,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 4,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 4,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 4,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 5,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 5,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 8,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::clara-adler-1986-05-04": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 10,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 6,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 10,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 6,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 6,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 6,
+                  "field": "registered_address",
+                  "note": "director"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 6,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 6,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 6,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 10,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          }
+        }
       }
     ],
     "lineage": {
@@ -7810,6 +12718,11 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
+      "device::dev-or-07": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
       "device::dev-sp-04": {
         "producedBy": "build_ontology",
         "sourceRows": [],
@@ -8061,6 +12974,11 @@ window.foundrySeedCatalog = {
         "fieldProvenance": {}
       },
       "location::north-quay-warehouse": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "location::oak-lane-birmingham": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -11059,6 +15977,24 @@ window.foundrySeedCatalog = {
             "note": "flight-passenger"
           },
           {
+            "dataset": "norm_mobile_pings",
+            "row": 89,
+            "field": "",
+            "note": "device-ping"
+          },
+          {
+            "dataset": "norm_mobile_pings",
+            "row": 90,
+            "field": "",
+            "note": "device-ping"
+          },
+          {
+            "dataset": "norm_mobile_pings",
+            "row": 91,
+            "field": "",
+            "note": "device-ping"
+          },
+          {
             "dataset": "norm_clinic_registrations",
             "row": 9,
             "field": "",
@@ -11120,6 +16056,44 @@ window.foundrySeedCatalog = {
               "row": 24,
               "field": "phone_number",
               "note": ""
+            },
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 89,
+              "field": "phone_number",
+              "note": ""
+            },
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 90,
+              "field": "phone_number",
+              "note": ""
+            },
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 91,
+              "field": "phone_number",
+              "note": ""
+            }
+          ],
+          "aliases": [
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 89,
+              "field": "observed_name",
+              "note": "ping alias"
+            },
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 90,
+              "field": "observed_name",
+              "note": "ping alias"
+            },
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 91,
+              "field": "observed_name",
+              "note": "ping alias"
             }
           ],
           "homeAddress": [
@@ -12852,6 +17826,26 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "device::dev-or-07",
+        "type": "Device",
+        "label": "DEV-OR-07",
+        "properties": {
+          "deviceId": "DEV-OR-07",
+          "phoneNumber": "+447911223344",
+          "lastObservedName": "Omar Rahman"
+        },
+        "sourceIds": [
+          "norm_mobile_pings"
+        ],
+        "markings": [
+          "TELECOM"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "device::dev-sp-04",
         "type": "Device",
         "label": "DEV-SP-04",
@@ -14086,6 +19080,28 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "location::oak-lane-birmingham",
+        "type": "Location",
+        "label": "Oak Lane, Birmingham",
+        "properties": {
+          "label": "Oak Lane, Birmingham",
+          "locationType": "residential",
+          "city": "Birmingham",
+          "country": "United Kingdom",
+          "lat": 52.443012,
+          "lon": -1.935174,
+          "cellTower": "UK-BHM-114"
+        },
+        "sourceIds": [
+          "norm_mobile_pings"
+        ],
+        "markings": [],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "location::sofia-airport",
         "type": "Location",
         "label": "Sofia Airport",
@@ -15215,7 +20231,10 @@ window.foundrySeedCatalog = {
           "confidence": 1.0,
           "mergedFrom": [
             "flight:MF-0008",
-            "flight:MF-0009"
+            "flight:MF-0009",
+            "ping:PG-0101",
+            "ping:PG-0102",
+            "ping:PG-0103"
           ],
           "splitRisk": false,
           "note": ""
@@ -15242,6 +20261,7 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
+          "TELECOM",
           "HEALTH"
         ]
       },
@@ -17751,6 +22771,22 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "observed_at::device-dev-or-07-location-oak-lane-birmingham",
+        "type": "OBSERVED_AT",
+        "source": "device::dev-or-07",
+        "target": "location::oak-lane-birmingham",
+        "label": "OBSERVED_AT",
+        "properties": {
+          "sightingCount": "3",
+          "firstSeen": "2026-04-10T19:40:00Z",
+          "lastSeen": "2026-04-11T21:50:00Z",
+          "source": "carrier-feed"
+        },
+        "markings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "observed_at::device-dev-sp-04-location-14-seabright-ave-limassol",
         "type": "OBSERVED_AT",
         "source": "device::dev-sp-04",
@@ -18516,6 +23552,17 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "uses_device::person-g5510077-device-dev-or-07",
+        "type": "USES_DEVICE",
+        "source": "person::g5510077",
+        "target": "device::dev-or-07",
+        "label": "USES_DEVICE",
+        "properties": {},
+        "markings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "uses_device::person-i6117009-device-dev-ms-06",
         "type": "USES_DEVICE",
         "source": "person::i6117009",
@@ -18652,20 +23699,20 @@ window.foundrySeedCatalog = {
   "simulator": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:0c9de859650dc1414592084d5982377bb838e4040f80afeb92b754beeb32bc4a",
+      "buildId": "sha256:bf0e2ad2a997c4328aa97af43c678ea92b28fe27afc097d16df3fb12e457dcd9",
       "sources": {
         "bank_transactions.csv": "sha256:1b192ef6c107359560bc3df631a4fd42e665aa4e26403630a82bbe9b47a44596",
         "clinic_registrations.csv": "sha256:3b651e31a0bff7bfc2fcf324c827b515d21f43a5c9ff688242cad73c4d453453",
         "company_registry.csv": "sha256:06aca2351b875fb3f9d443d5eb907d495bc51a698b60381623501c188ead956a",
         "flight_manifests.csv": "sha256:b418d4cc4ab3868de48bfd86d5097b53a2499eec2e1c2bd6b5dd6573bbc023a7",
         "manifest.json": "sha256:0f369eabdc4b097a6e78a75736086d1676821d656b65f514eaf46be022ea037d",
-        "mobile_location_pings.jsonl": "sha256:60b459e39a4bda517bd780f3ff8b3a9ba342cf2f822a844e2b16935ac543d095",
+        "mobile_location_pings.jsonl": "sha256:b208310e84c3c8a26d57efb64735d2002767743656d1e496df35ea1c460a94ff",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_foundry_seed.py@c3b5739",
+      "builder": "build_foundry_seed.py@dd0e658",
       "title": "Foundry Studio Demo",
       "dataset": "simulator",
-      "generatedAt": "2026-11-04T17:35:57.828396Z"
+      "generatedAt": "2026-11-04T18:51:31.555357Z"
     },
     "governance": {
       "markings": [
@@ -18919,7 +23966,7 @@ window.foundrySeedCatalog = {
           "kind": "simplified",
           "label": "Simplified",
           "title": "Agent (simulated AIP)",
-          "text": "Rule-based stand-in for an AIP chatbot; it cannot invent objects. Real AIP uses an LLM with tools and stages edits for review.",
+          "text": "Scripted stand-in for an AIP agent, with no language model: it plans tool calls from your question by fixed rules, runs each call through your role, the purpose rules, Checkpoints and the audit log, cites the objects behind its claims and stages edits for review. Real AIP agents use an LLM with tools; here the failures are scripted for teaching.",
           "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview"
         },
         {
@@ -19073,6 +24120,38 @@ window.foundrySeedCatalog = {
           "title": "Entity resolution",
           "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
           "docUrl": "https://docs.aleph.occrp.org/developers/mappings"
+        },
+        {
+          "id": "inv.leads",
+          "kind": "simplified",
+          "label": "Simplified",
+          "title": "Leads",
+          "text": "A 0–100 address confidence score from source type and age, in the style of ICE's ELITE app. Simplified: the formula is ours; ELITE's is not public. Here every weight, age and source is shown.",
+          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite"
+        },
+        {
+          "id": "inv.object-sets",
+          "kind": "mirrors",
+          "label": "Mirrors Foundry",
+          "title": "Object sets",
+          "text": "Saved, shareable lists of objects whose membership changes over time, as with Foundry object sets. Here versions and sharing are kept in your browser, and sharing is simulated by role.",
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+        },
+        {
+          "id": "build.retention",
+          "kind": "simplified",
+          "label": "Simplified",
+          "title": "Retention",
+          "text": "Each dataset carries a retention period; the slider greys out rows past it and counts derived rows that still carry them. Simplified: nothing is ever deleted here, and in a real platform deletion has to reach every derived dataset, export and copy.",
+          "docUrl": null
+        },
+        {
+          "id": "deployment",
+          "kind": "extension",
+          "label": "Teaching extension",
+          "title": "Deployment",
+          "text": "Where this classroom tool lives: static files on GitHub Pages, map tiles from OpenStreetMap, and the session, audit log and governance in your own browser's localStorage, with nothing on a server. Not a Palantir view: real deployments run in the customer's cloud or on premises, updated by Apollo.",
+          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379"
         }
       ],
       "purposeRules": [
@@ -19124,7 +24203,8 @@ window.foundrySeedCatalog = {
           "id": "disc-ice-elite",
           "title": "ICE: ImmigrationOS and ELITE (2025–26)",
           "attachedTo": [
-            "build.markings"
+            "build.markings",
+            "inv.leads"
           ],
           "summary": "In April 2025 US Immigration and Customs Enforcement gave Palantir a $30m contract, without competition, for an \"ImmigrationOS\" targeting and removal platform. ELITE, reported in January 2026, is a map-based app for finding people that draws on Medicaid, USCIS and Thomson Reuters CLEAR data and shows a 0–100 \"address confidence score\". Court filings in July 2026 describe Medicaid data, shared beyond what a court order allowed, reaching Palantir through a Teams chat; Palantir says the data was deleted.",
           "questions": [
@@ -19195,7 +24275,8 @@ window.foundrySeedCatalog = {
           "id": "disc-pol-intel",
           "title": "Denmark: POL-INTEL and European exits",
           "attachedTo": [
-            "build.pipelines"
+            "build.pipelines",
+            "deployment"
           ],
           "summary": "Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, and other European governments are re-evaluating their agreements with US defence-technology suppliers.",
           "questions": [
@@ -19205,6 +24286,22 @@ window.foundrySeedCatalog = {
           "sources": [
             "https://researcher.itu.dk/p/en/research-outputs/scientification-through-privatization-pol-intel-in-denmark",
             "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-maven",
+          "title": "Maven Smart System",
+          "attachedTo": [
+            "inv.agent"
+          ],
+          "summary": "Maven Smart System is the Pentagon's AI and data-fusion system for command and targeting, built on Palantir software: it detects, tags and tracks. In May 2025 the contract ceiling rose to about $1.3bn through 2029, with more than 20,000 users. There is a NATO version, and Denmark has a deal combining Maven with Foundry. Like an AIP agent, it puts machine suggestions in front of people who decide what to act on; at that scale, how closely each suggestion is checked is an open question.",
+          "questions": [
+            "What does \"human in the loop\" mean when more than 20,000 users each review machine suggestions?",
+            "Which of this agent's scripted failures would be hardest to catch at that scale, and who would notice?"
+          ],
+          "sources": [
+            "https://defensescoop.com/2025/05/23/dod-palantir-maven-smart-system-contract-increase/"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         }
@@ -19441,6 +24538,60 @@ window.foundrySeedCatalog = {
           ],
           "feedsAnalytics": true,
           "honesty": "inv.actions"
+        },
+        {
+          "id": "act-close-lead",
+          "label": "Close lead",
+          "objectType": "Lead",
+          "sensitive": false,
+          "description": "Close an address lead with an outcome and send it to case management. The lead stays in the list, marked closed.",
+          "parameters": [
+            {
+              "id": "outcome",
+              "label": "Outcome",
+              "type": "enum",
+              "required": true,
+              "options": [
+                "no-action",
+                "referred",
+                "address-wrong"
+              ]
+            },
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst"
+          ],
+          "effects": [
+            {
+              "op": "setProperty",
+              "property": "status",
+              "from": "value:closed"
+            },
+            {
+              "op": "setProperty",
+              "property": "outcome",
+              "from": "param:outcome"
+            },
+            {
+              "op": "setProperty",
+              "property": "closeReason",
+              "from": "param:reason"
+            },
+            {
+              "op": "writeback",
+              "system": "case-management",
+              "template": "CLOSE LEAD {id} for {personId} ({outcome}, score {score}) by {role}: {reason}"
+            }
+          ],
+          "feedsAnalytics": false,
+          "honesty": "inv.actions"
         }
       ],
       "externalSystems": [
@@ -19457,7 +24608,7 @@ window.foundrySeedCatalog = {
         {
           "id": "case-management",
           "label": "Case management",
-          "description": "Simulated case file system. Receives identity corrections such as unmerges."
+          "description": "Simulated case file system. Receives identity corrections such as unmerges, and closed leads."
         }
       ]
     },
@@ -20219,7 +25370,7 @@ window.foundrySeedCatalog = {
       ]
     },
     "pipeline": {
-      "generatedAt": "2026-11-04T17:35:57.828396Z",
+      "generatedAt": "2026-11-04T18:51:31.555357Z",
       "transforms": [
         {
           "id": "normalize_sources",
@@ -20237,8 +25388,8 @@ window.foundrySeedCatalog = {
           "codePath": "pipeline/01_normalize_sources.py",
           "code": "\"\"\"\npipeline/01_normalize_sources.py — Read and normalize all six raw source files.\n\nFor each source:\n- Strip whitespace from all string fields\n- Parse date/datetime strings to ISO format (leave as-is if already ISO)\n- Split pipe-delimited alias fields into Python lists\n- Tag each row with its original 0-based row index as ``_source_row``\n- Copy the dataset's markings, purpose, legal basis and retention from\n  ``manifest.json`` (Dataset.markings / Dataset.purpose / ...), with\n  ``markingProvenance`` pointing at the raw file\n\nReturns six Dataset objects (one per source file).  The clinic file is\noptional: a profile without it yields an empty ``norm_clinic_registrations``.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport csv\nimport json\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\n# Allow imports from the repo root when run directly\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _strip(value: Any) -> Any:\n    if isinstance(value, str):\n        return value.strip()\n    return value\n\n\ndef _clean_row(row: Dict[str, Any]) -> Dict[str, Any]:\n    return {k: _strip(v) for k, v in row.items()}\n\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\n\n\ndef source_label(path: Path) -> str:\n    \"\"\"Repo-relative POSIX path of a raw source file (absolute if outside the repo).\"\"\"\n    resolved = Path(path).resolve()\n    try:\n        return resolved.relative_to(REPO_ROOT).as_posix()\n    except ValueError:\n        return resolved.as_posix()\n\n\ndef read_csv_raw(path: Path) -> List[Dict[str, str]]:\n    with path.open(newline=\"\", encoding=\"utf-8\") as fh:\n        return list(csv.DictReader(fh))\n\n\ndef read_jsonl_raw(path: Path) -> List[Dict[str, Any]]:\n    with path.open(encoding=\"utf-8\") as fh:\n        return [json.loads(line) for line in fh if line.strip()]\n\n\n# ---------------------------------------------------------------------------\n# Per-source normalizers\n# ---------------------------------------------------------------------------\n\ndef normalize_watchlist(path: Path) -> Dataset:\n    \"\"\"watchlist.csv → cleaned rows with aliases as list.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        # Split pipe-delimited aliases\n        raw_alias = row.get(\"alias\", \"\")\n        alias_list = [a.strip() for a in raw_alias.split(\"|\") if a.strip()] if raw_alias else []\n        out.append({\n            \"_source_row\": i,\n            \"watchlist_id\": row.get(\"watchlist_id\", \"\"),\n            \"canonical_name\": row.get(\"canonical_name\", \"\"),\n            \"aliases\": alias_list,\n            \"dob\": row.get(\"dob\", \"\"),\n            \"nationality\": row.get(\"nationality\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"risk_tag\": row.get(\"risk_tag\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"watchlist_id\", \"type\": \"string\"},\n        {\"field\": \"canonical_name\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"json\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"risk_tag\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_watchlist\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_company_registry(path: Path) -> Dataset:\n    \"\"\"company_registry.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"company_id\": row.get(\"company_id\", \"\"),\n            \"company_name\": row.get(\"company_name\", \"\"),\n            \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n            \"incorporation_date\": row.get(\"incorporation_date\", \"\"),\n            \"registered_address\": row.get(\"registered_address\", \"\"),\n            \"director_name\": row.get(\"director_name\", \"\"),\n            \"director_dob\": row.get(\"director_dob\", \"\"),\n            \"beneficial_owner\": row.get(\"beneficial_owner\", \"\"),\n            \"beneficial_owner_dob\": row.get(\"beneficial_owner_dob\", \"\"),\n            \"registered_city\": row.get(\"registered_city\", \"\"),\n            \"registered_country\": row.get(\"registered_country\", \"\"),\n            \"registered_site_type\": row.get(\"registered_site_type\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"company_id\", \"type\": \"string\"},\n        {\"field\": \"company_name\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporation_date\", \"type\": \"date\"},\n        {\"field\": \"registered_address\", \"type\": \"string\"},\n        {\"field\": \"director_name\", \"type\": \"string\"},\n        {\"field\": \"director_dob\", \"type\": \"date\"},\n        {\"field\": \"beneficial_owner\", \"type\": \"string\"},\n        {\"field\": \"beneficial_owner_dob\", \"type\": \"date\"},\n        {\"field\": \"registered_city\", \"type\": \"string\"},\n        {\"field\": \"registered_country\", \"type\": \"string\"},\n        {\"field\": \"registered_site_type\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_company_registry\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_flight_manifests(path: Path) -> Dataset:\n    \"\"\"flight_manifests.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"manifest_id\": row.get(\"manifest_id\", \"\"),\n            \"flight_number\": row.get(\"flight_number\", \"\"),\n            \"departure_airport\": row.get(\"departure_airport\", \"\"),\n            \"arrival_airport\": row.get(\"arrival_airport\", \"\"),\n            \"departure_ts\": row.get(\"departure_ts\", \"\"),\n            \"booking_reference\": row.get(\"booking_reference\", \"\"),\n            \"passenger_name\": row.get(\"passenger_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"phone_number\": row.get(\"phone_number\", \"\"),\n            \"seat\": row.get(\"seat\", \"\"),\n            \"payment_card_last4\": row.get(\"payment_card_last4\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"manifest_id\", \"type\": \"string\"},\n        {\"field\": \"flight_number\", \"type\": \"string\"},\n        {\"field\": \"departure_airport\", \"type\": \"string\"},\n        {\"field\": \"arrival_airport\", \"type\": \"string\"},\n        {\"field\": \"departure_ts\", \"type\": \"date\"},\n        {\"field\": \"booking_reference\", \"type\": \"string\"},\n        {\"field\": \"passenger_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"seat\", \"type\": \"string\"},\n        {\"field\": \"payment_card_last4\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_flight_manifests\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_bank_transactions(path: Path) -> Dataset:\n    \"\"\"bank_transactions.csv → cleaned rows with numeric amount.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        amount_raw = row.get(\"amount_usd\", \"\")\n        try:\n            amount = float(amount_raw) if amount_raw else None\n        except ValueError:\n            amount = None\n        out.append({\n            \"_source_row\": i,\n            \"transaction_id\": row.get(\"transaction_id\", \"\"),\n            \"source_account_id\": row.get(\"source_account_id\", \"\"),\n            \"source_name\": row.get(\"source_name\", \"\"),\n            \"destination_account_id\": row.get(\"destination_account_id\", \"\"),\n            \"destination_name\": row.get(\"destination_name\", \"\"),\n            \"amount_usd\": amount,\n            \"txn_type\": row.get(\"txn_type\", \"\"),\n            \"merchant_or_bank\": row.get(\"merchant_or_bank\", \"\"),\n            \"txn_ts\": row.get(\"txn_ts\", \"\"),\n            \"reference\": row.get(\"reference\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"transaction_id\", \"type\": \"string\"},\n        {\"field\": \"source_account_id\", \"type\": \"string\"},\n        {\"field\": \"source_name\", \"type\": \"string\"},\n        {\"field\": \"destination_account_id\", \"type\": \"string\"},\n        {\"field\": \"destination_name\", \"type\": \"string\"},\n        {\"field\": \"amount_usd\", \"type\": \"float\"},\n        {\"field\": \"txn_type\", \"type\": \"string\"},\n        {\"field\": \"merchant_or_bank\", \"type\": \"string\"},\n        {\"field\": \"txn_ts\", \"type\": \"date\"},\n        {\"field\": \"reference\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_bank_transactions\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_mobile_pings(path: Path) -> Dataset:\n    \"\"\"mobile_location_pings.jsonl → cleaned rows with numeric lat/lon.\"\"\"\n    rows = read_jsonl_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        out.append({\n            \"_source_row\": i,\n            \"ping_id\": str(row.get(\"ping_id\", \"\")),\n            \"device_id\": str(row.get(\"device_id\", \"\")),\n            \"phone_number\": str(row.get(\"phone_number\", \"\")),\n            \"observed_name\": str(row.get(\"observed_name\", \"\")),\n            \"timestamp\": str(row.get(\"timestamp\", \"\")),\n            \"location_label\": str(row.get(\"location_label\", \"\")),\n            \"location_type\": str(row.get(\"location_type\", \"\")),\n            \"city\": str(row.get(\"city\", \"\")),\n            \"country\": str(row.get(\"country\", \"\")),\n            \"lat\": row.get(\"lat\"),\n            \"lon\": row.get(\"lon\"),\n            \"cell_tower\": str(row.get(\"cell_tower\", \"\")),\n            \"source\": str(row.get(\"source\", \"\")),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"ping_id\", \"type\": \"string\"},\n        {\"field\": \"device_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"observed_name\", \"type\": \"string\"},\n        {\"field\": \"timestamp\", \"type\": \"date\"},\n        {\"field\": \"location_label\", \"type\": \"string\"},\n        {\"field\": \"location_type\", \"type\": \"string\"},\n        {\"field\": \"city\", \"type\": \"string\"},\n        {\"field\": \"country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"cell_tower\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_mobile_pings\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef _float_or_none(value: Any) -> Any:\n    try:\n        return float(value) if value not in (None, \"\") else None\n    except ValueError:\n        return None\n\n\ndef normalize_clinic(path: Path) -> Dataset:\n    \"\"\"clinic_registrations.csv → cleaned rows with numeric lat/lon.\n\n    Health data: rows are only ever *attached* to people who already exist\n    (by name + dob, in step 02); an unmatched row stays in this dataset.\n    \"\"\"\n    rows = read_csv_raw(path) if path.exists() else []\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"registration_id\": row.get(\"registration_id\", \"\"),\n            \"patient_name\": row.get(\"patient_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"home_address\": row.get(\"home_address\", \"\"),\n            \"home_city\": row.get(\"home_city\", \"\"),\n            \"home_country\": row.get(\"home_country\", \"\"),\n            \"lat\": _float_or_none(row.get(\"lat\")),\n            \"lon\": _float_or_none(row.get(\"lon\")),\n            \"clinic_code\": row.get(\"clinic_code\", \"\"),\n            \"registered_on\": row.get(\"registered_on\", \"\"),\n            \"source\": row.get(\"source\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"registration_id\", \"type\": \"string\"},\n        {\"field\": \"patient_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"home_address\", \"type\": \"string\"},\n        {\"field\": \"home_city\", \"type\": \"string\"},\n        {\"field\": \"home_country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"clinic_code\", \"type\": \"string\"},\n        {\"field\": \"registered_on\", \"type\": \"date\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_clinic_registrations\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef apply_manifest(ds: Dataset, manifest: Dict[str, Dict[str, Any]], file_name: str) -> Dataset:\n    \"\"\"Copy markings, purpose, legal basis and retention from the manifest.\"\"\"\n    entry = governance.manifest_entry_for_file(manifest, file_name)\n    ds.set_governance(governance.raw_governance(file_name, entry))\n    ds.as_of = entry.get(\"asOf\", \"\")  # type: ignore[attr-defined]\n    ds.derived_from = [file_name]\n    return ds\n\n\n# ---------------------------------------------------------------------------\n# Public entry point\n# ---------------------------------------------------------------------------\n\nRAW_FILES = (\n    \"watchlist.csv\", \"company_registry.csv\", \"flight_manifests.csv\",\n    \"bank_transactions.csv\", \"mobile_location_pings.jsonl\", \"clinic_registrations.csv\",\n)\n\n\ndef run(dataset_dir: Path) -> Tuple[Dataset, Dataset, Dataset, Dataset, Dataset, Dataset]:\n    \"\"\"Normalize all six sources under *dataset_dir*.\n\n    Returns\n    -------\n    (norm_watchlist, norm_company_registry, norm_flight_manifests,\n     norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations)\n    \"\"\"\n    dataset_dir = Path(dataset_dir)\n    manifest = governance.load_manifest(dataset_dir)\n    wl = normalize_watchlist(dataset_dir / \"watchlist.csv\")\n    cr = normalize_company_registry(dataset_dir / \"company_registry.csv\")\n    fm = normalize_flight_manifests(dataset_dir / \"flight_manifests.csv\")\n    bt = normalize_bank_transactions(dataset_dir / \"bank_transactions.csv\")\n    mp = normalize_mobile_pings(dataset_dir / \"mobile_location_pings.jsonl\")\n    cl = normalize_clinic(dataset_dir / \"clinic_registrations.csv\")\n\n    datasets = (wl, cr, fm, bt, mp, cl)\n    for ds, file_name in zip(datasets, RAW_FILES):\n        apply_manifest(ds, manifest, file_name)\n    return datasets\n\n\nif __name__ == \"__main__\":\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    datasets = run(dataset_dir)\n    for ds in datasets:\n        print(f\"{ds.name}: {len(ds)} rows\")\n",
           "rowsIn": 0,
-          "rowsOut": 9207,
-          "builtAt": "2026-11-04T17:35:57.828396Z"
+          "rowsOut": 9210,
+          "builtAt": "2026-11-04T18:51:31.555357Z"
         },
         {
           "id": "resolve_persons",
@@ -20254,9 +25405,9 @@ window.foundrySeedCatalog = {
           "output": "resolved_persons",
           "codePath": "pipeline/02_resolve_persons.py",
           "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (HEALTH)\n  clinicCode       — latest clinic registration (HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
-          "rowsIn": 6997,
+          "rowsIn": 7000,
           "rowsOut": 191,
-          "builtAt": "2026-11-04T17:35:57.828396Z"
+          "builtAt": "2026-11-04T18:51:31.555357Z"
         },
         {
           "id": "resolve_companies",
@@ -20270,7 +25421,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/03_resolve_companies.py — Entity resolution for Company entities.\n\nKeyed by company_id from the normalized company_registry dataset.\n\nOutput Dataset: company entities\n  id                 — company::{slug(company_id)}\n  companyName\n  jurisdiction\n  incorporationDate\n  registeredAddress\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef run(norm_company_registry: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve Company entities from the normalized company_registry dataset.\"\"\"\n    seen: Dict[str, int] = {}   # company_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for row in norm_company_registry.rows:\n        company_id = row.get(\"company_id\", \"\")\n        if not company_id:\n            continue\n\n        src_row = int(row[\"_source_row\"])\n        ds_name = norm_company_registry.name\n\n        if company_id in seen:\n            # Merge into existing — update any empty fields\n            out_idx = seen[company_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                val = row.get(src_field, \"\")\n                if val and not existing.get(out_field):\n                    existing[out_field] = val\n                    fp.setdefault(out_field, []).append(\n                        {\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"merge\"}\n                    )\n        else:\n            out_idx = len(output_rows)\n            seen[company_id] = out_idx\n            entity_id = f\"company::{slug(company_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"Company\",\n                \"companyName\": row.get(\"company_name\", \"\"),\n                \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n                \"incorporationDate\": row.get(\"incorporation_date\", \"\"),\n                \"registeredAddress\": row.get(\"registered_address\", \"\"),\n            }\n            fp: Dict[str, List[Dict[str, Any]]] = {}\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                if row.get(src_field):\n                    fp[out_field] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"\"}]\n            fp[\"id\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": \"company_id\", \"note\": \"key\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp)\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"companyName\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporationDate\", \"type\": \"date\"},\n        {\"field\": \"registeredAddress\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_companies\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_company_registry])\n    lineage = LineageRecord()\n\n    for out_idx, (out_row, fp) in enumerate(zip(output_rows, fp_per_row)):\n        # Row-level: find the original source row index\n        src_refs = fp.get(\"id\", fp.get(\"companyName\", []))\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"company\")\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, cr, _, _, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(cr)\n    print(f\"Resolved {len(ds)} companies\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"companyName\"])\n",
           "rowsIn": 98,
           "rowsOut": 98,
-          "builtAt": "2026-11-04T17:35:57.828396Z"
+          "builtAt": "2026-11-04T18:51:31.555357Z"
         },
         {
           "id": "resolve_accounts",
@@ -20284,7 +25435,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/04_resolve_accounts.py — Entity resolution for BankAccount entities.\n\nKeyed by account_id from the normalized bank_transactions dataset.\nBoth source and destination accounts are extracted.\n\nOutput Dataset: bank account entities\n  id           — bankaccount::{slug(account_id)}\n  accountId\n  ownerName\n  accountKind  — \"personal\" | \"corporate\" | \"\" (resolved downstream in step 05)\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\ndef run(norm_bank_transactions: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve BankAccount entities from the normalized bank_transactions dataset.\"\"\"\n    seen: Dict[str, int] = {}   # account_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n    ds_name = norm_bank_transactions.name\n\n    def upsert(account_id: str, owner_name: str, src_row: int, id_field: str, name_field: str) -> None:\n        if not account_id:\n            return\n        if account_id in seen:\n            out_idx = seen[account_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            if owner_name and not existing.get(\"ownerName\"):\n                existing[\"ownerName\"] = owner_name\n                fp.setdefault(\"ownerName\", []).append(\n                    {\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"merge\"}\n                )\n        else:\n            out_idx = len(output_rows)\n            seen[account_id] = out_idx\n            entity_id = f\"bankaccount::{slug(account_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"BankAccount\",\n                \"accountId\": account_id,\n                \"ownerName\": owner_name,\n                \"accountKind\": \"\",\n            }\n            fp_entry: Dict[str, List[Dict[str, Any]]] = {\n                \"id\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"key\"}],\n                \"accountId\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"\"}],\n            }\n            if owner_name:\n                fp_entry[\"ownerName\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp_entry)\n\n    for row in norm_bank_transactions.rows:\n        src_row = int(row[\"_source_row\"])\n        upsert(\n            row.get(\"source_account_id\", \"\"),\n            row.get(\"source_name\", \"\"),\n            src_row,\n            \"source_account_id\",\n            \"source_name\",\n        )\n        upsert(\n            row.get(\"destination_account_id\", \"\"),\n            row.get(\"destination_name\", \"\"),\n            src_row,\n            \"destination_account_id\",\n            \"destination_name\",\n        )\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"accountId\", \"type\": \"string\"},\n        {\"field\": \"ownerName\", \"type\": \"string\"},\n        {\"field\": \"accountKind\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_accounts\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_bank_transactions])\n    lineage = LineageRecord()\n\n    for out_idx, fp in enumerate(fp_per_row):\n        src_refs = fp.get(\"id\", [])\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"account\")\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, _, _, bt, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(bt)\n    print(f\"Resolved {len(ds)} bank accounts\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"ownerName\"])\n",
           "rowsIn": 2210,
           "rowsOut": 282,
-          "builtAt": "2026-11-04T17:35:57.828396Z"
+          "builtAt": "2026-11-04T18:51:31.555357Z"
         },
         {
           "id": "build_ontology",
@@ -20304,9 +25455,26 @@ window.foundrySeedCatalog = {
           "output": "ontology",
           "codePath": "pipeline/05_build_ontology.py",
           "code": "\"\"\"\npipeline/05_build_ontology.py — Build the full ontology entity and edge sets.\n\nTakes all resolved entity datasets + normalized sources.  Produces:\n  - Additional entity types: Device, Flight, Airport, Location, WatchlistRecord\n  - All edges:\n      LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT,\n      OWNS_ACCOUNT, HAS_CORP_ACCOUNT, TRANSFERRED_TO,\n      BOOKED_ON, DEPARTED_FROM, ARRIVED_AT,\n      USES_DEVICE, OBSERVED_AT,\n      RESIDES_AT (Phase 1: Person → residential Location, from clinic rows)\n\nClinic rows that the shared resolver attached to a Person (name + dob) become\na residential ``Location`` (``locationType: \"residential\"``) and a\n``RESIDES_AT`` link with ``{asOf, source}``.  Unattached rows produce nothing.\n\nBoth output datasets inherit the union of their inputs' markings, and every\nentity and edge gets contract §3 markings from ``pipeline/governance.py``.\n\nPerson lookups go through the shared resolver in ``pipeline/resolution.py``\n(the same one the Gotham seed builder uses), passing every key the source row\ncarries — passport, phone, name and date of birth — so both demos attach\neach edge to the same person.\n\nReturns:\n  entities_dataset  — all entities (persons + companies + accounts + new types)\n  edges_dataset     — all edges\n  entity_lineage    — LineageRecord for entities\n  edge_lineage      — LineageRecord for edges\n\"\"\"\n\nfrom __future__ import annotations\n\nimport re\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Optional, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\nfrom pipeline.resolution import PersonResolver, attach_clinic_rows, clinic_observations, resolve_people\n\n# ---------------------------------------------------------------------------\n# Airport reference data (from build_ontology_seed.py)\n# ---------------------------------------------------------------------------\nAIRPORT_COORDS: Dict[str, Dict[str, Any]] = {\n    \"ATH\": {\"name\": \"Athens International Airport\", \"city\": \"Athens\", \"country\": \"Greece\", \"lat\": 37.9364, \"lon\": 23.9475},\n    \"BEG\": {\"name\": \"Belgrade Nikola Tesla Airport\", \"city\": \"Belgrade\", \"country\": \"Serbia\", \"lat\": 44.8184, \"lon\": 20.3091},\n    \"DXB\": {\"name\": \"Dubai International Airport\", \"city\": \"Dubai\", \"country\": \"United Arab Emirates\", \"lat\": 25.2532, \"lon\": 55.3657},\n    \"IAD\": {\"name\": \"Washington Dulles International Airport\", \"city\": \"Washington, D.C.\", \"country\": \"United States\", \"lat\": 38.9531, \"lon\": -77.4565},\n    \"IST\": {\"name\": \"Istanbul Airport\", \"city\": \"Istanbul\", \"country\": \"Turkey\", \"lat\": 41.2753, \"lon\": 28.7519},\n    \"LCA\": {\"name\": \"Larnaca International Airport\", \"city\": \"Larnaca\", \"country\": \"Cyprus\", \"lat\": 34.8751, \"lon\": 33.6249},\n    \"LHR\": {\"name\": \"Heathrow Airport\", \"city\": \"London\", \"country\": \"United Kingdom\", \"lat\": 51.4700, \"lon\": -0.4543},\n    \"SOF\": {\"name\": \"Sofia Airport\", \"city\": \"Sofia\", \"country\": \"Bulgaria\", \"lat\": 42.6950, \"lon\": 23.4062},\n    \"VIE\": {\"name\": \"Vienna International Airport\", \"city\": \"Vienna\", \"country\": \"Austria\", \"lat\": 48.1103, \"lon\": 16.5697},\n}\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _norm(value: str) -> str:\n    cleaned = re.sub(r\"[^a-z0-9]+\", \" \", value.lower()).strip()\n    return re.sub(r\"\\s+\", \" \", cleaned)\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Ontology builder\n# ---------------------------------------------------------------------------\n\nclass OntologyBuilder:\n    def __init__(\n        self,\n        resolved_persons: Dataset,\n        resolved_companies: Dataset,\n        resolved_accounts: Dataset,\n        resolver: PersonResolver,\n    ) -> None:\n        # Start with resolved entities\n        self.entities: List[Dict[str, Any]] = []\n        self.entity_index: Dict[str, int] = {}  # entity_id → index in self.entities\n        self.edges: List[Dict[str, Any]] = []\n        self.edge_index: Dict[str, int] = {}\n\n        # Entity lineage: entity_id → list of source refs\n        self.entity_src: Dict[str, List[Dict[str, Any]]] = {}\n        self.entity_field_prov: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}\n\n        # Lookup tables (persons: the shared resolver from step 02)\n        self.resolver = resolver\n        self.company_by_name: Dict[str, str] = {}\n        self.account_by_id: Dict[str, str] = {}\n        self.device_by_id: Dict[str, str] = {}\n        self.airport_by_code: Dict[str, str] = {}\n        self.location_by_label: Dict[str, str] = {}\n\n        # Ingest persons\n        for row in resolved_persons.rows:\n            self._add_entity_row(row, resolved_persons.name)\n\n        # Ingest companies\n        for row in resolved_companies.rows:\n            self._add_entity_row(row, resolved_companies.name)\n            self.company_by_name[_norm(row.get(\"companyName\", \"\"))] = row[\"id\"]\n\n        # Ingest accounts\n        for row in resolved_accounts.rows:\n            self._add_entity_row(row, resolved_accounts.name)\n            self.account_by_id[row[\"accountId\"]] = row[\"id\"]\n\n    def _add_entity_row(self, row: Dict[str, Any], source_ds: str) -> str:\n        eid = row[\"id\"]\n        if eid in self.entity_index:\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        # Build Gotham-compatible entity shape\n        props = {k: v for k, v in row.items() if k not in (\"id\", \"type\", \"resolution\") and v not in (None, \"\")}\n        entity = {\n            \"id\": eid,\n            \"type\": row[\"type\"],\n            \"label\": props.get(\"canonicalName\") or props.get(\"companyName\") or props.get(\"accountId\") or eid,\n            \"properties\": props,\n            \"sourceIds\": [source_ds],\n        }\n        if row.get(\"resolution\"):\n            entity[\"resolution\"] = row[\"resolution\"]\n        self.entities.append(entity)\n        return eid\n\n    def _add_edge(\n        self,\n        rel_type: str,\n        source_id: str,\n        target_id: str,\n        properties: Optional[Dict[str, Any]] = None,\n        dedupe_key: Optional[str] = None,\n    ) -> str:\n        base_key = dedupe_key or f\"{rel_type}:{source_id}:{target_id}\"\n        edge_id = f\"{rel_type.lower()}::{slug(base_key)}\"\n        if edge_id in self.edge_index:\n            idx = self.edge_index[edge_id]\n            if properties:\n                for k, v in properties.items():\n                    if v not in (None, \"\"):\n                        self.edges[idx][\"properties\"][k] = v\n            return edge_id\n        idx = len(self.edges)\n        self.edge_index[edge_id] = idx\n        self.edges.append({\n            \"id\": edge_id,\n            \"type\": rel_type,\n            \"source\": source_id,\n            \"target\": target_id,\n            \"label\": rel_type,\n            \"properties\": {k: v for k, v in (properties or {}).items() if v not in (None, \"\")},\n        })\n        return edge_id\n\n    def _ensure_entity(\n        self, type_id: str, external_key: str, label: str,\n        properties: Dict[str, Any], source_ds: str,\n    ) -> str:\n        eid = f\"{type_id.lower()}::{slug(external_key)}\"\n        if eid in self.entity_index:\n            # Merge\n            existing = self.entities[self.entity_index[eid]]\n            for k, v in properties.items():\n                if v not in (None, \"\") and existing[\"properties\"].get(k) in (None, \"\"):\n                    existing[\"properties\"][k] = v\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        clean_props = {k: v for k, v in properties.items() if v not in (None, \"\")}\n        self.entities.append({\n            \"id\": eid,\n            \"type\": type_id,\n            \"label\": label or external_key,\n            \"properties\": clean_props,\n            \"sourceIds\": [source_ds],\n        })\n        return eid\n\n    def ensure_airport(self, code: str) -> str:\n        if code in self.airport_by_code:\n            return self.airport_by_code[code]\n        info = AIRPORT_COORDS.get(code, {\"name\": code, \"city\": \"\", \"country\": \"\", \"lat\": None, \"lon\": None})\n        eid = self._ensure_entity(\n            \"Airport\", code, info[\"name\"],\n            {\"code\": code, \"airportName\": info[\"name\"], \"city\": info[\"city\"],\n             \"country\": info[\"country\"], \"lat\": info[\"lat\"], \"lon\": info[\"lon\"]},\n            \"norm_flight_manifests\",\n        )\n        self.airport_by_code[code] = eid\n        return eid\n\n    def ensure_location(\n        self, label: str, lat: Any = None, lon: Any = None,\n        cell_tower: str = \"\", location_type: str = \"\", city: str = \"\", country: str = \"\",\n        source_ds: str = \"norm_mobile_pings\",\n    ) -> str:\n        norm = _norm(label)\n        if norm in self.location_by_label:\n            eid = self.location_by_label[norm]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            for k, v in {\"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower,\n                         \"locationType\": location_type, \"city\": city, \"country\": country}.items():\n                if v not in (None, \"\") and props.get(k) in (None, \"\"):\n                    props[k] = v\n            return eid\n        eid = self._ensure_entity(\n            \"Location\", label, label,\n            {\"label\": label, \"locationType\": location_type, \"city\": city, \"country\": country,\n             \"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower},\n            source_ds,\n        )\n        self.location_by_label[norm] = eid\n        return eid\n\n    def ensure_device(self, device_id: str, phone: str, observed_name: str) -> str:\n        if device_id in self.device_by_id:\n            eid = self.device_by_id[device_id]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            if phone:\n                props[\"phoneNumber\"] = _merge(str(props.get(\"phoneNumber\", \"\")), phone)\n            if observed_name:\n                props[\"lastObservedName\"] = _merge(str(props.get(\"lastObservedName\", \"\")), observed_name)\n            return eid\n        eid = self._ensure_entity(\n            \"Device\", device_id, device_id,\n            {\"deviceId\": device_id, \"phoneNumber\": phone, \"lastObservedName\": observed_name},\n            \"norm_mobile_pings\",\n        )\n        self.device_by_id[device_id] = eid\n        return eid\n\n    def find_person(self, passport_id: str = \"\", phone: str = \"\", name: str = \"\", dob: str = \"\",\n                    ref: str = \"\") -> Optional[str]:\n        \"\"\"Person for a source record (``ref``) or, failing that, by key lookup.\"\"\"\n        if ref:\n            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone)\n        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone)\n\n    def link_account_owner(self, account_eid: str, owner_name: str) -> None:\n        norm = _norm(owner_name)\n        acct_props = self.entities[self.entity_index[account_eid]][\"properties\"]\n        if norm in self.company_by_name:\n            company_id = self.company_by_name[norm]\n            self._add_edge(\"HAS_CORP_ACCOUNT\", company_id, account_eid, dedupe_key=f\"{company_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"corporate\"\n            return\n        person_id = self.find_person(name=owner_name)\n        if person_id:\n            self._add_edge(\"OWNS_ACCOUNT\", person_id, account_eid, dedupe_key=f\"{person_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"personal\"\n\n\n# ---------------------------------------------------------------------------\n# Main run\n# ---------------------------------------------------------------------------\n\ndef run(\n    resolved_persons: Dataset,\n    resolved_companies: Dataset,\n    resolved_accounts: Dataset,\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_bank_transactions: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, Dataset, LineageRecord, LineageRecord]:\n\n    resolver = getattr(resolved_persons, \"resolver\", None)\n    if resolver is None:\n        # Rebuild the identical resolver state from the normalised sources.\n        resolver = resolve_people(norm_watchlist.rows, norm_company_registry.rows,\n                                  norm_flight_manifests.rows, norm_mobile_pings.rows)\n        attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts, resolver)\n\n    # --- WatchlistRecord entities + LISTED_ON edges ---\n    for row in norm_watchlist.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            name=row.get(\"canonical_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"watchlist:{row.get('watchlist_id', '')}\",\n        )\n        record_eid = builder._ensure_entity(\n            \"WatchlistRecord\",\n            row.get(\"watchlist_id\", \"\"),\n            row.get(\"watchlist_id\", \"\"),\n            {\n                \"watchlistId\": row.get(\"watchlist_id\", \"\"),\n                \"alias\": \" | \".join(row.get(\"aliases\", [])),\n                \"dob\": row.get(\"dob\", \"\"),\n                \"nationality\": row.get(\"nationality\", \"\"),\n                \"passportId\": row.get(\"passport_id\", \"\"),\n                \"riskTag\": row.get(\"risk_tag\", \"\"),\n            },\n            norm_watchlist.name,\n        )\n        if person_id:\n            builder._add_edge(\"LISTED_ON\", person_id, record_eid,\n                               dedupe_key=f\"{person_id}:{record_eid}\")\n\n    # --- Company edges: DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT ---\n    for row in norm_company_registry.rows:\n        company_eid = f\"company::{slug(row.get('company_id', ''))}\"\n        if company_eid not in builder.entity_index:\n            continue\n\n        # Director\n        director_id = builder.find_person(name=row.get(\"director_name\", \"\"),\n                                           dob=row.get(\"director_dob\", \"\"),\n                                           ref=f\"company:{row.get('company_id', '')}:director\")\n        if director_id:\n            builder._add_edge(\"DIRECTS\", director_id, company_eid,\n                               dedupe_key=f\"{director_id}:{company_eid}\")\n\n        # Beneficial owner\n        owner_id = builder.find_person(name=row.get(\"beneficial_owner\", \"\"),\n                                        dob=row.get(\"beneficial_owner_dob\", \"\"),\n                                        ref=f\"company:{row.get('company_id', '')}:owner\")\n        if owner_id:\n            builder._add_edge(\"BENEFICIALLY_OWNS\", owner_id, company_eid,\n                               dedupe_key=f\"{owner_id}:{company_eid}\")\n\n        # Registered address → Location\n        address = row.get(\"registered_address\", \"\")\n        if address:\n            loc_eid = builder.ensure_location(\n                address, location_type=row.get(\"registered_site_type\", \"\"),\n                city=row.get(\"registered_city\", \"\"),\n                country=row.get(\"registered_country\", \"\"),\n                source_ds=norm_company_registry.name,\n            )\n            builder._add_edge(\"REGISTERED_AT\", company_eid, loc_eid,\n                               dedupe_key=f\"{company_eid}:{loc_eid}\")\n\n    # --- Flight entities + BOOKED_ON, DEPARTED_FROM, ARRIVED_AT ---\n    for row in norm_flight_manifests.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            phone=row.get(\"phone_number\", \"\"),\n            name=row.get(\"passenger_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"flight:{row.get('manifest_id', '')}\",\n        )\n        flight_eid = builder._ensure_entity(\n            \"Flight\",\n            row.get(\"manifest_id\", \"\"),\n            f\"{row.get('flight_number', '')} · {row.get('passenger_name', '')}\",\n            {\n                \"manifestId\": row.get(\"manifest_id\", \"\"),\n                \"flightNumber\": row.get(\"flight_number\", \"\"),\n                \"departureTs\": row.get(\"departure_ts\", \"\"),\n                \"bookingReference\": row.get(\"booking_reference\", \"\"),\n                \"seat\": row.get(\"seat\", \"\"),\n                \"paymentCardLast4\": row.get(\"payment_card_last4\", \"\"),\n            },\n            norm_flight_manifests.name,\n        )\n        dep_eid = builder.ensure_airport(row.get(\"departure_airport\", \"\"))\n        arr_eid = builder.ensure_airport(row.get(\"arrival_airport\", \"\"))\n        if person_id:\n            builder._add_edge(\"BOOKED_ON\", person_id, flight_eid,\n                               dedupe_key=f\"{person_id}:{flight_eid}\")\n        builder._add_edge(\"DEPARTED_FROM\", flight_eid, dep_eid,\n                           dedupe_key=f\"{flight_eid}:{dep_eid}\")\n        builder._add_edge(\"ARRIVED_AT\", flight_eid, arr_eid,\n                           dedupe_key=f\"{flight_eid}:{arr_eid}\")\n\n    # --- Bank account ownership + TRANSFERRED_TO ---\n    for row in norm_bank_transactions.rows:\n        src_acc = row.get(\"source_account_id\", \"\")\n        dst_acc = row.get(\"destination_account_id\", \"\")\n        src_eid = builder.account_by_id.get(src_acc, \"\")\n        dst_eid = builder.account_by_id.get(dst_acc, \"\")\n\n        if src_eid:\n            builder.link_account_owner(src_eid, row.get(\"source_name\", \"\"))\n        if dst_eid:\n            builder.link_account_owner(dst_eid, row.get(\"destination_name\", \"\"))\n\n        if src_eid and dst_eid and row.get(\"txn_type\") == \"transfer\":\n            dedupe = f\"{src_eid}:{dst_eid}\"\n            edge_id = f\"transferred_to::{slug(dedupe)}\"\n            if edge_id in builder.edge_index:\n                idx = builder.edge_index[edge_id]\n                existing = builder.edges[idx]\n                count = int(existing[\"properties\"].get(\"count\", \"1\")) + 1\n                total = float(existing[\"properties\"].get(\"totalAmountUsd\", \"0\")) + float(row.get(\"amount_usd\") or 0)\n                existing[\"properties\"][\"count\"] = str(count)\n                existing[\"properties\"][\"totalAmountUsd\"] = f\"{total:.2f}\"\n                existing[\"properties\"][\"lastTxnTs\"] = row.get(\"txn_ts\", \"\")\n            else:\n                builder._add_edge(\n                    \"TRANSFERRED_TO\", src_eid, dst_eid,\n                    properties={\n                        \"count\": \"1\",\n                        \"totalAmountUsd\": str(row.get(\"amount_usd\", \"\") or \"\"),\n                        \"lastTxnTs\": row.get(\"txn_ts\", \"\"),\n                        \"sampleReference\": row.get(\"reference\", \"\"),\n                    },\n                    dedupe_key=dedupe,\n                )\n\n    # --- Device entities + USES_DEVICE + OBSERVED_AT ---\n    for row in norm_mobile_pings.rows:\n        device_id_str = row.get(\"device_id\", \"\")\n        phone = row.get(\"phone_number\", \"\")\n        observed = row.get(\"observed_name\", \"\")\n\n        device_eid = builder.ensure_device(device_id_str, phone, observed)\n\n        # Ping-only persons were already created by step 02's resolver.\n        person_id = builder.find_person(phone=phone, name=observed,\n                                        ref=f\"ping:{row.get('ping_id', '')}\")\n        if person_id:\n            builder._add_edge(\"USES_DEVICE\", person_id, device_eid,\n                               dedupe_key=f\"{person_id}:{device_eid}\")\n\n        loc_eid = builder.ensure_location(\n            row.get(\"location_label\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            cell_tower=row.get(\"cell_tower\", \"\"),\n            location_type=row.get(\"location_type\", \"\"),\n            city=row.get(\"city\", \"\"),\n            country=row.get(\"country\", \"\"),\n        )\n\n        dedupe = f\"{device_eid}:{loc_eid}\"\n        edge_id = f\"observed_at::{slug(dedupe)}\"\n        if edge_id in builder.edge_index:\n            idx = builder.edge_index[edge_id]\n            existing = builder.edges[idx]\n            count = int(existing[\"properties\"].get(\"sightingCount\", \"1\")) + 1\n            existing[\"properties\"][\"sightingCount\"] = str(count)\n            existing[\"properties\"][\"lastSeen\"] = row.get(\"timestamp\", \"\")\n        else:\n            builder._add_edge(\n                \"OBSERVED_AT\", device_eid, loc_eid,\n                properties={\n                    \"sightingCount\": \"1\",\n                    \"firstSeen\": row.get(\"timestamp\", \"\"),\n                    \"lastSeen\": row.get(\"timestamp\", \"\"),\n                    \"source\": row.get(\"source\", \"\"),\n                },\n                dedupe_key=dedupe,\n            )\n\n    # --- Residential Locations + RESIDES_AT (clinic rows, Phase 1) ---\n    for obs in clinic_observations(norm_clinic_registrations.rows):\n        person_id = resolver.clinic_by_ref.get(obs.ref)\n        if not person_id:\n            continue  # unattached clinic rows create no objects\n        row = obs.row\n        loc_eid = builder.ensure_location(\n            row.get(\"home_address\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            location_type=\"residential\",\n            city=row.get(\"home_city\", \"\"),\n            country=row.get(\"home_country\", \"\"),\n            source_ds=norm_clinic_registrations.name,\n        )\n        dedupe = f\"{person_id}:{loc_eid}\"\n        edge_id = f\"resides_at::{slug(dedupe)}\"\n        as_of = row.get(\"registered_on\", \"\")\n        if edge_id in builder.edge_index:\n            existing = builder.edges[builder.edge_index[edge_id]]\n            if as_of > str(existing[\"properties\"].get(\"asOf\", \"\")):\n                existing[\"properties\"][\"asOf\"] = as_of\n        else:\n            builder._add_edge(\"RESIDES_AT\", person_id, loc_eid,\n                               properties={\"asOf\": as_of, \"source\": row.get(\"source\", \"\")},\n                               dedupe_key=dedupe)\n\n    # --- Markings on every object and link (contract §3) ---\n    raw_inputs = [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                  norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations]\n    file_markings = {ds.derived_from[0]: ds.markings for ds in raw_inputs if ds.derived_from}\n    governance.annotate_objects(builder.entities, builder.edges, file_markings)\n\n    # --- Assemble output datasets ---\n    entities_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"sourceIds\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n        {\"field\": \"propertyMarkings\", \"type\": \"json\"},\n        {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n    ]\n    edges_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n        {\"field\": \"target\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n    ]\n\n    entities_ds = Dataset(\n        name=\"ontology_entities\",\n        rows=sorted(builder.entities, key=lambda e: (str(e[\"type\"]), str(e[\"label\"]))),\n        schema=entities_schema,\n    )\n    edges_ds = Dataset(\n        name=\"ontology_edges\",\n        rows=sorted(builder.edges, key=lambda e: (str(e[\"type\"]), str(e[\"source\"]), str(e[\"target\"]))),\n        schema=edges_schema,\n    )\n\n    ontology_inputs = [resolved_persons, resolved_companies, resolved_accounts] + raw_inputs\n    inherit_markings(entities_ds, ontology_inputs)\n    inherit_markings(edges_ds, ontology_inputs)\n\n    # Trivial lineage: each entity/edge row came from its sourceIds\n    entity_lineage = LineageRecord()\n    for out_idx, entity in enumerate(entities_ds.rows):\n        for src in entity.get(\"sourceIds\", []):\n            entity_lineage.add_source(out_idx, src, 0, note=entity[\"type\"])\n\n    edge_lineage = LineageRecord()\n    for out_idx, edge in enumerate(edges_ds.rows):\n        edge_lineage.add_source(out_idx, edge[\"type\"], 0, note=\"edge\")\n\n    return entities_ds, edges_ds, entity_lineage, edge_lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline import p01_normalize_sources as n01\n    from pipeline import p02_resolve_persons as n02\n    from pipeline import p03_resolve_companies as n03\n    from pipeline import p04_resolve_accounts as n04\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = n01.run(dataset_dir)\n    persons, _ = n02.run(wl, cr, fm, mp, cl)\n    companies, _ = n03.run(cr)\n    accounts, _ = n04.run(bt)\n    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp, cl)\n    print(f\"Entities: {len(entities_ds)}, Edges: {len(edges_ds)}\")\n",
-          "rowsIn": 9778,
-          "rowsOut": 7746,
-          "builtAt": "2026-11-04T17:35:57.828396Z"
+          "rowsIn": 9781,
+          "rowsOut": 7750,
+          "builtAt": "2026-11-04T18:51:31.555357Z"
+        },
+        {
+          "id": "build_leads",
+          "name": "06 Build Leads",
+          "description": "Score each person's best address from three sources: clinic registrations (HEALTH, weight 0.5), mobile location pings (TELECOM, 0.4) and the company registry (OPEN, 0.3), each decayed by age: score = 100 · min(1, Σ weight · exp(−ageDays / 365)). One lead per person with an address source; the output inherits every input's markings.",
+          "inputs": [
+            "resolved_persons",
+            "norm_clinic_registrations",
+            "norm_mobile_pings",
+            "norm_company_registry"
+          ],
+          "output": "leads",
+          "codePath": "pipeline/06_build_leads.py",
+          "code": "\"\"\"\npipeline/06_build_leads.py — Build address-confidence leads (F8, PHASE3_CONTRACT.md §1).\n\nOne lead per Person with at least one address source.  The scorer lives in\n``pipeline/leads.py`` (shared with the Investigate seed builder, so both apps\nshow the same leads); this step wraps it as a Transform with row- and\nfield-level lineage, like steps 02–05.\n\nInputs\n  resolved_persons            — who each source record belongs to (the shared resolver)\n  norm_clinic_registrations   — HEALTH,  weight 0.5, home_address, registered_on\n  norm_mobile_pings           — TELECOM, weight 0.4, location label, latest ping timestamp\n  norm_company_registry       — OPEN,    weight 0.3, registered_address, incorporation_date\n\n    score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))\n\n``ageDays`` counts from ``asOf``, the latest date in the inputs.  The best\naddress is the component with the largest contribution.  The output inherits\nthe union of its inputs' markings (HEALTH, TELECOM and OPEN from the sources,\nPII and LE-SENSITIVE through resolved_persons), so the dataset is HEALTH-marked\neven for leads with no clinic component: markings work per dataset, not per row.\n\nOutput Dataset ``leads``:\n  id             — lead::<personId>\n  personId\n  address        — best address (largest contribution)\n  lat, lon       — coordinates of the best address\n  score          — 0–100, 1 decimal\n  status         — \"open\" (the Close lead Action changes it in the browser)\n  components     — [{source, marking, weight, ageDays, decay, contribution, address, ...}]\n  formula, asOf\n  addressSource  — dataset of the best address's component\n  sourceMarkings — markings of the contributing sources\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.leads import compute_leads\nfrom pipeline.lib import Dataset, LineageRecord, Transform\n\nTRANSFORM_ID = \"build_leads\"\nOUTPUT_NAME = \"leads\"\n\nSCHEMA = [\n    {\"field\": \"id\", \"type\": \"string\"},\n    {\"field\": \"personId\", \"type\": \"string\"},\n    {\"field\": \"address\", \"type\": \"string\"},\n    {\"field\": \"lat\", \"type\": \"float\"},\n    {\"field\": \"lon\", \"type\": \"float\"},\n    {\"field\": \"score\", \"type\": \"float\"},\n    {\"field\": \"status\", \"type\": \"string\"},\n    {\"field\": \"components\", \"type\": \"json\"},\n    {\"field\": \"formula\", \"type\": \"string\"},\n    {\"field\": \"asOf\", \"type\": \"date\"},\n    {\"field\": \"addressSource\", \"type\": \"string\"},\n    {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n]\n\n\ndef _build(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[List[Dict[str, Any]], List[Dict[str, List[Dict[str, Any]]]]]:\n    resolver = resolved_persons.resolver  # type: ignore[attr-defined]\n    rows, provenance, _as_of = compute_leads(\n        resolver, norm_clinic_registrations.rows, norm_mobile_pings.rows, norm_company_registry.rows,\n    )\n    person_row = {row[\"id\"]: i for i, row in enumerate(resolved_persons.rows)}\n    for lead, fp in zip(rows, provenance):\n        ref = {\"dataset\": resolved_persons.name, \"row\": person_row.get(lead[\"personId\"], -1),\n               \"field\": \"id\", \"note\": \"person\"}\n        fp[\"personId\"] = [ref] + fp[\"personId\"]\n        fp[\"id\"] = [ref]\n    return rows, provenance\n\n\ndef run(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    transform = Transform(\n        TRANSFORM_ID,\n        \"Score each person's best address from clinic, ping and registry records.\",\n        [resolved_persons, norm_clinic_registrations, norm_mobile_pings, norm_company_registry],\n        _build,\n    )\n    leads_ds, lineage = transform.run()\n    leads_ds.name = OUTPUT_NAME\n    leads_ds.schema = [dict(f) for f in SCHEMA]\n    leads_ds.as_of = leads_ds.rows[0][\"asOf\"] if leads_ds.rows else \"\"  # type: ignore[attr-defined]\n    return leads_ds, lineage\n\n\nif __name__ == \"__main__\":\n    import importlib.util\n\n    def _load(stem: str):\n        path = Path(__file__).resolve().parent / f\"{stem}.py\"\n        spec = importlib.util.spec_from_file_location(stem, path)\n        module = importlib.util.module_from_spec(spec)\n        spec.loader.exec_module(module)\n        return module\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = _load(\"01_normalize_sources\").run(dataset_dir)\n    persons, _ = _load(\"02_resolve_persons\").run(wl, cr, fm, mp, cl)\n    leads_ds, _ = run(persons, cl, mp, cr)\n    print(f\"Leads: {len(leads_ds)} (asOf {leads_ds.as_of})\")\n    for lead in leads_ds.rows[:5]:\n        print(f\"  {lead['score']:5.1f}  {lead['personId']}  {lead['address']}\")\n",
+          "rowsIn": 6424,
+          "rowsOut": 191,
+          "builtAt": "2026-11-04T18:51:31.555357Z"
         }
       ]
     },
@@ -21584,7 +26752,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 6009,
+        "rowCount": 6012,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -22767,7 +27935,8 @@ window.foundrySeedCatalog = {
         "consumedBy": [
           "resolve_persons",
           "resolve_companies",
-          "build_ontology"
+          "build_ontology",
+          "build_leads"
         ],
         "derivedFrom": [
           "company_registry.csv"
@@ -23572,7 +28741,7 @@ window.foundrySeedCatalog = {
             "type": "string"
           }
         ],
-        "rowCount": 6009,
+        "rowCount": 6012,
         "sampleRows": [
           {
             "_source_row": 0,
@@ -23898,7 +29067,8 @@ window.foundrySeedCatalog = {
         "producedBy": "normalize_sources",
         "consumedBy": [
           "resolve_persons",
-          "build_ontology"
+          "build_ontology",
+          "build_leads"
         ],
         "derivedFrom": [
           "mobile_location_pings.jsonl"
@@ -24259,7 +29429,8 @@ window.foundrySeedCatalog = {
         "producedBy": "normalize_sources",
         "consumedBy": [
           "resolve_persons",
-          "build_ontology"
+          "build_ontology",
+          "build_leads"
         ],
         "derivedFrom": [
           "clinic_registrations.csv"
@@ -25301,7 +30472,8 @@ window.foundrySeedCatalog = {
         ],
         "producedBy": "resolve_persons",
         "consumedBy": [
-          "build_ontology"
+          "build_ontology",
+          "build_leads"
         ],
         "derivedFrom": [
           "norm_watchlist",
@@ -25789,7 +30961,7 @@ window.foundrySeedCatalog = {
             "type": "json"
           }
         ],
-        "rowCount": 1597,
+        "rowCount": 1599,
         "sampleRows": [
           {
             "id": "airport::ath",
@@ -26287,7 +31459,7 @@ window.foundrySeedCatalog = {
             "type": "json"
           }
         ],
-        "rowCount": 6149,
+        "rowCount": 6151,
         "sampleRows": [
           {
             "id": "arrived_at::flight-mf-0001-airport-lca",
@@ -26522,6 +31694,12254 @@ window.foundrySeedCatalog = {
           "sanctions-screening",
           "telecom-billing"
         ]
+      },
+      {
+        "id": "leads",
+        "name": "leads",
+        "sourceFile": "",
+        "schema": [
+          {
+            "field": "id",
+            "type": "string"
+          },
+          {
+            "field": "personId",
+            "type": "string"
+          },
+          {
+            "field": "address",
+            "type": "string"
+          },
+          {
+            "field": "lat",
+            "type": "float"
+          },
+          {
+            "field": "lon",
+            "type": "float"
+          },
+          {
+            "field": "score",
+            "type": "float"
+          },
+          {
+            "field": "status",
+            "type": "string"
+          },
+          {
+            "field": "components",
+            "type": "json"
+          },
+          {
+            "field": "formula",
+            "type": "string"
+          },
+          {
+            "field": "asOf",
+            "type": "date"
+          },
+          {
+            "field": "addressSource",
+            "type": "string"
+          },
+          {
+            "field": "sourceMarkings",
+            "type": "json"
+          }
+        ],
+        "rowCount": 191,
+        "sampleRows": [
+          {
+            "id": "lead::person::jonah-hale-1986-03-10",
+            "personId": "person::jonah-hale-1986-03-10",
+            "address": "134 Praterstrasse, Vienna",
+            "lat": 48.20665,
+            "lon": 16.368901,
+            "score": 93.7,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 80,
+                "decay": 0.8032,
+                "contribution": 40.2,
+                "address": "134 Praterstrasse, Vienna",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-01-22",
+                "lat": 48.20665,
+                "lon": 16.368901,
+                "record": "clinic:REG-0125"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 34.665916,
+                "lon": 33.024575,
+                "record": "ping:NPG-05843",
+                "pingCount": 8
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 285,
+                "decay": 0.458,
+                "contribution": 13.7,
+                "address": "48 Bahnhofstrasse, Zurich",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-07-01",
+                "lat": 47.3707,
+                "lon": 8.5392,
+                "record": "company:NCO-065:director",
+                "companyId": "NCO-065",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::hugo-demir-1989-11-12",
+            "personId": "person::hugo-demir-1989-11-12",
+            "address": "33 Mildmay Grove, London",
+            "lat": 51.508454,
+            "lon": -0.123697,
+            "score": 86.8,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 80,
+                "decay": 0.8032,
+                "contribution": 40.2,
+                "address": "33 Mildmay Grove, London",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-01-22",
+                "lat": 51.508454,
+                "lon": -0.123697,
+                "record": "clinic:REG-0056"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "14 Seabright Ave, Limassol",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 34.672695,
+                "lon": 33.049816,
+                "record": "ping:NPG-02255",
+                "pingCount": 6
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 542,
+                "decay": 0.2265,
+                "contribution": 6.8,
+                "address": "9 Al Noor Park, Dubai",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2024-10-17",
+                "lat": 25.1124,
+                "lon": 55.2001,
+                "record": "company:NCO-001:owner",
+                "companyId": "NCO-001",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::elias-byrne-1996-10-12",
+            "personId": "person::elias-byrne-1996-10-12",
+            "address": "Geneva Business District",
+            "lat": 46.195475,
+            "lon": 6.140068,
+            "score": 86.6,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 93,
+                "decay": 0.7751,
+                "contribution": 38.8,
+                "address": "54 Langstrasse, Zurich",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-01-09",
+                "lat": 47.373811,
+                "lon": 8.531288,
+                "record": "clinic:REG-0055"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 46.195475,
+                "lon": 6.140068,
+                "record": "ping:NPG-03249",
+                "pingCount": 6
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 485,
+                "decay": 0.2648,
+                "contribution": 7.9,
+                "address": "5 Harbor Row, Limassol",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2024-12-13",
+                "lat": 34.6712,
+                "lon": 33.0436,
+                "record": "company:NCO-072:director",
+                "companyId": "NCO-072",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x8379837",
+            "personId": "person::x8379837",
+            "address": "154 Seefeldstrasse, Zurich",
+            "lat": 47.373476,
+            "lon": 8.522646,
+            "score": 86.3,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 26,
+                "decay": 0.9312,
+                "contribution": 46.6,
+                "address": "154 Seefeldstrasse, Zurich",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-03-17",
+                "lat": 47.373476,
+                "lon": 8.522646,
+                "record": "clinic:REG-0060"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 25.078042,
+                "lon": 55.131234,
+                "record": "ping:NPG-01917",
+                "pingCount": 2
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::g5510077",
+            "personId": "person::g5510077",
+            "address": "41 Oak Lane, Birmingham",
+            "lat": 52.4421,
+            "lon": -1.9368,
+            "score": 85.8,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 31,
+                "decay": 0.9186,
+                "contribution": 45.9,
+                "address": "41 Oak Lane, Birmingham",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-03-12",
+                "lat": 52.4421,
+                "lon": -1.9368,
+                "record": "clinic:REG-0127"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "Oak Lane, Birmingham",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 52.443012,
+                "lon": -1.935174,
+                "record": "ping:PG-0103",
+                "pingCount": 3
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x5107776",
+            "personId": "person::x5107776",
+            "address": "110 Grigori Afxentiou Avenue, Larnaca",
+            "lat": 34.913278,
+            "lon": 33.626997,
+            "score": 85.8,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 30,
+                "decay": 0.9211,
+                "contribution": 46.1,
+                "address": "110 Grigori Afxentiou Avenue, Larnaca",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-03-13",
+                "lat": 34.913278,
+                "lon": 33.626997,
+                "record": "clinic:REG-0128"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 46.19737,
+                "lon": 6.145575,
+                "record": "ping:NPG-04762",
+                "pingCount": 3
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x9937326",
+            "personId": "person::x9937326",
+            "address": "7 Agias Zonis Street, Limassol",
+            "lat": 34.682675,
+            "lon": 33.042949,
+            "score": 84.7,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 41,
+                "decay": 0.8938,
+                "contribution": 44.7,
+                "address": "7 Agias Zonis Street, Limassol",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-03-02",
+                "lat": 34.682675,
+                "lon": 33.042949,
+                "record": "clinic:REG-0126"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 0,
+                "decay": 1.0,
+                "contribution": 40.0,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-12",
+                "lat": 34.922718,
+                "lon": 33.646708,
+                "record": "ping:NPG-02807",
+                "pingCount": 2
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x8412769",
+            "personId": "person::x8412769",
+            "address": "109 Halaskargazi Caddesi, Istanbul",
+            "lat": 41.014255,
+            "lon": 28.972589,
+            "score": 83.7,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 47,
+                "decay": 0.8792,
+                "contribution": 44.0,
+                "address": "109 Halaskargazi Caddesi, Istanbul",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-02-24",
+                "lat": 41.014255,
+                "lon": 28.972589,
+                "record": "clinic:REG-0059"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 46.207355,
+                "lon": 6.147538,
+                "record": "ping:NPG-01464",
+                "pingCount": 4
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x8481188",
+            "personId": "person::x8481188",
+            "address": "163 Moda Caddesi, Istanbul",
+            "lat": 41.012616,
+            "lon": 28.995176,
+            "score": 82.0,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 55,
+                "decay": 0.8601,
+                "contribution": 43.0,
+                "address": "163 Moda Caddesi, Istanbul",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-02-16",
+                "lat": 41.012616,
+                "lon": 28.995176,
+                "record": "clinic:REG-0058"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 9,
+                "decay": 0.9756,
+                "contribution": 39.0,
+                "address": "14 Seabright Ave, Limassol",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-03",
+                "lat": 34.686641,
+                "lon": 33.050437,
+                "record": "ping:NPG-02868",
+                "pingCount": 4
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x3564251",
+            "personId": "person::x3564251",
+            "address": "63 Bagdat Caddesi, Istanbul",
+            "lat": 41.024397,
+            "lon": 28.980613,
+            "score": 80.3,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 78,
+                "decay": 0.8076,
+                "contribution": 40.4,
+                "address": "63 Bagdat Caddesi, Istanbul",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-01-24",
+                "lat": 41.024397,
+                "lon": 28.980613,
+                "record": "clinic:REG-0057"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 46.199671,
+                "lon": 6.142516,
+                "record": "ping:NPG-04385",
+                "pingCount": 8
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_clinic_registrations",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x3670896",
+            "personId": "person::x3670896",
+            "address": "North Quay Warehouse",
+            "lat": 34.647545,
+            "lon": 33.020294,
+            "score": 77.9,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 99,
+                "decay": 0.7624,
+                "contribution": 38.1,
+                "address": "9 Langstrasse, Zurich",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2026-01-03",
+                "lat": 47.372227,
+                "lon": 8.561091,
+                "record": "clinic:REG-0054"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 34.647545,
+                "lon": 33.020294,
+                "record": "ping:NPG-04395",
+                "pingCount": 4
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::ben-orlov-1986-05-31",
+            "personId": "person::ben-orlov-1986-05-31",
+            "address": "Larnaca Marina",
+            "lat": 34.914981,
+            "lon": 33.639993,
+            "score": 77.4,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 271,
+                "decay": 0.4759,
+                "contribution": 23.8,
+                "address": "117 Athinon Avenue, Larnaca",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-07-15",
+                "lat": 34.902891,
+                "lon": 33.609961,
+                "record": "clinic:REG-0043"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 34.914981,
+                "lon": 33.639993,
+                "record": "ping:NPG-00185",
+                "pingCount": 5
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 285,
+                "decay": 0.458,
+                "contribution": 13.7,
+                "address": "48 Bahnhofstrasse, Zurich",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-07-01",
+                "lat": 47.3707,
+                "lon": 8.5392,
+                "record": "company:NCO-065:owner",
+                "companyId": "NCO-065",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x3090865",
+            "personId": "person::x3090865",
+            "address": "Geneva Business District",
+            "lat": 46.195571,
+            "lon": 6.145016,
+            "score": 75.6,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 123,
+                "decay": 0.7139,
+                "contribution": 35.7,
+                "address": "171 Patision Street, Athens",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-12-10",
+                "lat": 37.982986,
+                "lon": 23.711948,
+                "record": "clinic:REG-0052"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 46.195571,
+                "lon": 6.145016,
+                "record": "ping:NPG-00225",
+                "pingCount": 5
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::yara-orlov-1996-01-22",
+            "personId": "person::yara-orlov-1996-01-22",
+            "address": "88 Marina Free Zone, Dubai",
+            "lat": 25.071659,
+            "lon": 55.14559,
+            "score": 75.5,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 144,
+                "decay": 0.674,
+                "contribution": 33.7,
+                "address": "55 Umm Suqeim Street, Dubai",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-11-19",
+                "lat": 25.199352,
+                "lon": 55.28004,
+                "record": "clinic:REG-0050"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 25.071659,
+                "lon": 55.14559,
+                "record": "ping:NPG-04544",
+                "pingCount": 8
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 989,
+                "decay": 0.0666,
+                "contribution": 2.0,
+                "address": "17 Kingsway, London",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2023-07-28",
+                "lat": 51.5155,
+                "lon": -0.1189,
+                "record": "company:NCO-033:owner",
+                "companyId": "NCO-033",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::lena-lopez-1991-01-03",
+            "personId": "person::lena-lopez-1991-01-03",
+            "address": "Larnaca Marina",
+            "lat": 34.915545,
+            "lon": 33.633272,
+            "score": 75.1,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 423,
+                "decay": 0.3138,
+                "contribution": 15.7,
+                "address": "9 Langstrasse, Zurich",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-02-13",
+                "lat": 47.372227,
+                "lon": 8.561091,
+                "record": "clinic:REG-0111"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 34.915545,
+                "lon": 33.633272,
+                "record": "ping:NPG-04431",
+                "pingCount": 7
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 156,
+                "decay": 0.6522,
+                "contribution": 19.6,
+                "address": "5 Harbor Row, Limassol",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-11-07",
+                "lat": 34.6712,
+                "lon": 33.0436,
+                "record": "company:NCO-049:owner",
+                "companyId": "NCO-049",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x7121355",
+            "personId": "person::x7121355",
+            "address": "88 Marina Free Zone, Dubai",
+            "lat": 25.078065,
+            "lon": 55.143676,
+            "score": 75.0,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 130,
+                "decay": 0.7004,
+                "contribution": 35.0,
+                "address": "56 Seefeldstrasse, Zurich",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-12-03",
+                "lat": 47.362699,
+                "lon": 8.548637,
+                "record": "clinic:REG-0124"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 0,
+                "decay": 1.0,
+                "contribution": 40.0,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-12",
+                "lat": 25.078065,
+                "lon": 55.143676,
+                "record": "ping:NPG-01827",
+                "pingCount": 9
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::zane-ionescu-1975-02-28",
+            "personId": "person::zane-ionescu-1975-02-28",
+            "address": "North Quay Warehouse",
+            "lat": 34.655607,
+            "lon": 33.021883,
+            "score": 73.5,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 257,
+                "decay": 0.4945,
+                "contribution": 24.7,
+                "address": "179 Lordship Lane, London",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-07-29",
+                "lat": 51.489515,
+                "lon": -0.117947,
+                "record": "clinic:REG-0121"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 34.655607,
+                "lon": 33.021883,
+                "record": "ping:NPG-04282",
+                "pingCount": 5
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 446,
+                "decay": 0.2947,
+                "contribution": 8.8,
+                "address": "17 Kingsway, London",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-01-21",
+                "lat": 51.5155,
+                "lon": -0.1189,
+                "record": "company:NCO-037:owner",
+                "companyId": "NCO-037",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x8118722",
+            "personId": "person::x8118722",
+            "address": "North Quay Warehouse",
+            "lat": 34.661025,
+            "lon": 33.030051,
+            "score": 73.1,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 148,
+                "decay": 0.6667,
+                "contribution": 33.3,
+                "address": "171 Patision Street, Athens",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-11-15",
+                "lat": 37.982986,
+                "lon": 23.711948,
+                "record": "clinic:REG-0049"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 34.661025,
+                "lon": 33.030051,
+                "record": "ping:NPG-01153",
+                "pingCount": 3
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::tomas-silva-1990-12-03",
+            "personId": "person::tomas-silva-1990-12-03",
+            "address": "Geneva Business District",
+            "lat": 46.207935,
+            "lon": 6.14198,
+            "score": 72.3,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 162,
+                "decay": 0.6416,
+                "contribution": 32.1,
+                "address": "164 Al Safa Street, Dubai",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-11-01",
+                "lat": 25.212773,
+                "lon": 55.284016,
+                "record": "clinic:REG-0123"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 46.207935,
+                "lon": 6.14198,
+                "record": "ping:NPG-04320",
+                "pingCount": 3
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 1502,
+                "decay": 0.0163,
+                "contribution": 0.5,
+                "address": "27 Ringstrasse, Vienna",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2022-03-02",
+                "lat": 48.2046,
+                "lon": 16.3652,
+                "record": "company:NCO-053:owner",
+                "companyId": "NCO-053",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::rami-keller-1984-04-28",
+            "personId": "person::rami-keller-1984-04-28",
+            "address": "14 Seabright Ave, Limassol",
+            "lat": 34.671847,
+            "lon": 33.046397,
+            "score": 69.5,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 270,
+                "decay": 0.4772,
+                "contribution": 23.9,
+                "address": "85 Solonos Street, Athens",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-07-16",
+                "lat": 37.969722,
+                "lon": 23.713346,
+                "record": "clinic:REG-0044"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "14 Seabright Ave, Limassol",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 34.671847,
+                "lon": 33.046397,
+                "record": "ping:NPG-00026",
+                "pingCount": 7
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 599,
+                "decay": 0.1938,
+                "contribution": 5.8,
+                "address": "9 Al Noor Park, Dubai",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2024-08-21",
+                "lat": 25.1124,
+                "lon": 55.2001,
+                "record": "company:NCO-068:owner",
+                "companyId": "NCO-068",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x1822825",
+            "personId": "person::x1822825",
+            "address": "Larnaca Marina",
+            "lat": 34.9304,
+            "lon": 33.630088,
+            "score": 68.6,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 203,
+                "decay": 0.5734,
+                "contribution": 28.7,
+                "address": "100 Lordship Lane, London",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-09-21",
+                "lat": 51.520118,
+                "lon": -0.140408,
+                "record": "clinic:REG-0122"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 34.9304,
+                "lon": 33.630088,
+                "record": "ping:NPG-05151",
+                "pingCount": 3
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::marcus-vale-1996-05-12",
+            "personId": "person::marcus-vale-1996-05-12",
+            "address": "Larnaca Marina",
+            "lat": 34.915677,
+            "lon": 33.629493,
+            "score": 66.9,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 280,
+                "decay": 0.4643,
+                "contribution": 23.2,
+                "address": "138 Halaskargazi Caddesi, Istanbul",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-07-06",
+                "lat": 41.013417,
+                "lon": 28.981072,
+                "record": "clinic:REG-0042"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 34.915677,
+                "lon": 33.629493,
+                "record": "ping:NPG-03272",
+                "pingCount": 4
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 749,
+                "decay": 0.1285,
+                "contribution": 3.9,
+                "address": "17 Kingsway, London",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2024-03-24",
+                "lat": 51.5155,
+                "lon": -0.1189,
+                "record": "company:NCO-074:director",
+                "companyId": "NCO-074",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x4679591",
+            "personId": "person::x4679591",
+            "address": "North Quay Warehouse",
+            "lat": 34.656009,
+            "lon": 33.027583,
+            "score": 66.9,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 222,
+                "decay": 0.5443,
+                "contribution": 27.2,
+                "address": "55 Umm Suqeim Street, Dubai",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-09-02",
+                "lat": 25.199352,
+                "lon": 55.28004,
+                "record": "clinic:REG-0047"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 3,
+                "decay": 0.9918,
+                "contribution": 39.7,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-09",
+                "lat": 34.656009,
+                "lon": 33.027583,
+                "record": "ping:NPG-02092",
+                "pingCount": 3
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x1430812",
+            "personId": "person::x1430812",
+            "address": "Geneva Business District",
+            "lat": 46.195147,
+            "lon": 6.137568,
+            "score": 66.0,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 234,
+                "decay": 0.5267,
+                "contribution": 26.3,
+                "address": "154 Seefeldstrasse, Zurich",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-08-21",
+                "lat": 47.373476,
+                "lon": 8.522646,
+                "record": "clinic:REG-0046"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 3,
+                "decay": 0.9918,
+                "contribution": 39.7,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-09",
+                "lat": 46.195147,
+                "lon": 6.137568,
+                "record": "ping:NPG-01474",
+                "pingCount": 8
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::clara-patel-1979-04-09",
+            "personId": "person::clara-patel-1979-04-09",
+            "address": "Larnaca Marina",
+            "lat": 34.931835,
+            "lon": 33.64298,
+            "score": 64.5,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 269,
+                "decay": 0.4786,
+                "contribution": 23.9,
+                "address": "56 Gumpendorfer Strasse, Vienna",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-07-17",
+                "lat": 48.201721,
+                "lon": 16.378311,
+                "record": "clinic:REG-0120"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 34.931835,
+                "lon": 33.64298,
+                "record": "ping:NPG-00216",
+                "pingCount": 6
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 1338,
+                "decay": 0.0256,
+                "contribution": 0.8,
+                "address": "27 Ringstrasse, Vienna",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2022-08-13",
+                "lat": 48.2046,
+                "lon": 16.3652,
+                "record": "company:NCO-076:director",
+                "companyId": "NCO-076",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x5074336",
+            "personId": "person::x5074336",
+            "address": "88 Marina Free Zone, Dubai",
+            "lat": 25.080407,
+            "lon": 55.145673,
+            "score": 63.8,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 270,
+                "decay": 0.4772,
+                "contribution": 23.9,
+                "address": "122 Patision Street, Athens",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-07-16",
+                "lat": 37.980042,
+                "lon": 23.735212,
+                "record": "clinic:REG-0119"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 25.080407,
+                "lon": 55.145673,
+                "record": "ping:NPG-01148",
+                "pingCount": 7
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::tomas-elias-1986-04-22",
+            "personId": "person::tomas-elias-1986-04-22",
+            "address": "Geneva Business District",
+            "lat": 46.214127,
+            "lon": 6.134866,
+            "score": 63.2,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 307,
+                "decay": 0.4312,
+                "contribution": 21.6,
+                "address": "33 Makariou Avenue, Limassol",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-06-09",
+                "lat": 34.702515,
+                "lon": 33.025204,
+                "record": "clinic:REG-0117"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 3,
+                "decay": 0.9918,
+                "contribution": 39.7,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-09",
+                "lat": 46.214127,
+                "lon": 6.134866,
+                "record": "ping:NPG-04618",
+                "pingCount": 11
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 990,
+                "decay": 0.0664,
+                "contribution": 2.0,
+                "address": "5 Harbor Row, Limassol",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2023-07-27",
+                "lat": 34.6712,
+                "lon": 33.0436,
+                "record": "company:NCO-083:director",
+                "companyId": "NCO-083",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::zane-byrne-2001-05-07",
+            "personId": "person::zane-byrne-2001-05-07",
+            "address": "88 Marina Free Zone, Dubai",
+            "lat": 25.0772,
+            "lon": 55.136592,
+            "score": 63.1,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 353,
+                "decay": 0.3802,
+                "contribution": 19.0,
+                "address": "85 Solonos Street, Athens",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-04-24",
+                "lat": 37.969722,
+                "lon": 23.713346,
+                "record": "clinic:REG-0113"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 25.0772,
+                "lon": 55.136592,
+                "record": "ping:NPG-01594",
+                "pingCount": 3
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 715,
+                "decay": 0.141,
+                "contribution": 4.2,
+                "address": "48 Bahnhofstrasse, Zurich",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2024-04-27",
+                "lat": 47.3707,
+                "lon": 8.5392,
+                "record": "company:NCO-038:director",
+                "companyId": "NCO-038",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::owen-grant-1998-03-11",
+            "personId": "person::owen-grant-1998-03-11",
+            "address": "14 Seabright Ave, Limassol",
+            "lat": 34.681034,
+            "lon": 33.037382,
+            "score": 63.0,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 868,
+                "decay": 0.0927,
+                "contribution": 4.6,
+                "address": "157 Praterstrasse, Vienna",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2023-11-26",
+                "lat": 48.224906,
+                "lon": 16.353954,
+                "record": "clinic:REG-0098"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "14 Seabright Ave, Limassol",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 34.681034,
+                "lon": 33.037382,
+                "record": "ping:NPG-04668",
+                "pingCount": 9
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 176,
+                "decay": 0.6174,
+                "contribution": 18.5,
+                "address": "17 Kingsway, London",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-10-18",
+                "lat": 51.5155,
+                "lon": -0.1189,
+                "record": "company:NCO-017:owner",
+                "companyId": "NCO-017",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::elias-quinn-1997-04-12",
+            "personId": "person::elias-quinn-1997-04-12",
+            "address": "Geneva Business District",
+            "lat": 46.204993,
+            "lon": 6.134636,
+            "score": 62.3,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 1043,
+                "decay": 0.0574,
+                "contribution": 2.9,
+                "address": "157 Praterstrasse, Vienna",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2023-06-04",
+                "lat": 48.224906,
+                "lon": 16.353954,
+                "record": "clinic:REG-0015"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 46.204993,
+                "lon": 6.134636,
+                "record": "ping:NPG-05235",
+                "pingCount": 6
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 156,
+                "decay": 0.6522,
+                "contribution": 19.6,
+                "address": "5 Harbor Row, Limassol",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-11-07",
+                "lat": 34.6712,
+                "lon": 33.0436,
+                "record": "company:NCO-049:director",
+                "companyId": "NCO-049",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::yara-quinn-1980-08-31",
+            "personId": "person::yara-quinn-1980-08-31",
+            "address": "Larnaca Marina",
+            "lat": 34.919336,
+            "lon": 33.635756,
+            "score": 62.2,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 298,
+                "decay": 0.442,
+                "contribution": 22.1,
+                "address": "33 Mildmay Grove, London",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-06-18",
+                "lat": 51.508454,
+                "lon": -0.123697,
+                "record": "clinic:REG-0118"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 0,
+                "decay": 1.0,
+                "contribution": 40.0,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-12",
+                "lat": 34.919336,
+                "lon": 33.635756,
+                "record": "ping:NPG-00940",
+                "pingCount": 8
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 2149,
+                "decay": 0.0028,
+                "contribution": 0.1,
+                "address": "5 Harbor Row, Limassol",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2020-05-24",
+                "lat": 34.6712,
+                "lon": 33.0436,
+                "record": "company:NCO-058:director",
+                "companyId": "NCO-058",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::priya-costa-2000-10-29",
+            "personId": "person::priya-costa-2000-10-29",
+            "address": "Geneva Business District",
+            "lat": 46.202901,
+            "lon": 6.151868,
+            "score": 61.9,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 920,
+                "decay": 0.0804,
+                "contribution": 4.0,
+                "address": "56 Gumpendorfer Strasse, Vienna",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2023-10-05",
+                "lat": 48.201721,
+                "lon": 16.378311,
+                "record": "clinic:REG-0020"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 0,
+                "decay": 1.0,
+                "contribution": 40.0,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-12",
+                "lat": 46.202901,
+                "lon": 6.151868,
+                "record": "ping:NPG-02417",
+                "pingCount": 3
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 189,
+                "decay": 0.5958,
+                "contribution": 17.9,
+                "address": "27 Ringstrasse, Vienna",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-10-05",
+                "lat": 48.2046,
+                "lon": 16.3652,
+                "record": "company:NCO-035:owner",
+                "companyId": "NCO-035",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::adam-costa-1976-08-22",
+            "personId": "person::adam-costa-1976-08-22",
+            "address": "14 Seabright Ave, Limassol",
+            "lat": 34.685571,
+            "lon": 33.050873,
+            "score": 61.3,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 502,
+                "decay": 0.2528,
+                "contribution": 12.6,
+                "address": "163 Moda Caddesi, Istanbul",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2024-11-26",
+                "lat": 41.012616,
+                "lon": 28.995176,
+                "record": "clinic:REG-0038"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "14 Seabright Ave, Limassol",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 34.685571,
+                "lon": 33.050873,
+                "record": "ping:NPG-03707",
+                "pingCount": 3
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 446,
+                "decay": 0.2947,
+                "contribution": 8.8,
+                "address": "17 Kingsway, London",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-01-21",
+                "lat": 51.5155,
+                "lon": -0.1189,
+                "record": "company:NCO-037:director",
+                "companyId": "NCO-037",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x2242892",
+            "personId": "person::x2242892",
+            "address": "North Quay Warehouse",
+            "lat": 34.660648,
+            "lon": 33.024631,
+            "score": 60.3,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 320,
+                "decay": 0.4161,
+                "contribution": 20.8,
+                "address": "100 Lordship Lane, London",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-05-27",
+                "lat": 51.520118,
+                "lon": -0.140408,
+                "record": "clinic:REG-0116"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 5,
+                "decay": 0.9864,
+                "contribution": 39.5,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-07",
+                "lat": 34.660648,
+                "lon": 33.024631,
+                "record": "ping:NPG-01289",
+                "pingCount": 4
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x5652512",
+            "personId": "person::x5652512",
+            "address": "Larnaca Marina",
+            "lat": 34.930589,
+            "lon": 33.645686,
+            "score": 59.8,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 338,
+                "decay": 0.3961,
+                "contribution": 19.8,
+                "address": "16 Ermou Street, Larnaca",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-05-09",
+                "lat": 34.916319,
+                "lon": 33.642425,
+                "record": "clinic:REG-0115"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 0,
+                "decay": 1.0,
+                "contribution": 40.0,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-12",
+                "lat": 34.930589,
+                "lon": 33.645686,
+                "record": "ping:NPG-02090",
+                "pingCount": 9
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::sara-ionescu-1998-10-26",
+            "personId": "person::sara-ionescu-1998-10-26",
+            "address": "North Quay Warehouse",
+            "lat": 34.666288,
+            "lon": 33.030735,
+            "score": 59.7,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 1043,
+                "decay": 0.0574,
+                "contribution": 2.9,
+                "address": "54 Langstrasse, Zurich",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2023-06-04",
+                "lat": 47.373811,
+                "lon": 8.531288,
+                "record": "clinic:REG-0085"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 3,
+                "decay": 0.9918,
+                "contribution": 39.7,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-09",
+                "lat": 34.666288,
+                "lon": 33.030735,
+                "record": "ping:NPG-03068",
+                "pingCount": 7
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 205,
+                "decay": 0.5703,
+                "contribution": 17.1,
+                "address": "48 Bahnhofstrasse, Zurich",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-09-19",
+                "lat": 47.3707,
+                "lon": 8.5392,
+                "record": "company:NCO-010:owner",
+                "companyId": "NCO-010",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x4576135",
+            "personId": "person::x4576135",
+            "address": "Larnaca Marina",
+            "lat": 34.915425,
+            "lon": 33.639788,
+            "score": 59.6,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 341,
+                "decay": 0.3929,
+                "contribution": 19.6,
+                "address": "157 Praterstrasse, Vienna",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-05-06",
+                "lat": 48.224906,
+                "lon": 16.353954,
+                "record": "clinic:REG-0114"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 0,
+                "decay": 1.0,
+                "contribution": 40.0,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-12",
+                "lat": 34.915425,
+                "lon": 33.639788,
+                "record": "ping:NPG-00526",
+                "pingCount": 4
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::ben-rossi-1984-09-04",
+            "personId": "person::ben-rossi-1984-09-04",
+            "address": "Larnaca Marina",
+            "lat": 34.928097,
+            "lon": 33.645848,
+            "score": 58.2,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 3,
+                "decay": 0.9918,
+                "contribution": 39.7,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-09",
+                "lat": 34.928097,
+                "lon": 33.645848,
+                "record": "ping:NPG-05613",
+                "pingCount": 3
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 176,
+                "decay": 0.6174,
+                "contribution": 18.5,
+                "address": "17 Kingsway, London",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-10-18",
+                "lat": 51.5155,
+                "lon": -0.1189,
+                "record": "company:NCO-017:director",
+                "companyId": "NCO-017",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::dina-costa-1995-01-23",
+            "personId": "person::dina-costa-1995-01-23",
+            "address": "North Quay Warehouse",
+            "lat": 34.663852,
+            "lon": 33.014815,
+            "score": 58.0,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 1370,
+                "decay": 0.0234,
+                "contribution": 1.2,
+                "address": "129 Makariou Avenue, Limassol",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2022-07-12",
+                "lat": 34.685264,
+                "lon": 33.04577,
+                "record": "clinic:REG-0071"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 3,
+                "decay": 0.9918,
+                "contribution": 39.7,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-09",
+                "lat": 34.663852,
+                "lon": 33.014815,
+                "record": "ping:NPG-00449",
+                "pingCount": 7
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 205,
+                "decay": 0.5703,
+                "contribution": 17.1,
+                "address": "48 Bahnhofstrasse, Zurich",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-09-19",
+                "lat": 47.3707,
+                "lon": 8.5392,
+                "record": "company:NCO-010:director",
+                "companyId": "NCO-010",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x6910964",
+            "personId": "person::x6910964",
+            "address": "Geneva Business District",
+            "lat": 46.212193,
+            "lon": 6.146956,
+            "score": 56.4,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 397,
+                "decay": 0.337,
+                "contribution": 16.9,
+                "address": "157 Praterstrasse, Vienna",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-03-11",
+                "lat": 48.224906,
+                "lon": 16.353954,
+                "record": "clinic:REG-0112"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 4,
+                "decay": 0.9891,
+                "contribution": 39.6,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-08",
+                "lat": 46.212193,
+                "lon": 6.146956,
+                "record": "ping:NPG-02201",
+                "pingCount": 4
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x3386328",
+            "personId": "person::x3386328",
+            "address": "Larnaca Marina",
+            "lat": 34.922924,
+            "lon": 33.639849,
+            "score": 55.3,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 433,
+                "decay": 0.3053,
+                "contribution": 15.3,
+                "address": "122 Patision Street, Athens",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-02-03",
+                "lat": 37.980042,
+                "lon": 23.735212,
+                "record": "clinic:REG-0110"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 0,
+                "decay": 1.0,
+                "contribution": 40.0,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-12",
+                "lat": 34.922924,
+                "lon": 33.639849,
+                "record": "ping:NPG-01058",
+                "pingCount": 11
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x1873851",
+            "personId": "person::x1873851",
+            "address": "North Quay Warehouse",
+            "lat": 34.661272,
+            "lon": 33.02395,
+            "score": 55.2,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 426,
+                "decay": 0.3113,
+                "contribution": 15.6,
+                "address": "163 Moda Caddesi, Istanbul",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-02-10",
+                "lat": 41.012616,
+                "lon": 28.995176,
+                "record": "clinic:REG-0039"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 3,
+                "decay": 0.9918,
+                "contribution": 39.7,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-09",
+                "lat": 34.661272,
+                "lon": 33.02395,
+                "record": "ping:NPG-03662",
+                "pingCount": 5
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x1247595",
+            "personId": "person::x1247595",
+            "address": "Geneva Business District",
+            "lat": 46.200566,
+            "lon": 6.148554,
+            "score": 54.1,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 456,
+                "decay": 0.2867,
+                "contribution": 14.3,
+                "address": "41 Halaskargazi Caddesi, Istanbul",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2025-01-11",
+                "lat": 41.004135,
+                "lon": 28.967687,
+                "record": "clinic:REG-0109"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 46.200566,
+                "lon": 6.148554,
+                "record": "ping:NPG-04646",
+                "pingCount": 7
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::yara-turner-1975-03-21",
+            "personId": "person::yara-turner-1975-03-21",
+            "address": "88 Marina Free Zone, Dubai",
+            "lat": 25.080773,
+            "lon": 55.132655,
+            "score": 53.9,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 968,
+                "decay": 0.0705,
+                "contribution": 3.5,
+                "address": "117 Athinon Avenue, Larnaca",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2023-08-18",
+                "lat": 34.902891,
+                "lon": 33.609961,
+                "record": "clinic:REG-0091"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 25.080773,
+                "lon": 55.132655,
+                "record": "ping:NPG-05903",
+                "pingCount": 8
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 383,
+                "decay": 0.3502,
+                "contribution": 10.5,
+                "address": "9 Al Noor Park, Dubai",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-03-25",
+                "lat": 25.1124,
+                "lon": 55.2001,
+                "record": "company:NCO-052:director",
+                "companyId": "NCO-052",
+                "role": "director"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::x6902401",
+            "personId": "person::x6902401",
+            "address": "88 Marina Free Zone, Dubai",
+            "lat": 25.073537,
+            "lon": 55.140467,
+            "score": 53.5,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 469,
+                "decay": 0.2767,
+                "contribution": 13.8,
+                "address": "9 Langstrasse, Zurich",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2024-12-29",
+                "lat": 47.372227,
+                "lon": 8.561091,
+                "record": "clinic:REG-0108"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 3,
+                "decay": 0.9918,
+                "contribution": 39.7,
+                "address": "88 Marina Free Zone, Dubai",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-09",
+                "lat": 25.073537,
+                "lon": 55.140467,
+                "record": "ping:NPG-04867",
+                "pingCount": 6
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::elias-vale-2001-03-29",
+            "personId": "person::elias-vale-2001-03-29",
+            "address": "Larnaca Marina",
+            "lat": 34.914439,
+            "lon": 33.633085,
+            "score": 53.3,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 1042,
+                "decay": 0.0576,
+                "contribution": 2.9,
+                "address": "163 Moda Caddesi, Istanbul",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2023-06-05",
+                "lat": 41.012616,
+                "lon": 28.995176,
+                "record": "clinic:REG-0016"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 34.914439,
+                "lon": 33.633085,
+                "record": "ping:NPG-02552",
+                "pingCount": 7
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 383,
+                "decay": 0.3502,
+                "contribution": 10.5,
+                "address": "9 Al Noor Park, Dubai",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-03-25",
+                "lat": 25.1124,
+                "lon": 55.2001,
+                "record": "company:NCO-052:owner",
+                "companyId": "NCO-052",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::owen-vale-1976-11-06",
+            "personId": "person::owen-vale-1976-11-06",
+            "address": "Geneva Business District",
+            "lat": 46.205478,
+            "lon": 6.147432,
+            "score": 52.4,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "Geneva Business District",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 46.205478,
+                "lon": 6.147432,
+                "record": "ping:NPG-00281",
+                "pingCount": 5
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 316,
+                "decay": 0.4207,
+                "contribution": 12.6,
+                "address": "17 Kingsway, London",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2025-05-31",
+                "lat": 51.5155,
+                "lon": -0.1189,
+                "record": "company:NCO-030:owner",
+                "companyId": "NCO-030",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM"
+            ]
+          },
+          {
+            "id": "lead::person::x9517485",
+            "personId": "person::x9517485",
+            "address": "Larnaca Marina",
+            "lat": 34.926589,
+            "lon": 33.646714,
+            "score": 52.1,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 509,
+                "decay": 0.248,
+                "contribution": 12.4,
+                "address": "45 Langstrasse, Zurich",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2024-11-19",
+                "lat": 47.384496,
+                "lon": 8.551486,
+                "record": "clinic:REG-0037"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 3,
+                "decay": 0.9918,
+                "contribution": 39.7,
+                "address": "Larnaca Marina",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-09",
+                "lat": 34.926589,
+                "lon": 33.646714,
+                "record": "ping:NPG-05247",
+                "pingCount": 2
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::i6117009",
+            "personId": "person::i6117009",
+            "address": "14 Seabright Ave, Limassol",
+            "lat": 34.680409,
+            "lon": 33.053854,
+            "score": 51.8,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 523,
+                "decay": 0.2386,
+                "contribution": 11.9,
+                "address": "58 Rue de Carouge, Geneva",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2024-11-05",
+                "lat": 46.1934,
+                "lon": 6.1424,
+                "record": "clinic:REG-0107"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 1,
+                "decay": 0.9973,
+                "contribution": 39.9,
+                "address": "14 Seabright Ave, Limassol",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-11",
+                "lat": 34.680409,
+                "lon": 33.053854,
+                "record": "ping:NPG-04732",
+                "pingCount": 3
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "TELECOM",
+              "HEALTH"
+            ]
+          },
+          {
+            "id": "lead::person::tomas-keller-1978-08-25",
+            "personId": "person::tomas-keller-1978-08-25",
+            "address": "North Quay Warehouse",
+            "lat": 34.658976,
+            "lon": 33.029746,
+            "score": 51.5,
+            "status": "open",
+            "components": [
+              {
+                "source": "norm_clinic_registrations",
+                "marking": "HEALTH",
+                "weight": 0.5,
+                "ageDays": 942,
+                "decay": 0.0757,
+                "contribution": 3.8,
+                "address": "138 Halaskargazi Caddesi, Istanbul",
+                "label": "Clinic registration",
+                "rawSource": "clinic_registrations.csv",
+                "purpose": "healthcare",
+                "date": "2023-09-13",
+                "lat": 41.013417,
+                "lon": 28.981072,
+                "record": "clinic:REG-0094"
+              },
+              {
+                "source": "norm_mobile_pings",
+                "marking": "TELECOM",
+                "weight": 0.4,
+                "ageDays": 2,
+                "decay": 0.9945,
+                "contribution": 39.8,
+                "address": "North Quay Warehouse",
+                "label": "Mobile location pings",
+                "rawSource": "mobile_location_pings.jsonl",
+                "purpose": "telecom-billing",
+                "date": "2026-04-10",
+                "lat": 34.658976,
+                "lon": 33.029746,
+                "record": "ping:NPG-05051",
+                "pingCount": 7
+              },
+              {
+                "source": "norm_company_registry",
+                "marking": "OPEN",
+                "weight": 0.3,
+                "ageDays": 485,
+                "decay": 0.2648,
+                "contribution": 7.9,
+                "address": "5 Harbor Row, Limassol",
+                "label": "Company registry",
+                "rawSource": "company_registry.csv",
+                "purpose": "public-record",
+                "date": "2024-12-13",
+                "lat": 34.6712,
+                "lon": 33.0436,
+                "record": "company:NCO-072:owner",
+                "companyId": "NCO-072",
+                "role": "owner"
+              }
+            ],
+            "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+            "asOf": "2026-04-12",
+            "addressSource": "norm_mobile_pings",
+            "sourceMarkings": [
+              "OPEN",
+              "TELECOM",
+              "HEALTH"
+            ]
+          }
+        ],
+        "producedBy": "build_leads",
+        "consumedBy": [],
+        "derivedFrom": [
+          "resolved_persons",
+          "norm_clinic_registrations",
+          "norm_mobile_pings",
+          "norm_company_registry"
+        ],
+        "markings": [
+          "OPEN",
+          "PII",
+          "TELECOM",
+          "HEALTH",
+          "LE-SENSITIVE"
+        ],
+        "markingProvenance": {
+          "OPEN": [
+            "company_registry.csv"
+          ],
+          "PII": [
+            "flight_manifests.csv"
+          ],
+          "TELECOM": [
+            "mobile_location_pings.jsonl"
+          ],
+          "HEALTH": [
+            "clinic_registrations.csv"
+          ],
+          "LE-SENSITIVE": [
+            "watchlist.csv"
+          ]
+        },
+        "purpose": "financial-crime",
+        "legalBasis": "Not recorded: this derived dataset combines inputs collected for other purposes (see inputPurposes).",
+        "retentionDays": 180,
+        "inputPurposes": [
+          "border-security",
+          "healthcare",
+          "public-record",
+          "sanctions-screening",
+          "telecom-billing"
+        ],
+        "asOf": "2026-04-12",
+        "formula": "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+        "decayDays": 365,
+        "weights": [
+          {
+            "source": "norm_clinic_registrations",
+            "rawSource": "clinic_registrations.csv",
+            "label": "Clinic registration",
+            "marking": "HEALTH",
+            "weight": 0.5,
+            "addressField": "home_address",
+            "dateField": "registered_on"
+          },
+          {
+            "source": "norm_mobile_pings",
+            "rawSource": "mobile_location_pings.jsonl",
+            "label": "Mobile location pings",
+            "marking": "TELECOM",
+            "weight": 0.4,
+            "addressField": "location_label",
+            "dateField": "timestamp"
+          },
+          {
+            "source": "norm_company_registry",
+            "rawSource": "company_registry.csv",
+            "label": "Company registry",
+            "marking": "OPEN",
+            "weight": 0.3,
+            "addressField": "registered_address",
+            "dateField": "incorporation_date"
+          }
+        ],
+        "objectType": "Lead",
+        "properties": [
+          {
+            "id": "id",
+            "label": "Lead ID",
+            "type": "string"
+          },
+          {
+            "id": "personId",
+            "label": "Person",
+            "type": "string"
+          },
+          {
+            "id": "address",
+            "label": "Best address",
+            "type": "string"
+          },
+          {
+            "id": "lat",
+            "label": "Latitude",
+            "type": "float"
+          },
+          {
+            "id": "lon",
+            "label": "Longitude",
+            "type": "float"
+          },
+          {
+            "id": "score",
+            "label": "Address confidence (0-100)",
+            "type": "float"
+          },
+          {
+            "id": "status",
+            "label": "Status",
+            "type": "string"
+          },
+          {
+            "id": "outcome",
+            "label": "Outcome",
+            "type": "string"
+          },
+          {
+            "id": "closeReason",
+            "label": "Reason for closing",
+            "type": "string"
+          },
+          {
+            "id": "components",
+            "label": "Score components",
+            "type": "json"
+          },
+          {
+            "id": "formula",
+            "label": "Formula",
+            "type": "string"
+          },
+          {
+            "id": "asOf",
+            "label": "As of",
+            "type": "date"
+          },
+          {
+            "id": "addressSource",
+            "label": "Source of the best address",
+            "type": "string"
+          },
+          {
+            "id": "sourceMarkings",
+            "label": "Markings of the sources",
+            "type": "json"
+          }
+        ],
+        "rowLineage": {
+          "lead::person::jonah-hale-1986-03-10": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 10,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 119,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4814,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 68,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 10,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 119,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 119,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4814,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4814,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 68,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 68,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 119,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 119,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 119,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 119,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4814,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 68,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 119,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 119,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 119,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 119,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4814,
+                  "field": "location_label",
+                  "note": "8 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4814,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4814,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4814,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 68,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 68,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 10,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::hugo-demir-1989-11-12": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 7,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 50,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5555,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 4,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 7,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 50,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 50,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5555,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5555,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 50,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 50,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 50,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 50,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5555,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 50,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 50,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 50,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 50,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5555,
+                  "field": "location_label",
+                  "note": "6 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5555,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5555,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5555,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 4,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 7,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::elias-byrne-1996-10-12": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 85,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 49,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5582,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 75,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 85,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 49,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 49,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5582,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5582,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 75,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 75,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5582,
+                  "field": "location_label",
+                  "note": "6 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5582,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5582,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 49,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5582,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 75,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 49,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 49,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 49,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 49,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5582,
+                  "field": "location_label",
+                  "note": "6 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5582,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5582,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5582,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 75,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 75,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 85,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x8379837": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 159,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 54,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5026,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 159,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 54,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 54,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5026,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5026,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 54,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 54,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 54,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 54,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5026,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 54,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 54,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 54,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 54,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5026,
+                  "field": "location_label",
+                  "note": "2 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5026,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5026,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5026,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 159,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::g5510077": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 189,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 121,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 6011,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 189,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 121,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 121,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 6011,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 6011,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 121,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 121,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 121,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 121,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 6011,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 121,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 121,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 121,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 121,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 6011,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 6011,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 6011,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 6011,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 189,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x5107776": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 142,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 122,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5051,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 142,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 122,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 122,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5051,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5051,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 122,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 122,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 122,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 122,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5051,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 122,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 122,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 122,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 122,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5051,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5051,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5051,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5051,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 142,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x9937326": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 156,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 120,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5921,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 156,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 120,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 120,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5921,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5921,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 120,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 120,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 120,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 120,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5921,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 120,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 120,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 120,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 120,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5921,
+                  "field": "location_label",
+                  "note": "2 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5921,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5921,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5921,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 156,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x8412769": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 176,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 53,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5243,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 176,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 53,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 53,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5243,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5243,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 53,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 53,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 53,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 53,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5243,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 53,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 53,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 53,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 53,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5243,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5243,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5243,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5243,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 176,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x8481188": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 118,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 52,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 1406,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 118,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 52,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 52,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 1406,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 1406,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 52,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 52,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 52,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 52,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 1406,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 52,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 52,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 52,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 52,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 1406,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 1406,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 1406,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 1406,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 118,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x3564251": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 108,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 51,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5549,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 108,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 51,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 51,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5549,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5549,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 51,
+                  "field": "home_address",
+                  "note": ""
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 51,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 51,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 51,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5549,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 51,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 51,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 51,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 51,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5549,
+                  "field": "location_label",
+                  "note": "8 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5549,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5549,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5549,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 108,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x3670896": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 130,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 48,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5302,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 130,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 48,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 48,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5302,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5302,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5302,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5302,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5302,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 48,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5302,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 48,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 48,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 48,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 48,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5302,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5302,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5302,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5302,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 130,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::ben-orlov-1986-05-31": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 21,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 39,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5429,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 68,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 21,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 39,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 39,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5429,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5429,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 68,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 68,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5429,
+                  "field": "location_label",
+                  "note": "5 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5429,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5429,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 39,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5429,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 68,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 39,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 39,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 39,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 39,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5429,
+                  "field": "location_label",
+                  "note": "5 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5429,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5429,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5429,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 68,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 68,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 21,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x3090865": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 126,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 46,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5646,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 126,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 46,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 46,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5646,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5646,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5646,
+                  "field": "location_label",
+                  "note": "5 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5646,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5646,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 46,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5646,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 46,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 46,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 46,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 46,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5646,
+                  "field": "location_label",
+                  "note": "5 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5646,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5646,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5646,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 126,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::yara-orlov-1996-01-22": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 54,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 45,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5236,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 36,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 54,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 45,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 45,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5236,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5236,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 36,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 36,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5236,
+                  "field": "location_label",
+                  "note": "8 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5236,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5236,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 45,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5236,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 36,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 45,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 45,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 45,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 45,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5236,
+                  "field": "location_label",
+                  "note": "8 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5236,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5236,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5236,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 36,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 36,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 54,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::lena-lopez-1991-01-03": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 66,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 105,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5493,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 52,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 66,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 105,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 105,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5493,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5493,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 52,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 52,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5493,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5493,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5493,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 105,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5493,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 52,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 105,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 105,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 105,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 105,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5493,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5493,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5493,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5493,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 52,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 52,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 66,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x7121355": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 136,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 118,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5931,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 136,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 118,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 118,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5931,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5931,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5931,
+                  "field": "location_label",
+                  "note": "9 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5931,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5931,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 118,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5931,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 118,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 118,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 118,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 118,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5931,
+                  "field": "location_label",
+                  "note": "9 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5931,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5931,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5931,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 136,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::zane-ionescu-1975-02-28": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 31,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 115,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5770,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 40,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 31,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 115,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 115,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5770,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5770,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 40,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 40,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5770,
+                  "field": "location_label",
+                  "note": "5 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5770,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5770,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 115,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5770,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 40,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 115,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 115,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 115,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 115,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5770,
+                  "field": "location_label",
+                  "note": "5 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5770,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5770,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5770,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 40,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 40,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 31,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x8118722": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 143,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 44,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4884,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 143,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 44,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 44,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4884,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4884,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4884,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4884,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4884,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 44,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4884,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 44,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 44,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 44,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 44,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4884,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4884,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4884,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4884,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 143,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::tomas-silva-1990-12-03": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 69,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 117,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5164,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 56,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 69,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 117,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 117,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5164,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5164,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 56,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 56,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5164,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5164,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5164,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 117,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5164,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 56,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 117,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 117,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 117,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 117,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5164,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5164,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5164,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5164,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 56,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 56,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 69,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::rami-keller-1984-04-28": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 80,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 40,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4986,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 71,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 80,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 40,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 40,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4986,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4986,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 71,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 71,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4986,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4986,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4986,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 40,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4986,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 71,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 40,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 40,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 40,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 40,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4986,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4986,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4986,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4986,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 71,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 71,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 80,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x1822825": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 181,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 116,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5613,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 181,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 116,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 116,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5613,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5613,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5613,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5613,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5613,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 116,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5613,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 116,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 116,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 116,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 116,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5613,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5613,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5613,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5613,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 181,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::marcus-vale-1996-05-12": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 84,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 38,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4809,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 77,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 84,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 38,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 38,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4809,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4809,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 77,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 77,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4809,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4809,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4809,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 38,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4809,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 77,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 38,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 38,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 38,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 38,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4809,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4809,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4809,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4809,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 77,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 77,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 84,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x4679591": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 149,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 43,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4679,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 149,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 43,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 43,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4679,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4679,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4679,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4679,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4679,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 43,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4679,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 43,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 43,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 43,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 43,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4679,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4679,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4679,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4679,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 149,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x1430812": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 125,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 42,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4609,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 125,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 42,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 42,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4609,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4609,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4609,
+                  "field": "location_label",
+                  "note": "8 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4609,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4609,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 42,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4609,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 42,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 42,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 42,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 42,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4609,
+                  "field": "location_label",
+                  "note": "8 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4609,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4609,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4609,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 125,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::clara-patel-1979-04-09": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 16,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 114,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5173,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 79,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 16,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 114,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 114,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5173,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5173,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 79,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 79,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5173,
+                  "field": "location_label",
+                  "note": "6 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5173,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5173,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 114,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5173,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 79,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 114,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 114,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 114,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 114,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5173,
+                  "field": "location_label",
+                  "note": "6 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5173,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5173,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5173,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 79,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 79,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 16,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x5074336": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 182,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 113,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5393,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 182,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 113,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 113,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5393,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5393,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5393,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5393,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5393,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 113,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5393,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 113,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 113,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 113,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 113,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5393,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5393,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5393,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5393,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 182,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::tomas-elias-1986-04-22": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 39,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 111,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4248,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 86,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 39,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 111,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 111,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4248,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4248,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 86,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 86,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4248,
+                  "field": "location_label",
+                  "note": "11 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4248,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4248,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 111,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4248,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 86,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 111,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 111,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 111,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 111,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4248,
+                  "field": "location_label",
+                  "note": "11 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4248,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4248,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4248,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 86,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 86,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 39,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::zane-byrne-2001-05-07": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 59,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 107,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5361,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 41,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 59,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 107,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 107,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5361,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5361,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 41,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 41,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5361,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5361,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5361,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 107,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5361,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 41,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 107,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 107,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 107,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 107,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5361,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5361,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5361,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5361,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 41,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 41,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 59,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::owen-grant-1998-03-11": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 35,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 92,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5689,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 20,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 35,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 92,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 92,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5689,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5689,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 20,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 20,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5689,
+                  "field": "location_label",
+                  "note": "9 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5689,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5689,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 92,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5689,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 20,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 92,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 92,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 92,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 92,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5689,
+                  "field": "location_label",
+                  "note": "9 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5689,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5689,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5689,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 20,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 20,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 35,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::elias-quinn-1997-04-12": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 65,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 13,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5707,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 52,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 65,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 13,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 13,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5707,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5707,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 52,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 52,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5707,
+                  "field": "location_label",
+                  "note": "6 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5707,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5707,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 13,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5707,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 52,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 13,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 13,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 13,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 13,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5707,
+                  "field": "location_label",
+                  "note": "6 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5707,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5707,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5707,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 52,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 52,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 65,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::yara-quinn-1980-08-31": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 75,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 112,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5983,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 61,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 75,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 112,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 112,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5983,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5983,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 61,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 61,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5983,
+                  "field": "location_label",
+                  "note": "8 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5983,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5983,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 112,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5983,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 61,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 112,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 112,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 112,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 112,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5983,
+                  "field": "location_label",
+                  "note": "8 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5983,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5983,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5983,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 61,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 61,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 75,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::priya-costa-2000-10-29": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 51,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 18,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5900,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 38,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 51,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 18,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 18,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5900,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5900,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 38,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 38,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5900,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5900,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5900,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 18,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5900,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 38,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 18,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 18,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 18,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 18,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5900,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5900,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5900,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5900,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 38,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 38,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 51,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::adam-costa-1976-08-22": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 58,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 34,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5277,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 40,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 58,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 34,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 34,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5277,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5277,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 40,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 40,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5277,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5277,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5277,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 34,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5277,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 40,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 34,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 34,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 34,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 34,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5277,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5277,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5277,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5277,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 40,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 40,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 58,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x2242892": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 116,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 110,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 3191,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 116,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 110,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 110,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 3191,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 3191,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 3191,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 3191,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 3191,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 110,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 3191,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 110,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 110,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 110,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 110,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 3191,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 3191,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 3191,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 3191,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 116,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x5652512": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 164,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 109,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5950,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 164,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 109,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 109,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5950,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5950,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5950,
+                  "field": "location_label",
+                  "note": "9 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5950,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5950,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 109,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5950,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 109,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 109,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 109,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 109,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5950,
+                  "field": "location_label",
+                  "note": "9 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5950,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5950,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5950,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 164,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::sara-ionescu-1998-10-26": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 24,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 79,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4675,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 13,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 24,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 79,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 79,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4675,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4675,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 13,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 13,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4675,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4675,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4675,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 79,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4675,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 13,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 79,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 79,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 79,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 79,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4675,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4675,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4675,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4675,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 13,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 13,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 24,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x4576135": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 150,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 108,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5989,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 150,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 108,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 108,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5989,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5989,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5989,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5989,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5989,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 108,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5989,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 108,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 108,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 108,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 108,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5989,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5989,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5989,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5989,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 150,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::ben-rossi-1984-09-04": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 34,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4466,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 20,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 34,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4466,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4466,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 20,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 20,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4466,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4466,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4466,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4466,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 20,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4466,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4466,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4466,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4466,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 20,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 20,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 34,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::dina-costa-1995-01-23": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 23,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 65,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4485,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 13,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 23,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 65,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 65,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4485,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4485,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 13,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 13,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4485,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4485,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4485,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 65,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4485,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 13,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 65,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 65,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 65,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 65,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4485,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4485,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4485,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4485,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 13,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 13,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 23,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x6910964": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 105,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 106,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4175,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 105,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 106,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 106,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4175,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4175,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4175,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4175,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4175,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 106,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4175,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 106,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 106,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 106,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 106,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4175,
+                  "field": "location_label",
+                  "note": "4 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4175,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4175,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4175,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 105,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x3386328": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 132,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 104,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5977,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 132,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 104,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 104,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5977,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5977,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5977,
+                  "field": "location_label",
+                  "note": "11 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5977,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5977,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 104,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5977,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 104,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 104,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 104,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 104,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5977,
+                  "field": "location_label",
+                  "note": "11 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5977,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5977,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5977,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 132,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x1873851": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 104,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 35,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4250,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 104,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 35,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 35,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4250,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4250,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4250,
+                  "field": "location_label",
+                  "note": "5 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4250,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4250,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 35,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4250,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 35,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 35,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 35,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 35,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4250,
+                  "field": "location_label",
+                  "note": "5 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4250,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4250,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4250,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 104,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x1247595": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 148,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 103,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5283,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 148,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 103,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 103,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5283,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5283,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5283,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5283,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5283,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 103,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5283,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 103,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 103,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 103,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 103,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5283,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5283,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5283,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5283,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 148,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::yara-turner-1975-03-21": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 64,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 85,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5772,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 55,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 64,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 85,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 85,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5772,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5772,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 55,
+                  "field": "director_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 55,
+                  "field": "director_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5772,
+                  "field": "location_label",
+                  "note": "8 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5772,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5772,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 85,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5772,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 55,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 85,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 85,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 85,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 85,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5772,
+                  "field": "location_label",
+                  "note": "8 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5772,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5772,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5772,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 55,
+                  "field": "registered_address",
+                  "note": "director"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 55,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 64,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x6902401": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 165,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 102,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4505,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 165,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 102,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 102,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4505,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4505,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4505,
+                  "field": "location_label",
+                  "note": "6 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4505,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4505,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 102,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4505,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 102,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 102,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 102,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 102,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4505,
+                  "field": "location_label",
+                  "note": "6 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4505,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4505,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4505,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 165,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::elias-vale-2001-03-29": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 52,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 14,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5428,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 55,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 52,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 14,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 14,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5428,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5428,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 55,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 55,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5428,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5428,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5428,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 14,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5428,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 55,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 14,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 14,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 14,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 14,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5428,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5428,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5428,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5428,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 55,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 55,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 52,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::owen-vale-1976-11-06": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 20,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4985,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 33,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 20,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4985,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4985,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 33,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 33,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4985,
+                  "field": "location_label",
+                  "note": "5 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4985,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4985,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4985,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 33,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4985,
+                  "field": "location_label",
+                  "note": "5 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4985,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4985,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4985,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 33,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 33,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 20,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::x9517485": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 158,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 33,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 4567,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 158,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 33,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 33,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4567,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4567,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4567,
+                  "field": "location_label",
+                  "note": "2 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4567,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4567,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 33,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4567,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 33,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 33,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 33,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 33,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4567,
+                  "field": "location_label",
+                  "note": "2 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4567,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4567,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 4567,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 158,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::i6117009": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 167,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 101,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5674,
+                "field": "",
+                "note": "match"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 167,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 101,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 101,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5674,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5674,
+                  "field": "observed_name",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5674,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5674,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5674,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 101,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5674,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 101,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 101,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 101,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 101,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5674,
+                  "field": "location_label",
+                  "note": "3 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5674,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5674,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5674,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 167,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          },
+          "lead::person::tomas-keller-1978-08-25": {
+            "sourceRows": [
+              {
+                "dataset": "resolved_persons",
+                "row": 86,
+                "field": "",
+                "note": "person"
+              },
+              {
+                "dataset": "norm_clinic_registrations",
+                "row": 88,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_mobile_pings",
+                "row": 5240,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "norm_company_registry",
+                "row": 75,
+                "field": "",
+                "note": "match"
+              },
+              {
+                "dataset": "pipeline/leads.py:GAZETTEER",
+                "row": 0,
+                "field": "",
+                "note": "gazetteer"
+              }
+            ],
+            "fieldProvenance": {
+              "personId": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 86,
+                  "field": "id",
+                  "note": "person"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 88,
+                  "field": "patient_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 88,
+                  "field": "dob",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5240,
+                  "field": "phone_number",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5240,
+                  "field": "observed_name",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 75,
+                  "field": "beneficial_owner",
+                  "note": "match"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 75,
+                  "field": "beneficial_owner_dob",
+                  "note": "match"
+                }
+              ],
+              "address": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5240,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                }
+              ],
+              "lat": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5240,
+                  "field": "lat",
+                  "note": ""
+                }
+              ],
+              "lon": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5240,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "score": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 88,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5240,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 75,
+                  "field": "incorporation_date",
+                  "note": ""
+                }
+              ],
+              "asOf": [],
+              "components[0]": [
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 88,
+                  "field": "home_address",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 88,
+                  "field": "registered_on",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 88,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_clinic_registrations",
+                  "row": 88,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[1]": [
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5240,
+                  "field": "location_label",
+                  "note": "7 pings at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5240,
+                  "field": "timestamp",
+                  "note": "latest ping at this location"
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5240,
+                  "field": "lat",
+                  "note": ""
+                },
+                {
+                  "dataset": "norm_mobile_pings",
+                  "row": 5240,
+                  "field": "lon",
+                  "note": ""
+                }
+              ],
+              "components[2]": [
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 75,
+                  "field": "registered_address",
+                  "note": "owner"
+                },
+                {
+                  "dataset": "norm_company_registry",
+                  "row": 75,
+                  "field": "incorporation_date",
+                  "note": ""
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lat",
+                  "note": "gazetteer"
+                },
+                {
+                  "dataset": "pipeline/leads.py:GAZETTEER",
+                  "row": 0,
+                  "field": "lon",
+                  "note": "gazetteer"
+                }
+              ],
+              "id": [
+                {
+                  "dataset": "resolved_persons",
+                  "row": 86,
+                  "field": "id",
+                  "note": "person"
+                }
+              ]
+            }
+          }
+        }
       }
     ],
     "lineage": {
@@ -43123,6 +60543,11 @@ window.foundrySeedCatalog = {
         "sourceRows": [],
         "fieldProvenance": {}
       },
+      "device::dev-or-07": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
       "device::dev-sp-04": {
         "producedBy": "build_ontology",
         "sourceRows": [],
@@ -47249,6 +64674,11 @@ window.foundrySeedCatalog = {
         "fieldProvenance": {}
       },
       "location::north-quay-warehouse": {
+        "producedBy": "build_ontology",
+        "sourceRows": [],
+        "fieldProvenance": {}
+      },
+      "location::oak-lane-birmingham": {
         "producedBy": "build_ontology",
         "sourceRows": [],
         "fieldProvenance": {}
@@ -141071,6 +158501,24 @@ window.foundrySeedCatalog = {
             "note": "flight-passenger"
           },
           {
+            "dataset": "norm_mobile_pings",
+            "row": 6009,
+            "field": "",
+            "note": "device-ping"
+          },
+          {
+            "dataset": "norm_mobile_pings",
+            "row": 6010,
+            "field": "",
+            "note": "device-ping"
+          },
+          {
+            "dataset": "norm_mobile_pings",
+            "row": 6011,
+            "field": "",
+            "note": "device-ping"
+          },
+          {
             "dataset": "norm_clinic_registrations",
             "row": 121,
             "field": "",
@@ -141132,6 +158580,44 @@ window.foundrySeedCatalog = {
               "row": 758,
               "field": "phone_number",
               "note": ""
+            },
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 6009,
+              "field": "phone_number",
+              "note": ""
+            },
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 6010,
+              "field": "phone_number",
+              "note": ""
+            },
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 6011,
+              "field": "phone_number",
+              "note": ""
+            }
+          ],
+          "aliases": [
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 6009,
+              "field": "observed_name",
+              "note": "ping alias"
+            },
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 6010,
+              "field": "observed_name",
+              "note": "ping alias"
+            },
+            {
+              "dataset": "norm_mobile_pings",
+              "row": 6011,
+              "field": "observed_name",
+              "note": "ping alias"
             }
           ],
           "homeAddress": [
@@ -198837,6 +216323,26 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "device::dev-or-07",
+        "type": "Device",
+        "label": "DEV-OR-07",
+        "properties": {
+          "deviceId": "DEV-OR-07",
+          "phoneNumber": "+447911223344",
+          "lastObservedName": "Omar Rahman"
+        },
+        "sourceIds": [
+          "norm_mobile_pings"
+        ],
+        "markings": [
+          "TELECOM"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "device::dev-sp-04",
         "type": "Device",
         "label": "DEV-SP-04",
@@ -220840,6 +238346,28 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "location::oak-lane-birmingham",
+        "type": "Location",
+        "label": "Oak Lane, Birmingham",
+        "properties": {
+          "label": "Oak Lane, Birmingham",
+          "locationType": "residential",
+          "city": "Birmingham",
+          "country": "United Kingdom",
+          "lat": 52.443012,
+          "lon": -1.935174,
+          "cellTower": "UK-BHM-114"
+        },
+        "sourceIds": [
+          "norm_mobile_pings"
+        ],
+        "markings": [],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "location::sofia-airport",
         "type": "Location",
         "label": "Sofia Airport",
@@ -232001,7 +249529,10 @@ window.foundrySeedCatalog = {
           "confidence": 1.0,
           "mergedFrom": [
             "flight:MF-0008",
-            "flight:MF-0009"
+            "flight:MF-0009",
+            "ping:PG-0101",
+            "ping:PG-0102",
+            "ping:PG-0103"
           ],
           "splitRisk": false,
           "note": ""
@@ -232028,6 +249559,7 @@ window.foundrySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
+          "TELECOM",
           "HEALTH"
         ]
       },
@@ -297486,6 +315018,22 @@ window.foundrySeedCatalog = {
         ]
       },
       {
+        "id": "observed_at::device-dev-or-07-location-oak-lane-birmingham",
+        "type": "OBSERVED_AT",
+        "source": "device::dev-or-07",
+        "target": "location::oak-lane-birmingham",
+        "label": "OBSERVED_AT",
+        "properties": {
+          "sightingCount": "3",
+          "firstSeen": "2026-04-10T19:40:00Z",
+          "lastSeen": "2026-04-11T21:50:00Z",
+          "source": "carrier-feed"
+        },
+        "markings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "observed_at::device-dev-sp-04-location-14-seabright-ave-limassol",
         "type": "OBSERVED_AT",
         "source": "device::dev-sp-04",
@@ -314646,6 +332194,17 @@ window.foundrySeedCatalog = {
         "type": "USES_DEVICE",
         "source": "person::farah-orlov-1991-06-22",
         "target": "device::dev-n-091",
+        "label": "USES_DEVICE",
+        "properties": {},
+        "markings": [
+          "TELECOM"
+        ]
+      },
+      {
+        "id": "uses_device::person-g5510077-device-dev-or-07",
+        "type": "USES_DEVICE",
+        "source": "person::g5510077",
+        "target": "device::dev-or-07",
         "label": "USES_DEVICE",
         "properties": {},
         "markings": [

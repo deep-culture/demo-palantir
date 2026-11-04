@@ -407,3 +407,24 @@
 .dc-inbox li.is-mine { color: #fff; }
 .dc-inbox time { color: #9a9a9a; margin-right: 0.35rem; }
 .dc-inbox .dc-inbox-empty { color: #8a8a8a; font-style: italic; border-top: none; }
+
+/* ── Phase 3: failure mode (instructor) in the session strip ── */
+.dc-strip-failure.is-on select { border-color: #b42318; box-shadow: 0 0 0 2px rgba(180, 35, 24, 0.18); }
+.dc-strip-light .dc-strip-failure.is-on label { color: #b42318; }
+
+/* ── Phase 3: lead formula (DC.ui.leadFormula), shared by Investigate and Build ── */
+.dc-lead-formula { font-family: var(--dc-font); font-size: 0.86rem; color: inherit; }
+.dc-lead-code { display: block; font: 500 0.82rem/1.5 var(--dc-mono); padding: 0.45rem 0.6rem; background: var(--dc-black); color: var(--dc-green); border-radius: 6px; margin-bottom: 0.5rem; white-space: pre-wrap; }
+.dc-lead-table { width: 100%; border-collapse: collapse; margin: 0.25rem 0 0.5rem; font-size: 0.8rem; }
+.dc-lead-table th { text-align: left; font-weight: 600; color: var(--dc-purple-dark); border-bottom: 1px solid var(--dc-purple-line); padding: 0.25rem 0.35rem; }
+.dc-lead-table td { padding: 0.3rem 0.35rem; border-bottom: 1px solid rgba(0, 0, 0, 0.06); vertical-align: top; }
+.dc-lead-table td.num { text-align: right; font-family: var(--dc-mono); white-space: nowrap; }
+.dc-lead-withheld td { background: repeating-linear-gradient(135deg, rgba(180, 35, 24, 0.07) 0 6px, transparent 6px 12px); }
+.dc-lead-hatch { color: #8a1c13; font-style: italic; }
+.dc-lead-struck { text-decoration: line-through; opacity: 0.7; }
+.dc-lead-rule-chip { display: inline-block; font: 600 0.66rem/1.4 var(--dc-font); color: #fff; background: #b42318; border-radius: 3px; padding: 0 0.3rem; margin-left: 0.25rem; }
+.dc-lead-sum { font-family: var(--dc-mono); font-size: 0.8rem; margin: 0.25rem 0; overflow-wrap: anywhere; }
+.dc-lead-note { margin: 0.35rem 0; padding: 0.35rem 0.5rem; border-left: 3px solid #b42318; background: rgba(180, 35, 24, 0.05); }
+.dc-lead-asof { margin: 0.25rem 0 0; font-size: 0.75rem; opacity: 0.75; }
+.dc-on-dark .dc-lead-table th, .dc-strip-dark .dc-lead-table th { color: var(--dc-green); }
+.dc-lead-formula { overflow-x: auto; }

@@ -52,7 +52,9 @@ def test_namesake_is_a_separate_person_with_his_facts(request, which, dataset):
         assert "Umar Rahman" in props["aliases"].split(" | ")
     assert not props.get("riskTag")
     assert him["resolution"]["method"] == "passport"
-    assert him["resolution"]["mergedFrom"] == ["flight:MF-0008", "flight:MF-0009"]
+    # Phase 3: his handset is seen near home (street level, not the clinic's door number).
+    assert him["resolution"]["mergedFrom"] == ["flight:MF-0008", "flight:MF-0009",
+                                               "ping:PG-0101", "ping:PG-0102", "ping:PG-0103"]
     assert not him["resolution"]["splitRisk"]
     # No watchlist entry.
     assert not edges_of(entry, "LISTED_ON", source=NAMESAKE)

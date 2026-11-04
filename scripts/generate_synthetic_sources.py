@@ -17,6 +17,10 @@ namesake Omar Rahman (PER-007) and the watchlisted Omar Rahman's LHR-IST
 flights, the namesake's rent transfers and (simulator) two namesake pairs.
 The clinic rework drops the watchlisted people's registrations.
 
+Phase 3 (PHASE3_CONTRACT.md §1) appends three fixed pings: the namesake's
+handset near his home, so his lead (``pipeline/leads.py``) combines
+health and telecom sources.
+
 The script also writes ``manifest.json`` (markings, purpose, legal basis,
 retention and as-of date per dataset; values from ``pipeline/governance.py``).
 Two runs with the same seeds produce byte-identical files.
@@ -423,6 +427,41 @@ SIM_PAIR_COMPANIES = [
      "director_name": "Jose Ferreira", "director_dob": "1986-01-11",
      "beneficial_owner": "Jose Ferreira", "beneficial_owner_dob": "1986-01-11",
      "registered_city": "Zurich", "registered_country": "Switzerland", "registered_site_type": "office"},
+]
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 (PHASE3_CONTRACT.md §1): the namesake's phone near home.
+#
+# Leads score address sources (clinic 0.5, pings 0.4, registry 0.3).  The
+# namesake's handset is seen near his home on the days after his return
+# flight, so his lead combines a recent clinic registration (HEALTH) with
+# recent pings (TELECOM): as DPO he is the top lead; without HEALTH he is not.
+# The pings locate the street ("Oak Lane, Birmingham"), not the house: only the
+# clinic record gives the door number, and the ping label never collides with
+# the HEALTH-marked residential Location.  Fixed rows, appended after every
+# earlier ping (no RNG); timestamps stay before the last Phase 0 ping, so the
+# manifest's asOf is unchanged.
+# ---------------------------------------------------------------------------
+
+NAMESAKE_PING_LABEL = "Oak Lane, Birmingham"
+
+
+def _namesake_ping(ping_id: str, timestamp: str, lat: float, lon: float, tower: str) -> Dict[str, object]:
+    return {
+        "ping_id": ping_id, "device_id": "DEV-OR-07", "observed_name": "Omar Rahman",
+        "phone_number": str(NAMESAKE["phone_number"]), "timestamp": timestamp,
+        "lat": lat, "lon": lon, "cell_tower": tower,
+        "location_label": NAMESAKE_PING_LABEL, "location_type": "residential",
+        "city": str(NAMESAKE_HOME["home_city"]), "country": str(NAMESAKE_HOME["home_country"]),
+        "source": "carrier-feed",
+    }
+
+
+PHASE3_PINGS = [
+    _namesake_ping("PG-0101", "2026-04-10T19:40:00Z", 52.443012, -1.935174, "UK-BHM-114"),
+    _namesake_ping("PG-0102", "2026-04-11T07:15:00Z", 52.443012, -1.935174, "UK-BHM-114"),
+    _namesake_ping("PG-0103", "2026-04-11T21:50:00Z", 52.443012, -1.935174, "UK-BHM-114"),
 ]
 
 
@@ -1226,7 +1265,11 @@ def main() -> None:
     write_csv(output_dir / "company_registry.csv", company_rows)
     write_csv(output_dir / "flight_manifests.csv", flight_rows)
     write_csv(output_dir / "bank_transactions.csv", transaction_rows)
-    write_jsonl(output_dir / "mobile_location_pings.jsonl", ping_rows)
+    # Phase 3: the namesake's pings near home, appended after every earlier ping.
+    # ``ping_rows`` (without them) still feeds the clinic step's known labels
+    # below, so the clinic rows cannot change.
+    all_ping_rows = append_rows(ping_rows, PHASE3_PINGS)
+    write_jsonl(output_dir / "mobile_location_pings.jsonl", all_ping_rows)
 
     # Phase 1: clinic registrations from their own random stream (the legacy
     # stream above is not consumed any further, so earlier files are unchanged).
@@ -1248,7 +1291,7 @@ def main() -> None:
         "company_registry": base_date,
         "flight_manifests": _max_date([row["departure_ts"] for row in flight_rows], base_date),
         "bank_transactions": _max_date([row["txn_ts"] for row in transaction_rows], base_date),
-        "mobile_location_pings": _max_date([str(row["timestamp"]) for row in ping_rows], base_date),
+        "mobile_location_pings": _max_date([str(row["timestamp"]) for row in all_ping_rows], base_date),
         "clinic_registrations": _max_date([str(row["registered_on"]) for row in clinic_rows], base_date),
     })
 
@@ -1257,7 +1300,7 @@ def main() -> None:
     print(f"- company_registry.csv: {len(company_rows)} rows")
     print(f"- flight_manifests.csv: {len(flight_rows)} rows")
     print(f"- bank_transactions.csv: {len(transaction_rows)} rows")
-    print(f"- mobile_location_pings.jsonl: {len(ping_rows)} rows")
+    print(f"- mobile_location_pings.jsonl: {len(all_ping_rows)} rows")
     print(f"- clinic_registrations.csv: {len(clinic_rows)} rows")
     print("- manifest.json")
 

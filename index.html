@@ -159,7 +159,7 @@
       font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       border: 1px dashed var(--dc-grey-dark); color: var(--dc-grey-dark); vertical-align: middle;
     }
-    .also-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .also-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
     .also {
       display: block; padding: 0.85rem 1.1rem; border: 1px solid var(--border); border-left: 4px solid var(--dc-purple);
       border-radius: 4px; text-decoration: none; color: inherit;
@@ -261,7 +261,7 @@
     <a href="#" data-home title="Home"><img class="dc-logo" src="brand/logo-green-lines.png" alt="Deep Culture"></a>
     <div>
       <h1><span class="dc-highlight">Palantir-style Classroom Demos</span></h1>
-      <p class="lede">Investigate &middot; Build &middot; Oversight &middot; teaching materials &middot; Deep Culture, University of Amsterdam</p>
+      <p class="lede">Investigate &middot; Build &middot; Oversight &middot; Deployment &middot; teaching materials &middot; Deep Culture, University of Amsterdam</p>
     </div>
   </header>
 
@@ -272,11 +272,13 @@
         <a href="./demo/" target="_blank">Investigate (Gotham-style) <span class="ext">↗</span></a>
         <a href="./foundry-demo/" target="_blank">Build (Foundry-style) <span class="ext">↗</span></a>
         <a href="./audit/" target="_blank">Oversight <span class="ext">↗</span></a>
+        <a href="./deployment.html">Deployment: where does it live?</a>
         <a href="./glossary.html">Glossary and honesty labels</a>
       </section>
 
       <section>
         <h3>For Students</h3>
+        <button data-doc="RUNTHROUGH.md">Runthrough (all three sessions)</button>
         <button data-doc="STUDENT_STUDY_GUIDE.md">Session 1 study guide (Investigate)</button>
         <button data-doc="FOUNDRY_STUDY_GUIDE.md">Session 2 study guide (Build)</button>
       </section>
@@ -335,13 +337,17 @@
             </div>
           </div>
 
-          <div class="card later" aria-disabled="true">
-            <span class="kicker">Session 3 <span class="badge-later">Coming in Phase 3</span></span>
+          <div class="card">
+            <span class="kicker">Session 3</span>
             <h3>Agent, leads, oversight</h3>
-            <p>Ask the simulated AIP agent the Session 1 question and read its trace; approve or reject staged edits; review a leads formula; debate the case studies.</p>
-            <p class="meta"><strong>Apps:</strong> Investigate (agent, leads), then Oversight · <strong>Cases:</strong> ELITE, NHS Federated Data Platform, Maven</p>
+            <p>Ask the simulated AIP agent the Session 1 question and read its trace: every tool call, what was denied, and which object backs each sentence. Approve or reject its staged edits, then catch the link it invented.</p>
+            <p>Open the Leads tab and read the address-confidence formula: watch the score drop when the health record is withheld. Close in Oversight with your own trail, then ask where all of this actually lives.</p>
+            <p class="meta"><strong>Apps:</strong> Investigate (Agent and Leads tabs), then Oversight · <strong>Cases:</strong> ICE ELITE, NHS Federated Data Platform, Maven; POL-INTEL and European exits</p>
             <div class="actions">
-              <a class="btn ghost" href="./audit/" target="_blank">Oversight is ready now →</a>
+              <a class="btn" href="./demo/" target="_blank" title="Open Investigate, then the Agent (simulated AIP) tab">Agent (Investigate) →</a>
+              <a class="btn ghost" href="./demo/" target="_blank" title="Open Investigate, then the Leads tab">Leads (Investigate)</a>
+              <a class="btn ghost" href="./audit/" target="_blank">Oversight</a>
+              <a class="btn ghost" href="./deployment.html">Where does it live?</a>
             </div>
           </div>
         </div>
@@ -354,6 +360,10 @@
           <a class="also" href="./glossary.html">
             <strong>Glossary and honesty labels</strong>
             <span>Palantir's terms next to the demo's, and what each panel's Mirrors / Simplified / Teaching extension label means.</span>
+          </a>
+          <a class="also" href="./deployment.html">
+            <strong>Deployment: where does it live?</strong>
+            <span>Where this tool's code, data and logs are (your browser), and where a real deployment's are (the customer's cloud, updated by Apollo).</span>
           </a>
         </div>
 

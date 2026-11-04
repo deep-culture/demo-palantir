@@ -124,6 +124,7 @@ if (core.session) {
 if (core.markings) core.markings.onChange(() => scheduleRender());
 if (core.resolution) core.resolution.onChange(() => scheduleRender());
 if (core.actions) core.actions.onChange((info) => info && info.source === "storage" && scheduleRender());
+if (core.objectSets) core.objectSets.onChange((info) => info && info.source === "storage" && scheduleRender());
 window.addEventListener("hashchange", () => {
   if (applyDeepLink(window.location.hash)) {
     render();

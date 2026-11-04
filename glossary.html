@@ -61,6 +61,7 @@
     .hl-chip.mirrors { background: var(--dc-purple); color: #fff; }
     .hl-chip.simplified { background: #fff; color: var(--dc-purple); }
     .hl-chip.extension { background: #fff; color: var(--dc-purple); border-style: dashed; }
+    a.hl-chip { text-decoration: none; }
 
     .kinds { display: grid; gap: 0.75rem; }
     .kind { display: grid; grid-template-columns: 240px 1fr; gap: 1rem; align-items: baseline;
@@ -109,6 +110,7 @@
       <a href="demo/">Investigate</a>
       <a href="foundry-demo/">Build</a>
       <a href="audit/">Oversight</a>
+      <a href="deployment.html">Deployment</a>
     </nav>
   </header>
 
@@ -154,14 +156,14 @@
         <tr id="term-object"><td>Object</td><td>Entity / instance</td><td>One Person</td></tr>
         <tr id="term-property"><td>Property</td><td>Property</td><td>A typed attribute</td></tr>
         <tr id="term-link-type"><td>Link type / link</td><td>Relationship type / edge</td><td>A typed connection between two objects</td></tr>
-        <tr id="term-object-set"><td>Object set</td><td>(none)</td><td>A saved, shareable set of objects</td></tr>
+        <tr id="term-object-set"><td>Object set</td><td>(none)</td><td>A saved, shareable set of objects (see <a href="#object-set">below</a>)</td></tr>
         <tr id="term-backing-dataset"><td>Backing dataset</td><td>Source mapping</td><td>The dataset whose rows become objects of a type</td></tr>
         <tr id="term-action-type"><td>Action type / Action</td><td>Scenario action string</td><td>A permitted, parameterised, logged change to objects (see <a href="#action-type">below</a>)</td></tr>
         <tr id="term-marking"><td>Marking</td><td>(none)</td><td>A mandatory security label that travels with data</td></tr>
         <tr id="term-checkpoint"><td>Checkpoint</td><td>(none)</td><td>A purpose-justification prompt before a sensitive operation</td></tr>
         <tr id="term-interface"><td>Interface</td><td>(none)</td><td>A shared shape several object types satisfy (mentioned only, not modelled)</td></tr>
         <tr id="term-layers"><td>Semantic layer / kinetic layer</td><td>(none)</td><td>Nouns (objects, links) / verbs (Actions)</td></tr>
-        <tr id="term-agent"><td>Agent (simulated AIP)</td><td>AI Copilot</td><td>A chatbot that calls tools over the Ontology; here a rule-based stand-in</td></tr>
+        <tr id="term-agent"><td>Agent (simulated AIP)</td><td>AI Copilot</td><td>A chatbot that calls tools over the Ontology; here a scripted stand-in with no language model (see <a href="#agent">below</a>)</td></tr>
         <tr id="term-lineage"><td>Data lineage</td><td>Lineage</td><td>How each dataset was made from other datasets</td></tr>
         <tr id="term-transform"><td>Transform</td><td>Transform</td><td>Code that produces a new dataset from existing ones</td></tr>
       </tbody>
@@ -205,6 +207,51 @@
       </div>
     </dl>
 
+    <h2 id="session3">Agent, leads, object sets, retention and deployment</h2>
+    <p>Terms introduced in Session 3. Each entry gives the demo's term, Palantir's term and the honesty label of the surface where it appears.</p>
+    <dl class="defs">
+      <div class="def" id="agent">
+        <dt>Agent <span class="dterm">demo: Agent (simulated AIP) · Palantir: AIP Agent Studio / AIP Chatbot Studio</span> <a class="hl-chip simplified" href="#inv.agent">Simplified</a></dt>
+        <dd>A chatbot that answers questions by calling tools over the Ontology and can propose edits. Palantir's AIP connects large language models to the Ontology. The demo's agent has no language model: it builds its plan from the question with fixed rules, so that every run can be repeated and inspected. Every tool call goes through the role's markings, the purpose rules, the Checkpoints and the audit log, just as yours do.</dd>
+      </div>
+      <div class="def" id="tool-call">
+        <dt>Tool call <span class="dterm">demo: tool call · Palantir: tools (in AIP Logic and Agent Studio)</span> <a class="hl-chip simplified" href="#inv.agent">Simplified</a></dt>
+        <dd>One step the agent takes, such as <code>search_objects</code>, <code>get_links</code>, <code>expand</code>, <code>run_rule</code>, <code>propose_action</code> or <code>get_lineage</code>. Each call is one audit event. A call the role is not allowed to make is <em>denied and logged</em>, and its result never reaches the answer.</dd>
+      </div>
+      <div class="def" id="trace">
+        <dt>Trace <span class="dterm">demo: trace · Palantir: the agent's reasoning and tool log</span> <a class="hl-chip simplified" href="#inv.agent">Simplified</a></dt>
+        <dd>The list of the agent's steps: which tool, with which arguments, what came back, what was denied. Each sentence of the answer cites the objects or links it rests on, and clicking a citation highlights it in the graph. The trace is what lets a person check an answer instead of trusting it.</dd>
+      </div>
+      <div class="def" id="staged-edit">
+        <dt>Staged edit <span class="dterm">demo: staged edit · Palantir: staged edits / proposals</span> <a class="hl-chip mirrors" href="#inv.actions">Mirrors Foundry</a></dt>
+        <dd>An Action the agent prepares but does not apply. A person must approve or reject each one; AIP stages an agent's edits for review by default. The demo also has an <strong>Approve all</strong> button, recorded as one audit event with the number of edits approved: the human in the loop, at the speed of one click.</dd>
+      </div>
+      <div class="def" id="eval">
+        <dt>Eval <span class="dterm">demo: Evals panel · Palantir: AIP Evals</span> <a class="hl-chip simplified" href="#inv.agent">Simplified</a></dt>
+        <dd>A test of an agent's output. The demo runs three after you click <em>Check</em>: every claim cites an object or link that exists; no denied tool result was used; no edit was applied without approval. An eval can only catch what someone thought to test for.</dd>
+      </div>
+      <div class="def" id="lead">
+        <dt>Lead <span class="dterm">demo: lead (Leads tab, <code>leads</code> dataset) · Palantir: ELITE's leads (ICE)</span> <a class="hl-chip simplified" href="#inv.leads">Simplified</a></dt>
+        <dd>A person ranked by how confident the system is about where they can be found. In the demo, the transform <code>06 Build Leads</code> makes one lead per person who has at least one address source; Build shows the dataset, and Investigate shows the Leads tab and map. Leads are rows, not ontology objects; closing one is an Action.</dd>
+      </div>
+      <div class="def" id="address-confidence">
+        <dt>Address confidence <span class="dterm">demo: lead score 0–100 · Palantir: ELITE's "address confidence score"</span> <a class="hl-chip simplified" href="#inv.leads">Simplified</a></dt>
+        <dd><code>score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))</code>: each address source has a weight (clinic registration 0.5, mobile pings 0.4, company registry 0.3), and older records count for less. The formula is ours; ELITE's is not public. A role that cannot see a source's marking sees that component withheld and the score recomputed without it, so the same person's number changes with the role. That the clinic record makes the score high is the lesson: health data doing enforcement work.</dd>
+      </div>
+      <div class="def" id="object-set">
+        <dt>Object set <span class="dterm">demo: object set · Palantir: object set</span> <a class="hl-chip mirrors" href="#inv.object-sets">Mirrors Foundry</a></dt>
+        <dd>A saved, named list of objects, from a graph selection, rule hits or a search. Its membership is versioned (who added or removed whom, and when) and it can be shared with other roles. Members a role cannot see count as withheld. Lists are instruments of power: being on one has consequences, and the list outlives the question that made it.</dd>
+      </div>
+      <div class="def" id="retention">
+        <dt>Retention <span class="dterm">demo: retention clock (Build, Datasets tab) · Palantir: retention policies</span> <a class="hl-chip simplified" href="#build.retention">Simplified</a></dt>
+        <dd>How long data may be kept, here each dataset's <code>retentionDays</code> from the manifest, counted from the dataset's own date column. Move the clock and rows past retention turn grey; derived datasets say how many of their rows still carry such data, worked out through lineage. The watchlist has no date column, so retention cannot be applied to it at all. Nothing is deleted: deletion has to reach every copy, and in this pipeline it never does.</dd>
+      </div>
+      <div class="def" id="apollo">
+        <dt>Deployment and Apollo <span class="dterm">demo: <a href="deployment.html">deployment view</a> · Palantir: Apollo (continuous delivery), forward-deployed engineers</span> <a class="hl-chip extension" href="#deployment">Teaching extension</a></dt>
+        <dd>Where the software and the data physically run. This classroom tool is static files on GitHub Pages, map tiles from OpenStreetMap and everything else in your browser's localStorage, with no server. A real deployment runs in the customer's cloud, on its own servers, on classified networks or on edge devices, and is updated continuously by Apollo, Palantir's delivery system; Palantir's forward-deployed engineers often build the pipelines inside the customer. The <a href="deployment.html">deployment page</a> draws both.</dd>
+      </div>
+    </dl>
+
     <h2 id="markings">Markings and roles</h2>
     <p>Markings say what a role needs in order to see a dataset, an object or a single property. A dataset derived from a marked dataset inherits the marking; only the data protection officer can remove one, and only after a Checkpoint.</p>
     <table>
@@ -237,6 +284,7 @@
         ["build.", "Build (Foundry-style)"],
         ["oversight.", "Oversight"],
         ["session.", "Shared session"],
+        ["deployment", "Deployment"],
       ];
 
       // Used only when neither seed carries a governance block yet (PHASE1_CONTRACT §2).
@@ -255,6 +303,10 @@
         { id: "build.datasets", kind: "simplified", label: "Datasets", text: "Schema, sample rows and governance tags. Foundry versions datasets through transactions; that is not modelled.", docUrl: "" },
         { id: "build.lineage", kind: "extension", label: "Lineage", text: "Row- and field-level provenance goes beyond Foundry's dataset-level lineage.", docUrl: "" },
         { id: "build.resolution", kind: "simplified", label: "Resolution", text: "Real entity resolution uses confidence scores and thresholds, and false merges are a known risk. Our scorer is a transparent weighted sum of a few signals so that students can read and dispute every weight.", docUrl: "" },
+        { id: "build.retention", kind: "simplified", label: "Retention", text: "Each dataset carries a retention period; the slider greys out rows past it and counts derived rows that still carry them. Nothing is ever deleted here; in a real platform, deletion has to reach every derived dataset, export and copy.", docUrl: "" },
+        { id: "inv.leads", kind: "simplified", label: "Leads", text: "A 0–100 address confidence score from source type and age, in the style of ICE's ELITE app. The formula is ours; ELITE's is not public.", docUrl: "" },
+        { id: "inv.object-sets", kind: "mirrors", label: "Object sets", text: "Saved, shareable lists of objects whose membership changes over time; versions and sharing are kept in your browser, and sharing is simulated by role.", docUrl: "https://www.palantir.com/docs/foundry/ontology/core-concepts" },
+        { id: "deployment", kind: "extension", label: "Deployment", text: "Where this classroom tool lives: static files on GitHub Pages, map tiles from OpenStreetMap, and the session, audit log and governance in your own browser, with nothing on a server. Real deployments run in the customer's cloud or on premises, updated by Apollo.", docUrl: "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379" },
         { id: "build.markings", kind: "mirrors", label: "Markings", text: "Markings are inherited down lineage: a dataset derived from a marked dataset carries the marking, and only a privileged user can remove it.", docUrl: "https://palantir.com/docs/foundry/security/markings/" },
         { id: "oversight.audit", kind: "simplified", label: "Oversight", text: "A hash-chained log kept in this browser stands in for platform audit logging.", docUrl: "" },
         { id: "session.roles", kind: "simplified", label: "Roles", text: "Five roles stand in for groups, projects and organisations. Enforcement runs in your browser: a model of access control, not access control.", docUrl: "https://palantir.com/docs/foundry/security/markings/" },

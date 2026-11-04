@@ -63,17 +63,19 @@ Runtime model:
 - `pipeline/resolution.py` — the shared `PersonResolver` (`passport → phone → name+dob → alias`, `get_or_create()`, `find()`, `person_for()`, `resolutions()`), used by both step 02 and `scripts/build_ontology_seed.py`; also defines the fixed per-method confidences for the `resolution` block
 - `pipeline/resolution.py` also provides `attach_clinic_rows()` / `PersonResolver.attach()` (Phase 1): clinic rows join an existing Person by exact name + dob, never create one, and change no key, name or `mergedFrom`
 - `pipeline/governance.py` — markings, roles, purposes, checkpoints, honesty labels (`governance_block()`), manifest defaults (`SOURCE_DATASETS`), the dataset union rule (`derived_governance`) and object/link marking rules (`annotate_objects`); shared by both seed builders and the generator
+- `pipeline/leads.py` (Phase 3) — the one address-confidence scorer (`compute_leads()`, `score()`, `FORMULA`, `SOURCES`, `GAZETTEER`), shared by step 06 and `scripts/build_ontology_seed.py`, so both seeds hold the same leads (§5.2)
 - `pipeline/seedmeta.py` — seed versioning: `schemaVersion`, deterministic `buildId`, per-source hashes, `builder` label (used by both seed builders)
 
 ### 4.2 Pipeline scripts
 
-The five transforms are executable Python modules. Filenames begin with a digit (e.g., `01_normalize_sources.py`) to make the execution order obvious; this makes them non-importable via normal `import` syntax, so the build script loads them via `importlib.util.spec_from_file_location`.
+The six transforms are executable Python modules. Filenames begin with a digit (e.g., `01_normalize_sources.py`) to make the execution order obvious; this makes them non-importable via normal `import` syntax, so the build script loads them via `importlib.util.spec_from_file_location`.
 
 - `pipeline/01_normalize_sources.py` — reads the six raw files (`normalize_clinic()` for `clinic_registrations.csv`, optional); strips whitespace, parses dates to ISO strings, splits pipe-delimited fields, tags each row with `_source_row` (its original 0-based index in the raw file), and copies `markings`, `purpose`, `legalBasis`, `retentionDays` and `asOf` from `manifest.json` (`markingProvenance` = the raw file). `source_file` is the repo-relative path under the dataset directory passed in.
 - `pipeline/02_resolve_persons.py` — entity resolution with the shared `PersonResolver` (priority `passport_id → phone_number → name+dob → alias`), in one greedy pass over watchlist, registry, flights and pings; then clinic rows attach by name + dob only and the latest supplies `homeAddress` / `clinicCode`. Captures per-field provenance and a `resolution` column; attaches the resolver to its output so step 05 links edges with the same state. Bank transactions are not an input (no bank field reaches a Person), so `resolved_persons` does not inherit `FIN`.
 - `pipeline/03_resolve_companies.py` — deduplicates company registry rows by `company_id`.
 - `pipeline/04_resolve_accounts.py` — extracts unique bank accounts from both sides of transactions.
 - `pipeline/05_build_ontology.py` — produces Device, Flight, Airport, Location (including residential Locations from attached clinic rows), WatchlistRecord entities and all 13 edge types (`RESIDES_AT` with `{asOf, source}` is new), then marks every object, property and link (`governance.annotate_objects`). Person edges use the shared resolver: record-derived edges (LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, BOOKED_ON, USES_DEVICE) go to the person the record was resolved into; OWNS_ACCOUNT matches the owner name against the final resolver state. The result has the same entity IDs and `(type, source, target)` edge set as the Gotham seed.
+- `pipeline/06_build_leads.py` (Phase 3) — wraps `pipeline/leads.py` as a `lib.Transform` (`build_leads`, output dataset `leads`), with row- and field-level lineage for every lead (§5.2).
 
 ### 4.3 Build orchestrator
 
@@ -90,7 +92,7 @@ The five transforms are executable Python modules. Filenames begin with a digit 
 
 ## 5. Pipeline DAG
 
-The pipeline has 5 transforms operating over 17 datasets (6 raw + 6 normalized + 3 resolved + 2 final).
+The pipeline has 6 transforms operating over 18 datasets (6 raw + 6 normalized + 3 resolved + 2 ontology + `leads`).
 
 ```text
 watchlist.csv                ──┐
@@ -102,6 +104,8 @@ clinic_registrations.csv     ──┘                      ├─→ norm_bank_
                                                       ├─→ norm_mobile_pings         ─┤                                            │                  └─→ ontology_edges
                                                       └─→ norm_clinic_registrations ─┘                                            │
                                                             (all norm_* also feed build_ontology) ───────────────────────────────┘
+
+resolved_persons + norm_clinic_registrations + norm_mobile_pings + norm_company_registry ─→ build_leads ─→ leads
 ```
 
 Each normalized dataset is derived from its own raw file only (`derivedFrom: ["<file>"]`); `normalize_sources` is one logical step over six independent normalisations.
@@ -115,6 +119,7 @@ Transform inputs and outputs (as recorded in the seed):
 | `resolve_companies` | `norm_company_registry` | `resolved_companies` |
 | `resolve_accounts` | `norm_bank_transactions` | `resolved_accounts` |
 | `build_ontology` | all 3 resolved + all 6 `norm_*` | `ontology` (produces `ontology_entities` and `ontology_edges`) |
+| `build_leads` | `resolved_persons`, `norm_clinic_registrations`, `norm_mobile_pings`, `norm_company_registry` | `leads` |
 
 ### 5.1 Markings down the DAG (Phase 1)
 
@@ -127,8 +132,39 @@ Raw datasets take their markings from `manifest.json`; every other dataset gets 
 | `resolved_companies` | OPEN |
 | `resolved_accounts` | FIN |
 | `ontology_entities`, `ontology_edges` | all six |
+| `leads` | OPEN, PII, TELECOM, HEALTH, LE-SENSITIVE (PII and LE-SENSITIVE come through `resolved_persons`) |
 
-`HEALTH` reaches **4** datasets downstream of `clinic_registrations.csv`: `norm_clinic_registrations`, `resolved_persons`, `ontology_entities`, `ontology_edges` (5 with the raw dataset itself). The spec's "7" assumed a longer DAG. Derived datasets get `purpose: "financial-crime"`, `legalBasis` "Not recorded …", `inputPurposes` (the purposes of everything upstream) and `retentionDays` = the shortest input retention.
+`HEALTH` reaches **5** datasets downstream of `clinic_registrations.csv`: `norm_clinic_registrations`, `resolved_persons`, `ontology_entities`, `ontology_edges`, `leads` (6 with the raw dataset itself). The spec's "7" assumed a longer DAG. Derived datasets get `purpose: "financial-crime"`, `legalBasis` "Not recorded …", `inputPurposes` (the purposes of everything upstream) and `retentionDays` = the shortest input retention.
+
+### 5.2 Leads (Phase 3, F8)
+
+`06 Build Leads` makes **one lead per Person with at least one address source** (PHASE3_CONTRACT.md §1): starter 24 leads (every Person), simulator 191 (every Person). Each source contributes at most one component, its most recent usable record:
+
+| source dataset (`component.source`) | marking | weight | address used | date used |
+|---|---|---|---|---|
+| `norm_clinic_registrations` | HEALTH | 0.5 | `home_address` of the latest attached registration | `registered_on` |
+| `norm_mobile_pings` | TELECOM | 0.4 | the residential location if any ping is residential, else the most frequently observed non-airport location (ties: more recent, then label) | latest ping `timestamp` at that location |
+| `norm_company_registry` | OPEN | 0.3 | `registered_address` of the most recently incorporated company the person directs or owns | `incorporation_date` |
+
+`score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))` (the exact string is stored as `formula`). `ageDays` = whole days from the record's date to `asOf`, the latest date in the step's inputs (`2026-04-12` in both profiles), so a rebuild gives the same numbers. `decay` is rounded to 4 decimals, `contribution` (= `100 · weight · decay`, in points) and `score` to 1 decimal. The best address is the component with the largest contribution. Persons are matched to records with the shared resolver (clinic rows by name + dob; pings and registry rows by `person_for(ref)`), exactly as step 05 links them.
+
+Coordinates: clinic rows and pings carry `lat`/`lon`. The registry does not, so a registered address takes the coordinates of the same label in the clinic or ping data, else a small gazetteer in `pipeline/leads.py` (approximate street positions for the synthetic registry addresses; reference data like step 05's airport table, cited in lineage as `pipeline/leads.py:GAZETTEER`).
+
+Lead shape (identical in `leads.sampleRows` here and in the Investigate seed's `leads.items`, TECHNICAL_SPEC.md §7.1e):
+
+```js
+{id: "lead::<personId>", personId, address, lat, lon, score, status: "open",
+ components: [{source, marking, weight, ageDays, decay, contribution, address,
+               // additions to the contract shape:
+               label, rawSource, purpose, date, lat, lon, record, pingCount?, companyId?, role?}],
+ formula, asOf,
+ addressSource,       // component.source of the best address
+ sourceMarkings}      // markings of the contributing sources
+```
+
+The `leads` dataset entry adds `formula`, `decayDays: 365`, `weights` (the table above), `objectType: "Lead"`, `properties` (lead fields for the Close lead Action), `asOf`, and `rowLineage: {leadId: {sourceRows, fieldProvenance}}` for the sample rows. Sample rows are the **top 50** leads (sorted by score, then person ID); the Investigate seed carries all of them. Field provenance: `id`/`personId` → `resolved_persons` row (plus the matching name/dob or phone cells); `address`, `lat`, `lon` → the best component's cells; `score` → each component's date cell; `components[i]` → that component's address, date and coordinate cells.
+
+The designed outcome (tested in `tests/test_leads.py`): in starter the namesake `person::g5510077` is the top lead (85.8 = clinic 45.9 + pings 39.9). Without HEALTH his lead falls to 39.9 at the street-level ping address "Oak Lane, Birmingham", and `person::elias-silva-1984-12-24` (56.2) is top. The three namesake pings (`PG-0101`–`PG-0103`, appended in Phase 3) locate the street, not the house, so the HEALTH-marked residential Location never collides with a ping location.
 
 ## 6. Lineage model
 
@@ -203,7 +239,9 @@ The browser consumes a per-dataset payload with this top-level shape:
       markings: ["PII", ...],                   // union rule, §5.1
       markingProvenance: {HEALTH: ["clinic_registrations.csv"], ...},
       purpose, legalBasis, retentionDays, inputPurposes,
-      asOf }                                    // raw and norm_* only
+      asOf }                                    // raw, norm_* and leads
+    // Phase 3: the `leads` entry also has formula, decayDays, weights, objectType,
+    // properties and rowLineage (§5.2)
   ],
   lineage: {
     "<entity-id>": {
@@ -247,7 +285,8 @@ The application is a static client-side SPA implemented without a framework.
 1. `../core/store.js` — namespaced, versioned `localStorage` (`DC.store`)
 2. `../core/governance.js`, `../core/session.js`, `../core/audit.js`, `../core/markings.js`, `../core/checkpoints.js`, `../core/purposes.js`, `../core/resolution.js`, `../core/actions.js`, `../core/ui.js` — the shared governance core (PHASE1_CONTRACT §6, PHASE2_CONTRACT §6), in that order, plus the stylesheet `../core/core.css`
 3. `seed.js`
-4. `app.js`
+4. `js/leads.js` and `js/retention.js` — pure helpers (Phase 3) on `window.BuildLeads` and `window.BuildRetention`; no DOM, no core calls
+5. `app.js`
 
 On start the app calls `DC.governance.init(seed.governance)` once, with the first dataset key that carries a governance block. It then initialises the Phase 2 modules for the active dataset (again on every dataset switch), each only when present:
 
@@ -256,6 +295,8 @@ On start the app calls `DC.governance.init(seed.governance)` once, with the firs
 - `DC.actions.init(seed.ontology.actionTypes, seed.ontology.externalSystems)` — only when the Build seed carries Action types; otherwise Build offers Unmerge as a link to Investigate (§10.7)
 
 **Graceful degradation.** Every core call goes through a guard (`core(name, fn)`, `safe(label, fn, fallback)`): when a core file is missing, a function is absent or throws, or the seed has no `governance` block, the app keeps working as the Phase 0 app. The session and audit strips stay hidden, nothing is logged, no role redaction is applied, the Markings tab is hidden unless datasets carry `markings`, and the Remove marking button is hidden unless both `DC.checkpoints.withCheckpoint` and `DC.markings.removeMarking` exist. A failing core call logs one `console.warn`, never an error.
+
+Phase 3 degrades the same way. Without a leads dataset (no dataset with id `leads`, a producing transform named `*lead*`, or lead-shaped sample rows) the Leads group, the leads view and the lead entries on the Lineage tab simply do not appear. Without `DC.ui.leadFormula` the formula is rendered locally from `components`. Without the `build.retention` honesty entry the clock shows a built-in *Simplified* chip linked to `glossary.html#build.retention`. Without any dataset `asOf` (or without `js/retention.js`) the retention clock is hidden.
 
 Phase 2 degrades the same way. Without `seed.resolution` the Resolution tab is hidden. With the seed block but without `core/resolution.js`, the tab runs on a local copy of the union-find (same representative rule as the contract); the slider then applies to this page only, is not shared with Investigate, and the page says so. Without `core/purposes.js` no rule badges or Karlsruhe panel appear. Without `DC.ui.discussionCardsFor` the discussion cards are rendered from `seed.governance.discussions` with simpler markup.
 
@@ -315,11 +356,14 @@ The strip hosts sit outside the re-rendered regions, so they are rendered once o
 
 ### 10.3 Datasets tab
 
-- Left sidebar: dataset list, grouped as **Raw Sources**, **Normalised**, **Resolved**, **Final** (and **Other** for anything else), with one dot per effective marking (outlined = inherited).
+- Left sidebar: dataset list, grouped as **Raw Sources**, **Normalised**, **Resolved**, **Final**, **Leads** (and **Other** for anything else), with one dot per effective marking (outlined = inherited).
 - Main pane: selected dataset's row count, **purpose** and **legal basis** chips, source file path (if raw), produced-by / consumed-by transform backlinks, a **Governance** table (`purpose`, `legalBasis`, `retentionDays`, effective markings with "carried by this dataset" or "inherited from {raw dataset}", markings removed by an override with who and when, and "your access"), the schema table, and a paginated sample-row table (10 rows per page).
 - Rows are **withheld** (schema only, hatched notice plus "Why can't I see this?" naming the roles that could) when the current role cannot see every effective marking of the dataset. This follows Foundry, where a user needs every marking on a dataset to open it.
 - Raw datasets in the current seed carry the name of their normalised counterpart (`watchlist.csv` is named `norm_watchlist`); the UI shows the id for raw datasets, and lineage references resolve by id before name.
 - Row highlighting: when navigated from the Lineage tab via `goto-dataset-row`, the target row gets a glow style and the pagination offset auto-adjusts to bring it into view.
+
+- **Retention clock** (F12, §10.10) between the header and the Governance table; with no dataset selected the main pane shows the clock and an overview of every dataset.
+- **Leads dataset** (F8, §10.11): the sample-row table is replaced by the leads view.
 
 ### 10.4 Lineage tab
 
@@ -358,6 +402,9 @@ All with `surface: "build"` via `DC.audit.logEvent`:
 | person selected for a merge explanation | `view` | `resolution.explain.view` | `objectIds: [personId]`, `payload: {threshold}` |
 | "Unmerge in Investigate" link clicked | `view` | `resolution.unmerge.open` | `objectIds: [candidateId]` |
 | threshold changed without `core/resolution.js` | `resolution` | `resolution.threshold.local` | `payload: {from, to, shared: false}` |
+| retention clock released (slider `change`, or a preset); keyboard steps within 600 ms count as one | `view` | `retention.clock` | `datasetId?`, `payload: {tab, via: "slider"\|"preset", asOf, clock, offsetDays, pastRetention, carriedDownstream}` |
+| lead selected in the leads view | `view` | `lead.view` | `objectIds: [leadId, personId]`, `datasetId` |
+| lead or person opened on the Lineage tab from the leads view | `view` | `lineage.view` | `objectIds: [id]`, `payload: {from: "datasets"}` |
 
 The Checkpoint record (`kind: "checkpoint"`, outcome continued/cancelled/refused) and the removal itself (`kind: "marking"`) are written by the core. So are the threshold change (`DC.resolution.setThreshold` logs a `resolution` event; Build does not log it again), the Karlsruhe toggle (`DC.purposes.setEnabled`) and the Unmerge Action (`DC.actions.applyAction`).
 
@@ -386,6 +433,29 @@ Build evaluates the rule text itself rather than calling `DC.purposes.check` on 
 ### 10.9 Discussion cards (spec §5.4)
 
 `DC.ui.discussionCardsFor(surfaceId)` on Pipelines (`build.pipelines`, POL-INTEL) and Markings (`build.markings`, ICE ImmigrationOS/ELITE and NHS FDP), wrapped in `.build-discussions`, which restyles the core's markup for the black workspace (surface background, purple top rule, green kicker and links). Without the core helper, Build renders `seed.governance.discussions` itself (title, summary, questions, sources, disclaimer).
+
+### 10.10 Retention clock (F12)
+
+PHASE3_CONTRACT §4; honesty chip `build.retention` (Simplified). Computation in `js/retention.js` (`BuildRetention.compute(ctx, clockMs)`), rendering in `app.js` (`renderRetentionClock`, `renderRetentionSummary`, `renderRetentionOverview`).
+
+- **Slider:** day steps from `asOf` − 3 years to `asOf` + 1 year, where `asOf` is the latest dataset `asOf` in the seed (2026-04-12 in both seeds). Presets: 3 years before, as of, +6 months, +1 year. Stored as `retentionOffset` (days) in the persisted UI state. Dragging (`input`) re-renders only `#ret-host`, so the slider survives; releasing commits, re-renders and logs one `retention.clock` event.
+- **Date column per raw dataset:** `retentionDateField`/`dateField` if the seed declares one, else the first of `registered_on`, `timestamp`, `txn_ts`, `departure_ts`, `incorporation_date`, …, else the first date-typed field that is not a date of birth. The watchlist has none (only `dob`): the page says "No date column; retention cannot be applied", which is itself the teaching point.
+- **Raw rows:** a sample row is *past retention* when `clock − date > retentionDays`; *not yet collected* when its date is after the clock. Each row gets a text tag in a leading **retention** column (the tag carries the meaning; grey strike-through, amber edge and italics only repeat it).
+- **Derived datasets**, through lineage: single-source copies (`norm_*`) by `_source_row`; object datasets (`resolved_*`, `ontology_entities`) by each object's `lineage.sourceRows` and `fieldProvenance`; `ontology_edges` by each link's own date (`firstSeen`, `asOf`, `lastTxnTs`) against the retention of the raw dataset with the link's marking; `leads` by each component's `date` (or `asOf − ageDays`) against its source's raw retention. The page says "*n* rows still carry data past retention upstream", names the raw sources, tags those rows *carries expired data*, and lists datasets downstream of a raw dataset that still hold its expired rows. Datasets with no row lineage fall back to their raw ancestors' counts.
+- **Counts are lower bounds** where only a sample is known: the seed ships about 20 rows per dataset, so the browser knows the dates of sampled rows and of dated links only. The page says "at least". In the starter seed, pings (180 days) expire first: at +6 months all sampled pings are past retention and 13 Persons, 13 ontology objects, every `OBSERVED_AT` link and 18 of the 24 leads still carry them.
+- A **Discussion** line asks about deletion that never reaches copies; cards attached to `build.retention` are shown below it.
+
+### 10.11 Leads in Build (F8)
+
+PHASE3_CONTRACT §1 and §4. The `06 Build Leads` transform (`build_leads`) and the `leads` dataset need no special code on the Pipelines and Markings tabs: they are an ordinary transform and an ordinary derived dataset, inheriting OPEN, PII, TELECOM, HEALTH and LE-SENSITIVE through `markingProvenance`, and flagged by R2 in Karlsruhe mode (clinic data joined into a financial-crime output).
+
+- **Leads view** (Datasets tab, `renderLeadsView`): rows come from `seed.leads.items` if present, else the dataset's `sampleRows`. Columns: retention tag, person (through the role's redaction), best address, stored score, score you can see, sources (marking badge, source, contribution) and newest age. Selecting a lead shows its formula with the numbers filled in: `DC.ui.leadFormula(lead, visibleComponents)` when the core has it, else a local table (`weight × exp(−ageDays / 365) = decay → contribution`, sum capped at 100).
+- **Per-role columns:** leads mix sources with different markings, so the dataset is shown component by component, as in Investigate, rather than withheld whole. A component whose marking the role cannot see is hatched (or "blocked by rule R2" in Karlsruhe mode with a law-enforcement session purpose). The row's top-level `address`, `lat`, `lon` and `score` are the all-markings view, so as soon as one component is withheld they are withheld too: the address column shows the best address among the visible components ("best of the sources you can see") and the score is recomputed from them. Rows are sorted by the visible score, because the stored order is itself the all-markings ranking. When the core's `leadFormula` is called for such a role it receives a copy of the lead without the all-markings fields. Tested: as DPO the namesake `person::g5510077` is the top lead with "41 Oak Lane, Birmingham"; as fin-analyst he is not top and "41 Oak Lane" appears nowhere in Build.
+- **Lineage tab:** leads are listed under a **Leads** group after the objects (they are not ontology objects); a lead's page shows its properties (same redaction), the formula, and a tree from the lead through `06 Build Leads` to each component's source dataset with its marking, age and date.
+
+### 10.12 Deployment view (F13, root page)
+
+`deployment.html`, a Deep Culture reading page (purple band, white column), linked from the landing page and the glossary. Two inline SVG diagrams, toggled by a two-button group with `aria-pressed` (also `#classroom` / `#real` in the URL): where this tool lives (GitHub Pages: code and seeds; OpenStreetMap: tiles; each browser's localStorage: session, audit, governance; no server) and a real deployment (customer cloud, on premises, classified networks, edge; Apollo updates; forward-deployed engineers; who has access). Each SVG has `<title>`/`<desc>`, text labels on every box, line style (solid software, dashed people, green data) repeating colour, and a text version below. The honesty chip and text come from the `deployment` entry and the POL-INTEL card from `governance.discussions` of whichever seed loads first (`demo/seed.js`, then `foundry-demo/seed.js`); otherwise the page keeps its built-in copies.
 
 ## 11. Event handling
 
@@ -443,7 +513,13 @@ Acceptable because datasets are modest (≤1534 entities, ≤6000 edges in simul
 ### 13.4 `foundry-demo/app.js`
 
 - State management, render, event handling
-- Five tab renderers: `renderPipelinesMain`, `renderDatasetsMain`, `renderLineageMain`, `renderMarkingsMain`, `renderResolutionMain` (with `renderResolutionResults`, `renderMergeExplanation`)
+- Five tab renderers: `renderPipelinesMain`, `renderDatasetsMain` (with `renderDatasetBody`), `renderLineageMain`, `renderMarkingsMain`, `renderResolutionMain` (with `renderResolutionResults`, `renderMergeExplanation`)
+- Retention clock: `retentionBounds()`, `retentionReport(offset)` (cached per dataset key and offset), `renderRetentionClock`, `renderRetentionSummary`, `renderRetentionOverview`, `previewRetention`, `commitRetention`
+- Leads: `isLeadsDataset`, `leadRows`, `componentAccess` (markings, then R2 in Karlsruhe mode), `leadView`, `renderLeadsView`, `renderLeadFormula`, `renderLeadDetail`, `renderLeadLineage`
+
+### 13.4a `foundry-demo/js/leads.js`, `foundry-demo/js/retention.js`
+
+Pure functions, checkable with `node`: `BuildLeads.score(components)` evaluates the contract formula; `BuildRetention.compute()` returns one report per dataset (§10.10).
 - Resolution adapters: `resolutionBlock()`, `currentThreshold()`, `setThreshold()`, `resolveAt()` (core or `localResolveAt` fallback, normalised to Maps), `overridesList()`, `explainChain()`, `runUnmerge()`
 - Purpose checks: `dataPurposesOf()`, `purposeConflictsForDataset()`, `purposeConflictsForTransform()`, `purposePanel()`; discussion cards: `discussionCards(surfaceId)`
 - Inspector pane renderer (transform code; dataset markings)
@@ -506,7 +582,7 @@ There is no automated browser test suite.
 
 - full HTML re-render on every state change
 - sample rows are capped per-dataset; full inspection of large datasets is not provided
-- DAG rendering is a fixed left-to-right flow rather than a real graph layout — adequate for 5 transforms, would not scale to dozens
+- DAG rendering is a fixed left-to-right flow rather than a real graph layout — adequate for 6 transforms, would not scale to dozens
 - lineage payload duplicates source row references across fields; for the simulator dataset this contributes notably to seed.js size (~7 MB)
 
 ## 17. Security and privacy model
@@ -524,6 +600,7 @@ Identical to the Investigate app: all data is local synthetic data, no authentic
 - DAG layout is fixed; a true graph layout engine would be needed for larger pipelines
 - transform code embedded in seed is plain text only (no syntax highlighting)
 - lineage payload duplicates references; future versions could deduplicate via shared source-row pointers
+- the retention clock only shows what would expire; there is no deletion step, and counts are lower bounds over the sampled rows
 
 ## 19. Extension points
 

@@ -12,8 +12,9 @@ from pipeline.lib import Dataset, Transform, inherit_markings
 ORDER = ["OPEN", "PII", "FIN", "TELECOM", "HEALTH", "LE-SENSITIVE"]
 CLINIC = "clinic_registrations.csv"
 # Every dataset downstream of the raw clinic dataset in the Build DAG
-# (spec §4.2 said 7; this DAG has 4 — see TECHNICAL_SPEC/FOUNDRY_TECHNICAL_SPEC).
-HEALTH_DOWNSTREAM = {"norm_clinic_registrations", "resolved_persons", "ontology_entities", "ontology_edges"}
+# (spec §4.2 said 7; this DAG has 5 since Phase 3 added leads — see FOUNDRY_TECHNICAL_SPEC).
+HEALTH_DOWNSTREAM = {"norm_clinic_registrations", "resolved_persons", "ontology_entities", "ontology_edges",
+                     "leads"}
 MANIFEST_MARKINGS = {
     "watchlist.csv": ["LE-SENSITIVE"],
     "company_registry.csv": ["OPEN"],

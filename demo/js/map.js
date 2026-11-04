@@ -11,6 +11,24 @@ import {
   relatedTargets,
 } from "./derive.js";
 import { render } from "./render/index.js";
+import { buildLeadRows, leadsActive } from "./leads.js";
+
+// Leads layer (F8): one pin per lead with a visible, mappable best address; radius grows with the
+// visible score. Coordinates come from the best VISIBLE component, never from the seed's lead fields.
+export function buildLeadPins() {
+  if (!ui.mapLeads || !leadsActive()) return [];
+  return buildLeadRows()
+    .rows.filter((row) => row.lat !== null && row.lon !== null)
+    .map((row) => ({ id: row.lead.id, personId: row.person.id, label: row.person.label, address: row.address, score: row.score, rank: row.rank, lat: row.lat, lon: row.lon, status: row.status, withheld: row.split.withheld.length }));
+}
+
+export function leadRadius(score) {
+  return Math.max(5, Math.min(22, 4 + Number(score || 0) / 5));
+}
+
+function leadPopupHtml(pin) {
+  return `<div class="map-popup"><strong>Lead #${pin.rank}: ${escapeHtml(pin.label)}</strong><div>${escapeHtml(pin.address)}</div><div>score ${escapeHtml(Number(pin.score).toFixed(1))}${pin.withheld ? ` · ${pin.withheld} source${pin.withheld === 1 ? "" : "s"} withheld` : ""} · ${escapeHtml(pin.status)}</div></div>`;
+}
 
 // The live Leaflet map (if any); destroyed and rebuilt by every render of the Map tab.
 export let mapRuntime = { map: null, markerLayer: null, routeLayer: null };
@@ -146,6 +164,7 @@ export function buildMapData() {
     graph,
     places,
     routes,
+    leads: buildLeadPins(),
     selectedPlace,
     summary: {
       scope:
@@ -206,6 +225,12 @@ export function renderMapSvg(mapData) {
         ${gridLines.join("")}
         ${routes}
         ${markers}
+        ${(mapData.leads || [])
+          .map((pin) => {
+            const point = projectMapPoint(pin.lat, pin.lon, width, height);
+            return `<g class="map-lead" data-lead="${escapeHtml(pin.id)}" transform="translate(${point.x}, ${point.y})"><circle r="${leadRadius(pin.score)}"></circle><title>${escapeHtml(`Lead ${pin.label} · ${pin.address} · ${Number(pin.score).toFixed(1)}`)}</title></g>`;
+          })
+          .join("")}
       </svg>
     `;
 }
@@ -239,7 +264,8 @@ export function syncMapViewport() {
 
 export function initializeLeafletMap(mapData) {
   const container = document.getElementById("leaflet-map");
-  if (!container || !mapData.places.length) {
+  const leadPins = mapData.leads || [];
+  if (!container || (!mapData.places.length && !leadPins.length)) {
     return;
   }
   if (!window.L) {
@@ -302,12 +328,30 @@ export function initializeLeafletMap(mapData) {
     }
   });
 
-  if (!ui.mapViewDirty && mapData.places.length > 1) {
-    const bounds = window.L.latLngBounds(mapData.places.map((place) => [place.lat, place.lon]));
+  if (leadPins.length) {
+    mapRuntime.leadLayer = window.L.layerGroup().addTo(mapRuntime.map);
+    leadPins.forEach((pin) => {
+      window.L.circleMarker([pin.lat, pin.lon], {
+        radius: leadRadius(pin.score),
+        color: "#0b0b0b",
+        weight: 1.5,
+        fillColor: pin.status === "closed" ? "#8c8c8c" : "#adfc92",
+        fillOpacity: 0.8,
+        className: "map-lead-pin",
+      })
+        .bindPopup(leadPopupHtml(pin))
+        .bindTooltip(`Lead ${pin.label} · ${Number(pin.score).toFixed(1)}`)
+        .addTo(mapRuntime.leadLayer);
+    });
+  }
+
+  const fitPoints = mapData.places.map((place) => [place.lat, place.lon]).concat(leadPins.map((pin) => [pin.lat, pin.lon]));
+  if (!ui.mapViewDirty && fitPoints.length > 1) {
+    const bounds = window.L.latLngBounds(fitPoints);
     mapRuntime.map.fitBounds(bounds.pad(0.18));
     ui.mapViewCenter = [mapRuntime.map.getCenter().lat, mapRuntime.map.getCenter().lng];
     ui.mapViewZoom = mapRuntime.map.getZoom();
-  } else if (mapData.places.length === 1 && !ui.mapViewDirty) {
+  } else if (mapData.places.length === 1 && !leadPins.length && !ui.mapViewDirty) {
     mapRuntime.map.setView([mapData.places[0].lat, mapData.places[0].lon], 7);
     ui.mapViewCenter = [mapData.places[0].lat, mapData.places[0].lon];
     ui.mapViewZoom = 7;

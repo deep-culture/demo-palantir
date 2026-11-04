@@ -181,3 +181,12 @@ a { color: var(--dc-green); }
 .is-redacted .redacted-inline > span { background: #000; color: transparent; }
 .panel-head .toggle { margin-left: auto; }
 .discussion-panel { padding: 0.4rem 0.9rem; }
+
+/* ── Phase 3: agent runs, bulk approvals, object sets ── */
+.agent-runs { list-style: none; margin: 0; padding: 0; }
+.agent-run { border-top: 1px solid #2a2a2a; padding: 0.55rem 0; }
+.agent-run-head { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: baseline; }
+.agent-run-steps { margin: 0.35rem 0 0 1.2rem; padding: 0; font-family: var(--dc-mono); font-size: 0.78rem; }
+.agent-run-steps li { padding: 0.1rem 0; }
+.agent-run-steps li.is-denied { color: #ff8a80; }
+.set-summary { margin: 0.3rem 0 0.6rem 1rem; padding: 0; font-size: 0.85rem; }

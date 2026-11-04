@@ -9,6 +9,8 @@
  * a redaction toggle (the Raffinaderij exhibit), CSV/JSON export and the instructor "Clear audit".
  * Phase 2 (audit/oversight-actions.js): Action history with before/after and writebacks, resolution
  * events, the "exception records only" Checkpoint filter, and the Raffinaderij discussion card.
+ * Phase 3 (audit/oversight-agent.js): agent runs (tool-call events grouped by run), bulk approvals
+ * (action.approveAll with its count), object-set events; an "Agent run" filter (payload.runId).
  */
 (function () {
   "use strict";
@@ -25,7 +27,7 @@
   DC.ui.configure({ oversightHref: "./index.html" });
 
   const state = {
-    filters: { kind: "", role: "", surface: "", verb: "", objectId: "" },
+    filters: { kind: "", role: "", surface: "", verb: "", objectId: "", runId: "" },
     redacted: false,
     exceptionsOnly: false,
     chain: null, // {ok, brokenAt, count, dropped}
@@ -85,8 +87,19 @@
       if (f.surface && event.surface !== f.surface) return false;
       if (verb && !String(event.verb || "").toLowerCase().includes(verb)) return false;
       if (f.objectId && !(event.objectIds || []).includes(f.objectId)) return false;
+      if (f.runId && !runMatches(event, f.runId)) return false;
       return true;
     });
+  }
+
+  // Phase 3: an agent run's events carry payload.runId (bulk approvals: payload.runIds).
+  function runMatches(event, runId) {
+    const payload = event.payload || {};
+    return payload.runId === runId || (Array.isArray(payload.runIds) && payload.runIds.includes(runId));
+  }
+
+  function runIds(all) {
+    return [...new Set(all.filter((event) => event.verb === "agent.query").map((event) => (event.payload || {}).runId).filter(Boolean))].reverse();
   }
 
   // Raffinaderij exhibit: about 99% of cells blacked out, the same cells every time.
@@ -207,6 +220,7 @@
         <label>Role <select data-filter="role">${options(uniq(all, "role"), f.role, "All roles", roleLabel)}</select></label>
         <label>Surface <select data-filter="surface">${options(uniq(all, "surface"), f.surface, "All surfaces")}</select></label>
         <label>Verb <input data-filter="verb" value="${esc(f.verb)}" placeholder="e.g. expand"></label>
+        <label>Agent run <select data-filter="runId">${options(runIds(all), f.runId, "All runs")}</select></label>
         <label>Object <input data-filter="objectId" list="object-ids" value="${esc(f.objectId)}" placeholder="e.g. person::n5538219"></label>
         <datalist id="object-ids">${objectIds.map((id) => `<option value="${esc(id)}"></option>`).join("")}</datalist>
         <button type="button" class="dc-btn" data-action="clear-filters">Clear filters</button>
@@ -345,6 +359,7 @@
           ${renderTable(events, index)}
           ${p2 ? p2.renderActionHistory(helpers) : ""}
           ${p2 ? p2.renderResolution(helpers) : ""}
+          ${p2 && p2.renderAgentPanels ? p2.renderAgentPanels(helpers, state.filters) : ""}
           ${renderCheckpoints(events)}
           ${renderInstructor()}
         </main>
@@ -420,8 +435,11 @@
       state.filters.objectId = target.dataset.id;
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (action === "filter-run") {
+      state.filters.runId = target.dataset.id || "";
+      render();
     } else if (action === "clear-filters") {
-      state.filters = { kind: "", role: "", surface: "", verb: "", objectId: "" };
+      state.filters = { kind: "", role: "", surface: "", verb: "", objectId: "", runId: "" };
       render();
     } else if (action === "export-csv") {
       exportEvents("csv");

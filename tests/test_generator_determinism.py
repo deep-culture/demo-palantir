@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 
@@ -74,19 +75,28 @@ PHASE2_APPENDED = {
     ("starter", "bank_transactions.csv"): ["TX-0009", "TX-0010"],
     ("simulator", "bank_transactions.csv"): ["TX-0009", "TX-0010"],
     ("simulator", "company_registry.csv"): ["CO-201", "CO-202", "CO-203", "CO-204"],
+    # Phase 3 (PHASE3_CONTRACT.md §1): the namesake's pings near home.
+    ("starter", "mobile_location_pings.jsonl"): ["PG-0101", "PG-0102", "PG-0103"],
+    ("simulator", "mobile_location_pings.jsonl"): ["PG-0101", "PG-0102", "PG-0103"],
 }
+
+
+def _row_id(line):
+    if line.startswith("{"):
+        return json.loads(line)["ping_id"]
+    return line.split(",", 1)[0]
 
 
 @pytest.mark.parametrize("rev", ["f7c485e", "4913daf"])  # before Phase 1, before Phase 2
 def test_legacy_rows_unchanged(rev):
-    """Every Phase 0 line is byte-identical; Phase 2 only appends whole rows."""
+    """Every Phase 0 line is byte-identical; Phases 2 and 3 only append whole rows."""
     for profile in PROFILES:
         for name in LEGACY_FILES:
             rel = f"synthetic_data/{profile}/{name}"
             old = _git_show(rev, rel)
             new = (REPO_ROOT / rel).read_bytes()
             assert new.startswith(old), rel
-            appended = [line.split(",", 1)[0] for line in new[len(old):].decode("utf-8").splitlines()]
+            appended = [_row_id(line) for line in new[len(old):].decode("utf-8").splitlines()]
             assert appended == PHASE2_APPENDED.get((profile, name), []), rel
 
 

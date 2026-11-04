@@ -1,10 +1,8 @@
 // demo/js/render/index.js — Top-level render(): role view -> analytics -> agent -> selection -> shell HTML -> map.
-import { analysisState, copilotState, core, data, refreshView, root, ui } from "../state.js";
-import { phoneNumbersIn, phoneSearchHeld } from "../governance.js";
+import { analysisState, core, data, refreshView, root, ui } from "../state.js";
 import { entityById, entityTypeById, mappingById, relationshipById } from "../derive.js";
 import { buildAnalytics, buildInvestigations } from "../analytics.js";
 import { buildMapData, destroyLeafletMap, initializeLeafletMap, mapRuntime } from "../map.js";
-import { buildCopilotResponse } from "../agent.js";
 import { renderHeader, renderTabs } from "./header.js";
 import { renderStoreBanner } from "./banners.js";
 import { renderInspector } from "./inspector.js";
@@ -19,6 +17,8 @@ import { renderRelationshipsTool } from "./link-types.js";
 import { renderMappingsTool } from "./backing-datasets.js";
 import { renderInstancesTool } from "./objects.js";
 import { renderGraphTool } from "./graph.js";
+import { renderLeadsTool } from "./leads.js";
+import { renderObjectSetsTool } from "./object-sets.js";
 import { renderActionDrawer } from "./action-drawer.js";
 import { gateRules } from "../purpose-gate.js";
 
@@ -59,10 +59,8 @@ export function render() {
   // Purpose rules (F9) run per rule; a blocked rule keeps no ranking, so no scenario is built from it.
   analysisState.analytics = gateRules(buildAnalytics());
   analysisState.investigations = buildInvestigations(analysisState.analytics);
-  if (copilotState.query) {
-    // A question holding a phone number waits for the Checkpoint (see runCopilotQuery).
-    copilotState.result = phoneNumbersIn(copilotState.query).some(phoneSearchHeld) ? null : buildCopilotResponse(copilotState.query);
-  }
+  // The agent's run (agent-run.js) is a recorded trace: it is not recomputed on render. A run made under
+  // another role or threshold says so and offers to ask again.
   ensureUiSelection();
 
   const focusInfo = captureFocus();
@@ -136,6 +134,10 @@ export function renderWorkspace() {
       return renderAnalyticsTool();
     case "map":
       return renderMapTool();
+    case "leads":
+      return renderLeadsTool();
+    case "object-sets":
+      return renderObjectSetsTool();
     case "entity-types":
       return renderEntityTypesTool();
     case "properties":

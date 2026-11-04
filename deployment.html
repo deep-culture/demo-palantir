@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Where does it live? Deployment · Deep Culture</title>
+  <link rel="icon" href="brand/logo-green-disc.png">
+  <link rel="stylesheet" href="brand/deep-culture.css">
+  <style>
+    /* Deployment view (F13, PHASE3_CONTRACT §4): Deep Culture reading page, purple band, white column. */
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { font-family: var(--dc-font); font-weight: 400; background: var(--dc-paper); color: var(--dc-ink); line-height: 1.6; font-size: 15px; }
+    .topbar { background: var(--dc-purple); color: #fff; padding: 1rem 1.75rem; display: flex; align-items: center; gap: 1.25rem; }
+    .topbar .dc-logo { height: 64px; }
+    .topbar h1 { margin: 0; font-size: 1.45rem; font-weight: 500; }
+    .topbar h1 .dc-highlight { background: var(--dc-green); color: var(--dc-black); }
+    .topbar .lede { margin: 0.35rem 0 0; color: rgba(255, 255, 255, 0.85); font-size: 0.9rem; font-weight: 300; }
+    .topbar nav { margin-left: auto; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .topbar nav a { color: #fff; text-decoration: none; font-size: 0.85rem; padding: 0.3rem 0.7rem; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 4px; }
+    .topbar nav a:hover { background: var(--dc-green); color: var(--dc-black); border-color: var(--dc-green); }
+
+    main { max-width: 1040px; margin: 0 auto; padding: 2rem 1.75rem 4rem; }
+    h2 { font-size: 1.35rem; font-weight: 500; margin: 2.2rem 0 0.6rem; padding-bottom: 0.3rem; border-bottom: 2px solid var(--dc-purple); color: var(--dc-purple); }
+    h3 { font-size: 1.05rem; font-weight: 500; margin: 1.4rem 0 0.4rem; }
+    p.lede { color: var(--dc-grey-dark); font-size: 1.02rem; margin-top: 0; }
+    a { color: var(--dc-purple); }
+    code { font-family: var(--dc-mono); font-size: 0.85em; background: #f6f3f6; padding: 0.1em 0.35em; border-radius: 3px; }
+
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin: 1.2rem 0 0.8rem; }
+    .toggle { display: inline-flex; border: 2px solid var(--dc-purple); border-radius: 6px; overflow: hidden; }
+    .toggle button { font: inherit; font-size: 0.92rem; font-weight: 500; padding: 0.45rem 1rem; border: 0; background: #fff; color: var(--dc-purple); cursor: pointer; }
+    .toggle button + button { border-left: 2px solid var(--dc-purple); }
+    .toggle button[aria-pressed="true"] { background: var(--dc-purple); color: #fff; }
+    .toggle button[aria-pressed="true"]::before { content: "● "; color: var(--dc-green); }
+    .toggle button:focus-visible { outline: 3px solid var(--dc-green); outline-offset: -3px; }
+
+    /* Honesty chip: same three kinds as the glossary; the word carries the meaning. */
+    .hl-chip { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.08rem 0.55rem; border-radius: 999px; white-space: nowrap; border: 2px solid var(--dc-purple); text-decoration: none; }
+    .hl-chip.mirrors { background: var(--dc-purple); color: #fff; }
+    .hl-chip.simplified { background: #fff; color: var(--dc-purple); }
+    .hl-chip.extension { background: #fff; color: var(--dc-purple); border-style: dashed; }
+    .honesty-text { font-size: 0.88rem; color: var(--dc-grey-dark); }
+
+    figure { margin: 0.5rem 0 1rem; padding: 0.75rem; border: 1px solid #e3dbe1; border-radius: 6px; background: #fff; }
+    figure svg { display: block; width: 100%; height: auto; }
+    figcaption { font-size: 0.85rem; color: var(--dc-grey-dark); margin-top: 0.4rem; }
+    .view[hidden] { display: none; }
+
+    .words { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; margin: 0.6rem 0 1rem; }
+    .words > div { padding: 0.7rem 1rem; border-left: 4px solid var(--dc-purple); background: var(--dc-paper-2); border-radius: 0 4px 4px 0; }
+    .words h3 { margin: 0 0 0.3rem; font-size: 0.98rem; }
+    .words ul { margin: 0; padding-left: 1.1rem; font-size: 0.9rem; }
+    .words li { margin: 0.15rem 0; }
+
+    table { border-collapse: collapse; width: 100%; margin: 0.8rem 0 1.2rem; font-size: 0.9rem; }
+    th, td { border: 1px solid #e3dbe1; padding: 0.45rem 0.7rem; text-align: left; vertical-align: top; }
+    th { background: var(--dc-purple); color: #fff; font-weight: 500; border-color: var(--dc-purple); }
+    tbody tr:nth-child(even) td { background: var(--dc-paper-2); }
+
+    .verdict { padding: 0.85rem 1.1rem; background: var(--dc-purple-tint); border-left: 4px solid var(--dc-purple); border-radius: 0 4px 4px 0; margin: 1rem 0; }
+    .verdict strong { font-weight: 500; }
+
+    .discussion { border: 2px solid var(--dc-purple); border-radius: 6px; padding: 1rem 1.2rem; margin: 1rem 0; background: #fff; }
+    .discussion .kicker { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background: var(--dc-purple); color: #fff; padding: 0.05rem 0.55rem; border-radius: 3px; }
+    .discussion h3 { margin: 0.5rem 0 0.3rem; font-size: 1.1rem; }
+    .discussion p { margin: 0.35rem 0; }
+    .discussion ol { margin: 0.4rem 0; padding-left: 1.3rem; }
+    .discussion .sources, .discussion .disclaimer { font-size: 0.82rem; color: var(--dc-grey-dark); }
+    .source-note { font-size: 0.82rem; color: var(--dc-grey-dark); }
+    .sources-list { font-size: 0.88rem; }
+    .sources-list li { margin: 0.2rem 0; }
+    footer { margin-top: 3rem; font-size: 0.82rem; color: var(--dc-grey-dark); }
+
+    /* SVG styling: every box has a text label; line style (solid, dashed, crossed out) repeats the meaning. */
+    .d-box { fill: #fff; stroke: var(--dc-purple); stroke-width: 2; }
+    .d-box.dark { fill: var(--dc-black); stroke: var(--dc-black); }
+    .d-box.tint { fill: var(--dc-purple-tint); }
+    .d-box.green { fill: #effee9; stroke: var(--dc-green-dark); }
+    .d-box.dashed { stroke-dasharray: 7 5; }
+    .d-box.none { fill: #fafafa; stroke: var(--dc-grey); stroke-dasharray: 3 4; }
+    .d-title { font-family: var(--dc-font); font-size: 15px; font-weight: 600; fill: var(--dc-ink); }
+    .d-title.light { fill: #fff; }
+    .d-text { font-family: var(--dc-font); font-size: 12.5px; fill: var(--dc-grey-dark); }
+    .d-text.light { fill: #e9e3e8; }
+    .d-text.ink { fill: var(--dc-ink); }
+    .d-mono { font-family: var(--dc-mono); font-size: 11.5px; fill: var(--dc-ink); }
+    .d-mono.light { fill: var(--dc-green); }
+    .d-arrow { stroke: var(--dc-purple); stroke-width: 2.5; fill: none; }
+    .d-arrow.dashed { stroke-dasharray: 8 5; }
+    .d-arrow.green { stroke: var(--dc-green-dark); }
+    .d-label { font-family: var(--dc-font); font-size: 12px; font-weight: 600; fill: var(--dc-purple); }
+    .d-label.green { fill: var(--dc-green-dark); }
+    .d-cross { stroke: var(--dc-grey-dark); stroke-width: 2; }
+    .d-num { font-family: var(--dc-font); font-size: 12px; font-weight: 700; fill: #fff; }
+    .d-numdot { fill: var(--dc-purple); }
+
+    @media (max-width: 760px) {
+      .topbar { flex-wrap: wrap; }
+      .topbar .dc-logo { height: 48px; }
+      .words { grid-template-columns: 1fr; }
+      main { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a href="index.html" title="All sessions and docs"><img class="dc-logo" src="brand/logo-green-lines.png" alt="Deep Culture"></a>
+    <div>
+      <h1><span class="dc-highlight">Where does it live?</span></h1>
+      <p class="lede">Deployment and sovereignty: this classroom tool, and a real platform deployment</p>
+    </div>
+    <nav aria-label="Surfaces">
+      <a href="index.html">All sessions</a>
+      <a href="demo/">Investigate</a>
+      <a href="foundry-demo/">Build</a>
+      <a href="audit/">Oversight</a>
+      <a href="glossary.html#deployment">Glossary</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="lede">Every other page of this tool asks who may see what. This one asks where the software and the data physically are, who keeps them up to date, and who could read them. Switch between the two views and compare.</p>
+
+    <div class="toolbar">
+      <div class="toggle" role="group" aria-label="Which deployment to show">
+        <button type="button" id="btn-classroom" data-view="classroom" aria-pressed="true" aria-controls="view-classroom">This classroom tool</button>
+        <button type="button" id="btn-real" data-view="real" aria-pressed="false" aria-controls="view-real">A real deployment</button>
+      </div>
+      <a class="hl-chip extension" id="honesty-chip" href="glossary.html#deployment" data-honesty="deployment"
+         title="Teaching extension">Teaching extension</a>
+      <span class="honesty-text" id="honesty-text">The classroom view is exact. The real view is our drawing from Palantir's public descriptions and public reporting; Palantir publishes no deployment diagram of any customer.</span>
+    </div>
+
+    <!-- ===================================================== classroom view -->
+    <section class="view" id="view-classroom" aria-labelledby="h-classroom">
+      <h2 id="h-classroom">This classroom tool</h2>
+      <figure>
+        <svg viewBox="0 0 960 560" role="img" aria-labelledby="svg-c-title svg-c-desc" xmlns="http://www.w3.org/2000/svg">
+          <title id="svg-c-title">Where the classroom tool lives</title>
+          <desc id="svg-c-desc">GitHub Pages serves the code and the synthetic seed files to your browser once. OpenStreetMap serves map tiles to Investigate's Map tab. Everything else, the session, the audit log and the governance state, is kept in your own browser's localStorage. Another student's browser has its own separate copy. There is no application server and no database.</desc>
+          <defs>
+            <marker id="arr-c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#832161"/></marker>
+          </defs>
+
+          <!-- GitHub Pages -->
+          <rect class="d-box" x="20" y="24" width="300" height="168" rx="8"/>
+          <text class="d-title" x="38" y="52">GitHub Pages</text>
+          <text class="d-text" x="38" y="72">a static file host (no code runs there)</text>
+          <text class="d-mono" x="38" y="100">index.html · demo/ · foundry-demo/</text>
+          <text class="d-mono" x="38" y="120">audit/ · core/*.js · brand/</text>
+          <text class="d-mono" x="38" y="140">seed.js × 2  (synthetic data)</text>
+          <text class="d-text" x="38" y="166">Sees: which files are requested,</text>
+          <text class="d-text" x="38" y="182">from which IP address.</text>
+
+          <!-- OpenStreetMap -->
+          <rect class="d-box dashed" x="20" y="232" width="300" height="128" rx="8"/>
+          <text class="d-title" x="38" y="260">OpenStreetMap tile servers</text>
+          <text class="d-text" x="38" y="282">map pictures for Investigate's Map tab</text>
+          <text class="d-text" x="38" y="302">only; the place data stays in the seed.</text>
+          <text class="d-text" x="38" y="328">Sees: which map squares you look at,</text>
+          <text class="d-text" x="38" y="344">from which IP address.</text>
+
+          <!-- No server -->
+          <rect class="d-box none" x="20" y="400" width="300" height="136" rx="8"/>
+          <line class="d-cross" x1="30" y1="410" x2="310" y2="526"/>
+          <line class="d-cross" x1="310" y1="410" x2="30" y2="526"/>
+          <rect x="44" y="440" width="252" height="56" fill="#fafafa"/>
+          <text class="d-title" x="170" y="462" text-anchor="middle">No application server</text>
+          <text class="d-text ink" x="170" y="484" text-anchor="middle">no database, no login, no shared log</text>
+
+          <!-- Your browser -->
+          <rect class="d-box dark" x="400" y="24" width="540" height="372" rx="10"/>
+          <text class="d-title light" x="422" y="54">Your browser (this laptop)</text>
+          <text class="d-text light" x="422" y="78">Runs every rule: roles and markings, Checkpoints, purpose rules,</text>
+          <text class="d-text light" x="422" y="96">entity resolution, Actions, the agent, the leads score.</text>
+          <rect class="d-box green" x="422" y="114" width="496" height="196" rx="6"/>
+          <text class="d-title" x="440" y="140">localStorage (in this browser profile only)</text>
+          <text class="d-mono" x="440" y="166">dc-palantir:session</text>
+          <text class="d-text" x="640" y="166">role, purpose, flags</text>
+          <text class="d-mono" x="440" y="190">dc-palantir:audit</text>
+          <text class="d-text" x="640" y="190">hash-chained audit log</text>
+          <text class="d-mono" x="440" y="214">dc-palantir:governance</text>
+          <text class="d-text" x="640" y="214">marking overrides, threshold,</text>
+          <text class="d-text" x="640" y="230">Actions, object sets</text>
+          <text class="d-mono" x="440" y="256">dc-palantir:gotham:* / foundry:*</text>
+          <text class="d-text" x="700" y="256">edits and screen state</text>
+          <text class="d-text" x="440" y="290">Clear the browser's site data and all of it is gone.</text>
+          <text class="d-text light" x="422" y="338">Who can read it: anyone at this laptop. The developer tools</text>
+          <text class="d-text light" x="422" y="356">show every seed row and every log entry, whatever the role:</text>
+          <text class="d-text light" x="422" y="374">the roles model access control; they do not enforce it.</text>
+
+          <!-- Another browser -->
+          <rect class="d-box dashed" x="400" y="436" width="540" height="100" rx="8"/>
+          <text class="d-title" x="422" y="464">Another student's browser</text>
+          <text class="d-text" x="422" y="486">Downloads the same files and keeps its own, separate localStorage.</text>
+          <text class="d-text" x="422" y="506">Nothing connects the two: no shared audit log, no shared watchlist.</text>
+          <text class="d-text" x="422" y="526">(The instructor sees your log only if you show your screen.)</text>
+
+          <!-- arrows -->
+          <path class="d-arrow" d="M320,96 L396,96" marker-end="url(#arr-c)"/>
+          <circle class="d-numdot" cx="358" cy="78" r="10"/><text class="d-num" x="358" y="82" text-anchor="middle">1</text>
+          <path class="d-arrow dashed" d="M320,296 C360,296 360,250 396,250" marker-end="url(#arr-c)"/>
+          <circle class="d-numdot" cx="352" cy="318" r="10"/><text class="d-num" x="352" y="322" text-anchor="middle">2</text>
+          <path class="d-arrow" d="M330,150 C372,150 360,470 396,470" marker-end="url(#arr-c)"/>
+        </svg>
+        <figcaption>① Code and seeds are downloaded once (solid arrows; every browser gets the same files). ② Map tiles are requested only when the Map tab is open (dashed arrow). The crossed-out box is what is missing: there is no server that could keep a shared log or enforce a role.</figcaption>
+      </figure>
+
+      <div class="words" aria-label="The classroom diagram in words">
+        <div>
+          <h3>Where the parts live</h3>
+          <ul>
+            <li><strong>Code and synthetic data:</strong> static files on GitHub Pages (both <code>seed.js</code> files are generated from the CSVs in <code>synthetic_data/</code>).</li>
+            <li><strong>Map tiles:</strong> OpenStreetMap's tile servers, only for the Map tab.</li>
+            <li><strong>Session, audit log, governance:</strong> your browser's localStorage, under <code>dc-palantir:*</code>.</li>
+            <li><strong>Server or database:</strong> none.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Who could read what</h3>
+          <ul>
+            <li><strong>You</strong>, or anyone at your laptop: everything, including what your role "cannot see".</li>
+            <li><strong>GitHub</strong>: which files were requested, and from where.</li>
+            <li><strong>OpenStreetMap</strong>: which map squares were viewed, and from where.</li>
+            <li><strong>The instructor, the university, Palantir:</strong> nothing, unless you show them.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== real view -->
+    <section class="view" id="view-real" aria-labelledby="h-real" hidden>
+      <h2 id="h-real">A real deployment</h2>
+      <figure>
+        <svg viewBox="0 0 960 620" role="img" aria-labelledby="svg-r-title svg-r-desc" xmlns="http://www.w3.org/2000/svg">
+          <title id="svg-r-title">Where a real platform deployment lives</title>
+          <desc id="svg-r-desc">The platform (Gotham, Foundry and AIP) runs inside the customer's environments: a public cloud tenancy, an on-premises data centre, classified networks and edge devices. The customer's operational systems feed it data. Palantir's Apollo delivery system pushes software updates to every environment automatically. Forward-deployed engineers, who are Palantir staff, work inside the customer's organisation and build pipelines and apps. Access is shared between customer users, customer administrators, Palantir staff under the contract and the infrastructure provider; auditors, courts and the public see it only through formal requests.</desc>
+          <defs>
+            <marker id="arr-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#832161"/></marker>
+            <marker id="arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3c8a2e"/></marker>
+          </defs>
+
+          <!-- customer environment -->
+          <rect class="d-box tint" x="20" y="8" width="560" height="452" rx="10"/>
+          <text class="d-title" x="40" y="48">The customer's environments</text>
+          <text class="d-text" x="40" y="68">e.g. a police force, a ministry, a hospital group, an army</text>
+
+          <rect class="d-box" x="40" y="86" width="250" height="78" rx="6"/>
+          <text class="d-title" x="56" y="110">Public cloud tenancy</text>
+          <text class="d-text" x="56" y="130">a region chosen for data residency</text>
+          <text class="d-mono" x="56" y="152">Gotham · Foundry · AIP</text>
+
+          <rect class="d-box" x="310" y="86" width="250" height="78" rx="6"/>
+          <text class="d-title" x="326" y="110">On-premises data centre</text>
+          <text class="d-text" x="326" y="130">the customer's own servers</text>
+          <text class="d-mono" x="326" y="152">Gotham · Foundry · AIP</text>
+
+          <rect class="d-box dark" x="40" y="180" width="250" height="78" rx="6"/>
+          <text class="d-title light" x="56" y="204">Classified network</text>
+          <text class="d-text light" x="56" y="224">separate from the internet</text>
+          <text class="d-mono light" x="56" y="246">Gotham · Foundry · AIP</text>
+
+          <rect class="d-box" x="310" y="180" width="250" height="78" rx="6"/>
+          <text class="d-title" x="326" y="204">Edge devices</text>
+          <text class="d-text" x="326" y="224">vehicles, field kits, often offline</text>
+          <text class="d-mono" x="326" y="246">Gotham · AIP</text>
+
+          <rect class="d-box green" x="40" y="280" width="520" height="70" rx="6"/>
+          <text class="d-title" x="56" y="304">Operational source systems (connectors)</text>
+          <text class="d-text" x="56" y="326">police records, health, telecom, finance, border systems; Actions</text>
+          <text class="d-text" x="56" y="342">write back to them (the kinetic layer)</text>
+
+          <rect class="d-box dashed" x="40" y="370" width="520" height="74" rx="6"/>
+          <text class="d-title" x="56" y="394">Forward-deployed engineers (Palantir staff)</text>
+          <text class="d-text" x="56" y="414">embedded with the customer, often on site; they build the pipelines,</text>
+          <text class="d-text" x="56" y="432">the ontology and the apps: the transforms in Build are their kind of work</text>
+
+          <!-- Apollo -->
+          <rect class="d-box dark" x="660" y="20" width="280" height="250" rx="10"/>
+          <text class="d-title light" x="680" y="50">Palantir: Apollo</text>
+          <text class="d-text light" x="680" y="72">continuous delivery for the fleet</text>
+          <text class="d-text light" x="680" y="100">decides what to upgrade, when and</text>
+          <text class="d-text light" x="680" y="118">how; rolls back on failure; runs</text>
+          <text class="d-text light" x="680" y="136">without user downtime or human</text>
+          <text class="d-text light" x="680" y="154">intervention (Palantir's words)</text>
+          <text class="d-text light" x="680" y="182">a central operations team watches</text>
+          <text class="d-text light" x="680" y="200">every environment from one view</text>
+          <text class="d-mono light" x="680" y="236">41,000+ updates a week</text>
+          <text class="d-text light" x="680" y="256">(Palantir blog)</text>
+
+          <!-- Palantir HQ / FDE origin -->
+          <rect class="d-box" x="660" y="300" width="280" height="96" rx="8"/>
+          <text class="d-title" x="680" y="328">Palantir's engineering teams</text>
+          <text class="d-text" x="680" y="350">write the platform's code and release</text>
+          <text class="d-text" x="680" y="368">it to Apollo; FDEs are sent from here</text>
+
+          <!-- access strip -->
+          <rect class="d-box" x="20" y="490" width="920" height="112" rx="8"/>
+          <text class="d-title" x="40" y="516">Who has access</text>
+          <text class="d-text ink" x="40" y="540">• Customer users: by role, markings, Checkpoints</text>
+          <text class="d-text ink" x="40" y="560">• Customer administrators: set roles and markings</text>
+          <text class="d-text ink" x="40" y="580">• Palantir staff: FDEs, support, as the contract allows</text>
+          <text class="d-text ink" x="480" y="540">• The infrastructure provider: the cloud or the hardware</text>
+          <text class="d-text ink" x="480" y="560">• Auditors, courts, parliaments: on request, if they know to ask</text>
+          <text class="d-text ink" x="480" y="580">• The public: freedom-of-information requests (often redacted)</text>
+
+          <!-- arrows: Apollo to each environment -->
+          <path class="d-arrow" d="M660,125 L562,125" marker-end="url(#arr-r)"/>
+          <path class="d-arrow" d="M660,219 L562,219" marker-end="url(#arr-r)"/>
+          <path class="d-arrow" d="M610,125 L610,30 L300,30 L300,125 L294,125" marker-end="url(#arr-r)"/>
+          <path class="d-arrow" d="M300,125 L300,219 L294,219" marker-end="url(#arr-r)"/>
+          <text class="d-label" x="604" y="114" text-anchor="end">updates</text>
+          <text class="d-label" x="604" y="208" text-anchor="end">updates</text>
+          <!-- engineering to Apollo -->
+          <path class="d-arrow" d="M800,300 L800,274" marker-end="url(#arr-r)"/>
+          <text class="d-label" x="814" y="292">releases</text>
+          <!-- FDEs from Palantir into the customer -->
+          <path class="d-arrow dashed" d="M660,360 L564,400" marker-end="url(#arr-r)"/>
+          <text class="d-label" x="584" y="368">staff</text>
+          <!-- data in from sources -->
+          <path class="d-arrow green" d="M170,280 L170,262" marker-end="url(#arr-g)"/>
+          <path class="d-arrow green" d="M430,280 L430,262" marker-end="url(#arr-g)"/>
+          <text class="d-label green" x="440" y="275">data in</text>
+        </svg>
+        <figcaption>Solid purple arrows: software (updates and releases). Dashed arrow: people (forward-deployed engineers). Green arrows: the customer's data flowing in. The data stays in the customer's environments; the software, and the people who shape the pipelines, come from the vendor.</figcaption>
+      </figure>
+
+      <div class="words" aria-label="The real-deployment diagram in words">
+        <div>
+          <h3>Where the parts live</h3>
+          <ul>
+            <li><strong>The platform</strong> (Gotham, Foundry, AIP) runs in the customer's environments: public cloud, on-premises servers, classified networks, edge devices.</li>
+            <li><strong>The data</strong> comes from the customer's own systems through connectors, and Actions write back to them.</li>
+            <li><strong>The software</strong> is kept up to date by <a href="glossary.html#apollo">Apollo</a>, Palantir's continuous delivery system, across the whole fleet.</li>
+            <li><strong>The pipelines</strong> are often written by Palantir's forward-deployed engineers working inside the customer.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Who could read what</h3>
+          <ul>
+            <li><strong>Customer users</strong>: what their role, markings and Checkpoints allow.</li>
+            <li><strong>Customer administrators</strong>: they decide the roles; who checks them?</li>
+            <li><strong>Palantir staff</strong>: whatever the contract and the deployment permit; that is a legal question, not a technical one.</li>
+            <li><strong>Auditors and the public</strong>: only on request. The Dutch police platform became known through freedom-of-information requests, with about 99% of the documents redacted.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <h2 id="compare">Side by side</h2>
+    <table>
+      <thead><tr><th>Question</th><th>This classroom tool</th><th>A real deployment</th></tr></thead>
+      <tbody>
+        <tr><td>Where is the data?</td><td>Synthetic CSVs, copied into two seed files, then into your browser</td><td>In the customer's environments, fed from operational systems</td></tr>
+        <tr><td>Where does the code run?</td><td>Only in your browser</td><td>On the customer's cloud tenancy, servers, classified networks, edge devices</td></tr>
+        <tr><td>Who updates the software?</td><td>Nobody, unless the files on GitHub Pages change and you reload</td><td>Apollo, continuously and automatically, for every environment</td></tr>
+        <tr><td>Who writes the pipelines?</td><td>The course team, in <code>pipeline/</code>, in the open</td><td>Often the vendor's forward-deployed engineers, inside the customer</td></tr>
+        <tr><td>Where is the audit log?</td><td>In your browser; you can delete it</td><td>On the platform; who may read it is set by the customer and the contract</td></tr>
+        <tr><td>What if the vendor leaves?</td><td>Nothing changes: the files keep working offline</td><td>Updates, support and the people who knew the pipelines leave with it</td></tr>
+      </tbody>
+    </table>
+    <div class="verdict"><strong>The honest answer:</strong> this classroom tool is more sovereign than any real deployment: nothing leaves your laptop except requests for files and map tiles, and nobody outside it can read your log. It is also less safe: there is no real access control, and anything a role "cannot see" is one click away in the developer tools.</div>
+
+    <h2 id="discussion">Discussion</h2>
+    <div id="discussion-host">
+      <article class="discussion" id="disc-pol-intel" data-discussion="disc-pol-intel">
+        <span class="kicker">Discussion</span>
+        <h3 data-field="title">Denmark: POL-INTEL and European exits</h3>
+        <p data-field="summary">Danish police use POL-INTEL, a customised version of Gotham, studied by Galis and Karlsson (2025) under the title "Scientification through privatization". Denmark is now looking for domestic replacements, and other European governments are re-evaluating their agreements with US defence-technology suppliers. In the Netherlands, the Ministry of Defence plans an alternative within two years.</p>
+        <ol data-field="questions">
+          <li>What is sovereignty when the platform, and its updates, are delivered by the vendor?</li>
+          <li>Which decisions in a pipeline are technical, and which are policy made by whoever writes the transforms?</li>
+        </ol>
+        <p class="sources" data-field="sources">Sources: <a href="https://researcher.itu.dk/p/en/research-outputs/scientification-through-privatization-pol-intel-in-denmark" target="_blank" rel="noopener">researcher.itu.dk</a>, <a href="https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor" target="_blank" rel="noopener">euronews.com</a></p>
+        <p class="disclaimer" data-field="disclaimer">Discussion material about real institutions and public reporting. Nothing here simulates a real person.</p>
+      </article>
+    </div>
+    <p class="source-note" id="discussion-source" aria-live="polite">Showing this page's built-in copy of the card.</p>
+
+    <h2 id="sources">Sources for the real view</h2>
+    <ul class="sources-list">
+      <li>Palantir, "Palantir Apollo: powering SaaS where no SaaS has gone before" (blog): Apollo as continuous delivery across cloud, on-premises and classified networks, extending to hardware appliances and edge devices; automatic upgrades and rollbacks; one operations view; over 41,000 updates a week. <a href="https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379" target="_blank" rel="noopener">blog.palantir.com</a></li>
+      <li>Palantir, job listing "Forward Deployed Software Engineer" (2026): engineers "embedded directly with our customers", working "side by side" with them, travelling to client sites. <a href="https://jobs.lever.co/palantir/dab396d4-2f14-4796-aac0-0d82883dccf0" target="_blank" rel="noopener">jobs.lever.co/palantir</a> (job listings change; check before teaching)</li>
+      <li>Research report for this tool, §A (product map, Apollo row) and §D.4–5 (Netherlands, Denmark): <code>context/PALANTIR_RESEARCH_2026-11-04.md</code>, readable from the <a href="index.html#context%2FPALANTIR_RESEARCH_2026-11-04.md">landing page</a>.</li>
+      <li>Dutch police and Palantir: <a href="https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir" target="_blank" rel="noopener">nltimes.nl</a>; European re-evaluation: <a href="https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor" target="_blank" rel="noopener">euronews.com</a>; POL-INTEL: Galis &amp; Karlsson (2025), <em>Theoretical Criminology</em>, doi:10.1177/13624806251345461.</li>
+    </ul>
+
+    <footer>
+      Deep Culture, University of Amsterdam. Everything in the demos is synthetic; Palantir product names describe what the demos imitate. See the <a href="glossary.html#deployment">glossary entry</a> for the honesty label.
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+      const views = { classroom: document.getElementById("view-classroom"), real: document.getElementById("view-real") };
+      const buttons = Array.from(document.querySelectorAll(".toggle button[data-view]"));
+
+      function show(name, opts) {
+        if (!views[name]) name = "classroom";
+        Object.keys(views).forEach(k => { views[k].hidden = k !== name; });
+        buttons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view === name)));
+        if (!(opts && opts.fromHash)) history.replaceState(null, "", name === "real" ? "#real" : "#classroom");
+      }
+      buttons.forEach(b => b.addEventListener("click", () => show(b.dataset.view)));
+      function fromHash() {
+        const h = (location.hash || "").slice(1);
+        if (h === "real" || h === "classroom") show(h, { fromHash: true });
+      }
+      window.addEventListener("hashchange", fromHash);
+      fromHash();
+
+      // Read the honesty entry and the discussion card from a seed, if one loads (the static copy
+      // above stays when neither does). The Investigate seed is the smaller of the two.
+      function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+      function host(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (_) { return u; } }
+      const KIND = { mirrors: "Mirrors Palantir", simplified: "Simplified", extension: "Teaching extension" };
+
+      function loadScript(src) {
+        return new Promise(resolve => {
+          const s = document.createElement("script");
+          s.src = src; s.async = true;
+          s.onload = () => resolve(true); s.onerror = () => resolve(false);
+          document.head.appendChild(s);
+        });
+      }
+      function governanceOf(catalog) {
+        if (!catalog || typeof catalog !== "object") return null;
+        for (const key of Object.keys(catalog)) {
+          const g = catalog[key] && catalog[key].governance;
+          if (g && (Array.isArray(g.discussions) || Array.isArray(g.honesty))) return g;
+        }
+        return null;
+      }
+      function apply(g) {
+        const h = (g.honesty || []).find(x => x && x.id === "deployment");
+        if (h) {
+          const chip = document.getElementById("honesty-chip");
+          const kind = KIND[h.kind] ? h.kind : "extension";
+          chip.className = `hl-chip ${kind}`;
+          chip.textContent = KIND[kind];
+          chip.title = h.text || "";
+          if (h.text) document.getElementById("honesty-text").textContent = h.text;
+        }
+        const d = (g.discussions || []).find(x => x && x.id === "disc-pol-intel");
+        if (!d) return false;
+        const card = document.getElementById("disc-pol-intel");
+        card.querySelector('[data-field="title"]').textContent = d.title || "";
+        card.querySelector('[data-field="summary"]').textContent = d.summary || "";
+        const qs = (d.questions || []).filter(Boolean);
+        card.querySelector('[data-field="questions"]').innerHTML = qs.map(q => `<li>${esc(q)}</li>`).join("");
+        const urls = (d.sources || []).filter(u => /^https:\/\//i.test(u));
+        card.querySelector('[data-field="sources"]').innerHTML = urls.length ? `Sources: ${urls.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(host(u))}</a>`).join(", ")}` : "";
+        if (d.disclaimer) card.querySelector('[data-field="disclaimer"]').textContent = d.disclaimer;
+        return true;
+      }
+      const note = document.getElementById("discussion-source");
+      (async function () {
+        const sources = [
+          ["demo/seed.js", () => window.ontologySeedCatalog || (window.ontologySeed ? { starter: window.ontologySeed } : null)],
+          ["foundry-demo/seed.js", () => window.foundrySeedCatalog || (window.foundrySeed ? { starter: window.foundrySeed } : null)],
+        ];
+        for (const [src, read] of sources) {
+          const ok = await loadScript(src);
+          const g = ok ? governanceOf(read()) : null;
+          if (g && apply(g)) { note.textContent = `Card read from ${src} (governance.discussions).`; return; }
+        }
+        note.textContent = "Neither seed carries this card, so the page shows its built-in copy.";
+      })();
+    })();
+  </script>
+</body>
+</html>

@@ -6,11 +6,12 @@ from conftest import DATASETS, REPO_ROOT
 
 DISCLAIMER = "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
 ATTACHED = {
-    "disc-ice-elite": ["build.markings"],
+    "disc-ice-elite": ["build.markings", "inv.leads"],
     "disc-bverfg-2023": ["session.checkpoints", "inv.karlsruhe"],
     "disc-raffinaderij": ["oversight.audit"],
     "disc-nhs-fdp": ["session.roles", "build.markings"],
-    "disc-pol-intel": ["build.pipelines"],
+    "disc-pol-intel": ["build.pipelines", "deployment"],
+    "disc-maven": ["inv.agent"],
 }
 KEYWORDS = {
     "disc-ice-elite": ["ImmigrationOS", "ELITE", "Medicaid", "$30m"],
@@ -18,6 +19,7 @@ KEYWORDS = {
     "disc-raffinaderij": ["Raffinaderij", "2012", "99%"],
     "disc-nhs-fdp": ["November 2023", "137", "£330m", "not the data controller"],
     "disc-pol-intel": ["POL-INTEL", "Galis", "domestic replacements"],
+    "disc-maven": ["Maven", "$1.3bn", "2029", "20,000", "NATO"],
 }
 
 
@@ -27,7 +29,7 @@ def research_urls():
     return {line[2:].strip() for line in section.splitlines() if line.startswith("- http")}
 
 
-def test_five_cards_identical_everywhere(gotham, foundry):
+def test_six_cards_identical_everywhere(gotham, foundry):
     ref = gotham["starter"]["governance"]["discussions"]
     assert [c["id"] for c in ref] == list(ATTACHED)
     for seed in (gotham, foundry):
@@ -50,5 +52,7 @@ def test_card_contents(gotham):
         for word in KEYWORDS[card["id"]]:
             assert word in card["summary"], (card["id"], word)
     text = " ".join(c["summary"] for c in block["discussions"])
-    # Maven and Leads come in Phase 3; unverified military claims never go on cards.
-    assert "Maven" not in text and "Ukraine" not in text and "Israel" not in text
+    # Unverified military claims (research §D.7) never go on cards.
+    assert "Ukraine" not in text and "Israel" not in text and "TITAN" not in text
+    maven = next(c for c in block["discussions"] if c["id"] == "disc-maven")
+    assert "human in the loop" in maven["questions"][0]

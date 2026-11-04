@@ -1,142 +1,209 @@
-// demo/js/render/agent.js — Agent (simulated AIP) tab.
-import { escapeHtml } from "../util.js";
-import { copilotState, core, data, ui } from "../state.js";
-import { phoneNumbersIn, phoneSearchHeld } from "../governance.js";
+// demo/js/render/agent.js — Agent (simulated AIP) tab (spec §4.7, F7): question and examples, the black "Plan and
+// trace" panel, the answer with citation chips, staged edits (Approve / Reject / Approve all), Evals with Check,
+// the answer graph (cited items highlighted) and the Maven discussion card.
+import { escapeHtml, truncate } from "../util.js";
+import { copilotState, core, ui } from "../state.js";
+import { currentRoleId, phoneNumbersIn, phoneSearchHeld } from "../governance.js";
 import { entityById } from "../derive.js";
 import { COPILOT_EXAMPLES } from "../agent.js";
-import { renderPhoneHold, withheldNoteHtml } from "./banners.js";
+import { citeResolves, runApplied, runPending } from "../agent-run.js";
+import { renderPhoneHold } from "./banners.js";
 import { honestyChip } from "./common.js";
-import { renderTelecomExpansion } from "./inspector.js";
 import { buildEntityGraph } from "./graph.js";
 
+const FAILURE_TEXT = { "fabricated-link": "fabricated link", overreach: "overreach", "approve-all": "approve all" };
+
+function roleLabel(id) {
+  return core.governance?.role(id)?.label || id;
+}
+
+function argsText(args) {
+  return Object.entries(args || {})
+    .map(([key, value]) => `${key}: ${Array.isArray(value) ? `[${value.map((item) => truncate(String(item), 26)).join(", ")}]` : JSON.stringify(typeof value === "object" ? value : value)}`)
+    .join(", ");
+}
+
+function stepLine(step) {
+  let result;
+  if (step.pending) result = `<span class="trace-pending">running…</span>`;
+  else if (step.denied) result = `<span class="trace-denied">DENIED and logged</span> <span class="trace-reason">${escapeHtml(step.reason)}</span>`;
+  else if (step.unavailable) result = `<span class="trace-unavailable">${escapeHtml(step.note)}</span>`;
+  else {
+    const kind = step.tool === "get_links" ? "link" : step.tool === "propose_action" ? "staged edit" : step.tool === "get_lineage" ? "dataset" : "object";
+    const n = step.resultIds.length;
+    result = `→ ${n} ${kind}${n === 1 ? "" : "s"}${step.note ? ` <span class="trace-note">· ${escapeHtml(step.note)}</span>` : ""}`;
+  }
+  return `<li class="trace-step${step.denied ? " is-denied" : ""}" data-step="${step.n}" data-tool="${escapeHtml(step.tool)}"${step.denied ? ' data-denied="true"' : ""}>
+      <span class="trace-n">${step.n}</span> <span class="trace-tool">${escapeHtml(step.tool)}</span>(<span class="trace-args">${escapeHtml(argsText(step.args))}</span>) ${result}
+      ${step.checkpointRecordId ? `<span class="trace-note">· Checkpoint ${escapeHtml(step.checkpointRecordId)}</span>` : ""}
+      ${!step.pending ? `<span class="trace-ms">${step.ms} ms</span>` : ""}
+    </li>`;
+}
+
+function traceJson(run) {
+  return JSON.stringify(
+    {
+      id: run.id,
+      query: run.query,
+      role: run.role,
+      mode: run.mode,
+      threshold: run.threshold,
+      steps: run.steps.map((step) => ({ n: step.n, tool: step.tool, args: step.args, resultIds: step.resultIds.slice(0, 8), denied: step.denied, ...(step.reason ? { reason: step.reason } : {}), ms: step.ms })),
+      answer: run.answer.map((sentence) => ({ text: sentence.text, cites: sentence.cites })),
+      stagedActions: run.stagedActions,
+      failureMode: run.failureMode === "none" ? null : run.failureMode,
+      evals: run.evals ? run.evals.map((item) => ({ id: item.id, pass: item.pass })) : "not checked",
+    },
+    null,
+    2
+  );
+}
+
+function renderTrace(run) {
+  return `
+    <div class="agent-trace dc-on-dark" aria-label="Plan and trace">
+      <div class="agent-trace-head"><span class="agent-trace-title">Plan and trace</span>
+        <span>${escapeHtml(run.id)} · role ${escapeHtml(run.role)} · mode ${escapeHtml(run.mode)}${run.threshold !== null ? ` · threshold ${Number(run.threshold).toFixed(2)}` : ""}${run.failureMode !== "none" ? ` · failure mode ${escapeHtml(FAILURE_TEXT[run.failureMode])} (${escapeHtml(run.failureSource)})` : ""}</span></div>
+      <div class="agent-trace-query">&gt; ${escapeHtml(run.query)}</div>
+      <div class="agent-trace-plan">plan: ${run.plan.map((item) => escapeHtml(item)).join(" → ")}</div>
+      <ol class="agent-trace-steps">${run.steps.map(stepLine).join("") || `<li class="trace-step">…</li>`}</ol>
+      <p class="agent-trace-foot">Every tool call above is one audit event (kind <code>agent</code>), denied or not. ${copilotState.running ? "Running…" : `${run.steps.length} call${run.steps.length === 1 ? "" : "s"}.`}</p>
+      <details class="agent-trace-json"><summary>Trace JSON</summary><pre>${escapeHtml(traceJson(run))}</pre></details>
+    </div>`;
+}
+
+function citeChip(id) {
+  const entity = entityById(id);
+  const title = entity ? `${entity.type}: ${entity.label}` : id;
+  const active = copilotState.highlight === id ? " is-active" : "";
+  return `<button class="cite-chip${active}" data-action="agent-cite" data-id="${escapeHtml(id)}" title="${escapeHtml(title)} — highlight in the answer graph">[${escapeHtml(id)}]</button>`;
+}
+
+function renderAnswer(run) {
+  const failed = new Set(run.checked && run.evals ? run.evals[0].failures.map((item) => item.index) : []);
+  const stale = run.role !== currentRoleId() || (run.threshold !== null && core.resolution && Number(core.resolution.threshold()) !== Number(run.threshold));
+  return `
+    <div class="property-card agent-answer">
+      <div class="list-item-title"><h3>Answer</h3>${core.objectSets && run.graph.nodes.length ? `<button class="ghost-button" data-action="save-object-set" data-source="agent">Save answer objects as object set</button>` : ""}</div>
+      ${stale ? `<div class="agent-stale" role="status">This run was made as ${escapeHtml(roleLabel(run.role))}${run.threshold !== null ? ` at threshold ${Number(run.threshold).toFixed(2)}` : ""}. <button class="ghost-button" data-action="agent-rerun">Ask again as ${escapeHtml(roleLabel(currentRoleId()))}</button></div>` : ""}
+      <ol class="agent-sentences">
+        ${run.answer
+          .map((sentence, index) => `<li class="agent-sentence${failed.has(index) ? " is-failed" : ""}" data-sentence="${index}">${escapeHtml(sentence.text)} ${sentence.cites.map(citeChip).join(" ")}</li>`)
+          .join("") || (copilotState.running ? `<li class="agent-sentence muted">Working…</li>` : `<li class="agent-sentence muted">No claim the agent can support from what your role sees.</li>`)}
+      </ol>
+      ${run.notes.length ? `<div class="agent-notes">${run.notes.map((note) => `<p class="microcopy">${escapeHtml(note)}</p>`).join("")}</div>` : ""}
+      <p class="grounding-summary microcopy">${escapeHtml(`${run.answer.length} sentence${run.answer.length === 1 ? "" : "s"} · ${run.answer.reduce((n, s) => n + s.cites.length, 0)} citations · built only from tool results on objects your role can see. Click a citation to highlight it in the graph.`)}</p>
+    </div>`;
+}
+
+function stagedRow(item, status) {
+  const after = Object.entries(item.after || {}).map(([key, value]) => `${key} → “${value}”`).join(", ");
+  return `<li class="staged-edit staged-${status}" data-staged="${escapeHtml(item.id)}">
+      <div><strong>${escapeHtml(item.label || item.actionTypeId)}</strong> on ${escapeHtml(item.objectLabel || item.objectId)} <span class="muted">${escapeHtml(item.id)}</span></div>
+      <div class="microcopy">${escapeHtml(after || "no ontology change")}${item.params?.reason ? ` · reason “${escapeHtml(item.params.reason)}”` : ""}</div>
+      ${status === "pending"
+        ? `<div class="inline-actions"><button class="button-secondary" data-action="agent-approve" data-id="${escapeHtml(item.id)}">Approve</button><button class="ghost-button" data-action="agent-reject" data-id="${escapeHtml(item.id)}">Reject</button></div>`
+        : `<div class="microcopy staged-status">${status === "applied" ? `applied · approved by ${escapeHtml(item.approvedBy || "—")}` : "rejected"}</div>`}
+    </li>`;
+}
+
+function renderStaged(run) {
+  const pending = runPending(run);
+  const applied = runApplied(run);
+  const rejected = run.rejected.length;
+  if (!pending.length && !applied.length && !rejected && !run.steps.some((step) => step.tool === "propose_action")) return "";
+  const nudge = run.failureMode === "approve-all" && pending.length > 1;
+  const last = copilotState.lastApproval;
+  return `
+    <div class="property-card agent-staged">
+      <div class="list-item-title"><h3>Staged edits</h3><span class="muted">${escapeHtml(`${pending.length} waiting · ${applied.length} applied · ${rejected} rejected`)}</span></div>
+      <p class="microcopy">The agent cannot change the ontology. It stages Actions; a person with the right role approves or rejects each one.</p>
+      ${nudge ? `<div class="agent-nudge" role="note"><strong>The agent is confident.</strong> ${pending.length} edits were checked against the rules. Approve all to save time.</div>` : ""}
+      <ul class="staged-list">
+        ${pending.map((item) => stagedRow(item, "pending")).join("")}
+        ${applied.map((item) => stagedRow(item, "applied")).join("")}
+      </ul>
+      ${pending.length > 1 || nudge ? `<button class="${nudge ? "button-primary agent-approve-all-nudged" : "button-secondary"}" data-action="agent-approve-all">Approve all ${pending.length}</button>` : ""}
+      ${last && last.outcome === "refused" ? `<p class="lead-close-msg bad" role="alert">${escapeHtml(last.message || "Refused.")}</p>` : ""}
+    </div>`;
+}
+
+function renderEvals(run) {
+  const evals = run.checked ? run.evals : null;
+  const labels = ["Every claim cites an existing object or link", "No denied tool result was used", "No edit was applied without approval"];
+  return `
+    <div class="property-card agent-evals">
+      <div class="list-item-title"><h3>Evals</h3><button class="button-secondary" data-action="agent-check" ${copilotState.running ? "disabled" : ""}>Check</button></div>
+      <p class="microcopy">Three seeded checks, as AIP Evals would run them. Nothing is checked until you click Check.</p>
+      <ul class="eval-list">
+        ${labels
+          .map((label, index) => {
+            const result = evals ? evals[index] : null;
+            const state = result ? (result.pass ? "pass" : "fail") : "unchecked";
+            return `<li class="eval eval-${state}" data-eval="${result ? escapeHtml(result.id) : index}" data-state="${state}">
+                <span class="eval-badge">${state === "unchecked" ? "not checked" : state}</span> ${escapeHtml(label)}
+                ${result ? `<div class="microcopy">${escapeHtml(result.detail)}</div>` : ""}
+              </li>`;
+          })
+          .join("")}
+      </ul>
+    </div>`;
+}
+
+function renderGraph(run) {
+  if (!run.graph.nodes.length) return "";
+  const cited = run.answer.flatMap((sentence) => sentence.cites);
+  const graph = buildEntityGraph(run.graph.nodes, run.graph.edges, run.focusIds, ui.selectedGraphNodeId, { highlight: copilotState.highlight, citedEdgeIds: cited });
+  const highlightMissing = copilotState.highlight && !citeResolves(copilotState.highlight);
+  return `
+    <div class="property-card">
+      <div class="list-item-title"><h3>Answer graph</h3><span class="muted">${escapeHtml(`${run.graph.nodes.length} objects · ${run.graph.edges.length} links`)}</span></div>
+      ${copilotState.highlight ? `<p class="microcopy">Highlighted: <code>${escapeHtml(copilotState.highlight)}</code>${highlightMissing ? " — nothing in the graph carries this id." : ""}</p>` : ""}
+      <div class="graph-canvas agent-graph">${graph.svg}</div>
+    </div>`;
+}
+
+function renderIntro() {
+  return `
+    <div class="property-card">
+      <div class="list-item-title"><h3>How this agent works</h3><span class="grounding-badge">Rule-based stand-in</span></div>
+      <div class="stack-list">
+        <div class="fact-item">It makes a plan from your question and calls tools: search_objects, get_links, expand, run_rule, propose_action, get_lineage. No language model is called.</div>
+        <div class="fact-item">Each tool runs as your role: markings, purpose rules (Karlsruhe mode) and Checkpoints apply, and every call is written to the audit log.</div>
+        <div class="fact-item">Each sentence of the answer cites the objects or links it rests on. It can also be wrong: check the citations.</div>
+        <div class="fact-item">It never edits the ontology itself. It stages Actions for a person to approve.</div>
+        <div class="fact-item">${escapeHtml(core.governance?.honesty("inv.agent")?.text || "Rule-based stand-in for an AIP chatbot. Real AIP uses an LLM with tools and stages edits for review.")}</div>
+      </div>
+    </div>`;
+}
+
 export function renderCopilotTool() {
-  const result = copilotState.result;
-  const resultGraph = result?.graph?.nodes?.length
-    ? buildEntityGraph(result.graph.nodes, result.graph.edges, result.focusEntityIds || [], ui.selectedGraphNodeId)
-    : null;
+  const run = copilotState.run;
+  const held = phoneNumbersIn(copilotState.query).filter(phoneSearchHeld);
   return `
       <div class="panel">
         <div class="panel-header">
           <div>
             <h2>Agent (simulated AIP)${honestyChip("inv.agent")}</h2>
-            <p class="microcopy">Ask a plain-English question and the agent pulls together linked evidence from the objects your role can see, the analytics and the investigation graph.</p>
+            <p class="microcopy">Ask a question. The agent plans, calls tools on what your role can see, answers with citations and stages edits for you to approve.</p>
           </div>
         </div>
-        <div class="copilot-layout">
-          <div class="card-stack">
+        <div class="agent-layout">
             <div class="property-card">
               <div class="field">
-                <label>Ask a question</label>
-                <textarea class="copilot-input" data-scope="copilot" data-field="query" placeholder="Bring together Kareem Haddad across companies, flights, transfers, and devices">${escapeHtml(copilotState.query)}</textarea>
+                <label for="agent-query">Ask a question</label>
+                <textarea id="agent-query" class="copilot-input" data-scope="copilot" data-field="query" placeholder="${escapeHtml(COPILOT_EXAMPLES[0])}">${escapeHtml(copilotState.query)}</textarea>
               </div>
               <div class="chip-row">
-                ${COPILOT_EXAMPLES.map(
-                (example) => `<button class="ghost-button" data-action="copilot-example" data-query="${escapeHtml(example)}">${escapeHtml(example)}</button>`
-              ).join("")}
+                ${COPILOT_EXAMPLES.map((example) => `<button class="ghost-button" data-action="copilot-example" data-query="${escapeHtml(example)}" ${copilotState.running ? "disabled" : ""}>${escapeHtml(example)}</button>`).join("")}
               </div>
               <div class="inline-actions">
-                <button class="button-primary" data-action="run-copilot">Ask the agent</button>
+                <button class="button-primary" data-action="run-copilot" ${copilotState.running ? "disabled" : ""}>Ask the agent</button>
               </div>
-              ${phoneNumbersIn(copilotState.query).filter(phoneSearchHeld).length ? renderPhoneHold("agent", phoneNumbersIn(copilotState.query).filter(phoneSearchHeld)[0]) : ""}
+              ${held.length ? renderPhoneHold("agent", held[0]) : ""}
             </div>
-            ${result ? `
-              <div class="property-card">
-                <h3>Answer</h3>
-                <div class="stack-list">
-                  ${result.paragraphs.map((paragraph) => `<div class="fact-item">${escapeHtml(paragraph)}</div>`).join("")}
-                </div>
-                ${withheldNoteHtml(result.withheld, "around these objects")}
-                <div class="grounding-summary microcopy">${escapeHtml(`${result.graph?.nodes?.length || 0} objects matched · ${result.graph?.edges?.length || 0} links traversed · built only from objects your role can see`)}</div>
-              </div>
-              <div class="property-card">
-                <h3>Linked evidence</h3>
-                <div class="stack-list">
-                  ${(result.evidence || []).map((item) => `<div class="fact-item">${escapeHtml(item)}</div>`).join("") || `<div class="fact-item">No evidence extracted yet.</div>`}
-                </div>
-              </div>
-            ` : `
-              <div class="property-card">
-                <div class="list-item-title">
-                  <h3>How this agent works</h3>
-                  <span class="grounding-badge">Rule-based stand-in</span>
-                </div>
-                <div class="stack-list">
-                  <div class="fact-item">Anchors natural-language prompts to people, companies, locations, devices, flights, accounts, analytics hits, and investigation scenarios.</div>
-                  <div class="fact-item">Synthesizes cross-source evidence into a short analyst-friendly answer.</div>
-                  <div class="fact-item">Lets students jump from plain-English questions into structured ontology and case views.</div>
-                  <div class="fact-item">${escapeHtml((core.governance && core.governance.honesty("inv.agent")?.text) || "Rule-based stand-in for an AIP chatbot; it cannot invent objects. Real AIP uses an LLM with tools and stages edits for review.")}</div>
-                  <div class="fact-item">It only sees what your role sees: withheld objects and properties never reach it.</div>
-                </div>
-              </div>
-              <div class="property-card">
-                <h3>Without the ontology vs. with it</h3>
-                <div class="comparison-row">
-                  <div>
-                    <div class="comparison-label">Without</div>
-                    <pre class="fact-item comparison-pre">bank_transactions.csv row 14:
-  account_id: ACC-002
-  to_account: ACC-009
-  amount: 47000
-  ref: TXF-8812</pre>
-                  </div>
-                  <div>
-                    <div class="comparison-label">With ontology</div>
-                    <div class="fact-item">Kareem Haddad → OWNS_ACCOUNT → ACC-002 → TRANSFERRED_TO → ACC-009<br><br>ACC-009 is linked to Cyprus Shell Co Ltd (DIRECTS: Kareem Haddad)<br><br>Corroborated by: 3 mobile location pings near Larnaca Airport</div>
-                  </div>
-                </div>
-              </div>
-            `}
-          </div>
-          <div class="card-stack">
-            ${result ? `
-              <div class="property-card">
-                <div class="list-item-title">
-                  <h3>Focus objects</h3>
-                  <span class="muted">${escapeHtml(result.graphStats || "")}</span>
-                </div>
-                <div class="entity-jump-grid">
-                  ${result.focusEntities.map(
-                  (entity) => `
-                      <div class="place-card">
-                        <div class="list-item-title">
-                          <span>${escapeHtml(entity.label)}</span>
-                          <span class="muted">${escapeHtml(entity.type)}</span>
-                        </div>
-                        <div class="microcopy">${escapeHtml(entity.reason)}</div>
-                        <div class="inline-actions">
-                          <button class="ghost-button" data-action="copilot-jump-entity" data-id="${escapeHtml(entity.id)}">Open in graph</button>
-                        </div>
-                        ${entity.type === "Person" ? renderTelecomExpansion(entityById(entity.id)) : ""}
-                      </div>
-                    `
-                ).join("") || `<div class="fact-item">No focal objects were identified for this prompt.</div>`}
-                </div>
-              </div>
-              <div class="property-card">
-                <h3>Answer graph</h3>
-                <div class="graph-canvas">
-                  ${resultGraph ? resultGraph.svg : `<div class="empty-state">No graph available for this answer.</div>`}
-                </div>
-              </div>
-              <div class="property-card">
-                <h3>Quick jumps</h3>
-                <div class="inline-actions">
-                  ${result.recommendedScenarioId ? `<button class="button-secondary" data-action="copilot-jump-scenario" data-id="${escapeHtml(result.recommendedScenarioId)}">Open matching scenario</button>` : ""}
-                  ${result.recommendedRuleId ? `<button class="button-secondary" data-action="copilot-jump-rule" data-id="${escapeHtml(result.recommendedRuleId)}">Open matching rule</button>` : ""}
-                </div>
-                <div class="stack-list">
-                  ${(result.suggestedQuestions || []).map((question) => `<div class="fact-item">${escapeHtml(question)}</div>`).join("")}
-                </div>
-              </div>
-            ` : `
-              <div class="property-card">
-                <h3>Try asking</h3>
-                <div class="stack-list">
-                  ${COPILOT_EXAMPLES.map((example) => `<div class="fact-item">${escapeHtml(example)}</div>`).join("")}
-                </div>
-              </div>
-            `}
-          </div>
+            ${run ? renderTrace(run) + renderAnswer(run) + renderGraph(run) + renderStaged(run) + renderEvals(run) : renderIntro()}
+            ${core.ui?.discussionCardsFor ? core.ui.discussionCardsFor("inv.agent") : ""}
         </div>
       </div>
     `;

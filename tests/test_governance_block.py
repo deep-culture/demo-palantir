@@ -56,9 +56,13 @@ HONESTY_IDS = ["inv.agent", "inv.investigations", "inv.analytics", "inv.map", "i
                "inv.properties", "inv.link-types", "inv.backing-datasets", "inv.objects", "inv.graph",
                "build.pipelines", "build.datasets", "build.lineage", "build.markings", "oversight.audit",
                "session.roles", "session.checkpoints",
-               "inv.actions", "inv.karlsruhe", "build.resolution"]
+               "inv.actions", "inv.karlsruhe", "build.resolution",
+               "inv.leads", "inv.object-sets", "build.retention", "deployment"]
 HONESTY_FIXED = {
-    "inv.agent": ("simplified", "Rule-based stand-in for an AIP chatbot; it cannot invent objects. Real AIP uses an LLM with tools and stages edits for review."),
+    # Phase 3 replaced the rule-based stand-in with a scripted tool-calling agent (PHASE3_CONTRACT.md §2).
+    "inv.agent": ("simplified", "Scripted stand-in for an AIP agent, with no language model: it plans tool calls from your question by fixed rules, "
+                  "runs each call through your role, the purpose rules, Checkpoints and the audit log, cites the objects behind "
+                  "its claims and stages edits for review. Real AIP agents use an LLM with tools; here the failures are scripted for teaching."),
     "build.lineage": ("extension", "Row- and field-level provenance goes beyond Foundry's dataset-level lineage."),
 }
 HONESTY_LABELS = {"mirrors": "Mirrors Foundry", "simplified": "Simplified", "extension": "Teaching extension"}
@@ -156,6 +160,12 @@ def test_honesty_entries(gotham, foundry):
         assert by_id["inv.actions"]["kind"] == "mirrors" and "panels" in by_id["inv.actions"]["text"]
         assert by_id["inv.karlsruhe"]["kind"] == "extension"
         assert by_id["build.resolution"]["kind"] == "simplified" and "weighted sum" in by_id["build.resolution"]["text"]
+        # Phase 3 surfaces (PHASE3_CONTRACT.md §1)
+        assert by_id["inv.leads"]["kind"] == "simplified"
+        assert "the formula is ours; ELITE's is not public" in by_id["inv.leads"]["text"]
+        assert by_id["inv.object-sets"]["kind"] == "mirrors" and "object sets" in by_id["inv.object-sets"]["text"]
+        assert by_id["build.retention"]["kind"] == "simplified"
+        assert by_id["deployment"]["kind"] == "extension" and "Apollo" in by_id["deployment"]["text"]
 
 
 @pytest.mark.parametrize("dataset", DATASETS)

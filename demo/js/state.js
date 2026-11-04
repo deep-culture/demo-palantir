@@ -22,6 +22,8 @@ export const ANALYST_TOOLS = {
   investigations: "Investigations",
   analytics: "Analytics",
   map: "Map",
+  leads: "Leads",
+  "object-sets": "Object sets",
 };
 
 export const SCHEMA_TOOLS = {
@@ -39,6 +41,8 @@ export const TOOL_HONESTY = {
   investigations: "inv.investigations",
   analytics: "inv.analytics",
   map: "inv.map",
+  leads: "inv.leads",
+  "object-sets": "inv.object-sets",
   "entity-types": "inv.object-types",
   properties: "inv.properties",
   relationships: "inv.link-types",
@@ -84,6 +88,13 @@ export const ui = {
   actionDrawer: { open: false, objectId: "", typeId: "", params: {}, errors: {}, tried: false, result: null, exceptRules: [], exceptionRecordId: null },
   // Purpose-rule exceptions granted through cp-exception this page session (F9): key -> {recordId, rules: [ruleId]}
   purposeExceptions: new Map(),
+  // Leads (F8): selected lead row, the Close lead form, the map layer toggle.
+  selectedLeadId: "",
+  leadClose: { outcome: "", reason: "", result: null },
+  mapLeads: false,
+  // Object sets (F11): selected set and the two versions compared.
+  selectedSetId: "",
+  setDiff: { from: 0, to: 0 },
 };
 
 // ── Shared mutable state ──
@@ -102,7 +113,12 @@ export let data = null;
 export let roleView = null;
 export let derived = null;
 export const analysisState = { analytics: [], investigations: [], actionLog: [] };
-export let copilotState = { query: "", result: null };
+// Agent (F7): query, the last run (trace, answer, staged edit ids, evals) and the cited id highlighted in
+// the answer graph. result mirrors {graph, focusEntityIds} of the run for the map's "Agent answer" scope.
+export let copilotState = emptyAgentState();
+export function emptyAgentState() {
+  return { query: "", result: null, run: null, running: false, highlight: "", objectSetId: null };
+}
 export const walkthroughState = { active: false, step: 0 };
 export let lastViewedId = "";
 
@@ -121,7 +137,7 @@ export function setSeedData(value) {
 }
 
 export function resetCopilotState() {
-  copilotState = { query: "", result: null };
+  copilotState = emptyAgentState();
 }
 
 export function setLastViewedId(value) {
@@ -191,7 +207,7 @@ export function restoreSavedEdits() {
   const restored = store.restoreStale(storageKey(ui.datasetKey), datasetCatalog[ui.datasetKey] || {});
   if (restored && typeof restored === "object") {
     fullData = restored;
-    copilotState = { query: "", result: null };
+    copilotState = emptyAgentState();
   }
   storeNotice = null;
   render();
@@ -235,7 +251,11 @@ export function switchDataset(datasetKey, options = {}) {
   ui.mapViewCenter = [...DEFAULT_MAP_VIEW.center];
   ui.mapViewZoom = DEFAULT_MAP_VIEW.zoom;
   ui.mapViewDirty = false;
-  copilotState = { query: "", result: null };
+  ui.selectedLeadId = "";
+  ui.leadClose = { outcome: "", reason: "", result: null };
+  ui.selectedSetId = "";
+  ui.setDiff = { from: 0, to: 0 };
+  copilotState = emptyAgentState();
   if (options.render !== false) {
     render();
   }

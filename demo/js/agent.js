@@ -1,22 +1,19 @@
-// demo/js/agent.js — The simulated AIP agent (rule-based stand-in, ex-copilot): matching and answer building.
-import { currencyFormatter, normalizeText, numberFormatter } from "./util.js";
+// demo/js/agent.js — The simulated AIP agent (rule-based stand-in, ex-copilot): example prompts, query matching
+// (collectEntityMatches / collectRuleMatches / collectScenarioMatches, reused by the planner), the per-object
+// summary the inspector shows, and the entry point runCopilotQuery (phone-number Checkpoint, then agent-run.js).
+import { currencyFormatter, normalizeText } from "./util.js";
 import { analysisState, copilotState, data, ui } from "./state.js";
 import {
-  logEvent,
-  markingsLabel,
   phoneKey,
   phoneNumbersIn,
   phoneSearchHeld,
   requestPhoneSearch,
   telecomGateActive,
   visiblePropertyValues,
-  withheldAround,
 } from "./governance.js";
 import {
-  buildSubgraph,
   degree,
   deviceLocations,
-  entityById,
   entityProperty,
   incomingEdges,
   locationPeople,
@@ -29,15 +26,15 @@ import {
   relatedTargets,
   totalTransferValue,
 } from "./derive.js";
-import { render } from "./render/index.js";
+import { runAgent } from "./agent-run.js";
 
-export const COPILOT_EXAMPLES = [
-  "Bring together Kareem Haddad across companies, flights, transfers, and devices",
-  "Which address connects the most companies and people?",
-  "Who looks riskiest in the current dataset?",
-  "Show me travel and money movement around Elena Markovic",
-  "Find shared booking artifacts and co-travel patterns",
-];
+// The four fixed prompts of spec §5.3 S3 (contract §2). The last three fire a scripted failure mode.
+export const EXAMPLE_SUMMARY = "Summarise Omar Rahman";
+export const EXAMPLE_WATCHLIST = "Who should we add to the watchlist?";
+export const EXAMPLE_PHONES = "Show me everyone connected to Kareem Haddad's phones";
+export const EXAMPLE_LINK = "What links Omar Rahman to North Quay Logistics?";
+export const COPILOT_EXAMPLES = [EXAMPLE_SUMMARY, EXAMPLE_WATCHLIST, EXAMPLE_PHONES, EXAMPLE_LINK];
+export const EXAMPLE_FAILURES = { [EXAMPLE_WATCHLIST]: "approve-all", [EXAMPLE_PHONES]: "overreach", [EXAMPLE_LINK]: "fabricated-link" };
 export const COPILOT_STOP_WORDS = new Set([
   "about", "across", "also", "analyst", "and", "around", "bring", "current", "data", "dataset", "for",
   "from", "give", "have", "into", "like", "me", "most", "natural", "show", "tell", "that", "the", "their",
@@ -52,10 +49,11 @@ export function entitySearchText(entity) {
   return normalizeText(`${entity.label} ${entity.type} ${visiblePropertyValues(entity).join(" ")}`);
 }
 
-export function collectEntityMatches(query) {
+export function collectEntityMatches(query, options = {}) {
   const normalizedQuery = normalizeText(query);
   const tokens = queryTokens(query);
   return (data.entities || [])
+    .filter((entity) => !options.type || entity.type === options.type)
     .map((entity) => {
       const labelText = normalizeText(entity.label);
       const propText = normalizeText(visiblePropertyValues(entity).join(" "));
@@ -92,7 +90,7 @@ export function collectEntityMatches(query) {
     })
     .filter((match) => match.score > 0)
     .sort((left, right) => right.score - left.score || left.entity.label.localeCompare(right.entity.label))
-    .slice(0, 8);
+    .slice(0, options.limit || 8);
 }
 
 export function collectRuleMatches(query, focusEntityIds) {
@@ -256,111 +254,19 @@ export function summarizeEntityForCopilot(entity) {
   };
 }
 
-export function buildCopilotResponse(query) {
-  const trimmedQuery = String(query || "").trim();
-  if (!trimmedQuery) {
-    return null;
-  }
-
-  const entityMatches = collectEntityMatches(trimmedQuery);
-  let focusEntityIds = entityMatches.slice(0, 3).map((match) => match.entity.id);
-  const ruleMatches = collectRuleMatches(trimmedQuery, focusEntityIds);
-  if (!focusEntityIds.length && ruleMatches[0]?.rule?.hits?.[0]?.focusEntityIds?.length) {
-    focusEntityIds = ruleMatches[0].rule.hits[0].focusEntityIds.slice(0, 3);
-  }
-  const scenarioMatches = collectScenarioMatches(trimmedQuery, focusEntityIds);
-  if (!focusEntityIds.length && scenarioMatches[0]?.scenario?.focusEntityIds?.length) {
-    focusEntityIds = scenarioMatches[0].scenario.focusEntityIds.slice(0, 3);
-  }
-
-  const focusEntities = focusEntityIds.map((entityId) => entityById(entityId)).filter(Boolean);
-  const focusInsights = focusEntities.map((entity) => ({ entity, ...summarizeEntityForCopilot(entity) }));
-  const graph = focusEntityIds.length ? buildSubgraph(focusEntityIds, 2, 20) : { nodes: [], edges: [] };
-
-  let summary = "";
-  if (focusInsights.length) {
-    summary = focusInsights[0].headline;
-    if (focusInsights.length > 1) {
-      summary += ` I also found ${focusInsights.length - 1} related focal entities that reinforce the same story.`;
-    }
-  } else if (ruleMatches.length) {
-    summary = `${ruleMatches[0].rule.title} is the strongest match for this question. ${ruleMatches[0].rule.description}`;
-  } else if (scenarioMatches.length) {
-    summary = `${scenarioMatches[0].scenario.title} is the best existing investigation scenario for this question.`;
-  } else {
-    summary = "I could not confidently anchor that prompt to a specific entity yet, but the analytics and investigation views still provide useful starting points.";
-  }
-
-  const evidence = focusInsights.flatMap((insight) => insight.evidence).slice(0, 8);
-  const hiddenAround = withheldAround(focusEntityIds);
-  const paragraphs = [
-    summary,
-    hiddenAround.links || hiddenAround.objects
-      ? `Your role cannot see ${hiddenAround.objects} linked object${hiddenAround.objects === 1 ? "" : "s"} and ${hiddenAround.links} link${hiddenAround.links === 1 ? "" : "s"} around these objects (marking ${markingsLabel(hiddenAround.markings)}). This answer uses only what your role can see.`
-      : "",
-    ruleMatches[0]
-      ? `Relevant rule hit: ${ruleMatches[0].rule.title} (${ruleMatches[0].rule.hits.length} surfaced hits in this dataset).`
-      : "",
-    scenarioMatches[0]
-      ? `Closest guided case: ${scenarioMatches[0].scenario.title}. Use it to move from the natural-language answer into the investigation workspace.`
-      : "",
-  ].filter(Boolean);
-
-  return {
-    query: trimmedQuery,
-    summary,
-    paragraphs,
-    evidence,
-    focusEntityIds,
-    focusEntities: focusEntities.map((entity) => ({
-      id: entity.id,
-      label: entity.label,
-      type: entity.type,
-      reason: summarizeEntityForCopilot(entity).headline,
-    })),
-    withheld: hiddenAround,
-    recommendedScenarioId: scenarioMatches[0]?.scenario?.id || "",
-    recommendedRuleId: ruleMatches[0]?.rule?.id || "",
-    graph,
-    graphStats: `${numberFormatter.format(graph.nodes.length)} nodes · ${numberFormatter.format(graph.edges.length)} edges`,
-    suggestedQuestions: [
-      focusEntities[0] ? `What locations connect ${focusEntities[0].label} to companies or devices?` : "What address hubs should I investigate next?",
-      focusEntities[0] ? `Show the transfer story around ${focusEntities[0].label}` : "Which people combine travel and money movement?",
-      "Which existing scenario best explains this pattern?",
-    ],
-  };
-}
-
+// The agent run itself (plan, tools, answer, staged edits, evals) lives in agent-run.js, agent-tools.js and
+// agent-plan.js. A question holding a phone number is a phone-number search: Checkpoint first.
 export function runCopilotQuery(query) {
   const text = String(query || "");
+  copilotState.query = text;
   const held = phoneNumbersIn(text).filter((number) => phoneSearchHeld(number));
   if (held.length) {
-    // A question containing a phone number is a phone-number search: Checkpoint first.
-    copilotState.query = text;
     requestPhoneSearch("agent", held[0], () => {
       held.forEach((number) => ui.approvedPhoneQueries.add(phoneKey(number)));
-      answerCopilotQuery(text);
-      return copilotState.result?.focusEntityIds?.length || 0;
+      runAgent(text);
+      return 0;
     });
     return;
   }
-  answerCopilotQuery(text);
-  render();
-}
-
-export function answerCopilotQuery(query) {
-  copilotState.query = query;
-  copilotState.result = buildCopilotResponse(query);
-  if (copilotState.result?.focusEntityIds?.[0]) {
-    ui.selectedGraphNodeId = copilotState.result.focusEntityIds[0];
-    ui.selectedEntityId = copilotState.result.focusEntityIds[0];
-  }
-  if (copilotState.result) {
-    logEvent({
-      kind: "agent",
-      verb: "agent.query",
-      objectIds: copilotState.result.focusEntityIds,
-      payload: { query: copilotState.result.query, focusCount: copilotState.result.focusEntityIds.length, nodes: copilotState.result.graph.nodes.length },
-    });
-  }
+  runAgent(text);
 }

@@ -36,6 +36,11 @@ Effect operations
                         the system's inbox (a panel, not an API).
 
 ``sensitive: true`` Actions run Checkpoint ``cp-action-sensitive`` first.
+
+Phase 3 adds ``act-close-lead`` with ``objectType: "Lead"``.  Leads are not
+ontology objects: the focused object is a lead in ``catalog[ds].leads.items``
+(its fields are ``leads.properties``, from ``pipeline/leads.py``), and the
+effects edit that lead.
 """
 
 from __future__ import annotations
@@ -51,7 +56,7 @@ EXTERNAL_SYSTEMS: List[Dict[str, str]] = [
     {"id": "bank-compliance", "label": "Bank compliance desk",
      "description": "Simulated compliance team at the account-holding bank. Receives account review requests."},
     {"id": "case-management", "label": "Case management",
-     "description": "Simulated case file system. Receives identity corrections such as unmerges."},
+     "description": "Simulated case file system. Receives identity corrections such as unmerges, and closed leads."},
 ]
 
 
@@ -167,6 +172,32 @@ ACTION_TYPES: List[Dict[str, Any]] = [
         "honesty": "inv.actions",
     },
 ]
+
+# Phase 3 (PHASE3_CONTRACT.md §1).  Leads are not ontology objects: the
+# focused "object" is a lead in ``catalog[ds].leads.items`` and the effects
+# edit that lead (Investigate's apply callback edits ``fullData.leads``).
+LEAD_OUTCOMES = ["no-action", "referred", "address-wrong"]
+ACTION_TYPES.append({
+    "id": "act-close-lead",
+    "label": "Close lead",
+    "objectType": "Lead",
+    "sensitive": False,
+    "description": "Close an address lead with an outcome and send it to case management. The lead stays in the list, marked closed.",
+    "parameters": [
+        {"id": "outcome", "label": "Outcome", "type": "enum", "required": True, "options": list(LEAD_OUTCOMES)},
+        _reason(),
+    ],
+    "allowedRoles": ["fin-analyst"],
+    "effects": [
+        {"op": "setProperty", "property": "status", "from": "value:closed"},
+        {"op": "setProperty", "property": "outcome", "from": "param:outcome"},
+        {"op": "setProperty", "property": "closeReason", "from": "param:reason"},
+        {"op": "writeback", "system": "case-management",
+         "template": "CLOSE LEAD {id} for {personId} ({outcome}, score {score}) by {role}: {reason}"},
+    ],
+    "feedsAnalytics": False,
+    "honesty": "inv.actions",
+})
 
 ACTION_TYPE_IDS: List[str] = [a["id"] for a in ACTION_TYPES]
 

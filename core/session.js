@@ -16,6 +16,12 @@
  *                                    used as the default surface of session events
  *   role()                           the current role object (or null without governance)
  *
+ * Phase 3 (contract §5):
+ *   failureMode() / setFailureMode(mode)   flags.failureMode: "none" | "fabricated-link" | "overreach" |
+ *                                    "approve-all" — the agent's scripted failure (instructor control in
+ *                                    the session strip); logged as session.setFlag {flag: "failureMode"}
+ *   FAILURE_MODES                    the four values
+ *
  * The role is a client-side convenience, not security (spec §4.1): anyone can change it.
  */
 (function () {
@@ -24,6 +30,7 @@
   const DC = (window.DC = window.DC || {});
   const store = DC.store;
   const SESSION_KEY = "dc-palantir:session";
+  const FAILURE_MODES = ["none", "fabricated-link", "overreach", "approve-all"];
   const listeners = [];
   let surfaceName = "";
   let memory = null; // used when localStorage is unavailable
@@ -57,8 +64,9 @@
       sessionId: session && session.sessionId ? String(session.sessionId) : newSessionId(),
       role: session && session.role ? String(session.role) : defaultRole(),
       purpose: session && session.purpose ? String(session.purpose) : null,
-      flags: { strictCheckpoints: false, karlsruhe: false, ...((session && session.flags) || {}) },
+      flags: { strictCheckpoints: false, karlsruhe: false, failureMode: "none", ...((session && session.flags) || {}) },
     };
+    if (!FAILURE_MODES.includes(value.flags.failureMode)) value.flags.failureMode = "none";
     const governance = DC.governance;
     if (governance && governance.isActive() && !governance.role(value.role)) {
       value.role = defaultRole();
@@ -127,6 +135,18 @@
     return logged;
   }
 
+  function setFailureMode(mode) {
+    const session = get();
+    const next = FAILURE_MODES.includes(mode) ? mode : "none";
+    if (session.flags.failureMode === next) return Promise.resolve(null);
+    const previous = session.flags.failureMode;
+    session.flags.failureMode = next;
+    write(session);
+    const logged = log({ kind: "session", verb: "session.setFlag", payload: { flag: "failureMode", value: next, from: previous } });
+    notify(session, "local");
+    return logged;
+  }
+
   function onChange(callback) {
     if (typeof callback === "function") listeners.push(callback);
   }
@@ -141,6 +161,9 @@
     setRole,
     setPurpose,
     setFlag,
+    setFailureMode,
+    failureMode: () => get().flags.failureMode || "none",
+    FAILURE_MODES,
     onChange,
     setSurface(name) {
       surfaceName = String(name || "");

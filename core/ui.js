@@ -29,6 +29,20 @@
  *   Additions: purposeChip(purposeId), blockedCard(checkResult, {buttonAttrs, operation, exception})
  *     -> red "Blocked by rule R2" card with the rule text, the purposes involved and a
  *     "Request exception" button carrying buttonAttrs (the app wires the click).
+ *
+ * Phase 3 (contract §5):
+ *   Session strip "Failure mode (instructor)" select (data-dc="failure-mode"): none / fabricated link /
+ *     overreach / approve all → DC.session.setFailureMode. Shown where the agent lives (surface
+ *     "investigate", or options.failureMode: true); hidden with options.failureMode: false.
+ *   DC.ui.leadFormula(lead, visibleComponents, options?) -> HTML: the formula with the numbers filled in,
+ *     one row per component with its marking chip. Components of lead.components missing from
+ *     visibleComponents are withheld: hatched, with no weight, age, contribution or address (the role
+ *     must not learn them), and the card shows "score from visible sources" and "n components
+ *     withheld". options.withheld = [{component, reason: "rule", rule}] (from DC.leads.split) marks
+ *     components a purpose rule removed: those keep their numbers (struck through), and the full score
+ *     is shown next to the visible one ("score without withheld sources"). options.showFull forces the
+ *     full score (for a role that can see every withheld marking). options.compact drops the table.
+ *   DC.ui.leadScore(components)   the score code path (DC.leads.score when loaded)
  */
 (function () {
   "use strict";
@@ -92,7 +106,10 @@
     const parts = [event.verb || event.kind];
     const payload = event.payload || {};
     if (payload.label && event.kind === "action") parts.push(payload.label);
-    if (payload.outcome) parts.push(payload.outcome);
+    if (event.verb === "agent.tool" && payload.tool) parts.push(`${payload.n}. ${payload.tool}${payload.denied ? " (denied)" : ""}`);
+    if (event.verb === "action.approveAll") parts.push(`${payload.count} edit${payload.count === 1 ? "" : "s"}`);
+    if (event.kind === "objectset" && payload.name) parts.push(`“${String(payload.name).slice(0, 32)}”`);
+    if (payload.outcome && event.verb !== "agent.tool") parts.push(payload.outcome);
     if (payload.rule) parts.push(`rule ${payload.rule}`);
     if (event.kind === "resolution" && payload.to !== undefined) parts.push(`${payload.from} → ${payload.to}`);
     if (payload.query) parts.push(`“${String(payload.query).slice(0, 40)}”`);
@@ -150,6 +167,7 @@
         ${honestyChip("session.checkpoints", { onDark: themeClass(options) === "dc-strip-dark" })}
       </div>
       ${karlsruheGroup(id, session, options)}
+      ${failureModeGroup(id, session, options)}
       <span class="dc-strip-spacer"></span>
       ${auditLink}
     </div>`;
@@ -170,6 +188,99 @@
         ${honestyChip("inv.karlsruhe", { onDark: dark })}
         ${purposeState}
       </div>`;
+  }
+
+  const FAILURE_LABELS = { none: "none", "fabricated-link": "fabricated link", overreach: "overreach", "approve-all": "approve all" };
+  function failureModeGroup(id, session, options) {
+    const show = options.failureMode !== undefined ? Boolean(options.failureMode) : options.surface === "investigate";
+    if (!show || !DC.session.setFailureMode) return "";
+    const mode = (session.flags && session.flags.failureMode) || "none";
+    return `<div class="dc-strip-group dc-strip-failure${mode !== "none" ? " is-on" : ""}">
+        <label for="${id}-failure">Failure mode <span class="dc-strip-sub">(instructor)</span></label>
+        <select id="${id}-failure" data-dc="failure-mode" title="Scripted agent failure for the next run (spec §4.7). Students see that a mode is set.">
+          ${(DC.session.FAILURE_MODES || Object.keys(FAILURE_LABELS)).map((value) => `<option value="${escapeHtml(value)}" ${value === mode ? "selected" : ""}>${escapeHtml(FAILURE_LABELS[value] || value)}</option>`).join("")}
+        </select>
+      </div>`;
+  }
+
+  // ── leads (F8): the formula with the numbers filled in ──
+  function localDecay(ageDays) {
+    return Math.exp(-Math.max(0, Number(ageDays) || 0) / 365);
+  }
+
+  function leadScore(components) {
+    if (DC.leads && DC.leads.score) return DC.leads.score(components);
+    const sum = (components || []).reduce((total, item) => total + (Number(item.weight) || 0) * localDecay(item.ageDays), 0);
+    return Math.round(1000 * Math.min(1, sum)) / 10;
+  }
+
+  function componentKey(component) {
+    return DC.leads && DC.leads.key ? DC.leads.key(component) : [component.source, component.marking, component.address || "", component.ageDays].join("|");
+  }
+
+  function fmt(value, digits) {
+    const n = Number(value);
+    return Number.isFinite(n) ? n.toFixed(digits) : "—";
+  }
+
+  function sourceLabel(source) {
+    return String(source || "")
+      .replace(/\.(csv|jsonl)$/, "")
+      .replace(/^(raw|norm)_/, "")
+      .replace(/_/g, " ");
+  }
+
+  function leadFormula(lead, visibleComponents, options) {
+    if (!lead) return "";
+    const opts = options || {};
+    const all = (lead.components || []).filter(Boolean);
+    const shownKeys = new Set((visibleComponents || all).map(componentKey));
+    const ruleOf = new Map((opts.withheld || []).filter((item) => item && item.reason === "rule").map((item) => [componentKey(item.component), item]));
+    const visible = all.filter((component) => shownKeys.has(componentKey(component)));
+    const hidden = all.filter((component) => !shownKeys.has(componentKey(component)));
+    const byRule = hidden.filter((component) => ruleOf.has(componentKey(component)));
+    const byMarking = hidden.filter((component) => !ruleOf.has(componentKey(component)));
+    const visibleScore = leadScore(visible);
+    const fullScore = leadScore(all);
+    const knowFull = Boolean(opts.showFull) || (hidden.length > 0 && byMarking.length === 0);
+    const formula = lead.formula || (DC.leads && DC.leads.FORMULA) || "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))";
+    const row = (component) => {
+      const decay = localDecay(component.ageDays);
+      const points = 100 * (Number(component.weight) || 0) * decay;
+      const rule = ruleOf.get(componentKey(component));
+      if (!shownKeys.has(componentKey(component)) && !rule) {
+        return `<tr class="dc-lead-withheld" data-component="${escapeHtml(component.source)}" data-withheld="marking">
+          <td>${escapeHtml(sourceLabel(component.source))}</td><td>${markingChip(component.marking)}</td>
+          <td colspan="5" class="dc-lead-hatch">withheld — marking ${escapeHtml(component.marking || "?")}: your role does not see this source, its age, its weight or its address</td></tr>`;
+      }
+      const struck = rule ? " dc-lead-struck" : "";
+      return `<tr class="${rule ? "dc-lead-withheld dc-lead-rule" : ""}" data-component="${escapeHtml(component.source)}"${rule ? ` data-withheld="rule" data-rule="${escapeHtml(rule.rule ? rule.rule.id : "")}"` : ""}>
+        <td>${escapeHtml(sourceLabel(component.source))}${rule ? ` <span class="dc-lead-rule-chip">removed by rule ${escapeHtml(rule.rule ? rule.rule.id : "")}</span>` : ""}</td>
+        <td>${markingChip(component.marking)}</td>
+        <td class="num${struck}">${fmt(component.weight, 2)}</td>
+        <td class="num${struck}">${escapeHtml(String(component.ageDays ?? "—"))}</td>
+        <td class="num${struck}">${fmt(decay, 3)}</td>
+        <td class="num${struck}">${fmt(points, 1)}</td>
+        <td class="${struck.trim()}">${escapeHtml(component.address || "—")}</td></tr>`;
+    };
+    const terms = visible.map((component) => `${fmt(component.weight, 2)}·exp(−${escapeHtml(String(component.ageDays))}/365)`).join(" + ") || "0";
+    const sumLine = `= 100 · min(1, ${terms}) = <strong data-lead-score="visible">${fmt(visibleScore, 1)}</strong>`;
+    const withheldNote = hidden.length
+      ? `<p class="dc-lead-note" data-lead-withheld="${hidden.length}"><strong>Score from visible sources: ${fmt(visibleScore, 1)}</strong> · ${hidden.length} component${hidden.length === 1 ? "" : "s"} withheld${
+          knowFull ? ` · full score <span data-lead-score="full">${fmt(fullScore, 1)}</span> (score without withheld sources: ${fmt(visibleScore, 1)})` : ""
+        }${byRule.length ? ` · ${byRule.length} removed by a purpose rule (Karlsruhe mode): score your markings allow <span data-lead-score="before-rule">${fmt(leadScore(visible.concat(byRule)), 1)}</span>, after the rule ${fmt(visibleScore, 1)}` : ""}</p>`
+      : "";
+    const table = opts.compact
+      ? ""
+      : `<table class="dc-lead-table"><thead><tr><th>Source</th><th>Marking</th><th>Weight</th><th>Age (days)</th><th>Decay</th><th>Points</th><th>Address</th></tr></thead>
+        <tbody>${all.map(row).join("") || `<tr><td colspan="7">No address sources.</td></tr>`}</tbody></table>`;
+    return `<div class="dc-lead-formula" data-lead="${escapeHtml(lead.id || "")}">
+      <code class="dc-lead-code">${escapeHtml(formula)}</code>
+      ${table}
+      <p class="dc-lead-sum mono">${sumLine}</p>
+      ${withheldNote}
+      ${lead.asOf ? `<p class="dc-lead-asof">Ages are counted to the dataset date ${escapeHtml(lead.asOf)}.</p>` : ""}
+    </div>`;
   }
 
   let standaloneWired = false;
@@ -343,6 +454,8 @@
           DC.session.setFlag("strictCheckpoints", control.checked);
         } else if (control.dataset.dc === "karlsruhe" && DC.purposes) {
           DC.purposes.setEnabled(control.checked);
+        } else if (control.dataset.dc === "failure-mode" && DC.session.setFailureMode) {
+          DC.session.setFailureMode(control.value);
         }
       });
     }
@@ -367,6 +480,8 @@
     blockedCard,
     discussionCard,
     discussionCardsFor,
+    leadFormula,
+    leadScore,
     // Part of renderSessionStrip; also callable to place the toggle elsewhere (wired document-wide).
     karlsruheToggle(options) {
       wireStandaloneToggle();

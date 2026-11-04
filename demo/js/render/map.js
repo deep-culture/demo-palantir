@@ -6,6 +6,7 @@ import { buildMapData } from "../map.js";
 import { renderPhoneHold } from "./banners.js";
 import { honestyChip } from "./common.js";
 import { renderTelecomExpansion } from "./inspector.js";
+import { leadsActive } from "../leads.js";
 
 export function renderMapTool() {
   const mapData = buildMapData();
@@ -41,15 +42,20 @@ export function renderMapTool() {
                 <label>Search</label>
                 <input value="${escapeHtml(ui.mapSearch)}" placeholder="Search airport or address" data-scope="map" data-field="search">
               </div>
+              <div class="field map-leads-toggle">
+                <label for="map-leads">Layers</label>
+                <span><input type="checkbox" id="map-leads" data-scope="map-leads" ${ui.mapLeads ? "checked" : ""} ${leadsActive() ? "" : "disabled"}> Leads layer${honestyChip("inv.leads")}</span>
+              </div>
               <div class="chip-row" style="align-items:flex-end;padding-bottom:0.2rem">
                 <span class="chip">${escapeHtml(mapData.summary.scope)}</span>
                 <span class="chip">${escapeHtml(`${mapData.places.length} places`)}</span>
                 <span class="chip">${escapeHtml(`${mapData.routes.length} routes`)}</span>
+                ${ui.mapLeads ? `<span class="chip chip-leads">${escapeHtml(`${mapData.leads.length} lead pins (sized by visible score)`)}</span>` : ""}
               </div>
             </div>
             ${renderPhoneHold("map", ui.mapSearch)}
             <div class="map-canvas">
-              ${mapData.places.length
+              ${mapData.places.length || mapData.leads.length
               ? `<div id="leaflet-map" class="leaflet-map" style="height:560px" aria-label="Geospatial investigation map"></div>`
               : `<div class="empty-state" style="padding:2rem">No mapped places are available for this scope yet.</div>`
             }

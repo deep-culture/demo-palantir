@@ -115,7 +115,7 @@ The starter dataset is small enough for classroom explanation and manual inspect
 
 Phase 2 (PHASE2_CONTRACT.md §1) reworked the clinic data to follow the spec: no watchlisted person has a clinic registration, so health data on a watchlisted person can only come from a false merge. The starter's 10 clinic rows cover the namesake Omar Rahman (b. 1979-02-02), Daniel Wu, Maya Singh and 7 of the 12 noise people (about 60%), all attached. The Phase 1 rows of the four watchlisted people were removed; their registration IDs are not reused, so the file shows the gaps (REG-0003, -0004, -0007, -0008).
 
-**The namesake (PER-007).** `person::g5510077`, Omar Rahman, b. 1979-02-02, passport `G5510077`, phone `+447911223344`, a care worker at *41 Oak Lane, Birmingham* (clinic registration, HEALTH). He flies LHR→IST (`MF-0008`) and back (`MF-0009`, where the manifest spells him **Umar Rahman**); the watchlisted Omar Rahman (`N5538219`) flies LHR→IST on `MF-0007`, so they share a route. He pays rent by bank transfer (`TX-0009`, `TX-0010`, account `ACCT-P007` → `ACCT-L041` Oak Lane Lettings Ltd); the bank writes his name "Umar Rahman", because account owners are linked by name only and "Omar Rahman" already belongs to the watchlisted man. No watchlist entry. Nationality (British) and occupation are storyline facts that no source carries for non-watchlisted people. At the default threshold he is a separate Person; his candidate pair with `person::n5538219` scores 0.55 (§8.8).
+**The namesake (PER-007).** `person::g5510077`, Omar Rahman, b. 1979-02-02, passport `G5510077`, phone `+447911223344`, a care worker at *41 Oak Lane, Birmingham* (clinic registration, HEALTH). He flies LHR→IST (`MF-0008`) and back (`MF-0009`, where the manifest spells him **Umar Rahman**); the watchlisted Omar Rahman (`N5538219`) flies LHR→IST on `MF-0007`, so they share a route. Phase 3 appends three pings of his handset (`DEV-OR-07`, `PG-0101`–`PG-0103`, 10–11 April) at "Oak Lane, Birmingham": street level, a separate Location from the clinic's residential "41 Oak Lane, Birmingham". With the clinic record he is the top lead in starter; without HEALTH he is not (§7.1e). He pays rent by bank transfer (`TX-0009`, `TX-0010`, account `ACCT-P007` → `ACCT-L041` Oak Lane Lettings Ltd); the bank writes his name "Umar Rahman", because account owners are linked by name only and "Omar Rahman" already belongs to the watchlisted man. No watchlist entry. Nationality (British) and occupation are storyline facts that no source carries for non-watchlisted people. At the default threshold he is a separate Person; his candidate pair with `person::n5538219` scores 0.55 (§8.8).
 
 ### 5.2 Simulator dataset
 
@@ -201,6 +201,7 @@ The browser consumes a seed payload with the following top-level shape:
     externalSystems: [...]   // Phase 2, §7.1d
   },
   resolution: {...},         // Phase 2, §7.1c
+  leads: {...},              // Phase 3, §7.1e
   mappings: [...],
   entities: [...],
   edges: [...]
@@ -269,7 +270,9 @@ governance: {
 }
 ```
 
-Discussion cards: `disc-ice-elite` (build.markings), `disc-bverfg-2023` (session.checkpoints, inv.karlsruhe), `disc-raffinaderij` (oversight.audit), `disc-nhs-fdp` (session.roles, build.markings), `disc-pol-intel` (build.pipelines). Summaries paraphrase research report §D; every source URL is from §G.
+Discussion cards: `disc-ice-elite` (build.markings, inv.leads), `disc-bverfg-2023` (session.checkpoints, inv.karlsruhe), `disc-raffinaderij` (oversight.audit), `disc-nhs-fdp` (session.roles, build.markings), `disc-pol-intel` (build.pipelines, deployment), `disc-maven` (inv.agent). Summaries paraphrase research report §A and §D; every source URL is from §G.
+
+Phase 3 additions (PHASE3_CONTRACT.md §1): honesty entries `inv.leads` (simplified: "the formula is ours; ELITE's is not public"), `inv.object-sets` (mirrors), `build.retention` (simplified) and `deployment` (extension); `inv.agent` is reworded for the scripted tool-calling agent (no LLM; failures scripted); the `disc-maven` card (Maven Smart System: about $1.3bn ceiling through 2029, 20,000+ users in May 2025, NATO version) and the attachments in the list above. The surface id `deployment` is the new root page `deployment.html`.
 
 ### 7.1c Resolution block (Phase 2)
 
@@ -289,7 +292,31 @@ resolution: {
 
 ### 7.1d Action types (Phase 2)
 
-`ontology.actionTypes` and `ontology.externalSystems` are identical in both seeds (the Foundry seed has an `ontology` key holding only these two), built by `pipeline/actions.py` (PHASE2_CONTRACT.md §3): `act-add-to-watchlist`, `act-remove-from-watchlist`, `act-flag-account` (BankAccount), `act-request-border-watch`, `act-unmerge-person`; systems `border-watch`, `bank-compliance`, `case-management`. Effect operations are documented in the module. Two additions to the contract's op list: `setProperty` may carry `onlyIfSetByAction` + `refusal` (Remove from watchlist refuses on feed-sourced tags) and `deleteLinked` may carry `onlyCreatedByAction`; Unmerge uses a sixth op, `{op: "resolutionOverride", candidateId: "param:candidateId", decision: "reject"}`. To give the effects valid targets, the entity types gain `BankAccount.reviewFlag` and `WatchlistRecord.reason`, `addedBy`, `addedAt`, `origin` (`"action"` on Action-created records). No seeded object carries these properties.
+`ontology.actionTypes` and `ontology.externalSystems` are identical in both seeds (the Foundry seed has an `ontology` key holding only these two), built by `pipeline/actions.py` (PHASE2_CONTRACT.md §3): `act-add-to-watchlist`, `act-remove-from-watchlist`, `act-flag-account` (BankAccount), `act-request-border-watch`, `act-unmerge-person`, and (Phase 3) `act-close-lead`; systems `border-watch`, `bank-compliance`, `case-management`. Effect operations are documented in the module. Two additions to the contract's op list: `setProperty` may carry `onlyIfSetByAction` + `refusal` (Remove from watchlist refuses on feed-sourced tags) and `deleteLinked` may carry `onlyCreatedByAction`; Unmerge uses a sixth op, `{op: "resolutionOverride", candidateId: "param:candidateId", decision: "reject"}`. To give the effects valid targets, the entity types gain `BankAccount.reviewFlag` and `WatchlistRecord.reason`, `addedBy`, `addedAt`, `origin` (`"action"` on Action-created records). No seeded object carries these properties.
+
+`act-close-lead` (Phase 3) has `objectType: "Lead"`: leads are not ontology objects, and its effects edit a lead in `leads.items` (Investigate's apply callback edits `fullData.leads`). Roles: fin-analyst; not sensitive (no Checkpoint). Parameters `outcome` (enum `no-action`, `referred`, `address-wrong`) and `reason` (≥ 10 characters). Effects: `setProperty status ← "value:closed"`, `setProperty outcome ← "param:outcome"`, `setProperty closeReason ← "param:reason"`, writeback to `case-management` ("CLOSE LEAD {id} for {personId} ({outcome}, score {score}) by {role}: {reason}"). The lead fields that effects may name are listed in `leads.properties`.
+
+### 7.1e Leads block (Phase 3)
+
+Built by `pipeline/leads.py` `leads_block()` from the shared resolver and the raw clinic, ping and registry rows; the Foundry transform `06 Build Leads` wraps the same scorer, so the Build seed's `leads` dataset rows are the same objects (FOUNDRY_TECHNICAL_SPEC.md §5.2 has the rules, sources and lineage):
+
+```js
+leads: {
+  objectType: "Lead",
+  asOf: "2026-04-12",             // the latest date in the input data, fixed per build
+  formula: "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
+  decayDays: 365,
+  properties: [{id, label, type}],  // lead fields (for the Action drawer and effects)
+  weights: [{source, rawSource, label, marking, weight, addressField, dateField}],
+            // norm_clinic_registrations HEALTH 0.5 · norm_mobile_pings TELECOM 0.4 · norm_company_registry OPEN 0.3
+  items: [{id: "lead::<personId>", personId, address, lat, lon, score, status: "open",
+           components: [{source, marking, weight, ageDays, decay, contribution, address,
+                         label, rawSource, purpose, date, lat, lon, record, ...}],
+           formula, asOf, addressSource, sourceMarkings}]
+}
+```
+
+One lead per Person with an address source (starter 24, simulator 191), sorted by score, then person ID. `lat`/`lon` and `address` belong to the best component (largest contribution); every component carries its own `lat`/`lon`, so the browser can move the pin when a component is withheld. **The lead-level `address`, `lat`, `lon` and `score` are the all-markings view**: a role that cannot see a component's marking must recompute them from the visible components (`addressSource` names the component they came from). `purpose` on a component is its source dataset's purpose (`healthcare` for the clinic component, which Karlsruhe R2 removes for law-enforcement purposes).
 
 ### 7.2 Source descriptors
 
@@ -568,7 +595,12 @@ Migration: the pre-redesign key `ontology-studio-demo-v2:{datasetKey}` is read o
 | `governance.js` | `governanceActive`, `currentRole(Id)`, `checkpointDefined`, `lackingMarkings`, `withheldAround`, telecom gate and `expandTelecom`, phone-number search, `logEvent`/`logView`/`logScenarioOpen`/`logRuleOpen`/`logSearch` |
 | `derive.js` | `buildDerivedState` and lookups, relationship helpers, `buildSubgraph`, `buildPathSummaries`, `buildTimeline`, `buildPlaces`, `buildTransfers` |
 | `analytics.js` | `buildAnalytics`, `createScenario`, `scenarioActions`, `buildInvestigations` |
-| `agent.js` | the simulated AIP agent (ex-copilot): matching, `buildCopilotResponse`, `runCopilotQuery` |
+| `agent.js` | the simulated AIP agent (ex-copilot): the four example prompts and their failure modes (`COPILOT_EXAMPLES`, `EXAMPLE_FAILURES`), matching (`collectEntityMatches(query, {type, limit})`, `collectRuleMatches`, `collectScenarioMatches`), `summarizeEntityForCopilot` (inspector), `runCopilotQuery` (phone-number Checkpoint, then `runAgent`) (§32.1) |
+| `agent-run.js` | one agent run: `runAgent(query, {objectSetId})`, tool-call logging, answer graph, staged-edit handlers (Approve / Reject / Approve all), `evaluateRun` (Evals), `AGENT_CLICKS` (§32.1) |
+| `agent-tools.js` | the six tools through role view, purpose rules and Checkpoints (`TOOLS`), `idExists`, `linkTypeMarkings` (§32.1) |
+| `agent-plan.js` | intents (`detectIntent`), plans (`planFor`), answer composition per intent (`INTENTS`), the scripted failure modes (`builtinFailure`, `overreach`, `fabricatedLinkId`, `fabricateAnywhere`) (§32.1) |
+| `leads.js` | the leads block recomputed per role and threshold (`buildLeadRows`), Close lead (`applyLeadEffects`, `closeSelectedLead`), `LEAD_CLICKS`/`LEAD_INPUTS`/`LEAD_CHANGES` (§32.2) |
+| `object-sets.js` | saving, versioning, sharing object sets through `DC.objectSets` (`membersFor`, `splitMembers`, `SET_CLICKS`, `SET_CHANGES`) (§32.3) |
 | `map.js` | `buildMapData`, places and routes, Leaflet (`initializeLeafletMap`) and the SVG fallback (`renderMapSvg`) |
 | `render/index.js` | `render()`, `ensureUiSelection`, focus capture/restore, `renderWorkspace` |
 | `render/header.js`, `inspector.js`, `walkthrough.js`, `banners.js`, `common.js` | header and tabs; inspector; guided tour; store/deep-link banner, withheld notes, phone hold; panel header, honesty chip, fields |
@@ -579,6 +611,7 @@ Migration: the pre-redesign key `ontology-studio-demo-v2:{datasetKey}` is read o
 | `purpose-gate.js` | Karlsruhe mode in Investigate: `gateRules`, `expansionCheck`, `requestPurposeException`, `purposePayload` (§31.3) |
 | `actions-ui.js` | Action drawer state and handlers (`ACTION_CLICKS`, `ACTION_INPUTS`, `ACTION_CHANGES`), the applier `applyEffects`, `riskTaggedByActions` (§31.1) |
 | `render/action-drawer.js`, `render/resolution.js` | the drawer, scenario Action card, inspector Actions and External systems, the rule footnote; merge chip, merge explanation, threshold chip |
+| `render/leads.js`, `render/object-sets.js` | the Leads and Object sets tabs (Phase 3); `render/agent.js` is the Agent tab (trace, answer, staged edits, evals, answer graph) |
 
 Modules import each other in cycles (render ↔ state ↔ derive …). That is safe because no module does work at evaluation time except declaring constants; everything else happens in `main.js`, which is the entry point (nothing imports it), so every other module has finished evaluating before its body runs. Boot order in `main.js`:
 
@@ -644,14 +677,9 @@ Rule-driven rankings over the current ontology graph.
 
 ### 13.4 Agent (simulated AIP)
 
-Formerly "AI Copilot" (renamed in F10; the internal tool id stays `copilot`). Natural-language interface implemented with local prompt interpretation and graph synthesis. It reads only the role view, so withheld objects never reach it; when objects around the answer are withheld it says so ("Your role cannot see N linked objects … This answer uses only what your role can see"). A question containing a phone number goes through the phone-search Checkpoint first. Every asked question is logged (`agent.query`).
+Formerly "AI Copilot" (renamed in F10; the internal tool id stays `copilot`). Phase 3 replaced the one-shot answer builder with a planning agent that calls tools, cites its sources, stages edits and can be evaluated: see §17 and §32.1. A question containing a phone number goes through the phone-search Checkpoint first.
 
-No-result state displays:
-
-- **"How this agent works"** card with a `Rule-based stand-in` badge; one fact item carries the `inv.agent` honesty text from the seed ("Rule-based stand-in for an AIP chatbot; it cannot invent objects. Real AIP uses an LLM with tools and stages edits for review."). The earlier claim that real platforms cannot hallucinate is gone.
-- **"Without the ontology vs. with it"** static comparison card — a raw CSV row alongside the equivalent linked ontology answer
-
-Result state displays the answer card with a **grounding summary** line showing object and link counts traversed and "built only from objects your role can see".
+Layout (one column): question box with the four example prompts → black, monospace **Plan and trace** panel (`tool(args) → n results`, denied steps in red "DENIED and logged" with the reason, Checkpoint record ids, timings, the trace JSON) → **Answer** (numbered sentences, each with citation chips) → **Answer graph** (the cited link or object highlighted) → **Staged edits** (Approve / Reject per edit, Approve all) → **Evals** (three checks, *Check* button) → the Maven discussion card (`inv.agent`). Without a run the panel shows "How this agent works" with the `inv.agent` honesty text.
 
 ### 13.5 Map workspace
 
@@ -771,53 +799,46 @@ Person -> BOOKED_ON -> Flight -> ARRIVED_AT -> Airport
 
 into a sorted temporal sequence.
 
-## 17. AI copilot design
+## 17. Agent design (simulated AIP)
 
-The copilot is deliberately local and explicit.
+The agent is deliberately local and explicit: no language model is called (spec §4.7; the bring-your-own-key hook of spec §9 Q3 is not built). It is a deterministic planner over the same tool interface an LLM would use.
 
-### 17.1 Non-LLM design
+### 17.1 Pipeline
 
-The system does **not** call an external model.
+1. `detectIntent(query, objectSetId)`: `set` (a saved object set), `watchlist`, `phones`, `link` ("What links A to B?"), otherwise `summary`.
+2. `planFor(intent, failureMode)`: the plan shown first and logged with the question (`agent.query`).
+3. The intent function calls tools one by one (`ctx.step(tool, args)`); later arguments depend on earlier results. Every call is one audit event (`agent.tool`).
+4. Sentences are composed **only from tool results** (`ctx.say(text, cites, steps)`): each carries ≥ 1 citation (object or link id) and the step numbers it rests on. Facts from a denied step never reach a sentence; notes without a citation are shown as notes, not claims.
+5. `propose_action` stages edits; the user decides.
+6. *Check* runs the Evals.
 
-Instead it:
+### 17.2 Tools
 
-1. tokenizes the query,
-2. scores entity matches,
-3. scores rule matches,
-4. scores scenario matches,
-5. selects focal entities,
-6. builds a bounded answer graph,
-7. synthesizes a response from structured evidence.
+| Tool | Backed by | Governance |
+|---|---|---|
+| `search_objects({query, type?} \| {objectSetId})` | `collectEntityMatches` on the role view; object-set members | role view; R1/R2 |
+| `get_links({objectId \| objectIds, linkType?})` | `edgesForEntity` | a requested link type whose marking the role lacks is **denied**; telecom links held until the Checkpoint; withheld links counted; R2 filters far ends |
+| `expand({objectIds, depth, linkTypes})` | breadth-first over the role view (cap 40 objects) | marking denial as above; `cp-expand-telecom` (or `cp-danger-statement` when R3 applies) — cancelled or refused ⇒ denied; R1/R2 |
+| `run_rule({ruleId})` | `analysisState.analytics` (already purpose-gated) | a blocked rule ⇒ denied |
+| `propose_action({actionTypeId, objectId, params})` | `DC.actions.applyAction(…, {staged: true, runId})` | the user's role; refused / blocked ⇒ denied |
+| `get_lineage({objectId})` | the Build seed when loaded | in Investigate: "not available on this surface" |
 
-### 17.2 Query pipeline
+### 17.3 Intents and the S3 prompts
 
-Key functions:
+- **Summarise Omar Rahman** — at 0.75 two Persons match (the watchlisted Omar Al-Rahman, alias Omar Rahman, and the namesake); the answer says they are separate and quotes the candidate's score and explanation; the agent stages *Add to watchlist* (or *Request border watch* for patrol) for the namesake because his name and route match a risk-tagged person. At 0.55 one merged Person matches and the answer says so ("treats … as one person"), so every link below is about both.
+- **Who should we add to the watchlist?** — two rules, then an expansion from risk-tagged people through company and registered-address links; untagged people found are proposed for the watchlist (built-in failure mode *approve all*).
+- **Show me everyone connected to Kareem Haddad's phones** — search, then `expand` to depth 4 along `USES_DEVICE`/`OBSERVED_AT` (telecom Checkpoint for patrol and DPO; denied by marking for fin-analyst); built-in *overreach* adds a call outside the role (patrol: `get_links … OWNS_ACCOUNT` → "marking FIN not visible to role patrol").
+- **What links Omar Rahman to North Quay Logistics?** — two searches and `get_links` on the company; built-in *fabricated link*: the namesake is said to be a beneficial owner, citing a well-formed link id that does not exist.
 
-- `normalizeText()`
-- `queryTokens()`
-- `collectEntityMatches()`
-- `collectRuleMatches()`
-- `collectScenarioMatches()`
-- `summarizeEntityForCopilot()`
-- `buildCopilotResponse()`
+### 17.4 Failure modes and Evals
 
-### 17.3 Copilot output
+The session flag `failureMode` (`none` | `fabricated-link` | `overreach` | `approve-all`, `DC.session.setFailureMode`, the instructor's *Failure mode* select in the strip) applies to every run; with `none`, the three fixed prompts fire their own mode (the trace says "failure mode … (example prompt)" or "(instructor)" and "mode scripted"). Overreach picks a link type whose marking the role lacks (FIN, TELECOM, HEALTH, LE-SENSITIVE, skipping one already denied in the run), else an Action the role may not run. *Approve all* shows a green nudge and a large **Approve all n** button.
 
-Each answer may include:
+Evals (`evaluateRun`): `all-claims-cited` (every sentence has a citation and every cited id exists in the stored or resolved ontology — fails on the fabricated link, naming the sentence and the id, and outlines the sentence), `no-denied-result-used` (no sentence relies on a denied step), `no-unapproved-edit` (every applied instance of the run has `approvedBy`; reports edits approved in bulk). Nothing is evaluated until *Check*; the click logs `agent.eval`.
 
-- summary paragraph(s)
-- evidence lines
-- focus entities
-- recommended scenario
-- recommended analytics rule
-- answer graph
-- suggested follow-up questions
-- **grounding summary** — `"{n} objects matched · {n} links traversed · built only from objects your role can see"` derived from `result.graph`
-- `withheld` — `{links, objects, markings}` hidden around the focus objects for the current role
+### 17.5 Trust model
 
-### 17.4 Trust model
-
-Because the agent is rule-based and graph-bound, it cannot invent objects, but it is heuristic and only as good as the underlying links — and only as complete as the role's view. A real AIP chatbot uses an LLM with tools and can be wrong; that is why its edits are staged for review (honesty label `inv.agent`, "Simplified").
+The agent cannot invent objects, but in a scripted run it can assert a link that does not exist, and in any run it is only as complete as the role's view and as careful as its plan. That is why its edits are staged and why the Evals exist (honesty label `inv.agent`, "Simplified").
 
 ## 18. Map design
 
@@ -918,7 +939,7 @@ Responsible for:
 - clinic registrations and residential addresses (Phase 1) from a separate random stream
 - `manifest.json` per profile (values from `pipeline/governance.py`)
 
-Three seeds: `--legacy-seed` (default 42) drives the five Phase 0 files; `--seed` (default 20260401) drives the Phase 1 clinic data; `--phase2-seed` (default 20261104) chooses which further noise people get a clinic registration. Phase 2 rows (the namesake's and N5538219's LHR–IST flights, the rent transfers, the simulator pairs' flights and companies) are fixed and appended after the Phase 0 rows, so every Phase 0 line stays byte-identical (tested against the commits before Phase 1 and Phase 2). The namesake is not added to `CORE_PEOPLE`, which the noise generators draw from. CSVs are written with LF line endings, so a fresh run is byte-identical to the committed files.
+Three seeds: `--legacy-seed` (default 42) drives the five Phase 0 files; `--seed` (default 20260401) drives the Phase 1 clinic data; `--phase2-seed` (default 20261104) chooses which further noise people get a clinic registration. Phase 2 rows (the namesake's and N5538219's LHR–IST flights, the rent transfers, the simulator pairs' flights and companies) are fixed and appended after the Phase 0 rows, so every Phase 0 line stays byte-identical (tested against the commits before Phase 1 and Phase 2). Phase 3 appends three fixed pings (`PG-0101`–`PG-0103`, the namesake's handset near home) to `mobile_location_pings.jsonl`; they do not feed the clinic step's known-label set, so the clinic rows are unchanged. The namesake is not added to `CORE_PEOPLE`, which the noise generators draw from. CSVs are written with LF line endings, so a fresh run is byte-identical to the committed files.
 
 ### 21.2 `build_ontology_seed.py`
 
@@ -931,6 +952,7 @@ Responsible for:
 - clinic attachment, residential Locations and `RESIDES_AT` (via `pipeline/resolution.py`)
 - markings on objects, properties and links, and the governance block (via `pipeline/governance.py`)
 - the `resolution` candidate block (via `pipeline/candidates.py`) and `ontology.actionTypes` / `externalSystems` (via `pipeline/actions.py`)
+- the `leads` block (via `pipeline/leads.py`, the scorer the Foundry transform `06_build_leads.py` wraps)
 - source descriptors with manifest markings and purposes
 - seed metadata (via `pipeline/seedmeta.py`)
 - writing bundled seed catalog
@@ -944,7 +966,8 @@ Together responsible for:
 - analytics
 - scenario creation and entity-aware action generation (`scenarioActions()`)
 - action log state (`analysisState.actionLog`)
-- copilot grounding UI (badge, comparison card, grounding summary)
+- the agent: plan, tools, trace, cited answer, staged edits, evals (§17, §32.1)
+- leads and object sets (§32.2, §32.3)
 - guided tour walkthrough including Critical Perspectives step and `bullets[]` rendering
 - map
 - rendering
@@ -1228,3 +1251,38 @@ Discussion cards (`DC.ui.discussionCard`) are purple, collapsible `<details>` (o
 - **Entity resolution**: current threshold and rejected merges, then every `resolution` event (threshold from → to with the merged candidates, unmerges with score and Action id).
 - **Checkpoint records**: an *Exception records only* filter; exception records are marked `exception · R2`.
 - The **Raffinaderij** discussion card (`oversight.audit`) under the chain status. The redaction toggle covers the new tables.
+
+
+## 32. Agent, leads and object sets in Investigate and Oversight (Phase 3)
+
+Spec: `REDESIGN_SPEC.md` §4.7 (F7), §4.8 (F8), §4.11 (F11), §5.3 S3; contract `context/PHASE3_CONTRACT.md` (authoritative). Optional seed fields: `catalog[ds].leads`, `ontology.actionTypes` entry `act-close-lead`, `governance.discussions` `disc-maven` (and `disc-ice-elite` attached to `inv.leads`), honesty `inv.leads`, `inv.object-sets`. Without them the Leads tab says the dataset has no leads block, Close lead explains it needs `act-close-lead`, and the cards and chips are absent; the agent and object sets need no seed fields.
+
+Core load order (Investigate and Oversight): `store, governance, session, audit, markings, checkpoints, purposes, resolution, actions, agent, objectsets, leads, ui`.
+
+| File | API (contract §5) | Notes |
+|---|---|---|
+| `agent.js` (new) | `DC.agent.logToolCall({runId, n, tool, args, resultIds, denied, reason, …})` | `newRunId()`, `logRun({runId, query, plan, failureMode, threshold, objectSetId})` (`agent.query`), `logEval({runId, evals})` (`agent.eval`), `runs(filter)` (events grouped by `payload.runId`, newest first), `TOOLS`. Tool events: kind `agent`, verb `agent.tool`, `objectIds` = argument ids + up to 40 result ids, payload `{runId, n, tool, args, resultIds (≤ 40), resultCount, denied, outcome: ok \| denied \| unavailable, reason, withheld, purposes, rule, note}`, `checkpointId` = the Checkpoint record the step passed |
+| `actions.js` | `DC.actions.approveAll(ids, {by, objectFor, linkedFor})` | applies every listed staged edit with `approvedBy: "<role> (bulk)"` and writes **one** event `{kind: "action", verb: "action.approveAll", payload: {count, ids, instanceIds, approvedBy, runIds, refused}}` instead of one `action.approve` each (each edit still logs `action.apply` and its writebacks). `applyAction(…, {staged, runId})` tags the pending instance, `action.stage`, `action.apply`, `action.approve`/`reject` with `runId` |
+| `objectsets.js` (new) | `DC.objectSets.list(filter)/save(set)/update(id, {add, remove})/share(id, roles)/get(id)` | `remove(id)`, `membersAt(set, v)`, `diff(set, from, to)`, `canSee(set, role)`, `onChange`. Stored in `dc-palantir:governance.objectSets`: `{id, name, datasetId, memberIds, createdBy, createdAt, source, sharedWith, versions: [{v, ts, added, removed, by}]}`. Events: kind `objectset`, verbs `objectSet.save \| update \| share \| delete`, `payload.setId` |
+| `session.js` | flag `failureMode` | `failureMode()`, `setFailureMode(mode)` (logged as `session.setFlag {flag: "failureMode"}`), `FAILURE_MODES` |
+| `leads.js` (new) | — | `DC.leads.FORMULA`, `decay`, `contribution`, `score(components)` (the code path of the formula string), `best`, `key`, `split(lead, {roleId})` → `{visible, withheld: [{component, reason: "marking" \| "rule", rule}], fullScore, visibleScore, best, canKnowFull}` |
+| `ui.js` | `DC.ui.leadFormula(lead, visibleComponents, {withheld, showFull, compact})` → HTML | shared with Build. Withheld components are hatched with no weight, age, points or address; "Score from visible sources: x · n components withheld"; components a purpose rule removed keep their (struck) numbers and the card shows the score the role's markings allow; the full score only when every withheld component was removed by a rule (or `showFull`). Also `leadScore()`, and the strip's *Failure mode (instructor)* select (surface `investigate`, or `{failureMode: true}`) |
+
+### 32.1 Agent (F7)
+
+See §17. Code: `demo/js/agent.js`, `agent-run.js`, `agent-tools.js`, `agent-plan.js`, `render/agent.js`. A run is a recorded trace (`copilotState.run`), not recomputed on render; a run made under another role or threshold says so and offers *Ask again*. `copilotState.result` keeps `{graph, focusEntityIds}` for the map's "Agent answer" scope. Citation chips set `copilotState.highlight` and select the object (or the link's source); the answer graph draws cited links heavier and the highlighted item in red. Staged edits are `DC.actions.pending()` filtered by `runId`; *Approve* calls `approveAction` (role check: `canApprove` or the type's `allowedRoles`), *Reject* `rejectAction`, *Approve all* `approveAll` with the role-view objects so effect values (`object:passportId`) fill.
+
+### 32.2 Leads (F8)
+
+The seed's lead-level `address`, `lat`, `lon` and `score` are the all-markings view (for the namesake: his clinic home address) and are **never rendered**. `buildLeadRows()` groups `fullData.leads.items` by the resolution representative (merged Persons share one lead with the union of components), drops leads whose Person the role cannot see (counted as withheld), and recomputes per row with `DC.leads.split`: visible score, best visible address and its coordinates (from the component), age of that component. Components are withheld for a missing marking (DPO overrides at the ontology count as removed) and, with Karlsruhe mode on, for a purpose rule on `view` (R2: HEALTH ⇒ healthcare with a public-order or financial-crime session purpose) — the card then says "Karlsruhe mode: rule R2 removed HEALTH". Starter outcome: as DPO the namesake is the top lead (85.8); as patrol (TELECOM, no HEALTH) 39.9 from pings ("Oak Lane, Birmingham"), not top; as fin-analyst (neither) 0.0 with no visible address. The tab: table (rank, person with merge chip, best visible address, score, source marking chips with hatched "withheld" chips, age, status), detail card with `DC.ui.leadFormula`, the **Close lead** form (`act-close-lead`, fin-analyst; the object passed to the Action carries only the visible score and address, so the case-management writeback does too; `applyLeadEffects` edits `fullData.leads.items` and persists, so Reset dataset reopens leads) and the ELITE discussion card. **Map**: a *Leads layer* checkbox adds pins (Leaflet circle markers or the SVG fallback) sized by visible score, at the best visible component's coordinates; *Show on map* on the Leads tab turns it on.
+
+### 32.3 Object sets (F11)
+
+*Save as object set* on the Graph explorer (the current view or search result), on a rule in Analytics (its hits) and on an agent answer (its graph). The **Object sets** tab lists the sets the role created or that were shared with it (others counted, not shown), the members the role can see (others counted as withheld, or as merged into another person at this threshold), *Add selected object*, *Add hits of the selected rule*, member removal (each change a new version), the version table and a diff between any two versions, sharing checkboxes by role (only the creating role changes them), and *Summarise this set (agent)*, which runs the agent with `search_objects({objectSetId})`.
+
+### 32.4 Oversight additions (`audit/oversight-agent.js`)
+
+- **Agent runs**: one entry per run (`DC.agent.runs`): who asked what, failure mode, each tool call with its arguments and result count, denied calls in red with the reason, staged / approved one by one / approved in bulk / rejected counts, and the last Eval outcome. The run id filters the page.
+- **Bulk approvals**: every `action.approveAll` with `approvedBy` and the count.
+- **Object sets**: current sets (members, version, creator, sharing) and every `objectset` event.
+- Filters: a new *Agent run* select (matches `payload.runId` or `payload.runIds`); the role filter applies to the new panels. The redaction toggle covers them.

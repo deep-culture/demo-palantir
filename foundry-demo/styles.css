@@ -914,3 +914,56 @@ details.purpose-panel > summary::-webkit-details-marker { display: none; }
 details.purpose-panel[open] > summary { margin-bottom: 6px; }
 .rule-badge.ok { background: transparent; color: var(--accent); border-color: var(--accent); }
 .res-table td:nth-child(1), .res-table td:nth-child(2) { min-width: 150px; }
+
+/* ---- Retention clock (F12, Phase 3) ---- */
+.ret-clock {
+  margin: 0 0 12px; padding: 10px 12px 8px;
+  border: 1px solid var(--border-2); border-left: 4px solid var(--dc-purple-soft); border-radius: var(--radius);
+  background: var(--surface);
+}
+.ret-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+.ret-asof { font-family: var(--mono); font-size: 10px; }
+.ret-controls { margin-bottom: 6px; }
+#ret-slider { width: 340px; max-width: 100%; accent-color: var(--accent); }
+.ret-value { font-size: 15px; min-width: 6.2em; }
+.ret-help { font-size: 11px; margin-bottom: 6px; }
+.ret-help code, .ret-line code { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+.ret-discussion { font-size: 12px; margin: 6px 0 2px; padding: 6px 10px; border-left: 3px solid var(--dc-purple-soft); background: rgba(131, 33, 97, 0.18); border-radius: 0 var(--radius) var(--radius) 0; }
+.ret-discussion-kicker {
+  display: inline-block; margin-right: 6px; font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--dc-black); background: var(--dc-green); padding: 0 6px; border-radius: 2px;
+}
+.ret-summary { font-size: 12px; padding: 8px 12px; border: 1px dashed var(--border-2); border-radius: var(--radius); }
+.ret-line { margin: 2px 0; }
+.ret-line strong { color: var(--accent); font-family: var(--mono); font-size: 13px; }
+.ret-carry-line strong { color: var(--amber); }
+.ret-na strong { color: var(--text); font-family: var(--sans); font-size: 12px; }
+.ret-datecol { font-family: var(--sans); font-size: 9px; padding: 0 5px; margin-left: 4px; border: 1px solid var(--accent); color: var(--accent); border-radius: 2px; }
+/* Row states: the word in the retention column carries the meaning; the styling repeats it. */
+.data-table tr.ret-expired td { color: #7d747b; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 6px, transparent 6px 12px); }
+.data-table tr.ret-expired td:not(.ret-cell) { text-decoration: line-through; text-decoration-color: rgba(163, 154, 161, 0.55); }
+.data-table tr.ret-carries td:first-child { box-shadow: inset 3px 0 0 var(--amber); }
+.data-table tr.ret-future td { color: #6e666c; font-style: italic; }
+.ret-tag { display: inline-block; font-family: var(--mono); font-size: 9px; padding: 0 5px; border-radius: 2px; white-space: nowrap; font-style: normal; text-decoration: none; }
+.ret-tag-expired { border: 1px solid #8c8389; color: #d8d0d6; background: #2a2428; }
+.ret-tag-carries { border: 1px solid var(--amber); color: var(--amber); }
+.ret-tag-future { border: 1px dashed #6e666c; color: #a39aa1; }
+.ret-tag-na { border: 1px dotted var(--border-2); color: var(--text-muted); }
+.ret-table td { white-space: normal; }
+
+/* ---- Leads in Build (F8, Phase 3) ---- */
+.lead-formula-line { margin: 0 0 8px; font-size: 12px; }
+.lead-formula-line code { font-family: var(--mono); color: var(--accent); }
+.lead-why { margin-top: 0; }
+.leads-table td { white-space: normal; vertical-align: top; }
+.leads-table td.lead-addr { min-width: 180px; }
+.lead-score { font-weight: 600; text-align: right; }
+.lead-chip { display: inline-flex; align-items: center; gap: 3px; margin: 1px 4px 1px 0; white-space: nowrap; }
+.lead-alt { font-size: 10px; margin-top: 2px; }
+.lead-detail { margin-top: 12px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border-2); border-top: 3px solid var(--accent); border-radius: var(--radius); }
+.lead-arith th { text-align: left; font-size: 10px; color: var(--text-muted); font-weight: 600; padding: 2px 6px; }
+.lead-arith tr.lead-hidden td { background: repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0 6px, transparent 6px 12px); }
+.lead-comp-addr { font-family: var(--sans); font-size: 10px; }
+/* DC.ui.leadFormula is written for Investigate's white workspace: give it a light card here. */
+.lead-formula-host { background: #fff; color: var(--dc-ink); padding: 10px 12px; border-radius: var(--radius); font-size: 12px; }
+.lead-formula-host a { color: var(--dc-purple); }

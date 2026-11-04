@@ -1,4 +1,4 @@
-"""PHASE2_CONTRACT.md §3: Action types and external systems, both seeds.
+"""PHASE2_CONTRACT.md §3 and PHASE3_CONTRACT.md §1: Action types and external systems, both seeds.
 
 The table is copied from the contract by hand.
 """
@@ -23,6 +23,9 @@ TABLE = {
                                  ["writeback"], ["border-watch"]),
     "act-unmerge-person": ("Unmerge person", "Person", ["fin-analyst", "dpo"],
                            ["resolutionOverride", "writeback"], ["case-management"]),
+    # Phase 3: leads are not ontology objects (they live in catalog[ds].leads.items).
+    "act-close-lead": ("Close lead", "Lead", ["fin-analyst"],
+                       ["setProperty", "setProperty", "setProperty", "writeback"], ["case-management"]),
 }
 SYSTEMS = [("border-watch", "Border watch system"), ("bank-compliance", "Bank compliance desk"),
            ("case-management", "Case management")]
@@ -69,12 +72,23 @@ def test_table_exact(gotham):
     assert by_id["act-flag-account"]["effects"][0]["property"] == "reviewFlag"
     unmerge = by_id["act-unmerge-person"]
     assert unmerge["effects"][0]["decision"] == "reject"
+    close = by_id["act-close-lead"]
+    params = {p["id"]: p for p in close["parameters"]}
+    assert set(params) == {"outcome", "reason"}
+    assert params["outcome"]["type"] == "enum" and params["outcome"]["required"]
+    assert params["outcome"]["options"] == ["no-action", "referred", "address-wrong"]
+    assert params["reason"]["type"] == "string" and params["reason"]["required"] and params["reason"]["minLength"] >= 10
+    assert close["effects"][0] == {"op": "setProperty", "property": "status", "from": "value:closed"}
+    assert close["effects"][1] == {"op": "setProperty", "property": "outcome", "from": "param:outcome"}
 
 
 def test_effects_reference_valid_types_properties_and_systems(gotham):
     entry = gotham["starter"]
     onto = ontology(entry)
     props = {t["id"]: {p["id"] for p in t["properties"]} for t in onto["entityTypes"]}
+    # Leads are not an ontology object type; their fields come with the leads block.
+    assert "Lead" not in props
+    props["Lead"] = {p["id"] for p in entry["leads"]["properties"]}
     links = {r["id"]: (r["sourceType"], r["targetType"]) for r in onto["relationshipTypes"]}
     systems = {s["id"] for s in onto["externalSystems"]}
     block = entry["governance"]
@@ -113,6 +127,7 @@ def test_effects_reference_valid_types_properties_and_systems(gotham):
                         assert value[7:] in props[otype]
                 created[eff["type"]] = True
             elif op == "createLink":
+                assert otype != "Lead", "leads have no links"
                 src_type, tgt_type = links[eff["linkType"]]
                 assert src_type == otype
                 if eff["target"].startswith("created:"):

@@ -20,6 +20,11 @@ Phase 2: ``ontology.actionTypes`` / ``ontology.externalSystems`` come from
 ``pipeline/actions.py`` and the ``resolution`` block (cross-person candidate
 pairs with transparent scores) from ``pipeline/candidates.py``; the Foundry
 seed carries identical copies.
+
+Phase 3: ``leads`` (``{asOf, formula, weights, items}``) comes from
+``pipeline/leads.py``, the scorer the Foundry transform
+``pipeline/06_build_leads.py`` wraps, so both seeds hold the same leads.
+Leads are not ontology objects; the Close lead Action edits ``leads.items``.
 """
 
 import argparse
@@ -35,7 +40,7 @@ from typing import Dict, Iterable, List, Optional, Tuple
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from pipeline import actions, candidates, governance  # noqa: E402
+from pipeline import actions, candidates, governance, leads  # noqa: E402
 from pipeline.resolution import (  # noqa: E402
     Observation, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,
 )
@@ -901,6 +906,7 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
             **actions.ontology_block(),
         },
         "resolution": resolution,
+        "leads": leads.leads_block(builder.resolver, clinic_rows, ping_rows, company_rows),
         "mappings": build_mappings(source_headers),
         "entities": sorted(builder.entities, key=lambda item: (str(item["type"]), str(item["label"]))),
         "edges": sorted(builder.edges, key=lambda item: (str(item["type"]), str(item["source"]), str(item["target"]))),

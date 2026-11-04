@@ -2,20 +2,20 @@ window.ontologySeedCatalog = {
   "starter": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:fecc1f655fb3ea41a907d6cb3e50e51bd9943fbfbe72b8d31087dd34cad739d2",
+      "buildId": "sha256:463284d864f3b1353d1597582a9cd8e9370a3a3118b0dfc5926f144fcc1fb785",
       "sources": {
         "bank_transactions.csv": "sha256:0a88981afca6d5f129af59d9eddd670b4fd4786b8d2cca104bbf905f06e94687",
         "clinic_registrations.csv": "sha256:68a6e5270a055ceb0bf89c3b136a110405c95408ba7e9943137a72548b57588d",
         "company_registry.csv": "sha256:61b9b813d730ad7e821efb2fe8235972cbd2bc0c7bcd7914da0cc876da623a1c",
         "flight_manifests.csv": "sha256:4c2e299db65b59c5b85a359c1303f5d656d3b28011d95c3c0cc65d949b9893b8",
         "manifest.json": "sha256:1b5b5a5204a6e1508552fef76f1fc4c3490241e1ab4ba09eda8d3accdece7004",
-        "mobile_location_pings.jsonl": "sha256:eb565ce866d9b7cbe93345f0781dd446b67fe07edf67ab573d472cc6d3ccfe48",
+        "mobile_location_pings.jsonl": "sha256:cac9ef6d62b0f0edaff019fc012eeabc151ecb3a7622ea27b4adf36475b36be8",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_ontology_seed.py@c3b5739",
+      "builder": "build_ontology_seed.py@dd0e658",
       "title": "Ontology Studio Demo",
       "dataset": "starter",
-      "generatedAt": "2026-11-04T17:35:57.283286Z",
+      "generatedAt": "2026-11-04T18:51:31.051807Z",
       "description": "Editable ontology seed built from the starter synthetic Palantir-style data sources.",
       "teachingPrompts": [
         "Follow Kareem Haddad across aliases, travel, companies, and banking links.",
@@ -276,7 +276,7 @@ window.ontologySeedCatalog = {
           "kind": "simplified",
           "label": "Simplified",
           "title": "Agent (simulated AIP)",
-          "text": "Rule-based stand-in for an AIP chatbot; it cannot invent objects. Real AIP uses an LLM with tools and stages edits for review.",
+          "text": "Scripted stand-in for an AIP agent, with no language model: it plans tool calls from your question by fixed rules, runs each call through your role, the purpose rules, Checkpoints and the audit log, cites the objects behind its claims and stages edits for review. Real AIP agents use an LLM with tools; here the failures are scripted for teaching.",
           "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview"
         },
         {
@@ -430,6 +430,38 @@ window.ontologySeedCatalog = {
           "title": "Entity resolution",
           "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
           "docUrl": "https://docs.aleph.occrp.org/developers/mappings"
+        },
+        {
+          "id": "inv.leads",
+          "kind": "simplified",
+          "label": "Simplified",
+          "title": "Leads",
+          "text": "A 0\u2013100 address confidence score from source type and age, in the style of ICE's ELITE app. Simplified: the formula is ours; ELITE's is not public. Here every weight, age and source is shown.",
+          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite"
+        },
+        {
+          "id": "inv.object-sets",
+          "kind": "mirrors",
+          "label": "Mirrors Foundry",
+          "title": "Object sets",
+          "text": "Saved, shareable lists of objects whose membership changes over time, as with Foundry object sets. Here versions and sharing are kept in your browser, and sharing is simulated by role.",
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+        },
+        {
+          "id": "build.retention",
+          "kind": "simplified",
+          "label": "Simplified",
+          "title": "Retention",
+          "text": "Each dataset carries a retention period; the slider greys out rows past it and counts derived rows that still carry them. Simplified: nothing is ever deleted here, and in a real platform deletion has to reach every derived dataset, export and copy.",
+          "docUrl": null
+        },
+        {
+          "id": "deployment",
+          "kind": "extension",
+          "label": "Teaching extension",
+          "title": "Deployment",
+          "text": "Where this classroom tool lives: static files on GitHub Pages, map tiles from OpenStreetMap, and the session, audit log and governance in your own browser's localStorage, with nothing on a server. Not a Palantir view: real deployments run in the customer's cloud or on premises, updated by Apollo.",
+          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379"
         }
       ],
       "purposeRules": [
@@ -481,7 +513,8 @@ window.ontologySeedCatalog = {
           "id": "disc-ice-elite",
           "title": "ICE: ImmigrationOS and ELITE (2025\u201326)",
           "attachedTo": [
-            "build.markings"
+            "build.markings",
+            "inv.leads"
           ],
           "summary": "In April 2025 US Immigration and Customs Enforcement gave Palantir a $30m contract, without competition, for an \"ImmigrationOS\" targeting and removal platform. ELITE, reported in January 2026, is a map-based app for finding people that draws on Medicaid, USCIS and Thomson Reuters CLEAR data and shows a 0\u2013100 \"address confidence score\". Court filings in July 2026 describe Medicaid data, shared beyond what a court order allowed, reaching Palantir through a Teams chat; Palantir says the data was deleted.",
           "questions": [
@@ -552,7 +585,8 @@ window.ontologySeedCatalog = {
           "id": "disc-pol-intel",
           "title": "Denmark: POL-INTEL and European exits",
           "attachedTo": [
-            "build.pipelines"
+            "build.pipelines",
+            "deployment"
           ],
           "summary": "Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, and other European governments are re-evaluating their agreements with US defence-technology suppliers.",
           "questions": [
@@ -562,6 +596,22 @@ window.ontologySeedCatalog = {
           "sources": [
             "https://researcher.itu.dk/p/en/research-outputs/scientification-through-privatization-pol-intel-in-denmark",
             "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-maven",
+          "title": "Maven Smart System",
+          "attachedTo": [
+            "inv.agent"
+          ],
+          "summary": "Maven Smart System is the Pentagon's AI and data-fusion system for command and targeting, built on Palantir software: it detects, tags and tracks. In May 2025 the contract ceiling rose to about $1.3bn through 2029, with more than 20,000 users. There is a NATO version, and Denmark has a deal combining Maven with Foundry. Like an AIP agent, it puts machine suggestions in front of people who decide what to act on; at that scale, how closely each suggestion is checked is an open question.",
+          "questions": [
+            "What does \"human in the loop\" mean when more than 20,000 users each review machine suggestions?",
+            "Which of this agent's scripted failures would be hardest to catch at that scale, and who would notice?"
+          ],
+          "sources": [
+            "https://defensescoop.com/2025/05/23/dod-palantir-maven-smart-system-contract-increase/"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         }
@@ -710,7 +760,7 @@ window.ontologySeedCatalog = {
         "name": "Mobile Location Pings",
         "file": "synthetic_data/starter/mobile_location_pings.jsonl",
         "description": "Device observations that link people, phones, and places.",
-        "recordCount": 89,
+        "recordCount": 92,
         "fields": [
           "cell_tower",
           "city",
@@ -1524,6 +1574,60 @@ window.ontologySeedCatalog = {
           ],
           "feedsAnalytics": true,
           "honesty": "inv.actions"
+        },
+        {
+          "id": "act-close-lead",
+          "label": "Close lead",
+          "objectType": "Lead",
+          "sensitive": false,
+          "description": "Close an address lead with an outcome and send it to case management. The lead stays in the list, marked closed.",
+          "parameters": [
+            {
+              "id": "outcome",
+              "label": "Outcome",
+              "type": "enum",
+              "required": true,
+              "options": [
+                "no-action",
+                "referred",
+                "address-wrong"
+              ]
+            },
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst"
+          ],
+          "effects": [
+            {
+              "op": "setProperty",
+              "property": "status",
+              "from": "value:closed"
+            },
+            {
+              "op": "setProperty",
+              "property": "outcome",
+              "from": "param:outcome"
+            },
+            {
+              "op": "setProperty",
+              "property": "closeReason",
+              "from": "param:reason"
+            },
+            {
+              "op": "writeback",
+              "system": "case-management",
+              "template": "CLOSE LEAD {id} for {personId} ({outcome}, score {score}) by {role}: {reason}"
+            }
+          ],
+          "feedsAnalytics": false,
+          "honesty": "inv.actions"
         }
       ],
       "externalSystems": [
@@ -1540,7 +1644,7 @@ window.ontologySeedCatalog = {
         {
           "id": "case-management",
           "label": "Case management",
-          "description": "Simulated case file system. Receives identity corrections such as unmerges."
+          "description": "Simulated case file system. Receives identity corrections such as unmerges, and closed leads."
         }
       ]
     },
@@ -1729,6 +1833,1240 @@ window.ontologySeedCatalog = {
           "explanation": "Same surname and initial 'Clara Adler' / 'C. Adler' (+0.25), same date of birth 1986-05-04 (+0.15). Score 0.40.",
           "markings": [
             "PII"
+          ]
+        }
+      ]
+    },
+    "leads": {
+      "objectType": "Lead",
+      "asOf": "2026-04-12",
+      "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+      "decayDays": 365,
+      "properties": [
+        {
+          "id": "id",
+          "label": "Lead ID",
+          "type": "string"
+        },
+        {
+          "id": "personId",
+          "label": "Person",
+          "type": "string"
+        },
+        {
+          "id": "address",
+          "label": "Best address",
+          "type": "string"
+        },
+        {
+          "id": "lat",
+          "label": "Latitude",
+          "type": "float"
+        },
+        {
+          "id": "lon",
+          "label": "Longitude",
+          "type": "float"
+        },
+        {
+          "id": "score",
+          "label": "Address confidence (0-100)",
+          "type": "float"
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "type": "string"
+        },
+        {
+          "id": "outcome",
+          "label": "Outcome",
+          "type": "string"
+        },
+        {
+          "id": "closeReason",
+          "label": "Reason for closing",
+          "type": "string"
+        },
+        {
+          "id": "components",
+          "label": "Score components",
+          "type": "json"
+        },
+        {
+          "id": "formula",
+          "label": "Formula",
+          "type": "string"
+        },
+        {
+          "id": "asOf",
+          "label": "As of",
+          "type": "date"
+        },
+        {
+          "id": "addressSource",
+          "label": "Source of the best address",
+          "type": "string"
+        },
+        {
+          "id": "sourceMarkings",
+          "label": "Markings of the sources",
+          "type": "json"
+        }
+      ],
+      "weights": [
+        {
+          "source": "norm_clinic_registrations",
+          "rawSource": "clinic_registrations.csv",
+          "label": "Clinic registration",
+          "marking": "HEALTH",
+          "weight": 0.5,
+          "addressField": "home_address",
+          "dateField": "registered_on"
+        },
+        {
+          "source": "norm_mobile_pings",
+          "rawSource": "mobile_location_pings.jsonl",
+          "label": "Mobile location pings",
+          "marking": "TELECOM",
+          "weight": 0.4,
+          "addressField": "location_label",
+          "dateField": "timestamp"
+        },
+        {
+          "source": "norm_company_registry",
+          "rawSource": "company_registry.csv",
+          "label": "Company registry",
+          "marking": "OPEN",
+          "weight": 0.3,
+          "addressField": "registered_address",
+          "dateField": "incorporation_date"
+        }
+      ],
+      "items": [
+        {
+          "id": "lead::person::g5510077",
+          "personId": "person::g5510077",
+          "address": "41 Oak Lane, Birmingham",
+          "lat": 52.4421,
+          "lon": -1.9368,
+          "score": 85.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 31,
+              "decay": 0.9186,
+              "contribution": 45.9,
+              "address": "41 Oak Lane, Birmingham",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-03-12",
+              "lat": 52.4421,
+              "lon": -1.9368,
+              "record": "clinic:REG-0014"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Oak Lane, Birmingham",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 52.443012,
+              "lon": -1.935174,
+              "record": "ping:PG-0103",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::elias-silva-1984-12-24",
+          "personId": "person::elias-silva-1984-12-24",
+          "address": "Larnaca Marina",
+          "lat": 34.932353,
+          "lon": 33.633483,
+          "score": 75.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 351,
+              "decay": 0.3823,
+              "contribution": 19.1,
+              "address": "99 Mildmay Grove, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-04-26",
+              "lat": 51.516794,
+              "lon": -0.118285,
+              "record": "clinic:REG-0013"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 10,
+              "decay": 0.973,
+              "contribution": 38.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-02",
+              "lat": 34.932353,
+              "lon": 33.633483,
+              "record": "ping:NPG-00072",
+              "pingCount": 1
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 202,
+              "decay": 0.575,
+              "contribution": 17.2,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-09-22",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-001:director",
+              "companyId": "NCO-001",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::clara-nasser-1986-06-21",
+          "personId": "person::clara-nasser-1986-06-21",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.086274,
+          "lon": 55.143646,
+          "score": 64.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 282,
+              "decay": 0.4618,
+              "contribution": 23.1,
+              "address": "114 Al Manara Road, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-07-04",
+              "lat": 25.200613,
+              "lon": 55.271738,
+              "record": "clinic:REG-0006"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 25.086274,
+              "lon": 55.143646,
+              "record": "ping:NPG-00027",
+              "pingCount": 2
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1155,
+              "decay": 0.0422,
+              "contribution": 1.3,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-02-12",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-003:owner",
+              "companyId": "NCO-003",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x1445199",
+          "personId": "person::x1445199",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.686905,
+          "lon": 33.043331,
+          "score": 55.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 425,
+              "decay": 0.3121,
+              "contribution": 15.6,
+              "address": "171 Josefstaedter Strasse, Vienna",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-02-11",
+              "lat": 48.226912,
+              "lon": 16.361844,
+              "record": "clinic:REG-0005"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 5,
+              "decay": 0.9864,
+              "contribution": 39.5,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-07",
+              "lat": 34.686905,
+              "lon": 33.043331,
+              "record": "ping:NPG-00060",
+              "pingCount": 2
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::l1029921",
+          "personId": "person::l1029921",
+          "address": "Geneva Business District",
+          "lat": 46.209047,
+          "lon": 6.135003,
+          "score": 51.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 46.209047,
+              "lon": 6.135003,
+              "record": "ping:NPG-00077",
+              "pingCount": 1
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 331,
+              "decay": 0.4038,
+              "contribution": 12.1,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-05-16",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-006:director",
+              "companyId": "NCO-006",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::b7730042",
+          "personId": "person::b7730042",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.6796,
+          "lon": 33.0444,
+          "score": 51.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 8,
+              "decay": 0.9783,
+              "contribution": 39.1,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-04",
+              "lat": 34.6796,
+              "lon": 33.0444,
+              "record": "ping:PG-0008",
+              "pingCount": 1
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 331,
+              "decay": 0.4038,
+              "contribution": 12.1,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-05-16",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-006:owner",
+              "companyId": "NCO-006",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::zane-ionescu-1975-12-13",
+          "personId": "person::zane-ionescu-1975-12-13",
+          "address": "Geneva Business District",
+          "lat": 46.196009,
+          "lon": 6.133997,
+          "score": 48.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 46.196009,
+              "lon": 6.133997,
+              "record": "ping:NPG-00048",
+              "pingCount": 1
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 443,
+              "decay": 0.2971,
+              "contribution": 8.9,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-01-24",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-005:director",
+              "companyId": "NCO-005",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::daniel-wu-1985-06-14",
+          "personId": "person::daniel-wu-1985-06-14",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.077999,
+          "lon": 55.148185,
+          "score": 43.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 923,
+              "decay": 0.0798,
+              "contribution": 4.0,
+              "address": "1210 Corcoran Street NW, Washington, D.C.",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-10-02",
+              "lat": 38.9113,
+              "lon": -77.0287,
+              "record": "clinic:REG-0002"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 5,
+              "decay": 0.9864,
+              "contribution": 39.5,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-07",
+              "lat": 25.077999,
+              "lon": 55.148185,
+              "record": "ping:NPG-00059",
+              "pingCount": 1
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1825,
+              "decay": 0.0067,
+              "contribution": 0.2,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-04-13",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-004:director",
+              "companyId": "NCO-004",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::c-silva-30131994523",
+          "personId": "person::c-silva-30131994523",
+          "address": "Larnaca Marina",
+          "lat": 34.921901,
+          "lon": 33.632625,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.921901,
+              "lon": 33.632625,
+              "record": "ping:NPG-00022",
+              "pingCount": 1
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::i6117009",
+          "personId": "person::i6117009",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.079653,
+          "lon": 55.141163,
+          "score": 39.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 25.079653,
+              "lon": 55.141163,
+              "record": "ping:NPG-00070",
+              "pingCount": 1
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::e-orlov-33919795579",
+          "personId": "person::e-orlov-33919795579",
+          "address": "Geneva Business District",
+          "lat": 46.196112,
+          "lon": 6.147601,
+          "score": 39.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 5,
+              "decay": 0.9864,
+              "contribution": 39.5,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-07",
+              "lat": 46.196112,
+              "lon": 6.147601,
+              "record": "ping:NPG-00031",
+              "pingCount": 1
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::n5538219",
+          "personId": "person::n5538219",
+          "address": "North Quay Warehouse",
+          "lat": 34.655879,
+          "lon": 33.012769,
+          "score": 39.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 5,
+              "decay": 0.9864,
+              "contribution": 39.5,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-07",
+              "lat": 34.655879,
+              "lon": 33.012769,
+              "record": "ping:NPG-00067",
+              "pingCount": 1
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 2104,
+              "decay": 0.0031,
+              "contribution": 0.1,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2020-07-08",
+              "lat": 25.08124,
+              "lon": 55.143229,
+              "record": "company:CO-102:director",
+              "companyId": "CO-102",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::p8842101",
+          "personId": "person::p8842101",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.0797,
+          "lon": 55.1395,
+          "score": 39.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 6,
+              "decay": 0.9837,
+              "contribution": 39.3,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-06",
+              "lat": 25.0797,
+              "lon": 55.1395,
+              "record": "ping:PG-0009",
+              "pingCount": 1
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1850,
+              "decay": 0.0063,
+              "contribution": 0.2,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-03-19",
+              "lat": 34.682357,
+              "lon": 33.049456,
+              "record": "company:CO-101:owner",
+              "companyId": "CO-101",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x2338687",
+          "personId": "person::x2338687",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.678729,
+          "lon": 33.050428,
+          "score": 39.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 6,
+              "decay": 0.9837,
+              "contribution": 39.3,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-06",
+              "lat": 34.678729,
+              "lon": 33.050428,
+              "record": "ping:NPG-00009",
+              "pingCount": 1
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::tomas-orlov-971106977991",
+          "personId": "person::tomas-orlov-971106977991",
+          "address": "North Quay Warehouse",
+          "lat": 34.666879,
+          "lon": 33.023025,
+          "score": 39.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 7,
+              "decay": 0.981,
+              "contribution": 39.2,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-05",
+              "lat": 34.666879,
+              "lon": 33.023025,
+              "record": "ping:NPG-00006",
+              "pingCount": 1
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x2622631",
+          "personId": "person::x2622631",
+          "address": "North Quay Warehouse",
+          "lat": 34.659765,
+          "lon": 33.028868,
+          "score": 39.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 7,
+              "decay": 0.981,
+              "contribution": 39.2,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-05",
+              "lat": 34.659765,
+              "lon": 33.028868,
+              "record": "ping:NPG-00076",
+              "pingCount": 1
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::n-costa-49306468299",
+          "personId": "person::n-costa-49306468299",
+          "address": "Geneva Business District",
+          "lat": 46.214398,
+          "lon": 6.140199,
+          "score": 39.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 9,
+              "decay": 0.9756,
+              "contribution": 39.0,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-03",
+              "lat": 46.214398,
+              "lon": 6.140199,
+              "record": "ping:NPG-00020",
+              "pingCount": 1
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x4744854",
+          "personId": "person::x4744854",
+          "address": "Geneva Business District",
+          "lat": 46.197531,
+          "lon": 6.14137,
+          "score": 39.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 9,
+              "decay": 0.9756,
+              "contribution": 39.0,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-03",
+              "lat": 46.197531,
+              "lon": 6.14137,
+              "record": "ping:NPG-00044",
+              "pingCount": 1
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::clara-silva-1977-11-25",
+          "personId": "person::clara-silva-1977-11-25",
+          "address": "5 Harbor Row, Limassol",
+          "lat": 34.6712,
+          "lon": 33.0436,
+          "score": 19.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1095,
+              "decay": 0.0498,
+              "contribution": 2.5,
+              "address": "95 Makariou Avenue, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-04-13",
+              "lat": 34.673593,
+              "lon": 33.019195,
+              "record": "clinic:REG-0010"
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 202,
+              "decay": 0.575,
+              "contribution": 17.2,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-09-22",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-001:owner",
+              "companyId": "NCO-001",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x2197935",
+          "personId": "person::x2197935",
+          "address": "56 Seefeldstrasse, Zurich",
+          "lat": 47.362699,
+          "lon": 8.548637,
+          "score": 14.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 453,
+              "decay": 0.2891,
+              "contribution": 14.5,
+              "address": "56 Seefeldstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-01-14",
+              "lat": 47.362699,
+              "lon": 8.548637,
+              "record": "clinic:REG-0012"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::maya-singh-1992-09-21",
+          "personId": "person::maya-singh-1992-09-21",
+          "address": "58 Rue de Carouge, Geneva",
+          "lat": 46.1934,
+          "lon": 6.1424,
+          "score": 12.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 523,
+              "decay": 0.2386,
+              "contribution": 11.9,
+              "address": "58 Rue de Carouge, Geneva",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-11-05",
+              "lat": 46.1934,
+              "lon": 6.1424,
+              "record": "clinic:REG-0011"
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 2351,
+              "decay": 0.0016,
+              "contribution": 0.0,
+              "address": "21 Rue des Acacias, Geneva",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2019-11-04",
+              "lat": 46.1921,
+              "lon": 6.1338,
+              "record": "company:CO-104:director",
+              "companyId": "CO-104",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "OPEN",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::lena-demir-1978-02-28",
+          "personId": "person::lena-demir-1978-02-28",
+          "address": "27 Ringstrasse, Vienna",
+          "lat": 48.2046,
+          "lon": 16.3652,
+          "score": 11.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1068,
+              "decay": 0.0536,
+              "contribution": 2.7,
+              "address": "95 Makariou Avenue, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-05-10",
+              "lat": 34.673593,
+              "lon": 33.019195,
+              "record": "clinic:REG-0001"
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 443,
+              "decay": 0.2971,
+              "contribution": 8.9,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-01-24",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-005:owner",
+              "companyId": "NCO-005",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::elias-orlov-1989-04-06",
+          "personId": "person::elias-orlov-1989-04-06",
+          "address": "99 Mildmay Grove, London",
+          "lat": 51.516794,
+          "lon": -0.118285,
+          "score": 1.4,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1549,
+              "decay": 0.0144,
+              "contribution": 0.7,
+              "address": "99 Mildmay Grove, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-01-14",
+              "lat": 51.516794,
+              "lon": -0.118285,
+              "record": "clinic:REG-0009"
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1359,
+              "decay": 0.0242,
+              "contribution": 0.7,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-07-23",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-002:director",
+              "companyId": "NCO-002",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "OPEN",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::clara-adler-1986-05-04",
+          "personId": "person::clara-adler-1986-05-04",
+          "address": "48 Bahnhofstrasse, Zurich",
+          "lat": 47.3707,
+          "lon": 8.5392,
+          "score": 1.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1155,
+              "decay": 0.0422,
+              "contribution": 1.3,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-02-12",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-003:director",
+              "companyId": "NCO-003",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
           ]
         }
       ]
@@ -3081,6 +4419,26 @@ window.ontologySeedCatalog = {
         ]
       },
       {
+        "id": "device::dev-or-07",
+        "type": "Device",
+        "label": "DEV-OR-07",
+        "properties": {
+          "deviceId": "DEV-OR-07",
+          "phoneNumber": "+447911223344",
+          "lastObservedName": "Omar Rahman"
+        },
+        "sourceIds": [
+          "mobile_location_pings.jsonl"
+        ],
+        "markings": [
+          "TELECOM"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "device::dev-sp-04",
         "type": "Device",
         "label": "DEV-SP-04",
@@ -4332,6 +5690,29 @@ window.ontologySeedCatalog = {
         ]
       },
       {
+        "id": "location::oak-lane-birmingham",
+        "type": "Location",
+        "label": "Oak Lane, Birmingham",
+        "properties": {
+          "label": "Oak Lane, Birmingham",
+          "locationType": "residential",
+          "city": "Birmingham",
+          "country": "United Kingdom",
+          "lat": 52.443012,
+          "lon": -1.935174,
+          "cellTower": "UK-BHM-114"
+        },
+        "sourceIds": [
+          "company_registry.csv",
+          "mobile_location_pings.jsonl"
+        ],
+        "markings": [],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "location::sofia-airport",
         "type": "Location",
         "label": "Sofia Airport",
@@ -5464,7 +6845,10 @@ window.ontologySeedCatalog = {
           "confidence": 1.0,
           "mergedFrom": [
             "flight:MF-0008",
-            "flight:MF-0009"
+            "flight:MF-0009",
+            "ping:PG-0101",
+            "ping:PG-0102",
+            "ping:PG-0103"
           ],
           "splitRisk": false,
           "note": ""
@@ -5491,6 +6875,7 @@ window.ontologySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
+          "TELECOM",
           "HEALTH"
         ]
       },
@@ -8000,6 +9385,22 @@ window.ontologySeedCatalog = {
         ]
       },
       {
+        "id": "observed_at::device-dev-or-07-location-oak-lane-birmingham",
+        "type": "OBSERVED_AT",
+        "source": "device::dev-or-07",
+        "target": "location::oak-lane-birmingham",
+        "label": "OBSERVED_AT",
+        "properties": {
+          "sightingCount": "3",
+          "firstSeen": "2026-04-10T19:40:00Z",
+          "lastSeen": "2026-04-11T21:50:00Z",
+          "source": "carrier-feed"
+        },
+        "markings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "observed_at::device-dev-sp-04-location-14-seabright-ave-limassol",
         "type": "OBSERVED_AT",
         "source": "device::dev-sp-04",
@@ -8765,6 +10166,17 @@ window.ontologySeedCatalog = {
         ]
       },
       {
+        "id": "uses_device::person-g5510077-device-dev-or-07",
+        "type": "USES_DEVICE",
+        "source": "person::g5510077",
+        "target": "device::dev-or-07",
+        "label": "USES_DEVICE",
+        "properties": {},
+        "markings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "uses_device::person-i6117009-device-dev-ms-06",
         "type": "USES_DEVICE",
         "source": "person::i6117009",
@@ -8901,20 +10313,20 @@ window.ontologySeedCatalog = {
   "simulator": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:5a90b8b0c2ebef415209d3edfbfb30d313215f0ede9a4ded4e62ab28e5fb901b",
+      "buildId": "sha256:fbeaeedb7ba42e449b7b1c366f01332aa75753bba058df7b1dfeac1e294e5b6f",
       "sources": {
         "bank_transactions.csv": "sha256:1b192ef6c107359560bc3df631a4fd42e665aa4e26403630a82bbe9b47a44596",
         "clinic_registrations.csv": "sha256:3b651e31a0bff7bfc2fcf324c827b515d21f43a5c9ff688242cad73c4d453453",
         "company_registry.csv": "sha256:06aca2351b875fb3f9d443d5eb907d495bc51a698b60381623501c188ead956a",
         "flight_manifests.csv": "sha256:b418d4cc4ab3868de48bfd86d5097b53a2499eec2e1c2bd6b5dd6573bbc023a7",
         "manifest.json": "sha256:0f369eabdc4b097a6e78a75736086d1676821d656b65f514eaf46be022ea037d",
-        "mobile_location_pings.jsonl": "sha256:60b459e39a4bda517bd780f3ff8b3a9ba342cf2f822a844e2b16935ac543d095",
+        "mobile_location_pings.jsonl": "sha256:b208310e84c3c8a26d57efb64735d2002767743656d1e496df35ea1c460a94ff",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_ontology_seed.py@c3b5739",
+      "builder": "build_ontology_seed.py@dd0e658",
       "title": "Ontology Studio Demo",
       "dataset": "simulator",
-      "generatedAt": "2026-11-04T17:35:57.700914Z",
+      "generatedAt": "2026-11-04T18:51:31.370063Z",
       "description": "Editable ontology seed built from the starter synthetic Palantir-style data sources.",
       "teachingPrompts": [
         "Follow Kareem Haddad across aliases, travel, companies, and banking links.",
@@ -9175,7 +10587,7 @@ window.ontologySeedCatalog = {
           "kind": "simplified",
           "label": "Simplified",
           "title": "Agent (simulated AIP)",
-          "text": "Rule-based stand-in for an AIP chatbot; it cannot invent objects. Real AIP uses an LLM with tools and stages edits for review.",
+          "text": "Scripted stand-in for an AIP agent, with no language model: it plans tool calls from your question by fixed rules, runs each call through your role, the purpose rules, Checkpoints and the audit log, cites the objects behind its claims and stages edits for review. Real AIP agents use an LLM with tools; here the failures are scripted for teaching.",
           "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview"
         },
         {
@@ -9329,6 +10741,38 @@ window.ontologySeedCatalog = {
           "title": "Entity resolution",
           "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
           "docUrl": "https://docs.aleph.occrp.org/developers/mappings"
+        },
+        {
+          "id": "inv.leads",
+          "kind": "simplified",
+          "label": "Simplified",
+          "title": "Leads",
+          "text": "A 0\u2013100 address confidence score from source type and age, in the style of ICE's ELITE app. Simplified: the formula is ours; ELITE's is not public. Here every weight, age and source is shown.",
+          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite"
+        },
+        {
+          "id": "inv.object-sets",
+          "kind": "mirrors",
+          "label": "Mirrors Foundry",
+          "title": "Object sets",
+          "text": "Saved, shareable lists of objects whose membership changes over time, as with Foundry object sets. Here versions and sharing are kept in your browser, and sharing is simulated by role.",
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+        },
+        {
+          "id": "build.retention",
+          "kind": "simplified",
+          "label": "Simplified",
+          "title": "Retention",
+          "text": "Each dataset carries a retention period; the slider greys out rows past it and counts derived rows that still carry them. Simplified: nothing is ever deleted here, and in a real platform deletion has to reach every derived dataset, export and copy.",
+          "docUrl": null
+        },
+        {
+          "id": "deployment",
+          "kind": "extension",
+          "label": "Teaching extension",
+          "title": "Deployment",
+          "text": "Where this classroom tool lives: static files on GitHub Pages, map tiles from OpenStreetMap, and the session, audit log and governance in your own browser's localStorage, with nothing on a server. Not a Palantir view: real deployments run in the customer's cloud or on premises, updated by Apollo.",
+          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379"
         }
       ],
       "purposeRules": [
@@ -9380,7 +10824,8 @@ window.ontologySeedCatalog = {
           "id": "disc-ice-elite",
           "title": "ICE: ImmigrationOS and ELITE (2025\u201326)",
           "attachedTo": [
-            "build.markings"
+            "build.markings",
+            "inv.leads"
           ],
           "summary": "In April 2025 US Immigration and Customs Enforcement gave Palantir a $30m contract, without competition, for an \"ImmigrationOS\" targeting and removal platform. ELITE, reported in January 2026, is a map-based app for finding people that draws on Medicaid, USCIS and Thomson Reuters CLEAR data and shows a 0\u2013100 \"address confidence score\". Court filings in July 2026 describe Medicaid data, shared beyond what a court order allowed, reaching Palantir through a Teams chat; Palantir says the data was deleted.",
           "questions": [
@@ -9451,7 +10896,8 @@ window.ontologySeedCatalog = {
           "id": "disc-pol-intel",
           "title": "Denmark: POL-INTEL and European exits",
           "attachedTo": [
-            "build.pipelines"
+            "build.pipelines",
+            "deployment"
           ],
           "summary": "Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, and other European governments are re-evaluating their agreements with US defence-technology suppliers.",
           "questions": [
@@ -9461,6 +10907,22 @@ window.ontologySeedCatalog = {
           "sources": [
             "https://researcher.itu.dk/p/en/research-outputs/scientification-through-privatization-pol-intel-in-denmark",
             "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-maven",
+          "title": "Maven Smart System",
+          "attachedTo": [
+            "inv.agent"
+          ],
+          "summary": "Maven Smart System is the Pentagon's AI and data-fusion system for command and targeting, built on Palantir software: it detects, tags and tracks. In May 2025 the contract ceiling rose to about $1.3bn through 2029, with more than 20,000 users. There is a NATO version, and Denmark has a deal combining Maven with Foundry. Like an AIP agent, it puts machine suggestions in front of people who decide what to act on; at that scale, how closely each suggestion is checked is an open question.",
+          "questions": [
+            "What does \"human in the loop\" mean when more than 20,000 users each review machine suggestions?",
+            "Which of this agent's scripted failures would be hardest to catch at that scale, and who would notice?"
+          ],
+          "sources": [
+            "https://defensescoop.com/2025/05/23/dod-palantir-maven-smart-system-contract-increase/"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         }
@@ -9609,7 +11071,7 @@ window.ontologySeedCatalog = {
         "name": "Mobile Location Pings",
         "file": "synthetic_data/simulator/mobile_location_pings.jsonl",
         "description": "Device observations that link people, phones, and places.",
-        "recordCount": 6009,
+        "recordCount": 6012,
         "fields": [
           "cell_tower",
           "city",
@@ -10423,6 +11885,60 @@ window.ontologySeedCatalog = {
           ],
           "feedsAnalytics": true,
           "honesty": "inv.actions"
+        },
+        {
+          "id": "act-close-lead",
+          "label": "Close lead",
+          "objectType": "Lead",
+          "sensitive": false,
+          "description": "Close an address lead with an outcome and send it to case management. The lead stays in the list, marked closed.",
+          "parameters": [
+            {
+              "id": "outcome",
+              "label": "Outcome",
+              "type": "enum",
+              "required": true,
+              "options": [
+                "no-action",
+                "referred",
+                "address-wrong"
+              ]
+            },
+            {
+              "id": "reason",
+              "label": "Reason",
+              "type": "string",
+              "required": true,
+              "minLength": 10
+            }
+          ],
+          "allowedRoles": [
+            "fin-analyst"
+          ],
+          "effects": [
+            {
+              "op": "setProperty",
+              "property": "status",
+              "from": "value:closed"
+            },
+            {
+              "op": "setProperty",
+              "property": "outcome",
+              "from": "param:outcome"
+            },
+            {
+              "op": "setProperty",
+              "property": "closeReason",
+              "from": "param:reason"
+            },
+            {
+              "op": "writeback",
+              "system": "case-management",
+              "template": "CLOSE LEAD {id} for {personId} ({outcome}, score {score}) by {role}: {reason}"
+            }
+          ],
+          "feedsAnalytics": false,
+          "honesty": "inv.actions"
         }
       ],
       "externalSystems": [
@@ -10439,7 +11955,7 @@ window.ontologySeedCatalog = {
         {
           "id": "case-management",
           "label": "Case management",
-          "description": "Simulated case file system. Receives identity corrections such as unmerges."
+          "description": "Simulated case file system. Receives identity corrections such as unmerges, and closed leads."
         }
       ]
     },
@@ -11196,6 +12712,9583 @@ window.ontologySeedCatalog = {
           "explanation": "Same name 'Priya Costa' (+0.45), different dates of birth 2000-10-29 / 1984-06-21 (\u22120.15). Score 0.30.",
           "markings": [
             "PII"
+          ]
+        }
+      ]
+    },
+    "leads": {
+      "objectType": "Lead",
+      "asOf": "2026-04-12",
+      "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+      "decayDays": 365,
+      "properties": [
+        {
+          "id": "id",
+          "label": "Lead ID",
+          "type": "string"
+        },
+        {
+          "id": "personId",
+          "label": "Person",
+          "type": "string"
+        },
+        {
+          "id": "address",
+          "label": "Best address",
+          "type": "string"
+        },
+        {
+          "id": "lat",
+          "label": "Latitude",
+          "type": "float"
+        },
+        {
+          "id": "lon",
+          "label": "Longitude",
+          "type": "float"
+        },
+        {
+          "id": "score",
+          "label": "Address confidence (0-100)",
+          "type": "float"
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "type": "string"
+        },
+        {
+          "id": "outcome",
+          "label": "Outcome",
+          "type": "string"
+        },
+        {
+          "id": "closeReason",
+          "label": "Reason for closing",
+          "type": "string"
+        },
+        {
+          "id": "components",
+          "label": "Score components",
+          "type": "json"
+        },
+        {
+          "id": "formula",
+          "label": "Formula",
+          "type": "string"
+        },
+        {
+          "id": "asOf",
+          "label": "As of",
+          "type": "date"
+        },
+        {
+          "id": "addressSource",
+          "label": "Source of the best address",
+          "type": "string"
+        },
+        {
+          "id": "sourceMarkings",
+          "label": "Markings of the sources",
+          "type": "json"
+        }
+      ],
+      "weights": [
+        {
+          "source": "norm_clinic_registrations",
+          "rawSource": "clinic_registrations.csv",
+          "label": "Clinic registration",
+          "marking": "HEALTH",
+          "weight": 0.5,
+          "addressField": "home_address",
+          "dateField": "registered_on"
+        },
+        {
+          "source": "norm_mobile_pings",
+          "rawSource": "mobile_location_pings.jsonl",
+          "label": "Mobile location pings",
+          "marking": "TELECOM",
+          "weight": 0.4,
+          "addressField": "location_label",
+          "dateField": "timestamp"
+        },
+        {
+          "source": "norm_company_registry",
+          "rawSource": "company_registry.csv",
+          "label": "Company registry",
+          "marking": "OPEN",
+          "weight": 0.3,
+          "addressField": "registered_address",
+          "dateField": "incorporation_date"
+        }
+      ],
+      "items": [
+        {
+          "id": "lead::person::jonah-hale-1986-03-10",
+          "personId": "person::jonah-hale-1986-03-10",
+          "address": "134 Praterstrasse, Vienna",
+          "lat": 48.20665,
+          "lon": 16.368901,
+          "score": 93.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 80,
+              "decay": 0.8032,
+              "contribution": 40.2,
+              "address": "134 Praterstrasse, Vienna",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-01-22",
+              "lat": 48.20665,
+              "lon": 16.368901,
+              "record": "clinic:REG-0125"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.665916,
+              "lon": 33.024575,
+              "record": "ping:NPG-05843",
+              "pingCount": 8
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 285,
+              "decay": 0.458,
+              "contribution": 13.7,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-07-01",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-065:director",
+              "companyId": "NCO-065",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::hugo-demir-1989-11-12",
+          "personId": "person::hugo-demir-1989-11-12",
+          "address": "33 Mildmay Grove, London",
+          "lat": 51.508454,
+          "lon": -0.123697,
+          "score": 86.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 80,
+              "decay": 0.8032,
+              "contribution": 40.2,
+              "address": "33 Mildmay Grove, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-01-22",
+              "lat": 51.508454,
+              "lon": -0.123697,
+              "record": "clinic:REG-0056"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.672695,
+              "lon": 33.049816,
+              "record": "ping:NPG-02255",
+              "pingCount": 6
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 542,
+              "decay": 0.2265,
+              "contribution": 6.8,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-10-17",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-001:owner",
+              "companyId": "NCO-001",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::elias-byrne-1996-10-12",
+          "personId": "person::elias-byrne-1996-10-12",
+          "address": "Geneva Business District",
+          "lat": 46.195475,
+          "lon": 6.140068,
+          "score": 86.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 93,
+              "decay": 0.7751,
+              "contribution": 38.8,
+              "address": "54 Langstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-01-09",
+              "lat": 47.373811,
+              "lon": 8.531288,
+              "record": "clinic:REG-0055"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.195475,
+              "lon": 6.140068,
+              "record": "ping:NPG-03249",
+              "pingCount": 6
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 485,
+              "decay": 0.2648,
+              "contribution": 7.9,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-12-13",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-072:director",
+              "companyId": "NCO-072",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x8379837",
+          "personId": "person::x8379837",
+          "address": "154 Seefeldstrasse, Zurich",
+          "lat": 47.373476,
+          "lon": 8.522646,
+          "score": 86.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 26,
+              "decay": 0.9312,
+              "contribution": 46.6,
+              "address": "154 Seefeldstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-03-17",
+              "lat": 47.373476,
+              "lon": 8.522646,
+              "record": "clinic:REG-0060"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 25.078042,
+              "lon": 55.131234,
+              "record": "ping:NPG-01917",
+              "pingCount": 2
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::g5510077",
+          "personId": "person::g5510077",
+          "address": "41 Oak Lane, Birmingham",
+          "lat": 52.4421,
+          "lon": -1.9368,
+          "score": 85.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 31,
+              "decay": 0.9186,
+              "contribution": 45.9,
+              "address": "41 Oak Lane, Birmingham",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-03-12",
+              "lat": 52.4421,
+              "lon": -1.9368,
+              "record": "clinic:REG-0127"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Oak Lane, Birmingham",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 52.443012,
+              "lon": -1.935174,
+              "record": "ping:PG-0103",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x5107776",
+          "personId": "person::x5107776",
+          "address": "110 Grigori Afxentiou Avenue, Larnaca",
+          "lat": 34.913278,
+          "lon": 33.626997,
+          "score": 85.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 30,
+              "decay": 0.9211,
+              "contribution": 46.1,
+              "address": "110 Grigori Afxentiou Avenue, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-03-13",
+              "lat": 34.913278,
+              "lon": 33.626997,
+              "record": "clinic:REG-0128"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 46.19737,
+              "lon": 6.145575,
+              "record": "ping:NPG-04762",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x9937326",
+          "personId": "person::x9937326",
+          "address": "7 Agias Zonis Street, Limassol",
+          "lat": 34.682675,
+          "lon": 33.042949,
+          "score": 84.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 41,
+              "decay": 0.8938,
+              "contribution": 44.7,
+              "address": "7 Agias Zonis Street, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-03-02",
+              "lat": 34.682675,
+              "lon": 33.042949,
+              "record": "clinic:REG-0126"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.922718,
+              "lon": 33.646708,
+              "record": "ping:NPG-02807",
+              "pingCount": 2
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x8412769",
+          "personId": "person::x8412769",
+          "address": "109 Halaskargazi Caddesi, Istanbul",
+          "lat": 41.014255,
+          "lon": 28.972589,
+          "score": 83.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 47,
+              "decay": 0.8792,
+              "contribution": 44.0,
+              "address": "109 Halaskargazi Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-02-24",
+              "lat": 41.014255,
+              "lon": 28.972589,
+              "record": "clinic:REG-0059"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 46.207355,
+              "lon": 6.147538,
+              "record": "ping:NPG-01464",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x8481188",
+          "personId": "person::x8481188",
+          "address": "163 Moda Caddesi, Istanbul",
+          "lat": 41.012616,
+          "lon": 28.995176,
+          "score": 82.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 55,
+              "decay": 0.8601,
+              "contribution": 43.0,
+              "address": "163 Moda Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-02-16",
+              "lat": 41.012616,
+              "lon": 28.995176,
+              "record": "clinic:REG-0058"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 9,
+              "decay": 0.9756,
+              "contribution": 39.0,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-03",
+              "lat": 34.686641,
+              "lon": 33.050437,
+              "record": "ping:NPG-02868",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x3564251",
+          "personId": "person::x3564251",
+          "address": "63 Bagdat Caddesi, Istanbul",
+          "lat": 41.024397,
+          "lon": 28.980613,
+          "score": 80.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 78,
+              "decay": 0.8076,
+              "contribution": 40.4,
+              "address": "63 Bagdat Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-01-24",
+              "lat": 41.024397,
+              "lon": 28.980613,
+              "record": "clinic:REG-0057"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.199671,
+              "lon": 6.142516,
+              "record": "ping:NPG-04385",
+              "pingCount": 8
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x3670896",
+          "personId": "person::x3670896",
+          "address": "North Quay Warehouse",
+          "lat": 34.647545,
+          "lon": 33.020294,
+          "score": 77.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 99,
+              "decay": 0.7624,
+              "contribution": 38.1,
+              "address": "9 Langstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2026-01-03",
+              "lat": 47.372227,
+              "lon": 8.561091,
+              "record": "clinic:REG-0054"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.647545,
+              "lon": 33.020294,
+              "record": "ping:NPG-04395",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::ben-orlov-1986-05-31",
+          "personId": "person::ben-orlov-1986-05-31",
+          "address": "Larnaca Marina",
+          "lat": 34.914981,
+          "lon": 33.639993,
+          "score": 77.4,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 271,
+              "decay": 0.4759,
+              "contribution": 23.8,
+              "address": "117 Athinon Avenue, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-07-15",
+              "lat": 34.902891,
+              "lon": 33.609961,
+              "record": "clinic:REG-0043"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.914981,
+              "lon": 33.639993,
+              "record": "ping:NPG-00185",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 285,
+              "decay": 0.458,
+              "contribution": 13.7,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-07-01",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-065:owner",
+              "companyId": "NCO-065",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x3090865",
+          "personId": "person::x3090865",
+          "address": "Geneva Business District",
+          "lat": 46.195571,
+          "lon": 6.145016,
+          "score": 75.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 123,
+              "decay": 0.7139,
+              "contribution": 35.7,
+              "address": "171 Patision Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-12-10",
+              "lat": 37.982986,
+              "lon": 23.711948,
+              "record": "clinic:REG-0052"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.195571,
+              "lon": 6.145016,
+              "record": "ping:NPG-00225",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::yara-orlov-1996-01-22",
+          "personId": "person::yara-orlov-1996-01-22",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.071659,
+          "lon": 55.14559,
+          "score": 75.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 144,
+              "decay": 0.674,
+              "contribution": 33.7,
+              "address": "55 Umm Suqeim Street, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-11-19",
+              "lat": 25.199352,
+              "lon": 55.28004,
+              "record": "clinic:REG-0050"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 25.071659,
+              "lon": 55.14559,
+              "record": "ping:NPG-04544",
+              "pingCount": 8
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 989,
+              "decay": 0.0666,
+              "contribution": 2.0,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-07-28",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-033:owner",
+              "companyId": "NCO-033",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::lena-lopez-1991-01-03",
+          "personId": "person::lena-lopez-1991-01-03",
+          "address": "Larnaca Marina",
+          "lat": 34.915545,
+          "lon": 33.633272,
+          "score": 75.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 423,
+              "decay": 0.3138,
+              "contribution": 15.7,
+              "address": "9 Langstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-02-13",
+              "lat": 47.372227,
+              "lon": 8.561091,
+              "record": "clinic:REG-0111"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.915545,
+              "lon": 33.633272,
+              "record": "ping:NPG-04431",
+              "pingCount": 7
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 156,
+              "decay": 0.6522,
+              "contribution": 19.6,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-11-07",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-049:owner",
+              "companyId": "NCO-049",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x7121355",
+          "personId": "person::x7121355",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.078065,
+          "lon": 55.143676,
+          "score": 75.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 130,
+              "decay": 0.7004,
+              "contribution": 35.0,
+              "address": "56 Seefeldstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-12-03",
+              "lat": 47.362699,
+              "lon": 8.548637,
+              "record": "clinic:REG-0124"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 25.078065,
+              "lon": 55.143676,
+              "record": "ping:NPG-01827",
+              "pingCount": 9
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::zane-ionescu-1975-02-28",
+          "personId": "person::zane-ionescu-1975-02-28",
+          "address": "North Quay Warehouse",
+          "lat": 34.655607,
+          "lon": 33.021883,
+          "score": 73.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 257,
+              "decay": 0.4945,
+              "contribution": 24.7,
+              "address": "179 Lordship Lane, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-07-29",
+              "lat": 51.489515,
+              "lon": -0.117947,
+              "record": "clinic:REG-0121"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.655607,
+              "lon": 33.021883,
+              "record": "ping:NPG-04282",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 446,
+              "decay": 0.2947,
+              "contribution": 8.8,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-01-21",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-037:owner",
+              "companyId": "NCO-037",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x8118722",
+          "personId": "person::x8118722",
+          "address": "North Quay Warehouse",
+          "lat": 34.661025,
+          "lon": 33.030051,
+          "score": 73.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 148,
+              "decay": 0.6667,
+              "contribution": 33.3,
+              "address": "171 Patision Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-11-15",
+              "lat": 37.982986,
+              "lon": 23.711948,
+              "record": "clinic:REG-0049"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.661025,
+              "lon": 33.030051,
+              "record": "ping:NPG-01153",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::tomas-silva-1990-12-03",
+          "personId": "person::tomas-silva-1990-12-03",
+          "address": "Geneva Business District",
+          "lat": 46.207935,
+          "lon": 6.14198,
+          "score": 72.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 162,
+              "decay": 0.6416,
+              "contribution": 32.1,
+              "address": "164 Al Safa Street, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-11-01",
+              "lat": 25.212773,
+              "lon": 55.284016,
+              "record": "clinic:REG-0123"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 46.207935,
+              "lon": 6.14198,
+              "record": "ping:NPG-04320",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1502,
+              "decay": 0.0163,
+              "contribution": 0.5,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-03-02",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-053:owner",
+              "companyId": "NCO-053",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::rami-keller-1984-04-28",
+          "personId": "person::rami-keller-1984-04-28",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.671847,
+          "lon": 33.046397,
+          "score": 69.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 270,
+              "decay": 0.4772,
+              "contribution": 23.9,
+              "address": "85 Solonos Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-07-16",
+              "lat": 37.969722,
+              "lon": 23.713346,
+              "record": "clinic:REG-0044"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.671847,
+              "lon": 33.046397,
+              "record": "ping:NPG-00026",
+              "pingCount": 7
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 599,
+              "decay": 0.1938,
+              "contribution": 5.8,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-08-21",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-068:owner",
+              "companyId": "NCO-068",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x1822825",
+          "personId": "person::x1822825",
+          "address": "Larnaca Marina",
+          "lat": 34.9304,
+          "lon": 33.630088,
+          "score": 68.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 203,
+              "decay": 0.5734,
+              "contribution": 28.7,
+              "address": "100 Lordship Lane, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-09-21",
+              "lat": 51.520118,
+              "lon": -0.140408,
+              "record": "clinic:REG-0122"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.9304,
+              "lon": 33.630088,
+              "record": "ping:NPG-05151",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::marcus-vale-1996-05-12",
+          "personId": "person::marcus-vale-1996-05-12",
+          "address": "Larnaca Marina",
+          "lat": 34.915677,
+          "lon": 33.629493,
+          "score": 66.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 280,
+              "decay": 0.4643,
+              "contribution": 23.2,
+              "address": "138 Halaskargazi Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-07-06",
+              "lat": 41.013417,
+              "lon": 28.981072,
+              "record": "clinic:REG-0042"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.915677,
+              "lon": 33.629493,
+              "record": "ping:NPG-03272",
+              "pingCount": 4
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 749,
+              "decay": 0.1285,
+              "contribution": 3.9,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-03-24",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-074:director",
+              "companyId": "NCO-074",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x4679591",
+          "personId": "person::x4679591",
+          "address": "North Quay Warehouse",
+          "lat": 34.656009,
+          "lon": 33.027583,
+          "score": 66.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 222,
+              "decay": 0.5443,
+              "contribution": 27.2,
+              "address": "55 Umm Suqeim Street, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-09-02",
+              "lat": 25.199352,
+              "lon": 55.28004,
+              "record": "clinic:REG-0047"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.656009,
+              "lon": 33.027583,
+              "record": "ping:NPG-02092",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x1430812",
+          "personId": "person::x1430812",
+          "address": "Geneva Business District",
+          "lat": 46.195147,
+          "lon": 6.137568,
+          "score": 66.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 234,
+              "decay": 0.5267,
+              "contribution": 26.3,
+              "address": "154 Seefeldstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-08-21",
+              "lat": 47.373476,
+              "lon": 8.522646,
+              "record": "clinic:REG-0046"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 46.195147,
+              "lon": 6.137568,
+              "record": "ping:NPG-01474",
+              "pingCount": 8
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::clara-patel-1979-04-09",
+          "personId": "person::clara-patel-1979-04-09",
+          "address": "Larnaca Marina",
+          "lat": 34.931835,
+          "lon": 33.64298,
+          "score": 64.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 269,
+              "decay": 0.4786,
+              "contribution": 23.9,
+              "address": "56 Gumpendorfer Strasse, Vienna",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-07-17",
+              "lat": 48.201721,
+              "lon": 16.378311,
+              "record": "clinic:REG-0120"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.931835,
+              "lon": 33.64298,
+              "record": "ping:NPG-00216",
+              "pingCount": 6
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1338,
+              "decay": 0.0256,
+              "contribution": 0.8,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-08-13",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-076:director",
+              "companyId": "NCO-076",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x5074336",
+          "personId": "person::x5074336",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.080407,
+          "lon": 55.145673,
+          "score": 63.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 270,
+              "decay": 0.4772,
+              "contribution": 23.9,
+              "address": "122 Patision Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-07-16",
+              "lat": 37.980042,
+              "lon": 23.735212,
+              "record": "clinic:REG-0119"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.080407,
+              "lon": 55.145673,
+              "record": "ping:NPG-01148",
+              "pingCount": 7
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::tomas-elias-1986-04-22",
+          "personId": "person::tomas-elias-1986-04-22",
+          "address": "Geneva Business District",
+          "lat": 46.214127,
+          "lon": 6.134866,
+          "score": 63.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 307,
+              "decay": 0.4312,
+              "contribution": 21.6,
+              "address": "33 Makariou Avenue, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-06-09",
+              "lat": 34.702515,
+              "lon": 33.025204,
+              "record": "clinic:REG-0117"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 46.214127,
+              "lon": 6.134866,
+              "record": "ping:NPG-04618",
+              "pingCount": 11
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 990,
+              "decay": 0.0664,
+              "contribution": 2.0,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-07-27",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-083:director",
+              "companyId": "NCO-083",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::zane-byrne-2001-05-07",
+          "personId": "person::zane-byrne-2001-05-07",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.0772,
+          "lon": 55.136592,
+          "score": 63.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 353,
+              "decay": 0.3802,
+              "contribution": 19.0,
+              "address": "85 Solonos Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-04-24",
+              "lat": 37.969722,
+              "lon": 23.713346,
+              "record": "clinic:REG-0113"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.0772,
+              "lon": 55.136592,
+              "record": "ping:NPG-01594",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 715,
+              "decay": 0.141,
+              "contribution": 4.2,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-04-27",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-038:director",
+              "companyId": "NCO-038",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::owen-grant-1998-03-11",
+          "personId": "person::owen-grant-1998-03-11",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.681034,
+          "lon": 33.037382,
+          "score": 63.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 868,
+              "decay": 0.0927,
+              "contribution": 4.6,
+              "address": "157 Praterstrasse, Vienna",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-11-26",
+              "lat": 48.224906,
+              "lon": 16.353954,
+              "record": "clinic:REG-0098"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.681034,
+              "lon": 33.037382,
+              "record": "ping:NPG-04668",
+              "pingCount": 9
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 176,
+              "decay": 0.6174,
+              "contribution": 18.5,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-10-18",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-017:owner",
+              "companyId": "NCO-017",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::elias-quinn-1997-04-12",
+          "personId": "person::elias-quinn-1997-04-12",
+          "address": "Geneva Business District",
+          "lat": 46.204993,
+          "lon": 6.134636,
+          "score": 62.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1043,
+              "decay": 0.0574,
+              "contribution": 2.9,
+              "address": "157 Praterstrasse, Vienna",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-06-04",
+              "lat": 48.224906,
+              "lon": 16.353954,
+              "record": "clinic:REG-0015"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.204993,
+              "lon": 6.134636,
+              "record": "ping:NPG-05235",
+              "pingCount": 6
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 156,
+              "decay": 0.6522,
+              "contribution": 19.6,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-11-07",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-049:director",
+              "companyId": "NCO-049",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::yara-quinn-1980-08-31",
+          "personId": "person::yara-quinn-1980-08-31",
+          "address": "Larnaca Marina",
+          "lat": 34.919336,
+          "lon": 33.635756,
+          "score": 62.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 298,
+              "decay": 0.442,
+              "contribution": 22.1,
+              "address": "33 Mildmay Grove, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-06-18",
+              "lat": 51.508454,
+              "lon": -0.123697,
+              "record": "clinic:REG-0118"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.919336,
+              "lon": 33.635756,
+              "record": "ping:NPG-00940",
+              "pingCount": 8
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 2149,
+              "decay": 0.0028,
+              "contribution": 0.1,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2020-05-24",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-058:director",
+              "companyId": "NCO-058",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::priya-costa-2000-10-29",
+          "personId": "person::priya-costa-2000-10-29",
+          "address": "Geneva Business District",
+          "lat": 46.202901,
+          "lon": 6.151868,
+          "score": 61.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 920,
+              "decay": 0.0804,
+              "contribution": 4.0,
+              "address": "56 Gumpendorfer Strasse, Vienna",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-10-05",
+              "lat": 48.201721,
+              "lon": 16.378311,
+              "record": "clinic:REG-0020"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 46.202901,
+              "lon": 6.151868,
+              "record": "ping:NPG-02417",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 189,
+              "decay": 0.5958,
+              "contribution": 17.9,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-10-05",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-035:owner",
+              "companyId": "NCO-035",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::adam-costa-1976-08-22",
+          "personId": "person::adam-costa-1976-08-22",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.685571,
+          "lon": 33.050873,
+          "score": 61.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 502,
+              "decay": 0.2528,
+              "contribution": 12.6,
+              "address": "163 Moda Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-11-26",
+              "lat": 41.012616,
+              "lon": 28.995176,
+              "record": "clinic:REG-0038"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.685571,
+              "lon": 33.050873,
+              "record": "ping:NPG-03707",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 446,
+              "decay": 0.2947,
+              "contribution": 8.8,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-01-21",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-037:director",
+              "companyId": "NCO-037",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x2242892",
+          "personId": "person::x2242892",
+          "address": "North Quay Warehouse",
+          "lat": 34.660648,
+          "lon": 33.024631,
+          "score": 60.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 320,
+              "decay": 0.4161,
+              "contribution": 20.8,
+              "address": "100 Lordship Lane, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-05-27",
+              "lat": 51.520118,
+              "lon": -0.140408,
+              "record": "clinic:REG-0116"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 5,
+              "decay": 0.9864,
+              "contribution": 39.5,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-07",
+              "lat": 34.660648,
+              "lon": 33.024631,
+              "record": "ping:NPG-01289",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x5652512",
+          "personId": "person::x5652512",
+          "address": "Larnaca Marina",
+          "lat": 34.930589,
+          "lon": 33.645686,
+          "score": 59.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 338,
+              "decay": 0.3961,
+              "contribution": 19.8,
+              "address": "16 Ermou Street, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-05-09",
+              "lat": 34.916319,
+              "lon": 33.642425,
+              "record": "clinic:REG-0115"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.930589,
+              "lon": 33.645686,
+              "record": "ping:NPG-02090",
+              "pingCount": 9
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::sara-ionescu-1998-10-26",
+          "personId": "person::sara-ionescu-1998-10-26",
+          "address": "North Quay Warehouse",
+          "lat": 34.666288,
+          "lon": 33.030735,
+          "score": 59.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1043,
+              "decay": 0.0574,
+              "contribution": 2.9,
+              "address": "54 Langstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-06-04",
+              "lat": 47.373811,
+              "lon": 8.531288,
+              "record": "clinic:REG-0085"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.666288,
+              "lon": 33.030735,
+              "record": "ping:NPG-03068",
+              "pingCount": 7
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 205,
+              "decay": 0.5703,
+              "contribution": 17.1,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-09-19",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-010:owner",
+              "companyId": "NCO-010",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x4576135",
+          "personId": "person::x4576135",
+          "address": "Larnaca Marina",
+          "lat": 34.915425,
+          "lon": 33.639788,
+          "score": 59.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 341,
+              "decay": 0.3929,
+              "contribution": 19.6,
+              "address": "157 Praterstrasse, Vienna",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-05-06",
+              "lat": 48.224906,
+              "lon": 16.353954,
+              "record": "clinic:REG-0114"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.915425,
+              "lon": 33.639788,
+              "record": "ping:NPG-00526",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::ben-rossi-1984-09-04",
+          "personId": "person::ben-rossi-1984-09-04",
+          "address": "Larnaca Marina",
+          "lat": 34.928097,
+          "lon": 33.645848,
+          "score": 58.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.928097,
+              "lon": 33.645848,
+              "record": "ping:NPG-05613",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 176,
+              "decay": 0.6174,
+              "contribution": 18.5,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-10-18",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-017:director",
+              "companyId": "NCO-017",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::dina-costa-1995-01-23",
+          "personId": "person::dina-costa-1995-01-23",
+          "address": "North Quay Warehouse",
+          "lat": 34.663852,
+          "lon": 33.014815,
+          "score": 58.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1370,
+              "decay": 0.0234,
+              "contribution": 1.2,
+              "address": "129 Makariou Avenue, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-07-12",
+              "lat": 34.685264,
+              "lon": 33.04577,
+              "record": "clinic:REG-0071"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.663852,
+              "lon": 33.014815,
+              "record": "ping:NPG-00449",
+              "pingCount": 7
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 205,
+              "decay": 0.5703,
+              "contribution": 17.1,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-09-19",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-010:director",
+              "companyId": "NCO-010",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x6910964",
+          "personId": "person::x6910964",
+          "address": "Geneva Business District",
+          "lat": 46.212193,
+          "lon": 6.146956,
+          "score": 56.4,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 397,
+              "decay": 0.337,
+              "contribution": 16.9,
+              "address": "157 Praterstrasse, Vienna",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-03-11",
+              "lat": 48.224906,
+              "lon": 16.353954,
+              "record": "clinic:REG-0112"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 46.212193,
+              "lon": 6.146956,
+              "record": "ping:NPG-02201",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x3386328",
+          "personId": "person::x3386328",
+          "address": "Larnaca Marina",
+          "lat": 34.922924,
+          "lon": 33.639849,
+          "score": 55.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 433,
+              "decay": 0.3053,
+              "contribution": 15.3,
+              "address": "122 Patision Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-02-03",
+              "lat": 37.980042,
+              "lon": 23.735212,
+              "record": "clinic:REG-0110"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.922924,
+              "lon": 33.639849,
+              "record": "ping:NPG-01058",
+              "pingCount": 11
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x1873851",
+          "personId": "person::x1873851",
+          "address": "North Quay Warehouse",
+          "lat": 34.661272,
+          "lon": 33.02395,
+          "score": 55.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 426,
+              "decay": 0.3113,
+              "contribution": 15.6,
+              "address": "163 Moda Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-02-10",
+              "lat": 41.012616,
+              "lon": 28.995176,
+              "record": "clinic:REG-0039"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.661272,
+              "lon": 33.02395,
+              "record": "ping:NPG-03662",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x1247595",
+          "personId": "person::x1247595",
+          "address": "Geneva Business District",
+          "lat": 46.200566,
+          "lon": 6.148554,
+          "score": 54.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 456,
+              "decay": 0.2867,
+              "contribution": 14.3,
+              "address": "41 Halaskargazi Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2025-01-11",
+              "lat": 41.004135,
+              "lon": 28.967687,
+              "record": "clinic:REG-0109"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 46.200566,
+              "lon": 6.148554,
+              "record": "ping:NPG-04646",
+              "pingCount": 7
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::yara-turner-1975-03-21",
+          "personId": "person::yara-turner-1975-03-21",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.080773,
+          "lon": 55.132655,
+          "score": 53.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 968,
+              "decay": 0.0705,
+              "contribution": 3.5,
+              "address": "117 Athinon Avenue, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-08-18",
+              "lat": 34.902891,
+              "lon": 33.609961,
+              "record": "clinic:REG-0091"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.080773,
+              "lon": 55.132655,
+              "record": "ping:NPG-05903",
+              "pingCount": 8
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 383,
+              "decay": 0.3502,
+              "contribution": 10.5,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-03-25",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-052:director",
+              "companyId": "NCO-052",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x6902401",
+          "personId": "person::x6902401",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.073537,
+          "lon": 55.140467,
+          "score": 53.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 469,
+              "decay": 0.2767,
+              "contribution": 13.8,
+              "address": "9 Langstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-12-29",
+              "lat": 47.372227,
+              "lon": 8.561091,
+              "record": "clinic:REG-0108"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 25.073537,
+              "lon": 55.140467,
+              "record": "ping:NPG-04867",
+              "pingCount": 6
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::elias-vale-2001-03-29",
+          "personId": "person::elias-vale-2001-03-29",
+          "address": "Larnaca Marina",
+          "lat": 34.914439,
+          "lon": 33.633085,
+          "score": 53.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1042,
+              "decay": 0.0576,
+              "contribution": 2.9,
+              "address": "163 Moda Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-06-05",
+              "lat": 41.012616,
+              "lon": 28.995176,
+              "record": "clinic:REG-0016"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.914439,
+              "lon": 33.633085,
+              "record": "ping:NPG-02552",
+              "pingCount": 7
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 383,
+              "decay": 0.3502,
+              "contribution": 10.5,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-03-25",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-052:owner",
+              "companyId": "NCO-052",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::owen-vale-1976-11-06",
+          "personId": "person::owen-vale-1976-11-06",
+          "address": "Geneva Business District",
+          "lat": 46.205478,
+          "lon": 6.147432,
+          "score": 52.4,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 46.205478,
+              "lon": 6.147432,
+              "record": "ping:NPG-00281",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 316,
+              "decay": 0.4207,
+              "contribution": 12.6,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-05-31",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-030:owner",
+              "companyId": "NCO-030",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x9517485",
+          "personId": "person::x9517485",
+          "address": "Larnaca Marina",
+          "lat": 34.926589,
+          "lon": 33.646714,
+          "score": 52.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 509,
+              "decay": 0.248,
+              "contribution": 12.4,
+              "address": "45 Langstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-11-19",
+              "lat": 47.384496,
+              "lon": 8.551486,
+              "record": "clinic:REG-0037"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.926589,
+              "lon": 33.646714,
+              "record": "ping:NPG-05247",
+              "pingCount": 2
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::i6117009",
+          "personId": "person::i6117009",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.680409,
+          "lon": 33.053854,
+          "score": 51.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 523,
+              "decay": 0.2386,
+              "contribution": 11.9,
+              "address": "58 Rue de Carouge, Geneva",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-11-05",
+              "lat": 46.1934,
+              "lon": 6.1424,
+              "record": "clinic:REG-0107"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.680409,
+              "lon": 33.053854,
+              "record": "ping:NPG-04732",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::tomas-keller-1978-08-25",
+          "personId": "person::tomas-keller-1978-08-25",
+          "address": "North Quay Warehouse",
+          "lat": 34.658976,
+          "lon": 33.029746,
+          "score": 51.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 942,
+              "decay": 0.0757,
+              "contribution": 3.8,
+              "address": "138 Halaskargazi Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-09-13",
+              "lat": 41.013417,
+              "lon": 28.981072,
+              "record": "clinic:REG-0094"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.658976,
+              "lon": 33.029746,
+              "record": "ping:NPG-05051",
+              "pingCount": 7
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 485,
+              "decay": 0.2648,
+              "contribution": 7.9,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-12-13",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-072:owner",
+              "companyId": "NCO-072",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::aisha-byrne-2000-03-16",
+          "personId": "person::aisha-byrne-2000-03-16",
+          "address": "Geneva Business District",
+          "lat": 46.196952,
+          "lon": 6.133452,
+          "score": 50.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 636,
+              "decay": 0.1751,
+              "contribution": 8.8,
+              "address": "33 Makariou Avenue, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-07-15",
+              "lat": 34.702515,
+              "lon": 33.025204,
+              "record": "clinic:REG-0105"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.196952,
+              "lon": 6.133452,
+              "record": "ping:NPG-03800",
+              "pingCount": 4
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 939,
+              "decay": 0.0763,
+              "contribution": 2.3,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-09-16",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-013:owner",
+              "companyId": "NCO-013",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::nadia-orlov-1998-02-22",
+          "personId": "person::nadia-orlov-1998-02-22",
+          "address": "Larnaca Marina",
+          "lat": 34.913459,
+          "lon": 33.630781,
+          "score": 50.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 566,
+              "decay": 0.2121,
+              "contribution": 10.6,
+              "address": "113 Grigori Afxentiou Avenue, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-09-23",
+              "lat": 34.912022,
+              "lon": 33.617465,
+              "record": "clinic:REG-0106"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.913459,
+              "lon": 33.630781,
+              "record": "ping:NPG-01937",
+              "pingCount": 6
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1436,
+              "decay": 0.0196,
+              "contribution": 0.6,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-05-07",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-067:owner",
+              "companyId": "NCO-067",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::adam-demir-1993-01-26",
+          "personId": "person::adam-demir-1993-01-26",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.074663,
+          "lon": 55.148091,
+          "score": 50.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 597,
+              "decay": 0.1948,
+              "contribution": 9.7,
+              "address": "114 Al Manara Road, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-08-23",
+              "lat": 25.200613,
+              "lon": 55.271738,
+              "record": "clinic:REG-0034"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 25.074663,
+              "lon": 55.148091,
+              "record": "ping:NPG-05340",
+              "pingCount": 6
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1085,
+              "decay": 0.0512,
+              "contribution": 1.5,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-04-23",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-063:owner",
+              "companyId": "NCO-063",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x9996207",
+          "personId": "person::x9996207",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.683218,
+          "lon": 33.047104,
+          "score": 50.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 563,
+              "decay": 0.2139,
+              "contribution": 10.7,
+              "address": "113 Grigori Afxentiou Avenue, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-09-26",
+              "lat": 34.912022,
+              "lon": 33.617465,
+              "record": "clinic:REG-0036"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.683218,
+              "lon": 33.047104,
+              "record": "ping:NPG-01396",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::dina-quinn-1978-08-08",
+          "personId": "person::dina-quinn-1978-08-08",
+          "address": "Geneva Business District",
+          "lat": 46.199297,
+          "lon": 6.148494,
+          "score": 50.4,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 852,
+              "decay": 0.0969,
+              "contribution": 4.8,
+              "address": "7 Agias Zonis Street, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-12-12",
+              "lat": 34.682675,
+              "lon": 33.042949,
+              "record": "clinic:REG-0023"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.199297,
+              "lon": 6.148494,
+              "record": "ping:NPG-03111",
+              "pingCount": 4
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 607,
+              "decay": 0.1896,
+              "contribution": 5.7,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-08-13",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-073:director",
+              "companyId": "NCO-073",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::owen-silva-1974-06-08",
+          "personId": "person::owen-silva-1974-06-08",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.078262,
+          "lon": 55.143111,
+          "score": 49.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 25.078262,
+              "lon": 55.143111,
+              "record": "ping:NPG-02425",
+              "pingCount": 4
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 393,
+              "decay": 0.3407,
+              "contribution": 10.2,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-03-15",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-051:owner",
+              "companyId": "NCO-051",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::dina-hale-1994-09-08",
+          "personId": "person::dina-hale-1994-09-08",
+          "address": "Larnaca Marina",
+          "lat": 34.929466,
+          "lon": 33.643237,
+          "score": 49.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.929466,
+              "lon": 33.643237,
+              "record": "ping:NPG-01691",
+              "pingCount": 4
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 401,
+              "decay": 0.3333,
+              "contribution": 10.0,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-03-07",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-023:director",
+              "companyId": "NCO-023",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::lena-demir-1985-02-25",
+          "personId": "person::lena-demir-1985-02-25",
+          "address": "Larnaca Marina",
+          "lat": 34.925858,
+          "lon": 33.642922,
+          "score": 49.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1426,
+              "decay": 0.0201,
+              "contribution": 1.0,
+              "address": "91 Al Manara Road, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-05-17",
+              "lat": 25.196214,
+              "lon": 55.289529,
+              "record": "clinic:REG-0067"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.925858,
+              "lon": 33.642922,
+              "record": "ping:NPG-02832",
+              "pingCount": 10
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 446,
+              "decay": 0.2947,
+              "contribution": 8.8,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-01-21",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-081:director",
+              "companyId": "NCO-081",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::ivy-lopez-1979-01-02",
+          "personId": "person::ivy-lopez-1979-01-02",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.076522,
+          "lon": 55.146084,
+          "score": 49.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.076522,
+              "lon": 55.146084,
+              "record": "ping:NPG-02131",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 414,
+              "decay": 0.3217,
+              "contribution": 9.6,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-02-22",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-080:director",
+              "companyId": "NCO-080",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::priya-keller-1982-12-08",
+          "personId": "person::priya-keller-1982-12-08",
+          "address": "North Quay Warehouse",
+          "lat": 34.648819,
+          "lon": 33.013003,
+          "score": 49.4,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 758,
+              "decay": 0.1253,
+              "contribution": 6.3,
+              "address": "41 Halaskargazi Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-03-15",
+              "lat": 41.004135,
+              "lon": 28.967687,
+              "record": "clinic:REG-0029"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.648819,
+              "lon": 33.013003,
+              "record": "ping:NPG-00545",
+              "pingCount": 11
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 814,
+              "decay": 0.1075,
+              "contribution": 3.2,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-01-19",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-036:director",
+              "companyId": "NCO-036",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::priya-meyer-1987-09-10",
+          "personId": "person::priya-meyer-1987-09-10",
+          "address": "Larnaca Marina",
+          "lat": 34.925162,
+          "lon": 33.641182,
+          "score": 49.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1544,
+              "decay": 0.0146,
+              "contribution": 0.7,
+              "address": "16 Ermou Street, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-01-19",
+              "lat": 34.916319,
+              "lon": 33.642425,
+              "record": "clinic:REG-0001"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.925162,
+              "lon": 33.641182,
+              "record": "ping:NPG-01585",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 446,
+              "decay": 0.2947,
+              "contribution": 8.8,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-01-21",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-081:owner",
+              "companyId": "NCO-081",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::priya-elias-1994-11-04",
+          "personId": "person::priya-elias-1994-11-04",
+          "address": "Larnaca Marina",
+          "lat": 34.928128,
+          "lon": 33.63389,
+          "score": 48.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 697,
+              "decay": 0.1481,
+              "contribution": 7.4,
+              "address": "33 Mildmay Grove, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-05-15",
+              "lat": 51.508454,
+              "lon": -0.123697,
+              "record": "clinic:REG-0031"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 34.928128,
+              "lon": 33.63389,
+              "record": "ping:NPG-05087",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 997,
+              "decay": 0.0651,
+              "contribution": 2.0,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-07-20",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-034:owner",
+              "companyId": "NCO-034",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::hugo-turner-1991-03-07",
+          "personId": "person::hugo-turner-1991-03-07",
+          "address": "Larnaca Marina",
+          "lat": 34.919215,
+          "lon": 33.629393,
+          "score": 48.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1070,
+              "decay": 0.0533,
+              "contribution": 2.7,
+              "address": "91 Al Manara Road, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-05-08",
+              "lat": 25.196214,
+              "lon": 55.289529,
+              "record": "clinic:REG-0084"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.919215,
+              "lon": 33.629393,
+              "record": "ping:NPG-03276",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 586,
+              "decay": 0.2008,
+              "contribution": 6.0,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-09-03",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-014:owner",
+              "companyId": "NCO-014",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x5076817",
+          "personId": "person::x5076817",
+          "address": "Larnaca Marina",
+          "lat": 34.914682,
+          "lon": 33.627537,
+          "score": 48.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 643,
+              "decay": 0.1718,
+              "contribution": 8.6,
+              "address": "33 Mildmay Grove, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-07-08",
+              "lat": 51.508454,
+              "lon": -0.123697,
+              "record": "clinic:REG-0104"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 34.914682,
+              "lon": 33.627537,
+              "record": "ping:NPG-02174",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::zane-lopez-1978-03-11",
+          "personId": "person::zane-lopez-1978-03-11",
+          "address": "Larnaca Marina",
+          "lat": 34.92038,
+          "lon": 33.634395,
+          "score": 48.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1047,
+              "decay": 0.0568,
+              "contribution": 2.8,
+              "address": "102 Ermou Street, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-05-31",
+              "lat": 34.921735,
+              "lon": 33.61946,
+              "record": "clinic:REG-0014"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.92038,
+              "lon": 33.634395,
+              "record": "ping:NPG-01336",
+              "pingCount": 7
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 634,
+              "decay": 0.1761,
+              "contribution": 5.3,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-07-17",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-084:owner",
+              "companyId": "NCO-084",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x5446912",
+          "personId": "person::x5446912",
+          "address": "Larnaca Marina",
+          "lat": 34.922132,
+          "lon": 33.629133,
+          "score": 47.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 644,
+              "decay": 0.1713,
+              "contribution": 8.6,
+              "address": "75 Kallidromiou Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-07-07",
+              "lat": 37.977632,
+              "lon": 23.747402,
+              "record": "clinic:REG-0103"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 6,
+              "decay": 0.9837,
+              "contribution": 39.3,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-06",
+              "lat": 34.922132,
+              "lon": 33.629133,
+              "record": "ping:NPG-01666",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x4786401",
+          "personId": "person::x4786401",
+          "address": "Geneva Business District",
+          "lat": 46.2098,
+          "lon": 6.139466,
+          "score": 47.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 674,
+              "decay": 0.1578,
+              "contribution": 7.9,
+              "address": "45 Langstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-06-07",
+              "lat": 47.384496,
+              "lon": 8.551486,
+              "record": "clinic:REG-0102"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.2098,
+              "lon": 6.139466,
+              "record": "ping:NPG-03682",
+              "pingCount": 12
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::elias-silva-1997-10-16",
+          "personId": "person::elias-silva-1997-10-16",
+          "address": "Larnaca Marina",
+          "lat": 34.931257,
+          "lon": 33.628699,
+          "score": 47.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.931257,
+              "lon": 33.628699,
+              "record": "ping:NPG-05950",
+              "pingCount": 2
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 517,
+              "decay": 0.2426,
+              "contribution": 7.3,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-11-11",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-020:director",
+              "companyId": "NCO-020",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::marcus-grant-1985-12-23",
+          "personId": "person::marcus-grant-1985-12-23",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.069719,
+          "lon": 55.132436,
+          "score": 47.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.069719,
+              "lon": 55.132436,
+              "record": "ping:NPG-02791",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 517,
+              "decay": 0.2426,
+              "contribution": 7.3,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-11-11",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-020:owner",
+              "companyId": "NCO-020",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::rami-nasser-1991-04-27",
+          "personId": "person::rami-nasser-1991-04-27",
+          "address": "Geneva Business District",
+          "lat": 46.211997,
+          "lon": 6.145525,
+          "score": 46.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1433,
+              "decay": 0.0197,
+              "contribution": 1.0,
+              "address": "109 Halaskargazi Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-05-10",
+              "lat": 41.014255,
+              "lon": 28.972589,
+              "record": "clinic:REG-0066"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.211997,
+              "lon": 6.145525,
+              "record": "ping:NPG-02830",
+              "pingCount": 6
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 586,
+              "decay": 0.2008,
+              "contribution": 6.0,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-09-03",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-014:director",
+              "companyId": "NCO-014",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::clara-ionescu-1982-01-04",
+          "personId": "person::clara-ionescu-1982-01-04",
+          "address": "Larnaca Marina",
+          "lat": 34.929982,
+          "lon": 33.62824,
+          "score": 46.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 911,
+              "decay": 0.0824,
+              "contribution": 4.1,
+              "address": "95 Makariou Avenue, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-10-14",
+              "lat": 34.673593,
+              "lon": 33.019195,
+              "record": "clinic:REG-0096"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.929982,
+              "lon": 33.62824,
+              "record": "ping:NPG-03337",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 888,
+              "decay": 0.0878,
+              "contribution": 2.6,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-11-06",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-078:director",
+              "companyId": "NCO-078",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::farah-meyer-1985-08-03",
+          "personId": "person::farah-meyer-1985-08-03",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.682355,
+          "lon": 33.041237,
+          "score": 45.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1002,
+              "decay": 0.0642,
+              "contribution": 3.2,
+              "address": "117 Athinon Avenue, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-07-15",
+              "lat": 34.902891,
+              "lon": 33.609961,
+              "record": "clinic:REG-0089"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.682355,
+              "lon": 33.041237,
+              "record": "ping:NPG-04781",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 842,
+              "decay": 0.0996,
+              "contribution": 3.0,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-12-22",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-061:director",
+              "companyId": "NCO-061",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x1971823",
+          "personId": "person::x1971823",
+          "address": "Larnaca Marina",
+          "lat": 34.918942,
+          "lon": 33.645673,
+          "score": 45.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 782,
+              "decay": 0.1174,
+              "contribution": 5.9,
+              "address": "95 Makariou Avenue, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-02-20",
+              "lat": 34.673593,
+              "lon": 33.019195,
+              "record": "clinic:REG-0028"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.918942,
+              "lon": 33.645673,
+              "record": "ping:NPG-00303",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::priya-lopez-1982-04-09",
+          "personId": "person::priya-lopez-1982-04-09",
+          "address": "Larnaca Marina",
+          "lat": 34.93099,
+          "lon": 33.637213,
+          "score": 45.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 825,
+              "decay": 0.1043,
+              "contribution": 5.2,
+              "address": "179 Lordship Lane, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-01-08",
+              "lat": 51.489515,
+              "lon": -0.117947,
+              "record": "clinic:REG-0025"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.93099,
+              "lon": 33.637213,
+              "record": "ping:NPG-03973",
+              "pingCount": 2
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1502,
+              "decay": 0.0163,
+              "contribution": 0.5,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-03-02",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-053:director",
+              "companyId": "NCO-053",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::lena-grant-1996-05-24",
+          "personId": "person::lena-grant-1996-05-24",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.08727,
+          "lon": 55.145973,
+          "score": 45.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 6,
+              "decay": 0.9837,
+              "contribution": 39.3,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-06",
+              "lat": 25.08727,
+              "lon": 55.145973,
+              "record": "ping:NPG-05564",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 599,
+              "decay": 0.1938,
+              "contribution": 5.8,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-08-21",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-068:director",
+              "companyId": "NCO-068",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x3484601",
+          "personId": "person::x3484601",
+          "address": "Geneva Business District",
+          "lat": 46.207897,
+          "lon": 6.143298,
+          "score": 45.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 836,
+              "decay": 0.1012,
+              "contribution": 5.1,
+              "address": "122 Patision Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-12-28",
+              "lat": 37.980042,
+              "lon": 23.735212,
+              "record": "clinic:REG-0024"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.207897,
+              "lon": 6.143298,
+              "record": "ping:NPG-03243",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x5024269",
+          "personId": "person::x5024269",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.681948,
+          "lon": 33.053254,
+          "score": 44.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 829,
+              "decay": 0.1032,
+              "contribution": 5.2,
+              "address": "157 Praterstrasse, Vienna",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-01-04",
+              "lat": 48.224906,
+              "lon": 16.353954,
+              "record": "clinic:REG-0100"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.681948,
+              "lon": 33.053254,
+              "record": "ping:NPG-03827",
+              "pingCount": 9
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::jonah-rossi-1986-04-07",
+          "personId": "person::jonah-rossi-1986-04-07",
+          "address": "Larnaca Marina",
+          "lat": 34.926255,
+          "lon": 33.635543,
+          "score": 44.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.926255,
+              "lon": 33.635543,
+              "record": "ping:NPG-05538",
+              "pingCount": 10
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 683,
+              "decay": 0.1539,
+              "contribution": 4.6,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-05-29",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-086:director",
+              "companyId": "NCO-086",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x4344717",
+          "personId": "person::x4344717",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.684851,
+          "lon": 33.051713,
+          "score": 44.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 820,
+              "decay": 0.1058,
+              "contribution": 5.3,
+              "address": "75 Kallidromiou Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-01-13",
+              "lat": 37.977632,
+              "lon": 23.747402,
+              "record": "clinic:REG-0026"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 6,
+              "decay": 0.9837,
+              "contribution": 39.3,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-06",
+              "lat": 34.684851,
+              "lon": 33.051713,
+              "record": "ping:NPG-05548",
+              "pingCount": 6
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::l1029921",
+          "personId": "person::l1029921",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.07247,
+          "lon": 55.129831,
+          "score": 44.4,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 25.07247,
+              "lon": 55.129831,
+              "record": "ping:NPG-05178",
+              "pingCount": 4
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 683,
+              "decay": 0.1539,
+              "contribution": 4.6,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-05-29",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-086:owner",
+              "companyId": "NCO-086",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x7523941",
+          "personId": "person::x7523941",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.670629,
+          "lon": 33.046287,
+          "score": 44.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 867,
+              "decay": 0.093,
+              "contribution": 4.6,
+              "address": "179 Lordship Lane, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-11-27",
+              "lat": 51.489515,
+              "lon": -0.117947,
+              "record": "clinic:REG-0022"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 34.670629,
+              "lon": 33.046287,
+              "record": "ping:NPG-00820",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x8939993",
+          "personId": "person::x8939993",
+          "address": "Geneva Business District",
+          "lat": 46.212786,
+          "lon": 6.134869,
+          "score": 44.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 903,
+              "decay": 0.0842,
+              "contribution": 4.2,
+              "address": "134 Praterstrasse, Vienna",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-10-22",
+              "lat": 48.20665,
+              "lon": 16.368901,
+              "record": "clinic:REG-0097"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.212786,
+              "lon": 6.134869,
+              "record": "ping:NPG-02661",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::u2286130",
+          "personId": "person::u2286130",
+          "address": "North Quay Warehouse",
+          "lat": 34.660557,
+          "lon": 33.011878,
+          "score": 43.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 923,
+              "decay": 0.0798,
+              "contribution": 4.0,
+              "address": "1210 Corcoran Street NW, Washington, D.C.",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-10-02",
+              "lat": 38.9113,
+              "lon": -77.0287,
+              "record": "clinic:REG-0019"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.660557,
+              "lon": 33.011878,
+              "record": "ping:NPG-05544",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x9961107",
+          "personId": "person::x9961107",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.685544,
+          "lon": 33.036141,
+          "score": 43.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 943,
+              "decay": 0.0755,
+              "contribution": 3.8,
+              "address": "41 Halaskargazi Caddesi, Istanbul",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-09-12",
+              "lat": 41.004135,
+              "lon": 28.967687,
+              "record": "clinic:REG-0093"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.685544,
+              "lon": 33.036141,
+              "record": "ping:NPG-02008",
+              "pingCount": 6
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::farah-orlov-1991-06-22",
+          "personId": "person::farah-orlov-1991-06-22",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.684192,
+          "lon": 33.04975,
+          "score": 43.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.684192,
+              "lon": 33.04975,
+              "record": "ping:NPG-02203",
+              "pingCount": 6
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 749,
+              "decay": 0.1285,
+              "contribution": 3.9,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-03-24",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-074:owner",
+              "companyId": "NCO-074",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::priya-silva-1987-07-28",
+          "personId": "person::priya-silva-1987-07-28",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.07892,
+          "lon": 55.147223,
+          "score": 43.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 966,
+              "decay": 0.0709,
+              "contribution": 3.5,
+              "address": "36 Al Safa Street, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-08-20",
+              "lat": 25.193937,
+              "lon": 55.25534,
+              "record": "clinic:REG-0017"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 25.07892,
+              "lon": 55.147223,
+              "record": "ping:NPG-00639",
+              "pingCount": 2
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1694,
+              "decay": 0.0096,
+              "contribution": 0.3,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-08-22",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-082:director",
+              "companyId": "NCO-082",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::hugo-rossi-1992-06-26",
+          "personId": "person::hugo-rossi-1992-06-26",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.67381,
+          "lon": 33.054322,
+          "score": 43.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1263,
+              "decay": 0.0314,
+              "contribution": 1.6,
+              "address": "156 Kallidromiou Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-10-27",
+              "lat": 37.985395,
+              "lon": 23.744837,
+              "record": "clinic:REG-0079"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.67381,
+              "lon": 33.054322,
+              "record": "ping:NPG-01073",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 974,
+              "decay": 0.0694,
+              "contribution": 2.1,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-08-12",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-043:owner",
+              "companyId": "NCO-043",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x4318855",
+          "personId": "person::x4318855",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.681571,
+          "lon": 33.048902,
+          "score": 43.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 963,
+              "decay": 0.0715,
+              "contribution": 3.6,
+              "address": "113 Grigori Afxentiou Avenue, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-08-23",
+              "lat": 34.912022,
+              "lon": 33.617465,
+              "record": "clinic:REG-0092"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.681571,
+              "lon": 33.048902,
+              "record": "ping:NPG-04597",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x9075854",
+          "personId": "person::x9075854",
+          "address": "North Quay Warehouse",
+          "lat": 34.657427,
+          "lon": 33.020952,
+          "score": 43.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 968,
+              "decay": 0.0705,
+              "contribution": 3.5,
+              "address": "3 Mildmay Grove, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-08-18",
+              "lat": 51.494732,
+              "lon": -0.117683,
+              "record": "clinic:REG-0090"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.657427,
+              "lon": 33.020952,
+              "record": "ping:NPG-02923",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x1909393",
+          "personId": "person::x1909393",
+          "address": "Larnaca Marina",
+          "lat": 34.924842,
+          "lon": 33.644287,
+          "score": 43.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1004,
+              "decay": 0.0639,
+              "contribution": 3.2,
+              "address": "99 Mildmay Grove, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-07-13",
+              "lat": 51.516794,
+              "lon": -0.118285,
+              "record": "clinic:REG-0088"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.924842,
+              "lon": 33.644287,
+              "record": "ping:NPG-05007",
+              "pingCount": 7
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::farah-nasser-1988-09-22",
+          "personId": "person::farah-nasser-1988-09-22",
+          "address": "Larnaca Marina",
+          "lat": 34.922689,
+          "lon": 33.631193,
+          "score": 41.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 34.922689,
+              "lon": 33.631193,
+              "record": "ping:NPG-01509",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 939,
+              "decay": 0.0763,
+              "contribution": 2.3,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-09-16",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-013:director",
+              "companyId": "NCO-013",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::farah-ionescu-1996-09-02",
+          "personId": "person::farah-ionescu-1996-09-02",
+          "address": "North Quay Warehouse",
+          "lat": 34.648198,
+          "lon": 33.025657,
+          "score": 41.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 5,
+              "decay": 0.9864,
+              "contribution": 39.5,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-07",
+              "lat": 34.648198,
+              "lon": 33.025657,
+              "record": "ping:NPG-00562",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 936,
+              "decay": 0.077,
+              "contribution": 2.3,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-09-19",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-044:owner",
+              "companyId": "NCO-044",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::farah-lopez-1984-09-15",
+          "personId": "person::farah-lopez-1984-09-15",
+          "address": "North Quay Warehouse",
+          "lat": 34.661475,
+          "lon": 33.017963,
+          "score": 41.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 34.661475,
+              "lon": 33.017963,
+              "record": "ping:NPG-00439",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 955,
+              "decay": 0.0731,
+              "contribution": 2.2,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-08-31",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-015:owner",
+              "companyId": "NCO-015",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::rami-demir-1975-04-18",
+          "personId": "person::rami-demir-1975-04-18",
+          "address": "Larnaca Marina",
+          "lat": 34.930486,
+          "lon": 33.637433,
+          "score": 41.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 34.930486,
+              "lon": 33.637433,
+              "record": "ping:NPG-05377",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 951,
+              "decay": 0.0739,
+              "contribution": 2.2,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-09-04",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-026:owner",
+              "companyId": "NCO-026",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::zane-elias-1984-09-13",
+          "personId": "person::zane-elias-1984-09-13",
+          "address": "North Quay Warehouse",
+          "lat": 34.659325,
+          "lon": 33.014651,
+          "score": 41.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1283,
+              "decay": 0.0297,
+              "contribution": 1.5,
+              "address": "95 Makariou Avenue, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-10-07",
+              "lat": 34.673593,
+              "lon": 33.019195,
+              "record": "clinic:REG-0078"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.659325,
+              "lon": 33.014651,
+              "record": "ping:NPG-00372",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1604,
+              "decay": 0.0123,
+              "contribution": 0.4,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-11-20",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-028:director",
+              "companyId": "NCO-028",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::lena-ionescu-1988-07-02",
+          "personId": "person::lena-ionescu-1988-07-02",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.073173,
+          "lon": 55.139715,
+          "score": 41.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1342,
+              "decay": 0.0253,
+              "contribution": 1.3,
+              "address": "156 Omonoias Avenue, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-08-09",
+              "lat": 34.684102,
+              "lon": 33.044616,
+              "record": "clinic:REG-0075"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 25.073173,
+              "lon": 55.139715,
+              "record": "ping:NPG-03021",
+              "pingCount": 6
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1519,
+              "decay": 0.0156,
+              "contribution": 0.5,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-02-13",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-031:director",
+              "companyId": "NCO-031",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::lena-byrne-1987-02-28",
+          "personId": "person::lena-byrne-1987-02-28",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.077438,
+          "lon": 55.132583,
+          "score": 41.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1498,
+              "decay": 0.0165,
+              "contribution": 0.8,
+              "address": "110 Grigori Afxentiou Avenue, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-03-06",
+              "lat": 34.913278,
+              "lon": 33.626997,
+              "record": "clinic:REG-0065"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 25.077438,
+              "lon": 55.132583,
+              "record": "ping:NPG-05404",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1414,
+              "decay": 0.0208,
+              "contribution": 0.6,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-05-29",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-005:director",
+              "companyId": "NCO-005",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::owen-quinn-1998-11-27",
+          "personId": "person::owen-quinn-1998-11-27",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.071255,
+          "lon": 55.138088,
+          "score": 41.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1413,
+              "decay": 0.0208,
+              "contribution": 1.0,
+              "address": "154 Seefeldstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-05-30",
+              "lat": 47.373476,
+              "lon": 8.522646,
+              "record": "clinic:REG-0068"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 25.071255,
+              "lon": 55.138088,
+              "record": "ping:NPG-05079",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1962,
+              "decay": 0.0046,
+              "contribution": 0.1,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2020-11-27",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-077:director",
+              "companyId": "NCO-077",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x2022698",
+          "personId": "person::x2022698",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.674818,
+          "lon": 33.041792,
+          "score": 41.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1307,
+              "decay": 0.0279,
+              "contribution": 1.4,
+              "address": "110 Grigori Afxentiou Avenue, Larnaca",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-09-13",
+              "lat": 34.913278,
+              "lon": 33.626997,
+              "record": "clinic:REG-0077"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.674818,
+              "lon": 33.041792,
+              "record": "ping:NPG-02555",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x8574680",
+          "personId": "person::x8574680",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.671642,
+          "lon": 33.044301,
+          "score": 41.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1354,
+              "decay": 0.0245,
+              "contribution": 1.2,
+              "address": "36 Al Safa Street, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-07-28",
+              "lat": 25.193937,
+              "lon": 55.25534,
+              "record": "clinic:REG-0073"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.671642,
+              "lon": 33.044301,
+              "record": "ping:NPG-05320",
+              "pingCount": 6
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x3608513",
+          "personId": "person::x3608513",
+          "address": "North Quay Warehouse",
+          "lat": 34.659588,
+          "lon": 33.014677,
+          "score": 40.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1400,
+              "decay": 0.0216,
+              "contribution": 1.1,
+              "address": "36 Al Safa Street, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-06-12",
+              "lat": 25.193937,
+              "lon": 55.25534,
+              "record": "clinic:REG-0069"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.659588,
+              "lon": 33.014677,
+              "record": "ping:NPG-05115",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x8816912",
+          "personId": "person::x8816912",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.08477,
+          "lon": 55.142542,
+          "score": 40.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1376,
+              "decay": 0.0231,
+              "contribution": 1.2,
+              "address": "129 Makariou Avenue, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-07-06",
+              "lat": 34.685264,
+              "lon": 33.04577,
+              "record": "clinic:REG-0070"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 25.08477,
+              "lon": 55.142542,
+              "record": "ping:NPG-04499",
+              "pingCount": 2
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x1445199",
+          "personId": "person::x1445199",
+          "address": "Geneva Business District",
+          "lat": 46.198332,
+          "lon": 6.152289,
+          "score": 40.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1506,
+              "decay": 0.0161,
+              "contribution": 0.8,
+              "address": "171 Patision Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-02-26",
+              "lat": 37.982986,
+              "lon": 23.711948,
+              "record": "clinic:REG-0004"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 46.198332,
+              "lon": 6.152289,
+              "record": "ping:NPG-03316",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x7970985",
+          "personId": "person::x7970985",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.67192,
+          "lon": 33.04273,
+          "score": 40.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1552,
+              "decay": 0.0142,
+              "contribution": 0.7,
+              "address": "55 Umm Suqeim Street, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-01-11",
+              "lat": 25.199352,
+              "lon": 55.28004,
+              "record": "clinic:REG-0062"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.67192,
+              "lon": 33.04273,
+              "record": "ping:NPG-01275",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x3475836",
+          "personId": "person::x3475836",
+          "address": "North Quay Warehouse",
+          "lat": 34.650849,
+          "lon": 33.019809,
+          "score": 40.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1365,
+              "decay": 0.0238,
+              "contribution": 1.2,
+              "address": "157 Praterstrasse, Vienna",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-07-17",
+              "lat": 48.224906,
+              "lon": 16.353954,
+              "record": "clinic:REG-0072"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 6,
+              "decay": 0.9837,
+              "contribution": 39.3,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-06",
+              "lat": 34.650849,
+              "lon": 33.019809,
+              "record": "ping:NPG-00145",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::x5040453",
+          "personId": "person::x5040453",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.082569,
+          "lon": 55.146644,
+          "score": 40.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1552,
+              "decay": 0.0142,
+              "contribution": 0.7,
+              "address": "33 Makariou Avenue, Limassol",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-01-11",
+              "lat": 34.702515,
+              "lon": 33.025204,
+              "record": "clinic:REG-0063"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 25.082569,
+              "lon": 55.146644,
+              "record": "ping:NPG-03127",
+              "pingCount": 7
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::b7730042",
+          "personId": "person::b7730042",
+          "address": "Geneva Business District",
+          "lat": 46.214011,
+          "lon": 6.147837,
+          "score": 40.4,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 46.214011,
+              "lon": 6.147837,
+              "record": "ping:NPG-01423",
+              "pingCount": 7
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1397,
+              "decay": 0.0218,
+              "contribution": 0.7,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-06-15",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-018:owner",
+              "companyId": "NCO-018",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x4305700",
+          "personId": "person::x4305700",
+          "address": "North Quay Warehouse",
+          "lat": 34.656769,
+          "lon": 33.017705,
+          "score": 40.4,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1460,
+              "decay": 0.0183,
+              "contribution": 0.9,
+              "address": "156 Kallidromiou Street, Athens",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-04-13",
+              "lat": 37.985395,
+              "lon": 23.744837,
+              "record": "clinic:REG-0007"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 5,
+              "decay": 0.9864,
+              "contribution": 39.5,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-07",
+              "lat": 34.656769,
+              "lon": 33.017705,
+              "record": "ping:NPG-03332",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::adam-patel-1986-11-26",
+          "personId": "person::adam-patel-1986-11-26",
+          "address": "North Quay Warehouse",
+          "lat": 34.648738,
+          "lon": 33.023078,
+          "score": 40.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.648738,
+              "lon": 33.023078,
+              "record": "ping:NPG-00576",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1556,
+              "decay": 0.0141,
+              "contribution": 0.4,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-01-07",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-011:director",
+              "companyId": "NCO-011",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x2147909",
+          "personId": "person::x2147909",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.07738,
+          "lon": 55.141697,
+          "score": 40.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1560,
+              "decay": 0.0139,
+              "contribution": 0.7,
+              "address": "36 Al Safa Street, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-01-03",
+              "lat": 25.193937,
+              "lon": 55.25534,
+              "record": "clinic:REG-0061"
+            },
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 5,
+              "decay": 0.9864,
+              "contribution": 39.5,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-07",
+              "lat": 25.07738,
+              "lon": 55.141697,
+              "record": "ping:NPG-01546",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::zane-orlov-1989-07-04",
+          "personId": "person::zane-orlov-1989-07-04",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.074079,
+          "lon": 55.141224,
+          "score": 40.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.074079,
+              "lon": 55.141224,
+              "record": "ping:NPG-05607",
+              "pingCount": 3
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1645,
+              "decay": 0.011,
+              "contribution": 0.3,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-10-10",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-060:director",
+              "companyId": "NCO-060",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::p8842101",
+          "personId": "person::p8842101",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.684495,
+          "lon": 33.036536,
+          "score": 40.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.684495,
+              "lon": 33.036536,
+              "record": "ping:NPG-05582",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1850,
+              "decay": 0.0063,
+              "contribution": 0.2,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-03-19",
+              "lat": 34.675435,
+              "lon": 33.036594,
+              "record": "company:CO-101:owner",
+              "companyId": "CO-101",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::nadia-lopez-1975-04-16",
+          "personId": "person::nadia-lopez-1975-04-16",
+          "address": "North Quay Warehouse",
+          "lat": 34.663969,
+          "lon": 33.028529,
+          "score": 40.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.663969,
+              "lon": 33.028529,
+              "record": "ping:NPG-01854",
+              "pingCount": 4
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1817,
+              "decay": 0.0069,
+              "contribution": 0.2,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-04-21",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-022:director",
+              "companyId": "NCO-022",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x2683838",
+          "personId": "person::x2683838",
+          "address": "Larnaca Marina",
+          "lat": 34.930079,
+          "lon": 33.644884,
+          "score": 40.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.930079,
+              "lon": 33.644884,
+              "record": "ping:NPG-02057",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x5180853",
+          "personId": "person::x5180853",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.676507,
+          "lon": 33.052583,
+          "score": 40.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.676507,
+              "lon": 33.052583,
+              "record": "ping:NPG-03320",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x6097514",
+          "personId": "person::x6097514",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.088902,
+          "lon": 55.14558,
+          "score": 40.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 25.088902,
+              "lon": 55.14558,
+              "record": "ping:NPG-01399",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x6724909",
+          "personId": "person::x6724909",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.079549,
+          "lon": 55.139161,
+          "score": 40.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 25.079549,
+              "lon": 55.139161,
+              "record": "ping:NPG-01356",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x9770838",
+          "personId": "person::x9770838",
+          "address": "Larnaca Marina",
+          "lat": 34.917877,
+          "lon": 33.635111,
+          "score": 40.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 0,
+              "decay": 1.0,
+              "contribution": 40.0,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-12",
+              "lat": 34.917877,
+              "lon": 33.635111,
+              "record": "ping:NPG-04981",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::h-costa-49336456621",
+          "personId": "person::h-costa-49336456621",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.673544,
+          "lon": 33.045578,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.673544,
+              "lon": 33.045578,
+              "record": "ping:NPG-01720",
+              "pingCount": 2
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::n5538219",
+          "personId": "person::n5538219",
+          "address": "Geneva Business District",
+          "lat": 46.205333,
+          "lon": 6.140806,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 46.205333,
+              "lon": 6.140806,
+              "record": "ping:NPG-02161",
+              "pingCount": 4
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 2104,
+              "decay": 0.0031,
+              "contribution": 0.1,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2020-07-08",
+              "lat": 25.087638,
+              "lon": 55.146676,
+              "record": "company:CO-102:director",
+              "companyId": "CO-102",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::sara-quinn-1981-08-12",
+          "personId": "person::sara-quinn-1981-08-12",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.681111,
+          "lon": 33.046518,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.681111,
+              "lon": 33.046518,
+              "record": "ping:NPG-02586",
+              "pingCount": 6
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1916,
+              "decay": 0.0053,
+              "contribution": 0.2,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-01-12",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-062:director",
+              "companyId": "NCO-062",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x1156287",
+          "personId": "person::x1156287",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.087451,
+          "lon": 55.148893,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.087451,
+              "lon": 55.148893,
+              "record": "ping:NPG-02438",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x1689025",
+          "personId": "person::x1689025",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.07181,
+          "lon": 55.142033,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.07181,
+              "lon": 55.142033,
+              "record": "ping:NPG-04426",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x3024269",
+          "personId": "person::x3024269",
+          "address": "Larnaca Marina",
+          "lat": 34.915435,
+          "lon": 33.627599,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.915435,
+              "lon": 33.627599,
+              "record": "ping:NPG-01838",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x3294774",
+          "personId": "person::x3294774",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.670458,
+          "lon": 33.039364,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.670458,
+              "lon": 33.039364,
+              "record": "ping:NPG-02054",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x3563646",
+          "personId": "person::x3563646",
+          "address": "Larnaca Marina",
+          "lat": 34.920121,
+          "lon": 33.636997,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.920121,
+              "lon": 33.636997,
+              "record": "ping:NPG-00634",
+              "pingCount": 6
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x4744854",
+          "personId": "person::x4744854",
+          "address": "Larnaca Marina",
+          "lat": 34.932556,
+          "lon": 33.627588,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.932556,
+              "lon": 33.627588,
+              "record": "ping:NPG-02722",
+              "pingCount": 6
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x5014745",
+          "personId": "person::x5014745",
+          "address": "Geneva Business District",
+          "lat": 46.197762,
+          "lon": 6.137119,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.197762,
+              "lon": 6.137119,
+              "record": "ping:NPG-01852",
+              "pingCount": 2
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x5299055",
+          "personId": "person::x5299055",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.077145,
+          "lon": 55.131353,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.077145,
+              "lon": 55.131353,
+              "record": "ping:NPG-04307",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x5408072",
+          "personId": "person::x5408072",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.081052,
+          "lon": 55.149069,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.081052,
+              "lon": 55.149069,
+              "record": "ping:NPG-00779",
+              "pingCount": 7
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x5747930",
+          "personId": "person::x5747930",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.076608,
+          "lon": 55.139506,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.076608,
+              "lon": 55.139506,
+              "record": "ping:NPG-00810",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x5963914",
+          "personId": "person::x5963914",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.085789,
+          "lon": 55.140536,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.085789,
+              "lon": 55.140536,
+              "record": "ping:NPG-01374",
+              "pingCount": 6
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x6901533",
+          "personId": "person::x6901533",
+          "address": "Larnaca Marina",
+          "lat": 34.912617,
+          "lon": 33.646529,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 34.912617,
+              "lon": 33.646529,
+              "record": "ping:NPG-00554",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x7067228",
+          "personId": "person::x7067228",
+          "address": "Geneva Business District",
+          "lat": 46.199884,
+          "lon": 6.141623,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.199884,
+              "lon": 6.141623,
+              "record": "ping:NPG-01889",
+              "pingCount": 9
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x7120868",
+          "personId": "person::x7120868",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.076166,
+          "lon": 55.136784,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 25.076166,
+              "lon": 55.136784,
+              "record": "ping:NPG-05370",
+              "pingCount": 6
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x9418719",
+          "personId": "person::x9418719",
+          "address": "Geneva Business District",
+          "lat": 46.203428,
+          "lon": 6.137837,
+          "score": 39.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 1,
+              "decay": 0.9973,
+              "contribution": 39.9,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-11",
+              "lat": 46.203428,
+              "lon": 6.137837,
+              "record": "ping:NPG-03568",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::ivy-silva-1974-06-16",
+          "personId": "person::ivy-silva-1974-06-16",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.08059,
+          "lon": 55.138622,
+          "score": 39.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 25.08059,
+              "lon": 55.138622,
+              "record": "ping:NPG-04937",
+              "pingCount": 2
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 2353,
+              "decay": 0.0016,
+              "contribution": 0.0,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2019-11-02",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-002:director",
+              "companyId": "NCO-002",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::tomas-orlov-1983-11-21",
+          "personId": "person::tomas-orlov-1983-11-21",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.074041,
+          "lon": 55.14534,
+          "score": 39.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 25.074041,
+              "lon": 55.14534,
+              "record": "ping:NPG-01860",
+              "pingCount": 5
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1908,
+              "decay": 0.0054,
+              "contribution": 0.2,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-01-20",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-085:director",
+              "companyId": "NCO-085",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x4188992",
+          "personId": "person::x4188992",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.679918,
+          "lon": 33.05047,
+          "score": 39.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.679918,
+              "lon": 33.05047,
+              "record": "ping:NPG-05891",
+              "pingCount": 7
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x5502929",
+          "personId": "person::x5502929",
+          "address": "North Quay Warehouse",
+          "lat": 34.6568,
+          "lon": 33.028437,
+          "score": 39.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.6568,
+              "lon": 33.028437,
+              "record": "ping:NPG-00868",
+              "pingCount": 2
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x6008935",
+          "personId": "person::x6008935",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.071129,
+          "lon": 55.14116,
+          "score": 39.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 25.071129,
+              "lon": 55.14116,
+              "record": "ping:NPG-02560",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x7199635",
+          "personId": "person::x7199635",
+          "address": "Larnaca Marina",
+          "lat": 34.932037,
+          "lon": 33.629912,
+          "score": 39.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.932037,
+              "lon": 33.629912,
+              "record": "ping:NPG-03296",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x8194570",
+          "personId": "person::x8194570",
+          "address": "North Quay Warehouse",
+          "lat": 34.649383,
+          "lon": 33.02655,
+          "score": 39.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 34.649383,
+              "lon": 33.02655,
+              "record": "ping:NPG-03067",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x8796514",
+          "personId": "person::x8796514",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.081133,
+          "lon": 55.135632,
+          "score": 39.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 2,
+              "decay": 0.9945,
+              "contribution": 39.8,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-10",
+              "lat": 25.081133,
+              "lon": 55.135632,
+              "record": "ping:NPG-02620",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x4010529",
+          "personId": "person::x4010529",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.686582,
+          "lon": 33.0393,
+          "score": 39.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.686582,
+              "lon": 33.0393,
+              "record": "ping:NPG-02719",
+              "pingCount": 7
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x7751158",
+          "personId": "person::x7751158",
+          "address": "Geneva Business District",
+          "lat": 46.198847,
+          "lon": 6.135102,
+          "score": 39.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 46.198847,
+              "lon": 6.135102,
+              "record": "ping:NPG-04864",
+              "pingCount": 6
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x7844947",
+          "personId": "person::x7844947",
+          "address": "North Quay Warehouse",
+          "lat": 34.66577,
+          "lon": 33.024133,
+          "score": 39.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 34.66577,
+              "lon": 33.024133,
+              "record": "ping:NPG-01617",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x8755439",
+          "personId": "person::x8755439",
+          "address": "Geneva Business District",
+          "lat": 46.209718,
+          "lon": 6.145109,
+          "score": 39.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 3,
+              "decay": 0.9918,
+              "contribution": 39.7,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-09",
+              "lat": 46.209718,
+              "lon": 6.145109,
+              "record": "ping:NPG-03428",
+              "pingCount": 7
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x3418526",
+          "personId": "person::x3418526",
+          "address": "North Quay Warehouse",
+          "lat": 34.662665,
+          "lon": 33.01542,
+          "score": 39.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 34.662665,
+              "lon": 33.01542,
+              "record": "ping:NPG-01678",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x5531230",
+          "personId": "person::x5531230",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.681165,
+          "lon": 33.041468,
+          "score": 39.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 34.681165,
+              "lon": 33.041468,
+              "record": "ping:NPG-05133",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x7550190",
+          "personId": "person::x7550190",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.073497,
+          "lon": 55.136857,
+          "score": 39.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 25.073497,
+              "lon": 55.136857,
+              "record": "ping:NPG-00014",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x8761611",
+          "personId": "person::x8761611",
+          "address": "Geneva Business District",
+          "lat": 46.207812,
+          "lon": 6.152844,
+          "score": 39.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 4,
+              "decay": 0.9891,
+              "contribution": 39.6,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-08",
+              "lat": 46.207812,
+              "lon": 6.152844,
+              "record": "ping:NPG-02408",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::adam-keller-1986-11-14",
+          "personId": "person::adam-keller-1986-11-14",
+          "address": "North Quay Warehouse",
+          "lat": 34.666773,
+          "lon": 33.016489,
+          "score": 39.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 6,
+              "decay": 0.9837,
+              "contribution": 39.3,
+              "address": "North Quay Warehouse",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-06",
+              "lat": 34.666773,
+              "lon": 33.016489,
+              "record": "ping:NPG-03387",
+              "pingCount": 4
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1882,
+              "decay": 0.0058,
+              "contribution": 0.2,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-02-15",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-057:owner",
+              "companyId": "NCO-057",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "OPEN",
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x4262081",
+          "personId": "person::x4262081",
+          "address": "Larnaca Marina",
+          "lat": 34.920223,
+          "lon": 33.630554,
+          "score": 39.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 5,
+              "decay": 0.9864,
+              "contribution": 39.5,
+              "address": "Larnaca Marina",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-07",
+              "lat": 34.920223,
+              "lon": 33.630554,
+              "record": "ping:NPG-01320",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x5130808",
+          "personId": "person::x5130808",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.076474,
+          "lon": 55.133506,
+          "score": 39.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 5,
+              "decay": 0.9864,
+              "contribution": 39.5,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-07",
+              "lat": 25.076474,
+              "lon": 55.133506,
+              "record": "ping:NPG-03645",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x2651177",
+          "personId": "person::x2651177",
+          "address": "14 Seabright Ave, Limassol",
+          "lat": 34.677233,
+          "lon": 33.04313,
+          "score": 39.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 7,
+              "decay": 0.981,
+              "contribution": 39.2,
+              "address": "14 Seabright Ave, Limassol",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-05",
+              "lat": 34.677233,
+              "lon": 33.04313,
+              "record": "ping:NPG-01171",
+              "pingCount": 4
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x4539704",
+          "personId": "person::x4539704",
+          "address": "88 Marina Free Zone, Dubai",
+          "lat": 25.08352,
+          "lon": 55.145225,
+          "score": 39.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 7,
+              "decay": 0.981,
+              "contribution": 39.2,
+              "address": "88 Marina Free Zone, Dubai",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-05",
+              "lat": 25.08352,
+              "lon": 55.145225,
+              "record": "ping:NPG-03536",
+              "pingCount": 3
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::x8558197",
+          "personId": "person::x8558197",
+          "address": "Geneva Business District",
+          "lat": 46.209343,
+          "lon": 6.144117,
+          "score": 39.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_mobile_pings",
+              "marking": "TELECOM",
+              "weight": 0.4,
+              "ageDays": 7,
+              "decay": 0.981,
+              "contribution": 39.2,
+              "address": "Geneva Business District",
+              "label": "Mobile location pings",
+              "rawSource": "mobile_location_pings.jsonl",
+              "purpose": "telecom-billing",
+              "date": "2026-04-05",
+              "lat": 46.209343,
+              "lon": 6.144117,
+              "record": "ping:NPG-04299",
+              "pingCount": 5
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_mobile_pings",
+          "sourceMarkings": [
+            "TELECOM"
+          ]
+        },
+        {
+          "id": "lead::person::elias-keller-1978-11-07",
+          "personId": "person::elias-keller-1978-11-07",
+          "address": "27 Ringstrasse, Vienna",
+          "lat": 48.2046,
+          "lon": 16.3652,
+          "score": 17.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 189,
+              "decay": 0.5958,
+              "contribution": 17.9,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-10-05",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-035:director",
+              "companyId": "NCO-035",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::farah-vale-1985-03-30",
+          "personId": "person::farah-vale-1985-03-30",
+          "address": "5 Harbor Row, Limassol",
+          "lat": 34.6712,
+          "lon": 33.0436,
+          "score": 13.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 955,
+              "decay": 0.0731,
+              "contribution": 3.7,
+              "address": "179 Lordship Lane, London",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-08-31",
+              "lat": 51.489515,
+              "lon": -0.117947,
+              "record": "clinic:REG-0018"
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 414,
+              "decay": 0.3217,
+              "contribution": 9.6,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-02-22",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-080:owner",
+              "companyId": "NCO-080",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::nadia-nasser-1982-11-24",
+          "personId": "person::nadia-nasser-1982-11-24",
+          "address": "17 Kingsway, London",
+          "lat": 51.5155,
+          "lon": -0.1189,
+          "score": 12.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 316,
+              "decay": 0.4207,
+              "contribution": 12.6,
+              "address": "17 Kingsway, London",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-05-31",
+              "lat": 51.5155,
+              "lon": -0.1189,
+              "record": "company:NCO-030:director",
+              "companyId": "NCO-030",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::adam-ionescu-1996-06-15",
+          "personId": "person::adam-ionescu-1996-06-15",
+          "address": "48 Bahnhofstrasse, Zurich",
+          "lat": 47.3707,
+          "lon": 8.5392,
+          "score": 10.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 393,
+              "decay": 0.3407,
+              "contribution": 10.2,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-03-15",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-051:director",
+              "companyId": "NCO-051",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::nadia-costa-1998-10-06",
+          "personId": "person::nadia-costa-1998-10-06",
+          "address": "27 Ringstrasse, Vienna",
+          "lat": 48.2046,
+          "lon": 16.3652,
+          "score": 9.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 405,
+              "decay": 0.3297,
+              "contribution": 9.9,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-03-03",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-040:director",
+              "companyId": "NCO-040",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::dina-elias-1984-05-16",
+          "personId": "person::dina-elias-1984-05-16",
+          "address": "27 Ringstrasse, Vienna",
+          "lat": 48.2046,
+          "lon": 16.3652,
+          "score": 9.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 418,
+              "decay": 0.3182,
+              "contribution": 9.5,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2025-02-18",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-039:director",
+              "companyId": "NCO-039",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::tomas-hale-1988-07-19",
+          "personId": "person::tomas-hale-1988-07-19",
+          "address": "164 Al Safa Street, Dubai",
+          "lat": 25.212773,
+          "lon": 55.284016,
+          "score": 8.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 749,
+              "decay": 0.1285,
+              "contribution": 6.4,
+              "address": "164 Al Safa Street, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2024-03-24",
+              "lat": 25.212773,
+              "lon": 55.284016,
+              "record": "clinic:REG-0030"
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1044,
+              "decay": 0.0573,
+              "contribution": 1.7,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-06-03",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-087:director",
+              "companyId": "NCO-087",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "OPEN",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::dina-meyer-1977-02-01",
+          "personId": "person::dina-meyer-1977-02-01",
+          "address": "9 Al Noor Park, Dubai",
+          "lat": 25.1124,
+          "lon": 55.2001,
+          "score": 8.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1465,
+              "decay": 0.0181,
+              "contribution": 0.9,
+              "address": "36 Al Safa Street, Dubai",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2022-04-08",
+              "lat": 25.193937,
+              "lon": 55.25534,
+              "record": "clinic:REG-0006"
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 525,
+              "decay": 0.2373,
+              "contribution": 7.1,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-11-03",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-042:owner",
+              "companyId": "NCO-042",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::ben-ionescu-1994-03-22",
+          "personId": "person::ben-ionescu-1994-03-22",
+          "address": "48 Bahnhofstrasse, Zurich",
+          "lat": 47.3707,
+          "lon": 8.5392,
+          "score": 7.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 514,
+              "decay": 0.2446,
+              "contribution": 7.3,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-11-14",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-004:director",
+              "companyId": "NCO-004",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::dina-orlov-1982-03-26",
+          "personId": "person::dina-orlov-1982-03-26",
+          "address": "9 Al Noor Park, Dubai",
+          "lat": 25.1124,
+          "lon": 55.2001,
+          "score": 6.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 542,
+              "decay": 0.2265,
+              "contribution": 6.8,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-10-17",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-001:director",
+              "companyId": "NCO-001",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::hugo-costa-1989-03-02",
+          "personId": "person::hugo-costa-1989-03-02",
+          "address": "9 Al Noor Park, Dubai",
+          "lat": 25.1124,
+          "lon": 55.2001,
+          "score": 6.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 546,
+              "decay": 0.224,
+              "contribution": 6.7,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-10-13",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-007:owner",
+              "companyId": "NCO-007",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::rami-costa-1976-02-11",
+          "personId": "person::rami-costa-1976-02-11",
+          "address": "9 Al Noor Park, Dubai",
+          "lat": 25.1124,
+          "lon": 55.2001,
+          "score": 6.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 577,
+              "decay": 0.2058,
+              "contribution": 6.2,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-09-12",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-003:owner",
+              "companyId": "NCO-003",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::clara-silva-1977-11-25",
+          "personId": "person::clara-silva-1977-11-25",
+          "address": "9 Al Noor Park, Dubai",
+          "lat": 25.1124,
+          "lon": 55.2001,
+          "score": 5.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 634,
+              "decay": 0.1761,
+              "contribution": 5.3,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-07-17",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-084:director",
+              "companyId": "NCO-084",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::jose-ferreira-1986-01-11",
+          "personId": "person::jose-ferreira-1986-01-11",
+          "address": "9 Langstrasse, Zurich",
+          "lat": 47.372227,
+          "lon": 8.561091,
+          "score": 5.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_clinic_registrations",
+              "marking": "HEALTH",
+              "weight": 0.5,
+              "ageDays": 1023,
+              "decay": 0.0606,
+              "contribution": 3.0,
+              "address": "9 Langstrasse, Zurich",
+              "label": "Clinic registration",
+              "rawSource": "clinic_registrations.csv",
+              "purpose": "healthcare",
+              "date": "2023-06-24",
+              "lat": 47.372227,
+              "lon": 8.561091,
+              "record": "clinic:REG-0087"
+            },
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 941,
+              "decay": 0.0759,
+              "contribution": 2.3,
+              "address": "6 Kirchgasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-09-14",
+              "lat": 47.3711,
+              "lon": 8.5456,
+              "record": "company:CO-204:director",
+              "companyId": "CO-204",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_clinic_registrations",
+          "sourceMarkings": [
+            "OPEN",
+            "HEALTH"
+          ]
+        },
+        {
+          "id": "lead::person::mehmet-yilmaz-1991-10-02",
+          "personId": "person::mehmet-yilmaz-1991-10-02",
+          "address": "12 Mariahilfer Strasse, Vienna",
+          "lat": 48.1991,
+          "lon": 16.3551,
+          "score": 4.9,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 662,
+              "decay": 0.163,
+              "contribution": 4.9,
+              "address": "12 Mariahilfer Strasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-06-19",
+              "lat": 48.1991,
+              "lon": 16.3551,
+              "record": "company:CO-202:director",
+              "companyId": "CO-202",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::owen-meyer-1977-02-03",
+          "personId": "person::owen-meyer-1977-02-03",
+          "address": "27 Ringstrasse, Vienna",
+          "lat": 48.2046,
+          "lon": 16.3652,
+          "score": 4.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 721,
+              "decay": 0.1387,
+              "contribution": 4.2,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2024-04-21",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-064:owner",
+              "companyId": "NCO-064",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::yara-nasser-1995-05-25",
+          "personId": "person::yara-nasser-1995-05-25",
+          "address": "48 Bahnhofstrasse, Zurich",
+          "lat": 47.3707,
+          "lon": 8.5392,
+          "score": 2.6,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 888,
+              "decay": 0.0878,
+              "contribution": 2.6,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-11-06",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-078:owner",
+              "companyId": "NCO-078",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::jonah-silva-1974-08-13",
+          "personId": "person::jonah-silva-1974-08-13",
+          "address": "5 Harbor Row, Limassol",
+          "lat": 34.6712,
+          "lon": 33.0436,
+          "score": 1.7,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1044,
+              "decay": 0.0573,
+              "contribution": 1.7,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-06-03",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-087:owner",
+              "companyId": "NCO-087",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::dina-rossi-2000-06-22",
+          "personId": "person::dina-rossi-2000-06-22",
+          "address": "5 Harbor Row, Limassol",
+          "lat": 34.6712,
+          "lon": 33.0436,
+          "score": 1.4,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1119,
+              "decay": 0.0466,
+              "contribution": 1.4,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2023-03-20",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-054:owner",
+              "companyId": "NCO-054",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::farah-elias-1975-02-05",
+          "personId": "person::farah-elias-1975-02-05",
+          "address": "27 Ringstrasse, Vienna",
+          "lat": 48.2046,
+          "lon": 16.3652,
+          "score": 1.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1206,
+              "decay": 0.0367,
+              "contribution": 1.1,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-12-23",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-016:owner",
+              "companyId": "NCO-016",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::tomas-quinn-1994-11-08",
+          "personId": "person::tomas-quinn-1994-11-08",
+          "address": "5 Harbor Row, Limassol",
+          "lat": 34.6712,
+          "lon": 33.0436,
+          "score": 0.8,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1306,
+              "decay": 0.0279,
+              "contribution": 0.8,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-09-14",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-021:director",
+              "companyId": "NCO-021",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::dina-ionescu-1981-04-01",
+          "personId": "person::dina-ionescu-1981-04-01",
+          "address": "48 Bahnhofstrasse, Zurich",
+          "lat": 47.3707,
+          "lon": 8.5392,
+          "score": 0.5,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1516,
+              "decay": 0.0157,
+              "contribution": 0.5,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2022-02-16",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-090:owner",
+              "companyId": "NCO-090",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::lena-nasser-1986-01-04",
+          "personId": "person::lena-nasser-1986-01-04",
+          "address": "27 Ringstrasse, Vienna",
+          "lat": 48.2046,
+          "lon": 16.3652,
+          "score": 0.3,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1645,
+              "decay": 0.011,
+              "contribution": 0.3,
+              "address": "27 Ringstrasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-10-10",
+              "lat": 48.2046,
+              "lon": 16.3652,
+              "record": "company:NCO-060:owner",
+              "companyId": "NCO-060",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::ben-keller-1988-08-27",
+          "personId": "person::ben-keller-1988-08-27",
+          "address": "9 Al Noor Park, Dubai",
+          "lat": 25.1124,
+          "lon": 55.2001,
+          "score": 0.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1890,
+              "decay": 0.0056,
+              "contribution": 0.2,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-02-07",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-075:director",
+              "companyId": "NCO-075",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::daniel-wu-1985-06-14",
+          "personId": "person::daniel-wu-1985-06-14",
+          "address": "9 Al Noor Park, Dubai",
+          "lat": 25.1124,
+          "lon": 55.2001,
+          "score": 0.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1829,
+              "decay": 0.0067,
+              "contribution": 0.2,
+              "address": "9 Al Noor Park, Dubai",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-04-09",
+              "lat": 25.1124,
+              "lon": 55.2001,
+              "record": "company:NCO-048:director",
+              "companyId": "NCO-048",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::ivy-adler-1986-09-09",
+          "personId": "person::ivy-adler-1986-09-09",
+          "address": "5 Harbor Row, Limassol",
+          "lat": 34.6712,
+          "lon": 33.0436,
+          "score": 0.2,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1882,
+              "decay": 0.0058,
+              "contribution": 0.2,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2021-02-15",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-057:director",
+              "companyId": "NCO-057",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::ben-costa-1995-10-20",
+          "personId": "person::ben-costa-1995-10-20",
+          "address": "48 Bahnhofstrasse, Zurich",
+          "lat": 47.3707,
+          "lon": 8.5392,
+          "score": 0.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1943,
+              "decay": 0.0049,
+              "contribution": 0.1,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2020-12-16",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-088:owner",
+              "companyId": "NCO-088",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::ben-hale-1992-02-11",
+          "personId": "person::ben-hale-1992-02-11",
+          "address": "5 Harbor Row, Limassol",
+          "lat": 34.6712,
+          "lon": 33.0436,
+          "score": 0.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 2094,
+              "decay": 0.0032,
+              "contribution": 0.1,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2020-07-18",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-055:director",
+              "companyId": "NCO-055",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::hugo-farouk-1992-03-25",
+          "personId": "person::hugo-farouk-1992-03-25",
+          "address": "5 Harbor Row, Limassol",
+          "lat": 34.6712,
+          "lon": 33.0436,
+          "score": 0.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 2094,
+              "decay": 0.0032,
+              "contribution": 0.1,
+              "address": "5 Harbor Row, Limassol",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2020-07-18",
+              "lat": 34.6712,
+              "lon": 33.0436,
+              "record": "company:NCO-055:owner",
+              "companyId": "NCO-055",
+              "role": "owner"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::sara-keller-1992-04-27",
+          "personId": "person::sara-keller-1992-04-27",
+          "address": "48 Bahnhofstrasse, Zurich",
+          "lat": 47.3707,
+          "lon": 8.5392,
+          "score": 0.1,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 1943,
+              "decay": 0.0049,
+              "contribution": 0.1,
+              "address": "48 Bahnhofstrasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2020-12-16",
+              "lat": 47.3707,
+              "lon": 8.5392,
+              "record": "company:NCO-088:director",
+              "companyId": "NCO-088",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::jos-ferreira-1979-07-30",
+          "personId": "person::jos-ferreira-1979-07-30",
+          "address": "6 Kirchgasse, Zurich",
+          "lat": 47.3711,
+          "lon": 8.5456,
+          "score": 0.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 2882,
+              "decay": 0.0004,
+              "contribution": 0.0,
+              "address": "6 Kirchgasse, Zurich",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2018-05-22",
+              "lat": 47.3711,
+              "lon": 8.5456,
+              "record": "company:CO-203:director",
+              "companyId": "CO-203",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::maya-singh-1992-09-21",
+          "personId": "person::maya-singh-1992-09-21",
+          "address": "21 Rue des Acacias, Geneva",
+          "lat": 46.1921,
+          "lon": 6.1338,
+          "score": 0.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 2351,
+              "decay": 0.0016,
+              "contribution": 0.0,
+              "address": "21 Rue des Acacias, Geneva",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2019-11-04",
+              "lat": 46.1921,
+              "lon": 6.1338,
+              "record": "company:CO-104:director",
+              "companyId": "CO-104",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
+          ]
+        },
+        {
+          "id": "lead::person::mehmet-y-lmaz-1983-05-17",
+          "personId": "person::mehmet-y-lmaz-1983-05-17",
+          "address": "12 Mariahilfer Strasse, Vienna",
+          "lat": 48.1991,
+          "lon": 16.3551,
+          "score": 0.0,
+          "status": "open",
+          "components": [
+            {
+              "source": "norm_company_registry",
+              "marking": "OPEN",
+              "weight": 0.3,
+              "ageDays": 3350,
+              "decay": 0.0001,
+              "contribution": 0.0,
+              "address": "12 Mariahilfer Strasse, Vienna",
+              "label": "Company registry",
+              "rawSource": "company_registry.csv",
+              "purpose": "public-record",
+              "date": "2017-02-08",
+              "lat": 48.1991,
+              "lon": 16.3551,
+              "record": "company:CO-201:director",
+              "companyId": "CO-201",
+              "role": "director"
+            }
+          ],
+          "formula": "score = 100 \u00b7 min(1, \u03a3 weight_i \u00b7 exp(\u2212ageDays_i / 365))",
+          "asOf": "2026-04-12",
+          "addressSource": "norm_company_registry",
+          "sourceMarkings": [
+            "OPEN"
           ]
         }
       ]
@@ -22707,6 +33800,26 @@ window.ontologySeedCatalog = {
           "deviceId": "DEV-OR-03",
           "phoneNumber": "+447700912410",
           "lastObservedName": "Omar Al-Rahman"
+        },
+        "sourceIds": [
+          "mobile_location_pings.jsonl"
+        ],
+        "markings": [
+          "TELECOM"
+        ],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "TELECOM"
+        ]
+      },
+      {
+        "id": "device::dev-or-07",
+        "type": "Device",
+        "label": "DEV-OR-07",
+        "properties": {
+          "deviceId": "DEV-OR-07",
+          "phoneNumber": "+447911223344",
+          "lastObservedName": "Omar Rahman"
         },
         "sourceIds": [
           "mobile_location_pings.jsonl"
@@ -44742,6 +55855,29 @@ window.ontologySeedCatalog = {
         ]
       },
       {
+        "id": "location::oak-lane-birmingham",
+        "type": "Location",
+        "label": "Oak Lane, Birmingham",
+        "properties": {
+          "label": "Oak Lane, Birmingham",
+          "locationType": "residential",
+          "city": "Birmingham",
+          "country": "United Kingdom",
+          "lat": 52.443012,
+          "lon": -1.935174,
+          "cellTower": "UK-BHM-114"
+        },
+        "sourceIds": [
+          "company_registry.csv",
+          "mobile_location_pings.jsonl"
+        ],
+        "markings": [],
+        "propertyMarkings": {},
+        "sourceMarkings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "location::sofia-airport",
         "type": "Location",
         "label": "Sofia Airport",
@@ -55906,7 +67042,10 @@ window.ontologySeedCatalog = {
           "confidence": 1.0,
           "mergedFrom": [
             "flight:MF-0008",
-            "flight:MF-0009"
+            "flight:MF-0009",
+            "ping:PG-0101",
+            "ping:PG-0102",
+            "ping:PG-0103"
           ],
           "splitRisk": false,
           "note": ""
@@ -55933,6 +67072,7 @@ window.ontologySeedCatalog = {
         },
         "sourceMarkings": [
           "PII",
+          "TELECOM",
           "HEALTH"
         ]
       },
@@ -121391,6 +132531,22 @@ window.ontologySeedCatalog = {
         ]
       },
       {
+        "id": "observed_at::device-dev-or-07-location-oak-lane-birmingham",
+        "type": "OBSERVED_AT",
+        "source": "device::dev-or-07",
+        "target": "location::oak-lane-birmingham",
+        "label": "OBSERVED_AT",
+        "properties": {
+          "sightingCount": "3",
+          "firstSeen": "2026-04-10T19:40:00Z",
+          "lastSeen": "2026-04-11T21:50:00Z",
+          "source": "carrier-feed"
+        },
+        "markings": [
+          "TELECOM"
+        ]
+      },
+      {
         "id": "observed_at::device-dev-sp-04-location-14-seabright-ave-limassol",
         "type": "OBSERVED_AT",
         "source": "device::dev-sp-04",
@@ -138551,6 +149707,17 @@ window.ontologySeedCatalog = {
         "type": "USES_DEVICE",
         "source": "person::farah-orlov-1991-06-22",
         "target": "device::dev-n-091",
+        "label": "USES_DEVICE",
+        "properties": {},
+        "markings": [
+          "TELECOM"
+        ]
+      },
+      {
+        "id": "uses_device::person-g5510077-device-dev-or-07",
+        "type": "USES_DEVICE",
+        "source": "person::g5510077",
+        "target": "device::dev-or-07",
         "label": "USES_DEVICE",
         "properties": {},
         "markings": [

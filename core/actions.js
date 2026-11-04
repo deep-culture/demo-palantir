@@ -39,6 +39,16 @@
  *   params, before, after, created, deleted, writebacks: [{system, message, ts, deliveredTs}],
  *   stagedBy: "user" | "agent", approvedBy, checkpointRecordId, purposes, exceptionRecordId, status}
  *
+ * Phase 3 (contract §5, spec §4.7):
+ *   applyAction(..., {staged: true, runId}) tags the pending instance (and its "action.stage" event) with
+ *     the agent run that proposed it; stagedBy defaults to "agent" for staged edits.
+ *   DC.actions.approveAll(ids, {by, objectFor(id), linkedFor(id), apply}) -> Promise<{outcome, count,
+ *     instances, refused}>: applies every staged edit in `ids` (default: all pending) with
+ *     approvedBy "<role> (bulk)" (or opts.by) and writes ONE audit event
+ *     {kind: "action", verb: "action.approveAll", payload: {count, ids, instanceIds, approvedBy, runIds}}
+ *     instead of one "action.approve" per edit. Each edit still logs its own "action.apply" (and
+ *     writebacks): that is the effect, the approval is the single bulk event.
+ *
  * Additions: isActive(), types(), type(id), systems(), system(id), forType(objectType), validate(typeId,
  *   params), plan(typeId, object, params, opts) (the preview: before/after, writebacks, problems),
  *   setByAction(objectId, property, currentValue, filter?), objectsSetByAction(property, valueOf, filter?),
@@ -355,6 +365,7 @@
       purposes: [],
       exceptionRecordId: opts.exceptionRecordId || null,
       status: "applied",
+      runId: opts.runId || null,
       ...(extra || {}),
     };
   }
@@ -406,6 +417,7 @@
         exceptionRecordId: instance.exceptionRecordId,
         stagedBy: instance.stagedBy,
         approvedBy: instance.approvedBy,
+        runId: instance.runId || null,
       },
     });
     for (const writeback of instance.writebacks) {
@@ -455,7 +467,7 @@
       instance.writebacks = planned.writebacks.map((item) => ({ system: item.system, message: item.message, ts: null, deliveredTs: null }));
       const pendingList = (Array.isArray(readState().pendingActions) ? readState().pendingActions : []).concat([instance]);
       writeState({ pendingActions: pendingList });
-      await logAction("action.stage", { ...common, payload: { ...basePayload, outcome: "staged", instanceId: instance.id, before: planned.before, after: planned.after, stagedBy: instance.stagedBy } });
+      await logAction("action.stage", { ...common, payload: { ...basePayload, outcome: "staged", instanceId: instance.id, before: planned.before, after: planned.after, stagedBy: instance.stagedBy, runId: instance.runId } });
       notify("local");
       return { outcome: "staged", instance };
     }
@@ -485,28 +497,76 @@
     return Array.isArray(list) ? list.slice() : [];
   }
 
-  async function approveAction(id, opts) {
-    const options = opts || {};
-    const list = pending();
-    const staged = list.find((item) => item.id === id);
-    if (!staged) return { outcome: "not-found" };
-    const actionType = type(staged.actionTypeId);
+  function mayApprove(actionType) {
     const role = DC.governance && DC.governance.role(roleId());
-    if (DC.governance && DC.governance.isActive() && !(role && (role.canApprove || asList(actionType && actionType.allowedRoles).includes(role.id)))) {
-      await logAction("action.approve", { objectIds: [staged.objectId], payload: { instanceId: id, outcome: "refused" } });
-      return { outcome: "refused", message: "Your role cannot approve staged Actions. This attempt has been logged." };
-    }
-    if (!actionType) return { outcome: "unknown-type" };
+    if (!(DC.governance && DC.governance.isActive())) return true;
+    return Boolean(role && (role.canApprove || asList(actionType && actionType.allowedRoles).includes(role.id)));
+  }
+
+  async function applyStaged(staged, options, approvedBy) {
+    const actionType = type(staged.actionTypeId);
     const target = options.object || { id: staged.objectId, type: staged.objectType, label: staged.objectLabel, properties: {} };
     const planned = plan(actionType, target, staged.params, { linked: options.linked, datasetId: staged.datasetId });
-    writeState({ pendingActions: list.filter((item) => item.id !== id) });
-    const instance = await execute(actionType, target, staged.params, { ...options, datasetId: staged.datasetId, stagedBy: staged.stagedBy }, planned, {
-      approvedBy: options.approvedBy || roleId(),
+    writeState({ pendingActions: pending().filter((item) => item.id !== staged.id) });
+    return execute(actionType, target, staged.params, { ...options, datasetId: staged.datasetId, stagedBy: staged.stagedBy, runId: staged.runId }, planned, {
+      approvedBy,
       stagedId: staged.id,
       purposes: staged.purposes || [],
     });
-    await logAction("action.approve", { objectIds: [staged.objectId], payload: { instanceId: instance.id, stagedId: id, outcome: "approved", approvedBy: instance.approvedBy } });
+  }
+
+  async function approveAction(id, opts) {
+    const options = opts || {};
+    const staged = pending().find((item) => item.id === id);
+    if (!staged) return { outcome: "not-found" };
+    const actionType = type(staged.actionTypeId);
+    if (!mayApprove(actionType)) {
+      await logAction("action.approve", { objectIds: [staged.objectId], payload: { instanceId: id, outcome: "refused", runId: staged.runId || null } });
+      return { outcome: "refused", message: "Your role cannot approve staged Actions. This attempt has been logged." };
+    }
+    if (!actionType) return { outcome: "unknown-type" };
+    const instance = await applyStaged(staged, options, options.approvedBy || roleId());
+    await logAction("action.approve", { objectIds: [staged.objectId], payload: { instanceId: instance.id, stagedId: id, outcome: "approved", approvedBy: instance.approvedBy, runId: staged.runId || null } });
     return { outcome: "applied", instance };
+  }
+
+  // One approval for many edits (spec §4.7 failure mode c). One audit event with the count.
+  async function approveAll(ids, opts) {
+    const options = opts || {};
+    const wanted = Array.isArray(ids) && ids.length ? new Set(ids) : null;
+    const list = pending().filter((item) => !wanted || wanted.has(item.id));
+    const by = options.by || `${roleId()} (bulk)`;
+    if (!list.length) return { outcome: "nothing", count: 0, instances: [], refused: [] };
+    const refused = list.filter((item) => !type(item.actionTypeId) || !mayApprove(type(item.actionTypeId)));
+    const runIds = [...new Set(list.map((item) => item.runId).filter(Boolean))];
+    if (refused.length === list.length) {
+      await logAction("action.approveAll", { objectIds: list.map((item) => item.objectId), payload: { count: 0, ids: list.map((item) => item.id), outcome: "refused", approvedBy: by, runIds } });
+      return { outcome: "refused", count: 0, instances: [], refused: refused.map((item) => item.id), message: "Your role cannot approve staged Actions. This attempt has been logged." };
+    }
+    const instances = [];
+    for (const staged of list) {
+      if (refused.includes(staged)) continue;
+      const each = {
+        ...options,
+        object: typeof options.objectFor === "function" ? options.objectFor(staged.objectId, staged) : options.object,
+        linked: typeof options.linkedFor === "function" ? options.linkedFor(staged.objectId, staged) : options.linked,
+      };
+      instances.push(await applyStaged(staged, each, by));
+    }
+    await logAction("action.approveAll", {
+      objectIds: instances.map((item) => item.objectId),
+      payload: {
+        count: instances.length,
+        ids: list.filter((item) => !refused.includes(item)).map((item) => item.id),
+        instanceIds: instances.map((item) => item.id),
+        approvedBy: by,
+        outcome: "approved",
+        refused: refused.map((item) => item.id),
+        runIds,
+      },
+    });
+    notify("local");
+    return { outcome: "applied", count: instances.length, instances, refused: refused.map((item) => item.id) };
   }
 
   async function rejectAction(id, reason) {
@@ -514,7 +574,7 @@
     const staged = list.find((item) => item.id === id);
     if (!staged) return { outcome: "not-found" };
     writeState({ pendingActions: list.filter((item) => item.id !== id) });
-    await logAction("action.reject", { objectIds: [staged.objectId], payload: { stagedId: id, outcome: "rejected", reason: String(reason || "") } });
+    await logAction("action.reject", { objectIds: [staged.objectId], payload: { stagedId: id, outcome: "rejected", reason: String(reason || ""), runId: staged.runId || null, label: staged.label } });
     notify("local");
     return { outcome: "rejected" };
   }
@@ -569,6 +629,7 @@
     applyAction,
     pending,
     approveAction,
+    approveAll,
     rejectAction,
     log,
     inbox,

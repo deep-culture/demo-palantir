@@ -1,6 +1,6 @@
 // demo/js/render/graph.js — Graph Explorer tab: schema and instance graphs.
 import { escapeHtml, truncate } from "../util.js";
-import { MAX_GRAPH_NODES, data, roleView, ui } from "../state.js";
+import { MAX_GRAPH_NODES, core, data, roleView, ui } from "../state.js";
 import { effectiveSearch, telecomEdgeAllowed, visiblePropertyValues } from "../governance.js";
 import { degree, entityCount, entityTypeById, relationshipById } from "../derive.js";
 import { renderPhoneHold } from "./banners.js";
@@ -54,6 +54,7 @@ export function renderGraphTool() {
           <div class="graph-summary">
             ${counts.map((item) => `<span class="chip">${escapeHtml(item)}</span>`).join("")}
             ${roleView.withheldEntities.length ? `<span class="chip chip-withheld">${escapeHtml(`${roleView.withheldEntities.length} objects withheld from your role`)}</span>` : ""}
+            ${ui.graphMode === "instance" && core.objectSets && graph.nodes.length ? `<button class="button-secondary save-set-button" data-action="save-object-set" data-source="graph">${escapeHtml(`Save ${graph.nodes.length} ${ui.graphSearch.trim() ? "search results" : "visible objects"} as object set`)}</button>` : ""}
           </div>
           <div class="graph-canvas">
             ${graph.svg}
@@ -113,7 +114,11 @@ export function buildSchemaGraph() {
   return { nodes, edges, svg, totalNodes: nodes.length };
 }
 
-export function buildEntityGraph(nodes, edges, focusEntityIds, selectedNodeId) {
+// options.highlight: an object or link id to mark (the agent's citation chips); options.citedEdgeIds: links
+// cited in the answer (drawn heavier).
+export function buildEntityGraph(nodes, edges, focusEntityIds, selectedNodeId, options = {}) {
+  const highlight = options.highlight || "";
+  const cited = new Set(options.citedEdgeIds || []);
   const typeOrder = (data.ontology?.entityTypes || []).map((entityType) => entityType.id);
   const visibleTypeIds = typeOrder.filter((typeId) => nodes.some((node) => node.type === typeId));
   const positions = new Map();
@@ -152,7 +157,8 @@ export function buildEntityGraph(nodes, edges, focusEntityIds, selectedNodeId) {
           }
           return `
               <line
-                class="graph-edge"
+                class="graph-edge${cited.has(edge.id) ? " is-cited" : ""}${highlight === edge.id ? " is-highlighted" : ""}"
+                data-edge-id="${escapeHtml(edge.id)}"
                 x1="${source.x + source.width}"
                 y1="${source.y + source.height / 2}"
                 x2="${target.x}"
@@ -169,8 +175,9 @@ export function buildEntityGraph(nodes, edges, focusEntityIds, selectedNodeId) {
             return "";
           }
           const isSelected = selectedNodeId === node.id || focusSet.has(node.id);
+          const lit = highlight && (highlight === node.id || edges.some((edge) => edge.id === highlight && (edge.source === node.id || edge.target === node.id)));
           return `
-              <g class="graph-node ${isSelected ? "selected" : ""}" data-action="select-graph-node" data-node-id="${escapeHtml(node.id)}" transform="translate(${position.x}, ${position.y})">
+              <g class="graph-node ${isSelected ? "selected" : ""}${lit ? " is-highlighted" : ""}" data-action="select-graph-node" data-node-id="${escapeHtml(node.id)}" transform="translate(${position.x}, ${position.y})">
                 <rect rx="14" ry="14" width="${position.width}" height="${position.height}" fill="${escapeHtml(position.color)}"></rect>
                 <text x="12" y="22">${escapeHtml(truncate(node.label, 20))}</text>
               </g>
