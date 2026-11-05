@@ -161,13 +161,13 @@
   function renderHeader() {
     return `
       <header class="topbar dc-band dc-on-dark">
-        <a href="../index.html" title="All demos and docs"><img class="dc-logo" src="../brand/logo-green-lines.png" alt="Deep Culture"></a>
+        <a href="https://deep-culture.org/" title="Deep Culture project (opens in a new tab)" target="_blank" rel="noopener"><img class="dc-logo" src="../brand/logo-green-lines.png" alt="Deep Culture"></a>
         <div>
           <h1><span class="dc-highlight">Oversight</span></h1>
           <p class="subtitle">Who did what, under which role, and why. This page reads the one audit log both apps write to. It sits outside them on purpose: oversight is not a tab for the analyst.</p>
         </div>
         <nav class="actions" aria-label="Other surfaces">
-          <a class="header-link" href="../index.html">← All demos</a>
+          <a class="dc-home" href="../index.html#" title="Back to the home page"><span class="dc-home-icon" aria-hidden="true">⌂</span> Home</a>
           <a class="header-link" href="../demo/index.html">Investigate</a>
           <a class="header-link" href="../foundry-demo/index.html">Build</a>
         </nav>

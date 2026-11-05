@@ -595,9 +595,9 @@
 
     return `
     <header class="app-header">
-      <a href="../index.html" title="All sessions and docs"><img class="dc-logo" src="../brand/logo-green-lines.png" alt="Deep Culture"></a>
+      <a href="https://deep-culture.org/" title="Deep Culture project (opens in a new tab)" target="_blank" rel="noopener"><img class="dc-logo" src="../brand/logo-green-lines.png" alt="Deep Culture"></a>
       <div class="app-title"><span class="dc-highlight">Build (Foundry-style)</span></div>
-      <a class="header-back-link" href="../index.html" title="Back to all sessions and docs">← All sessions</a>
+      <a class="dc-home" href="../index.html#" title="Back to the home page"><span class="dc-home-icon" aria-hidden="true">⌂</span> Home</a>
       <div class="dataset-switcher" role="group" aria-label="Dataset">
         ${datasetKeys.map(k => `
           <button data-action="switch-dataset" data-key="${esc(k)}"

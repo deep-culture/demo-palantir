@@ -32,7 +32,7 @@ export function renderHeader() {
   const withheldLinks = roleView.withheldEdges.length;
   return `
       <header class="topbar dc-on-dark">
-        <a href="../index.html" title="All demos and docs"><img class="dc-logo" src="../brand/logo-green-lines.png" alt="Deep Culture"></a>
+        <a href="https://deep-culture.org/" title="Deep Culture project (opens in a new tab)" target="_blank" rel="noopener"><img class="dc-logo" src="../brand/logo-green-lines.png" alt="Deep Culture"></a>
         <div>
           <h1><span class="dc-highlight">${escapeHtml(APP_TITLE)}</span></h1>
           <p class="subtitle">${escapeHtml(metadata.description || "")}</p>
@@ -47,7 +47,7 @@ export function renderHeader() {
           </div>
         </div>
         <div class="actions">
-          <a class="header-back-link" href="../index.html" title="Back to all demos and docs">← All demos</a>
+          <a class="dc-home" href="../index.html#" title="Back to the home page"><span class="dc-home-icon" aria-hidden="true">⌂</span> Home</a>
           <div class="field header-field">
             <label for="dataset-select">Dataset</label>
             <select id="dataset-select" data-scope="dataset" data-field="datasetKey">
