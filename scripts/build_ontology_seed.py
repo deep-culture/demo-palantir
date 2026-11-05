@@ -462,7 +462,8 @@ class SeedBuilder:
                 "city": city,
                 "country": country,
             }.items():
-                if value not in ("", None):
+                # First writer wins, as in pipeline/05_build_ontology.py, so both seeds agree (review F-08).
+                if value not in ("", None) and location["properties"].get(key) in ("", None):
                     location["properties"][key] = value
             return entity_id
         entity_id = self.upsert_entity(
@@ -754,7 +755,7 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
                     destination_entity_id,
                     properties={
                         "count": "1",
-                        "totalAmountUsd": row.get("amount_usd", ""),
+                        "totalAmountUsd": f"{float(row['amount_usd']):.2f}" if row.get("amount_usd") not in (None, "") else "",
                         "lastTxnTs": row.get("txn_ts", ""),
                         "sampleReference": row.get("reference", ""),
                     },
@@ -784,7 +785,7 @@ def build_seed(dataset_key: str, dataset_dir: Path, dataset_path_label: str) -> 
             count = int(existing_edge["properties"].get("sightingCount", "1")) + 1
             existing_edge["properties"]["sightingCount"] = str(count)
             existing_edge["properties"]["lastSeen"] = str(row.get("timestamp", ""))
-            existing_edge["properties"]["source"] = merge_value(str(existing_edge["properties"].get("source", "")), str(row.get("source", "")))
+            # source stays the first sighting's, as in pipeline/05_build_ontology.py (review F-08).
         else:
             builder.add_edge(
                 "OBSERVED_AT",

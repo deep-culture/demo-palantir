@@ -79,6 +79,8 @@ class _PersonAccum:
         self.entity_id = entity_id
         self.canonical_name: str = ""
         self.aliases: Set[str] = set()
+        # (name, field ref) for names seen in the register and manifests; cited for aliases only if kept.
+        self.written_names: List[Tuple[str, Tuple[str, int, str, str]]] = []
         self.dob: str = ""
         self.nationality: str = ""
         self.passport_id: str = ""
@@ -100,6 +102,7 @@ class _PersonAccum:
         ri = int(row["_source_row"])
         self.source_refs.append((ds_name, ri, "", "watchlist"))
         if row.get("canonical_name"):
+            self.aliases.add(row["canonical_name"])
             if _merge(self.canonical_name, row["canonical_name"]) != self.canonical_name:
                 self.canonical_name = _merge(self.canonical_name, row["canonical_name"])
             self._add_field_ref("canonicalName", ds_name, ri, "canonical_name")
@@ -126,6 +129,8 @@ class _PersonAccum:
         name_field = "director_name" if role == "director" else "beneficial_owner"
         dob_field = "director_dob" if role == "director" else "beneficial_owner_dob"
         if row.get(name_field):
+            self.aliases.add(row[name_field])
+            self.written_names.append((row[name_field], (ds_name, ri, name_field, "name as written")))
             self.canonical_name = _merge(self.canonical_name, row[name_field])
             self._add_field_ref("canonicalName", ds_name, ri, name_field)
         if row.get(dob_field):
@@ -136,6 +141,8 @@ class _PersonAccum:
         ri = int(row["_source_row"])
         self.source_refs.append((ds_name, ri, "", "flight-passenger"))
         if row.get("passenger_name"):
+            self.aliases.add(row["passenger_name"])
+            self.written_names.append((row["passenger_name"], (ds_name, ri, "passenger_name", "name as written")))
             self.canonical_name = _merge(self.canonical_name, row["passenger_name"])
             self._add_field_ref("canonicalName", ds_name, ri, "passenger_name")
         if row.get("dob"):
@@ -145,7 +152,8 @@ class _PersonAccum:
             self.passport_id = row["passport_id"]
             self._add_field_ref("passportId", ds_name, ri, "passport_id")
         if row.get("phone_number"):
-            self.phone_number = _merge(self.phone_number, row["phone_number"])
+            # A booking's phone number beats one only seen in pings (same rule as build_ontology_seed.py, F-08).
+            self.phone_number = row["phone_number"]
             self._add_field_ref("phoneNumber", ds_name, ri, "phone_number")
 
     def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:
@@ -156,8 +164,10 @@ class _PersonAccum:
             self.ping_names.append((ds_name, ri, row["observed_name"]))
             self._add_field_ref("aliases", ds_name, ri, "observed_name", "ping alias")
         if row.get("phone_number"):
-            self.phone_number = _merge(self.phone_number, row["phone_number"])
-            self._add_field_ref("phoneNumber", ds_name, ri, "phone_number")
+            if not self.phone_number:
+                self.phone_number = row["phone_number"]
+            if row["phone_number"] == self.phone_number:
+                self._add_field_ref("phoneNumber", ds_name, ri, "phone_number")
 
     def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:
         ri = int(row["_source_row"])
@@ -181,6 +191,9 @@ class _PersonAccum:
                 for ds, row, name in self.ping_names if name == canonical
             ]
         clean_aliases = sorted(a for a in self.aliases if a and a != canonical)
+        for name, ref in self.written_names:
+            if name in clean_aliases and ref not in self.field_refs.get("aliases", []):
+                self.field_refs.setdefault("aliases", []).append(ref)
         return {
             "id": self.entity_id,
             "type": "Person",

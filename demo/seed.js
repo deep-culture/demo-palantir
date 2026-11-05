@@ -2,7 +2,7 @@ window.ontologySeedCatalog = {
   "starter": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:ca57f36d94726795ce87d1a3a01703c6e3f14e0b91c60268931179c89bd41b6e",
+      "buildId": "sha256:9df2a53fe1182833512800cb05291235a14775e2ca90edbd6d45681d06ba2e84",
       "sources": {
         "bank_transactions.csv": "sha256:0a88981afca6d5f129af59d9eddd670b4fd4786b8d2cca104bbf905f06e94687",
         "clinic_registrations.csv": "sha256:68a6e5270a055ceb0bf89c3b136a110405c95408ba7e9943137a72548b57588d",
@@ -12,10 +12,10 @@ window.ontologySeedCatalog = {
         "mobile_location_pings.jsonl": "sha256:cac9ef6d62b0f0edaff019fc012eeabc151ecb3a7622ea27b4adf36475b36be8",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_ontology_seed.py@12fb2ec",
+      "builder": "build_ontology_seed.py@dirty",
       "title": "Ontology Studio Demo",
       "dataset": "starter",
-      "generatedAt": "2026-11-04T20:40:28.803635Z",
+      "generatedAt": "2026-11-05T10:59:55.213502Z",
       "description": "Editable ontology seed built from the starter synthetic Palantir-style data sources.",
       "teachingPrompts": [
         "Follow Kareem Haddad across aliases, travel, companies, and banking links.",
@@ -5427,8 +5427,8 @@ window.ontologySeedCatalog = {
           "locationType": "office",
           "city": "Limassol",
           "country": "Cyprus",
-          "lat": 34.686905,
-          "lon": 33.043331,
+          "lat": 34.682357,
+          "lon": 33.049456,
           "cellTower": "CY-LIM-014"
         },
         "sourceIds": [
@@ -5648,8 +5648,8 @@ window.ontologySeedCatalog = {
           "locationType": "free-zone",
           "city": "Dubai",
           "country": "United Arab Emirates",
-          "lat": 25.086274,
-          "lon": 55.143646,
+          "lat": 25.08124,
+          "lon": 55.143229,
           "cellTower": "AE-DXB-221"
         },
         "sourceIds": [
@@ -5742,8 +5742,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Athens",
           "country": "Greece",
-          "lat": 37.937719,
-          "lon": 23.95335,
+          "lat": 37.930037,
+          "lon": 23.941742,
           "cellTower": "ATH-AIRPORT"
         },
         "sourceIds": [
@@ -5765,8 +5765,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Belgrade",
           "country": "Serbia",
-          "lat": 44.809645,
-          "lon": 20.315758,
+          "lat": 44.8184,
+          "lon": 20.3091,
           "cellTower": "BEG-AIRPORT"
         },
         "sourceIds": [
@@ -5788,8 +5788,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Dubai",
           "country": "United Arab Emirates",
-          "lat": 25.253423,
-          "lon": 55.371575,
+          "lat": 25.255004,
+          "lon": 55.373094,
           "cellTower": "DXB-AIRPORT"
         },
         "sourceIds": [
@@ -5811,8 +5811,8 @@ window.ontologySeedCatalog = {
           "locationType": "business-district",
           "city": "Geneva",
           "country": "Switzerland",
-          "lat": 46.196009,
-          "lon": 6.133997,
+          "lat": 46.20846,
+          "lon": 6.142281,
           "cellTower": "CH-GVA-055"
         },
         "sourceIds": [
@@ -5834,8 +5834,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "London",
           "country": "United Kingdom",
-          "lat": 51.468167,
-          "lon": -0.457879,
+          "lat": 51.472659,
+          "lon": -0.457596,
           "cellTower": "LHR-AIRPORT"
         },
         "sourceIds": [
@@ -5857,8 +5857,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Istanbul",
           "country": "Turkey",
-          "lat": 41.2735,
-          "lon": 28.754996,
+          "lat": 41.277553,
+          "lon": 28.756285,
           "cellTower": "IST-AIRPORT"
         },
         "sourceIds": [
@@ -5880,8 +5880,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Larnaca",
           "country": "Cyprus",
-          "lat": 34.870824,
-          "lon": 33.630877,
+          "lat": 34.867814,
+          "lon": 33.624134,
           "cellTower": "LCA-AIRPORT"
         },
         "sourceIds": [
@@ -5903,8 +5903,8 @@ window.ontologySeedCatalog = {
           "locationType": "marina",
           "city": "Larnaca",
           "country": "Cyprus",
-          "lat": 34.921901,
-          "lon": 33.632625,
+          "lat": 34.932353,
+          "lon": 33.633483,
           "cellTower": "CY-LCA-118"
         },
         "sourceIds": [
@@ -5926,8 +5926,8 @@ window.ontologySeedCatalog = {
           "locationType": "warehouse",
           "city": "Limassol",
           "country": "Cyprus",
-          "lat": 34.661305,
-          "lon": 33.027028,
+          "lat": 34.659765,
+          "lon": 33.028868,
           "cellTower": "CY-LIM-207"
         },
         "sourceIds": [
@@ -5972,8 +5972,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Sofia",
           "country": "Bulgaria",
-          "lat": 42.695617,
-          "lon": 23.41447,
+          "lat": 42.687553,
+          "lon": 23.408645,
           "cellTower": "SOF-AIRPORT"
         },
         "sourceIds": [
@@ -5995,8 +5995,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Vienna",
           "country": "Austria",
-          "lat": 48.10185,
-          "lon": 16.565415,
+          "lat": 48.104287,
+          "lon": 16.560108,
           "cellTower": "VIE-AIRPORT"
         },
         "sourceIds": [
@@ -8561,7 +8561,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T07:48:00Z",
           "lastSeen": "2026-04-10T11:42:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -8721,7 +8721,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T10:45:00Z",
           "lastSeen": "2026-04-11T04:26:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -8769,7 +8769,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T14:49:00Z",
           "lastSeen": "2026-04-09T10:30:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -8833,7 +8833,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T18:49:00Z",
           "lastSeen": "2026-04-07T18:25:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -8961,7 +8961,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T11:35:00Z",
           "lastSeen": "2026-04-07T08:46:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -9009,7 +9009,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T15:47:00Z",
           "lastSeen": "2026-04-07T18:12:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -9313,7 +9313,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T20:53:00Z",
           "lastSeen": "2026-04-07T15:35:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -9457,7 +9457,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T17:25:00Z",
           "lastSeen": "2026-04-10T13:23:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -10626,7 +10626,7 @@ window.ontologySeedCatalog = {
   "simulator": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:28bd17c17b0e9f017f3f38ab31918dc0f0dd6e43de7ba262338fc8e3e1de85e2",
+      "buildId": "sha256:1fe915378082fb874e11cc3ba8469917abbb2b96803db0db335d3d24179222a6",
       "sources": {
         "bank_transactions.csv": "sha256:1b192ef6c107359560bc3df631a4fd42e665aa4e26403630a82bbe9b47a44596",
         "clinic_registrations.csv": "sha256:3b651e31a0bff7bfc2fcf324c827b515d21f43a5c9ff688242cad73c4d453453",
@@ -10636,10 +10636,10 @@ window.ontologySeedCatalog = {
         "mobile_location_pings.jsonl": "sha256:b208310e84c3c8a26d57efb64735d2002767743656d1e496df35ea1c460a94ff",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_ontology_seed.py@12fb2ec",
+      "builder": "build_ontology_seed.py@dirty",
       "title": "Ontology Studio Demo",
       "dataset": "simulator",
-      "generatedAt": "2026-11-04T20:40:29.156244Z",
+      "generatedAt": "2026-11-05T10:59:55.764685Z",
       "description": "Editable ontology seed built from the starter synthetic Palantir-style data sources.",
       "teachingPrompts": [
         "Follow Kareem Haddad across aliases, travel, companies, and banking links.",
@@ -56533,8 +56533,8 @@ window.ontologySeedCatalog = {
           "locationType": "office",
           "city": "Limassol",
           "country": "Cyprus",
-          "lat": 34.674322,
-          "lon": 33.054308,
+          "lat": 34.675435,
+          "lon": 33.036594,
           "cellTower": "CY-LIM-014"
         },
         "sourceIds": [
@@ -57324,8 +57324,8 @@ window.ontologySeedCatalog = {
           "locationType": "free-zone",
           "city": "Dubai",
           "country": "United Arab Emirates",
-          "lat": 25.087095,
-          "lon": 55.132005,
+          "lat": 25.087638,
+          "lon": 55.146676,
           "cellTower": "AE-DXB-221"
         },
         "sourceIds": [
@@ -57468,8 +57468,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Athens",
           "country": "Greece",
-          "lat": 37.931345,
-          "lon": 23.952764,
+          "lat": 37.938578,
+          "lon": 23.9434,
           "cellTower": "ATH-AIRPORT"
         },
         "sourceIds": [
@@ -57491,8 +57491,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Belgrade",
           "country": "Serbia",
-          "lat": 44.827019,
-          "lon": 20.315557,
+          "lat": 44.814752,
+          "lon": 20.304312,
           "cellTower": "BEG-AIRPORT"
         },
         "sourceIds": [
@@ -57514,8 +57514,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Dubai",
           "country": "United Arab Emirates",
-          "lat": 25.252428,
-          "lon": 55.373608,
+          "lat": 25.248232,
+          "lon": 55.371837,
           "cellTower": "DXB-AIRPORT"
         },
         "sourceIds": [
@@ -57537,8 +57537,8 @@ window.ontologySeedCatalog = {
           "locationType": "business-district",
           "city": "Geneva",
           "country": "Switzerland",
-          "lat": 46.203329,
-          "lon": 6.139091,
+          "lat": 46.209638,
+          "lon": 6.138862,
           "cellTower": "CH-GVA-055"
         },
         "sourceIds": [
@@ -57560,8 +57560,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "London",
           "country": "United Kingdom",
-          "lat": 51.478955,
-          "lon": -0.445543,
+          "lat": 51.467283,
+          "lon": -0.450518,
           "cellTower": "LHR-AIRPORT"
         },
         "sourceIds": [
@@ -57583,8 +57583,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Istanbul",
           "country": "Turkey",
-          "lat": 41.267496,
-          "lon": 28.748402,
+          "lat": 41.284377,
+          "lon": 28.747322,
           "cellTower": "IST-AIRPORT"
         },
         "sourceIds": [
@@ -57606,8 +57606,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Larnaca",
           "country": "Cyprus",
-          "lat": 34.88285,
-          "lon": 33.623726,
+          "lat": 34.881268,
+          "lon": 33.626212,
           "cellTower": "LCA-AIRPORT"
         },
         "sourceIds": [
@@ -57629,8 +57629,8 @@ window.ontologySeedCatalog = {
           "locationType": "marina",
           "city": "Larnaca",
           "country": "Cyprus",
-          "lat": 34.915425,
-          "lon": 33.639788,
+          "lat": 34.923569,
+          "lon": 33.637788,
           "cellTower": "CY-LCA-118"
         },
         "sourceIds": [
@@ -57652,8 +57652,8 @@ window.ontologySeedCatalog = {
           "locationType": "warehouse",
           "city": "Limassol",
           "country": "Cyprus",
-          "lat": 34.655204,
-          "lon": 33.013641,
+          "lat": 34.651687,
+          "lon": 33.013213,
           "cellTower": "CY-LIM-207"
         },
         "sourceIds": [
@@ -57698,8 +57698,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Sofia",
           "country": "Bulgaria",
-          "lat": 42.702253,
-          "lon": 23.402912,
+          "lat": 42.687783,
+          "lon": 23.412193,
           "cellTower": "SOF-AIRPORT"
         },
         "sourceIds": [
@@ -57721,8 +57721,8 @@ window.ontologySeedCatalog = {
           "locationType": "airport",
           "city": "Vienna",
           "country": "Austria",
-          "lat": 48.106012,
-          "lon": 16.567227,
+          "lat": 48.113009,
+          "lon": 16.578644,
           "cellTower": "VIE-AIRPORT"
         },
         "sourceIds": [
@@ -99425,7 +99425,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T11:08:00Z",
           "lastSeen": "2026-04-07T19:42:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -99537,7 +99537,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T06:42:00Z",
           "lastSeen": "2026-04-10T03:25:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -99585,7 +99585,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T19:31:00Z",
           "lastSeen": "2026-04-08T05:05:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -99601,7 +99601,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T18:08:00Z",
           "lastSeen": "2026-04-10T07:37:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -99617,7 +99617,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T07:48:00Z",
           "lastSeen": "2026-04-06T14:28:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -99633,7 +99633,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T16:53:00Z",
           "lastSeen": "2026-04-03T05:18:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -99697,7 +99697,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T22:25:00Z",
           "lastSeen": "2026-04-09T20:11:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -99761,7 +99761,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T20:28:00Z",
           "lastSeen": "2026-04-07T07:52:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -99777,7 +99777,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T19:34:00Z",
           "lastSeen": "2026-04-11T09:41:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -99793,7 +99793,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T10:41:00Z",
           "lastSeen": "2026-04-10T11:11:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -99841,7 +99841,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T21:27:00Z",
           "lastSeen": "2026-04-10T17:48:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -99857,7 +99857,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-08T00:48:00Z",
           "lastSeen": "2026-04-10T11:24:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -99873,7 +99873,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-10T02:26:00Z",
           "lastSeen": "2026-04-11T06:02:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -99905,7 +99905,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T22:25:00Z",
           "lastSeen": "2026-04-09T18:55:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -99937,7 +99937,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T21:44:00Z",
           "lastSeen": "2026-04-09T01:03:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -99953,7 +99953,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T13:14:00Z",
           "lastSeen": "2026-04-09T09:46:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -99985,7 +99985,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T23:01:00Z",
           "lastSeen": "2026-04-11T14:54:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -100033,7 +100033,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T16:50:00Z",
           "lastSeen": "2026-04-08T21:16:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -100049,7 +100049,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T16:29:00Z",
           "lastSeen": "2026-04-10T07:29:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100097,7 +100097,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T19:07:00Z",
           "lastSeen": "2026-04-09T14:40:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -100129,7 +100129,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T18:03:00Z",
           "lastSeen": "2026-04-08T18:03:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100257,7 +100257,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T19:30:00Z",
           "lastSeen": "2026-04-06T19:30:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100289,7 +100289,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-03T01:19:00Z",
           "lastSeen": "2026-04-11T01:27:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100321,7 +100321,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T14:03:00Z",
           "lastSeen": "2026-04-10T04:48:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -100337,7 +100337,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T05:52:00Z",
           "lastSeen": "2026-04-06T23:03:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -100369,7 +100369,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T07:54:00Z",
           "lastSeen": "2026-04-05T06:54:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100401,7 +100401,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T13:31:00Z",
           "lastSeen": "2026-04-05T01:53:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100433,7 +100433,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-05T03:16:00Z",
           "lastSeen": "2026-04-11T21:22:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100513,7 +100513,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T09:36:00Z",
           "lastSeen": "2026-04-09T20:27:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100529,7 +100529,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T00:19:00Z",
           "lastSeen": "2026-04-08T10:15:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100545,7 +100545,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T22:05:00Z",
           "lastSeen": "2026-04-08T05:55:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100577,7 +100577,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T16:59:00Z",
           "lastSeen": "2026-04-10T04:58:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -100609,7 +100609,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T18:39:00Z",
           "lastSeen": "2026-04-10T12:45:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100625,7 +100625,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T15:21:00Z",
           "lastSeen": "2026-04-10T18:56:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100705,7 +100705,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T21:34:00Z",
           "lastSeen": "2026-04-09T16:21:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100769,7 +100769,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T13:06:00Z",
           "lastSeen": "2026-04-04T02:17:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -100801,7 +100801,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T15:48:00Z",
           "lastSeen": "2026-04-09T08:55:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -100833,7 +100833,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T08:13:00Z",
           "lastSeen": "2026-04-06T14:34:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -100897,7 +100897,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T10:49:00Z",
           "lastSeen": "2026-04-10T08:50:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101025,7 +101025,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T14:34:00Z",
           "lastSeen": "2026-04-10T01:01:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -101057,7 +101057,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T17:36:00Z",
           "lastSeen": "2026-04-11T12:02:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101089,7 +101089,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-02T02:42:00Z",
           "lastSeen": "2026-04-10T10:16:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -101121,7 +101121,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T06:56:00Z",
           "lastSeen": "2026-04-07T17:51:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101185,7 +101185,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T10:26:00Z",
           "lastSeen": "2026-04-09T22:32:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -101201,7 +101201,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-05T05:33:00Z",
           "lastSeen": "2026-04-11T23:33:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -101233,7 +101233,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T13:26:00Z",
           "lastSeen": "2026-04-11T07:28:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -101281,7 +101281,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T23:30:00Z",
           "lastSeen": "2026-04-08T07:22:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101297,7 +101297,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T00:58:00Z",
           "lastSeen": "2026-04-03T08:40:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -101441,7 +101441,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T22:33:00Z",
           "lastSeen": "2026-04-09T00:58:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -101457,7 +101457,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T10:25:00Z",
           "lastSeen": "2026-04-05T04:18:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101473,7 +101473,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-05T13:51:00Z",
           "lastSeen": "2026-04-09T22:39:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -101489,7 +101489,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-09T01:10:00Z",
           "lastSeen": "2026-04-11T22:35:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -101585,7 +101585,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T02:40:00Z",
           "lastSeen": "2026-04-07T23:12:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101681,7 +101681,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T10:27:00Z",
           "lastSeen": "2026-04-06T13:56:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101745,7 +101745,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T20:19:00Z",
           "lastSeen": "2026-04-12T04:27:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101809,7 +101809,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T16:06:00Z",
           "lastSeen": "2026-04-10T08:23:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -101825,7 +101825,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T05:22:00Z",
           "lastSeen": "2026-04-10T19:58:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101873,7 +101873,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T16:11:00Z",
           "lastSeen": "2026-04-11T19:14:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101905,7 +101905,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T07:05:00Z",
           "lastSeen": "2026-04-08T03:43:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101953,7 +101953,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-06T04:03:00Z",
           "lastSeen": "2026-04-10T17:50:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101969,7 +101969,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T16:57:00Z",
           "lastSeen": "2026-04-08T18:50:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -101985,7 +101985,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T13:50:00Z",
           "lastSeen": "2026-04-09T11:50:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102017,7 +102017,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T20:36:00Z",
           "lastSeen": "2026-04-10T04:53:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102049,7 +102049,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T13:40:00Z",
           "lastSeen": "2026-04-07T16:56:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -102081,7 +102081,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T17:13:00Z",
           "lastSeen": "2026-04-09T23:24:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -102113,7 +102113,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T09:21:00Z",
           "lastSeen": "2026-04-08T19:07:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -102177,7 +102177,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T07:26:00Z",
           "lastSeen": "2026-04-08T17:47:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102305,7 +102305,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T17:52:00Z",
           "lastSeen": "2026-04-08T04:27:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -102353,7 +102353,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T15:43:00Z",
           "lastSeen": "2026-04-10T05:09:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102385,7 +102385,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-04T06:08:00Z",
           "lastSeen": "2026-04-11T15:22:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102417,7 +102417,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-05T00:11:00Z",
           "lastSeen": "2026-04-10T02:51:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102449,7 +102449,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T15:57:00Z",
           "lastSeen": "2026-04-10T23:48:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102593,7 +102593,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-03T02:44:00Z",
           "lastSeen": "2026-04-12T03:40:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -102641,7 +102641,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T00:27:00Z",
           "lastSeen": "2026-04-11T02:26:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -102689,7 +102689,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-11T01:30:00Z",
           "lastSeen": "2026-04-11T03:27:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102737,7 +102737,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T16:19:00Z",
           "lastSeen": "2026-04-12T03:27:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -102769,7 +102769,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T12:23:00Z",
           "lastSeen": "2026-04-06T07:08:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102817,7 +102817,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T15:31:00Z",
           "lastSeen": "2026-04-03T10:14:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -102849,7 +102849,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T15:52:00Z",
           "lastSeen": "2026-04-06T02:13:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102913,7 +102913,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T05:23:00Z",
           "lastSeen": "2026-04-11T18:12:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102945,7 +102945,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T17:31:00Z",
           "lastSeen": "2026-04-11T17:49:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -102977,7 +102977,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T20:04:00Z",
           "lastSeen": "2026-04-11T09:47:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -103057,7 +103057,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T07:02:00Z",
           "lastSeen": "2026-04-11T18:50:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -103089,7 +103089,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T02:20:00Z",
           "lastSeen": "2026-04-11T20:47:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -103121,7 +103121,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T07:57:00Z",
           "lastSeen": "2026-04-09T23:01:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -103137,7 +103137,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T01:13:00Z",
           "lastSeen": "2026-04-11T17:17:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -103169,7 +103169,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T19:48:00Z",
           "lastSeen": "2026-04-10T13:40:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -103201,7 +103201,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "8",
           "firstSeen": "2026-04-02T16:53:00Z",
           "lastSeen": "2026-04-11T18:23:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -103233,7 +103233,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T13:46:00Z",
           "lastSeen": "2026-04-08T14:28:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -103361,7 +103361,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T05:12:00Z",
           "lastSeen": "2026-04-08T09:23:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -103409,7 +103409,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T09:00:00Z",
           "lastSeen": "2026-04-08T06:45:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -103425,7 +103425,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T11:55:00Z",
           "lastSeen": "2026-04-11T08:46:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -103473,7 +103473,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T19:43:00Z",
           "lastSeen": "2026-04-11T11:42:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -103521,7 +103521,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "8",
           "firstSeen": "2026-04-03T12:08:00Z",
           "lastSeen": "2026-04-11T08:55:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -103537,7 +103537,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T14:24:00Z",
           "lastSeen": "2026-04-11T01:37:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -103569,7 +103569,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T00:47:00Z",
           "lastSeen": "2026-04-12T02:21:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -103665,7 +103665,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-08T12:58:00Z",
           "lastSeen": "2026-04-10T23:16:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -103681,7 +103681,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T20:41:00Z",
           "lastSeen": "2026-04-12T03:53:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -103697,7 +103697,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T08:39:00Z",
           "lastSeen": "2026-04-11T15:47:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -103841,7 +103841,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T12:48:00Z",
           "lastSeen": "2026-04-09T04:37:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -103937,7 +103937,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T15:59:00Z",
           "lastSeen": "2026-04-08T10:09:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -103953,7 +103953,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T15:50:00Z",
           "lastSeen": "2026-04-06T14:34:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -103969,7 +103969,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T02:39:00Z",
           "lastSeen": "2026-04-07T22:59:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -103985,7 +103985,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T21:21:00Z",
           "lastSeen": "2026-04-10T19:06:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104001,7 +104001,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-02T15:33:00Z",
           "lastSeen": "2026-04-09T20:31:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -104049,7 +104049,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T10:30:00Z",
           "lastSeen": "2026-04-10T06:06:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -104065,7 +104065,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T17:24:00Z",
           "lastSeen": "2026-04-11T08:32:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104177,7 +104177,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T07:09:00Z",
           "lastSeen": "2026-04-08T11:27:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104241,7 +104241,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T14:59:00Z",
           "lastSeen": "2026-04-10T07:53:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -104257,7 +104257,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T09:53:00Z",
           "lastSeen": "2026-04-02T18:01:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -104353,7 +104353,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T18:10:00Z",
           "lastSeen": "2026-04-07T14:51:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104369,7 +104369,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T08:03:00Z",
           "lastSeen": "2026-04-10T21:39:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104417,7 +104417,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T10:14:00Z",
           "lastSeen": "2026-04-09T10:57:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104449,7 +104449,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-07T01:50:00Z",
           "lastSeen": "2026-04-11T09:43:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104465,7 +104465,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T17:12:00Z",
           "lastSeen": "2026-04-10T15:29:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104545,7 +104545,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T20:09:00Z",
           "lastSeen": "2026-04-10T01:48:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -104577,7 +104577,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-04T02:09:00Z",
           "lastSeen": "2026-04-10T12:17:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104593,7 +104593,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T08:21:00Z",
           "lastSeen": "2026-04-12T04:30:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -104609,7 +104609,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-09T07:43:00Z",
           "lastSeen": "2026-04-11T19:21:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104641,7 +104641,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T21:20:00Z",
           "lastSeen": "2026-04-07T05:07:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104705,7 +104705,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T13:16:00Z",
           "lastSeen": "2026-04-11T16:32:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -104817,7 +104817,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T13:57:00Z",
           "lastSeen": "2026-04-11T23:23:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104833,7 +104833,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T14:39:00Z",
           "lastSeen": "2026-04-10T03:08:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104849,7 +104849,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T15:20:00Z",
           "lastSeen": "2026-04-07T14:01:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -104961,7 +104961,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T03:01:00Z",
           "lastSeen": "2026-04-09T05:04:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -104977,7 +104977,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T04:13:00Z",
           "lastSeen": "2026-04-11T14:18:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -105009,7 +105009,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T11:14:00Z",
           "lastSeen": "2026-04-10T18:10:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -105057,7 +105057,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T01:27:00Z",
           "lastSeen": "2026-04-10T19:21:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -105089,7 +105089,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T17:36:00Z",
           "lastSeen": "2026-04-12T01:08:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -105121,7 +105121,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T02:31:00Z",
           "lastSeen": "2026-04-07T21:08:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -105185,7 +105185,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T13:01:00Z",
           "lastSeen": "2026-04-05T21:49:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -105281,7 +105281,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T14:58:00Z",
           "lastSeen": "2026-04-10T11:02:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -105377,7 +105377,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T20:03:00Z",
           "lastSeen": "2026-04-08T23:43:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -105393,7 +105393,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T13:29:00Z",
           "lastSeen": "2026-04-11T09:33:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -105585,7 +105585,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T08:33:00Z",
           "lastSeen": "2026-04-11T00:15:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -105601,7 +105601,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T01:23:00Z",
           "lastSeen": "2026-04-08T12:09:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -105649,7 +105649,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T01:01:00Z",
           "lastSeen": "2026-04-10T18:34:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -105697,7 +105697,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T12:18:00Z",
           "lastSeen": "2026-04-07T07:31:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -105777,7 +105777,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T08:02:00Z",
           "lastSeen": "2026-04-08T08:30:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -105809,7 +105809,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-10T04:55:00Z",
           "lastSeen": "2026-04-10T22:49:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -105841,7 +105841,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-08T14:38:00Z",
           "lastSeen": "2026-04-11T02:12:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -105889,7 +105889,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T22:00:00Z",
           "lastSeen": "2026-04-09T09:17:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -105937,7 +105937,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T02:42:00Z",
           "lastSeen": "2026-04-10T20:17:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -105969,7 +105969,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T16:51:00Z",
           "lastSeen": "2026-04-07T02:14:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -106001,7 +106001,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T14:33:00Z",
           "lastSeen": "2026-04-10T12:22:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -106209,7 +106209,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-10T11:57:00Z",
           "lastSeen": "2026-04-10T21:01:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -106241,7 +106241,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T05:27:00Z",
           "lastSeen": "2026-04-04T21:40:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -106257,7 +106257,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T03:59:00Z",
           "lastSeen": "2026-04-09T10:53:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -106273,7 +106273,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T07:50:00Z",
           "lastSeen": "2026-04-03T16:38:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -106353,7 +106353,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T12:01:00Z",
           "lastSeen": "2026-04-08T18:59:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -106433,7 +106433,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-05T15:33:00Z",
           "lastSeen": "2026-04-12T03:28:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -106449,7 +106449,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T10:37:00Z",
           "lastSeen": "2026-04-08T20:04:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -106465,7 +106465,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T22:52:00Z",
           "lastSeen": "2026-04-08T18:54:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -106593,7 +106593,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T11:12:00Z",
           "lastSeen": "2026-04-11T11:59:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -106609,7 +106609,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T03:38:00Z",
           "lastSeen": "2026-04-10T20:03:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -106721,7 +106721,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T20:41:00Z",
           "lastSeen": "2026-04-05T18:55:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -106897,7 +106897,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-05T14:49:00Z",
           "lastSeen": "2026-04-11T15:13:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -106929,7 +106929,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-09T00:27:00Z",
           "lastSeen": "2026-04-11T12:49:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -106945,7 +106945,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T12:02:00Z",
           "lastSeen": "2026-04-09T20:12:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -106961,7 +106961,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T23:34:00Z",
           "lastSeen": "2026-04-09T19:45:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -107089,7 +107089,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T23:06:00Z",
           "lastSeen": "2026-04-10T22:43:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -107137,7 +107137,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-05T07:55:00Z",
           "lastSeen": "2026-04-10T23:03:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -107185,7 +107185,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T14:31:00Z",
           "lastSeen": "2026-04-08T01:35:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -107201,7 +107201,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T04:15:00Z",
           "lastSeen": "2026-04-11T17:34:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -107281,7 +107281,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T21:55:00Z",
           "lastSeen": "2026-04-09T23:31:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -107297,7 +107297,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T10:09:00Z",
           "lastSeen": "2026-04-11T13:29:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -107313,7 +107313,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T09:28:00Z",
           "lastSeen": "2026-04-10T03:11:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -107377,7 +107377,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T20:54:00Z",
           "lastSeen": "2026-04-10T20:33:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -107521,7 +107521,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T10:59:00Z",
           "lastSeen": "2026-04-08T20:04:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -107553,7 +107553,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T05:55:00Z",
           "lastSeen": "2026-04-08T00:49:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -107585,7 +107585,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-06T15:46:00Z",
           "lastSeen": "2026-04-09T22:06:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -107633,7 +107633,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T09:53:00Z",
           "lastSeen": "2026-04-02T18:16:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -107649,7 +107649,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T10:03:00Z",
           "lastSeen": "2026-04-09T20:01:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -107681,7 +107681,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T09:19:00Z",
           "lastSeen": "2026-04-11T16:16:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -107713,7 +107713,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T22:35:00Z",
           "lastSeen": "2026-04-08T14:52:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -107729,7 +107729,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T01:43:00Z",
           "lastSeen": "2026-04-10T19:46:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -107873,7 +107873,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T13:53:00Z",
           "lastSeen": "2026-04-11T06:17:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -107953,7 +107953,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T07:50:00Z",
           "lastSeen": "2026-04-09T01:23:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -107985,7 +107985,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T12:38:00Z",
           "lastSeen": "2026-04-09T08:13:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -108017,7 +108017,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T09:39:00Z",
           "lastSeen": "2026-04-08T18:38:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108033,7 +108033,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T02:51:00Z",
           "lastSeen": "2026-04-11T02:00:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -108145,7 +108145,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T20:38:00Z",
           "lastSeen": "2026-04-12T04:39:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108177,7 +108177,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T01:41:00Z",
           "lastSeen": "2026-04-11T09:01:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108225,7 +108225,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T08:04:00Z",
           "lastSeen": "2026-04-09T18:19:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -108257,7 +108257,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T02:35:00Z",
           "lastSeen": "2026-04-11T05:27:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108273,7 +108273,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T20:10:00Z",
           "lastSeen": "2026-04-10T10:31:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -108289,7 +108289,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T11:07:00Z",
           "lastSeen": "2026-04-07T15:56:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108305,7 +108305,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T04:04:00Z",
           "lastSeen": "2026-04-10T16:34:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108401,7 +108401,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T15:29:00Z",
           "lastSeen": "2026-04-09T07:41:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -108449,7 +108449,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T00:58:00Z",
           "lastSeen": "2026-04-09T01:43:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108497,7 +108497,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-05T21:48:00Z",
           "lastSeen": "2026-04-11T18:10:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -108561,7 +108561,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T21:39:00Z",
           "lastSeen": "2026-04-05T20:01:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108609,7 +108609,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T15:16:00Z",
           "lastSeen": "2026-04-11T12:09:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108673,7 +108673,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T16:37:00Z",
           "lastSeen": "2026-04-06T11:16:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108721,7 +108721,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T07:28:00Z",
           "lastSeen": "2026-04-11T08:33:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108769,7 +108769,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T23:56:00Z",
           "lastSeen": "2026-04-11T22:41:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -108785,7 +108785,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T13:00:00Z",
           "lastSeen": "2026-04-07T16:50:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -108849,7 +108849,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T07:44:00Z",
           "lastSeen": "2026-04-10T03:50:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108865,7 +108865,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T21:29:00Z",
           "lastSeen": "2026-04-12T00:24:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108897,7 +108897,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T20:03:00Z",
           "lastSeen": "2026-04-10T10:10:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -108993,7 +108993,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T09:55:00Z",
           "lastSeen": "2026-04-05T11:52:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109025,7 +109025,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T09:00:00Z",
           "lastSeen": "2026-04-07T22:01:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -109089,7 +109089,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T08:39:00Z",
           "lastSeen": "2026-04-11T04:57:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -109185,7 +109185,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T06:42:00Z",
           "lastSeen": "2026-04-08T06:05:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109201,7 +109201,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T09:34:00Z",
           "lastSeen": "2026-04-08T03:18:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109329,7 +109329,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-07T12:22:00Z",
           "lastSeen": "2026-04-09T13:13:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -109473,7 +109473,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T20:23:00Z",
           "lastSeen": "2026-04-08T21:15:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -109521,7 +109521,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T21:15:00Z",
           "lastSeen": "2026-04-09T22:16:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109617,7 +109617,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T13:42:00Z",
           "lastSeen": "2026-04-09T14:55:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109633,7 +109633,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T07:34:00Z",
           "lastSeen": "2026-04-09T10:57:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -109665,7 +109665,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T15:41:00Z",
           "lastSeen": "2026-04-08T10:32:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109713,7 +109713,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T07:07:00Z",
           "lastSeen": "2026-04-09T21:03:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109729,7 +109729,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T18:23:00Z",
           "lastSeen": "2026-04-09T12:24:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109745,7 +109745,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T02:09:00Z",
           "lastSeen": "2026-04-08T04:46:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -109761,7 +109761,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T18:11:00Z",
           "lastSeen": "2026-04-10T17:09:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -109777,7 +109777,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T19:20:00Z",
           "lastSeen": "2026-04-08T08:43:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109809,7 +109809,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-05T09:20:00Z",
           "lastSeen": "2026-04-10T02:43:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109841,7 +109841,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T10:30:00Z",
           "lastSeen": "2026-04-10T08:01:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109857,7 +109857,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T13:43:00Z",
           "lastSeen": "2026-04-07T15:34:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109953,7 +109953,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T07:54:00Z",
           "lastSeen": "2026-04-08T20:29:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -109969,7 +109969,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T12:27:00Z",
           "lastSeen": "2026-04-10T19:51:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110017,7 +110017,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T08:09:00Z",
           "lastSeen": "2026-04-07T09:25:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110049,7 +110049,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-06T05:38:00Z",
           "lastSeen": "2026-04-10T01:54:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110097,7 +110097,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T11:55:00Z",
           "lastSeen": "2026-04-08T15:18:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110161,7 +110161,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T09:55:00Z",
           "lastSeen": "2026-04-06T15:55:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110209,7 +110209,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-07T05:23:00Z",
           "lastSeen": "2026-04-10T18:46:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110225,7 +110225,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T03:22:00Z",
           "lastSeen": "2026-04-06T14:26:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110241,7 +110241,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T11:14:00Z",
           "lastSeen": "2026-04-11T07:38:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110369,7 +110369,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T11:55:00Z",
           "lastSeen": "2026-04-07T08:18:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110401,7 +110401,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T00:23:00Z",
           "lastSeen": "2026-04-05T17:23:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110417,7 +110417,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T05:17:00Z",
           "lastSeen": "2026-04-09T09:12:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110449,7 +110449,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T23:11:00Z",
           "lastSeen": "2026-04-08T11:06:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110465,7 +110465,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-06T17:59:00Z",
           "lastSeen": "2026-04-11T13:00:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110513,7 +110513,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T06:25:00Z",
           "lastSeen": "2026-04-07T10:21:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110529,7 +110529,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T19:36:00Z",
           "lastSeen": "2026-04-10T19:28:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110561,7 +110561,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T23:06:00Z",
           "lastSeen": "2026-04-09T16:53:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110609,7 +110609,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-09T04:34:00Z",
           "lastSeen": "2026-04-10T19:00:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110641,7 +110641,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T04:44:00Z",
           "lastSeen": "2026-04-10T08:46:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110673,7 +110673,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T09:26:00Z",
           "lastSeen": "2026-04-03T11:22:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110705,7 +110705,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T18:41:00Z",
           "lastSeen": "2026-04-11T21:34:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110721,7 +110721,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T05:30:00Z",
           "lastSeen": "2026-04-11T19:14:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110769,7 +110769,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-06T23:48:00Z",
           "lastSeen": "2026-04-10T16:52:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110849,7 +110849,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T06:12:00Z",
           "lastSeen": "2026-04-11T06:24:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110865,7 +110865,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T00:06:00Z",
           "lastSeen": "2026-04-04T01:59:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110897,7 +110897,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T02:15:00Z",
           "lastSeen": "2026-04-07T03:11:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -110913,7 +110913,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T12:23:00Z",
           "lastSeen": "2026-04-01T13:01:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110929,7 +110929,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T21:38:00Z",
           "lastSeen": "2026-04-09T15:29:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110961,7 +110961,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T07:08:00Z",
           "lastSeen": "2026-04-06T16:55:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -110977,7 +110977,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T15:44:00Z",
           "lastSeen": "2026-04-11T20:08:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -111073,7 +111073,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-09T01:42:00Z",
           "lastSeen": "2026-04-11T13:13:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -111297,7 +111297,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T05:53:00Z",
           "lastSeen": "2026-04-10T14:33:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -111313,7 +111313,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T15:20:00Z",
           "lastSeen": "2026-04-10T03:39:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -111329,7 +111329,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "9",
           "firstSeen": "2026-04-01T15:17:00Z",
           "lastSeen": "2026-04-11T08:39:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -111345,7 +111345,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T04:01:00Z",
           "lastSeen": "2026-04-11T03:19:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -111361,7 +111361,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T10:59:00Z",
           "lastSeen": "2026-04-09T03:43:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -111393,7 +111393,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T09:59:00Z",
           "lastSeen": "2026-04-10T21:23:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -111457,7 +111457,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T15:22:00Z",
           "lastSeen": "2026-04-10T13:24:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -111473,7 +111473,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T18:21:00Z",
           "lastSeen": "2026-04-10T02:14:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -111553,7 +111553,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T00:37:00Z",
           "lastSeen": "2026-04-11T07:27:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -111633,7 +111633,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T14:20:00Z",
           "lastSeen": "2026-04-10T21:49:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -111681,7 +111681,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T06:36:00Z",
           "lastSeen": "2026-04-11T09:14:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -111713,7 +111713,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T14:09:00Z",
           "lastSeen": "2026-04-07T06:58:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -111985,7 +111985,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T10:43:00Z",
           "lastSeen": "2026-04-10T06:55:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -112017,7 +112017,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T22:58:00Z",
           "lastSeen": "2026-04-11T02:33:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -112065,7 +112065,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T01:26:00Z",
           "lastSeen": "2026-04-04T11:00:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -112081,7 +112081,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T09:10:00Z",
           "lastSeen": "2026-04-07T06:10:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -112289,7 +112289,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T14:00:00Z",
           "lastSeen": "2026-04-09T01:00:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -112401,7 +112401,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T20:08:00Z",
           "lastSeen": "2026-04-03T21:02:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -112465,7 +112465,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-05T09:12:00Z",
           "lastSeen": "2026-04-11T21:47:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -112497,7 +112497,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-07T03:38:00Z",
           "lastSeen": "2026-04-10T00:25:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -112577,7 +112577,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T05:47:00Z",
           "lastSeen": "2026-04-09T17:27:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -112609,7 +112609,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T20:00:00Z",
           "lastSeen": "2026-04-09T07:53:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -112641,7 +112641,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T23:59:00Z",
           "lastSeen": "2026-04-11T03:35:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -112657,7 +112657,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T12:11:00Z",
           "lastSeen": "2026-04-08T14:00:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -112689,7 +112689,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T19:25:00Z",
           "lastSeen": "2026-04-08T21:55:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -112721,7 +112721,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T15:39:00Z",
           "lastSeen": "2026-04-11T21:31:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -112737,7 +112737,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T19:58:00Z",
           "lastSeen": "2026-04-11T16:32:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -112833,7 +112833,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T12:18:00Z",
           "lastSeen": "2026-04-11T05:08:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -112865,7 +112865,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-05T03:36:00Z",
           "lastSeen": "2026-04-11T10:32:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -112897,7 +112897,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T23:10:00Z",
           "lastSeen": "2026-04-09T07:26:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -112913,7 +112913,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T05:52:00Z",
           "lastSeen": "2026-04-11T18:59:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113025,7 +113025,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T00:15:00Z",
           "lastSeen": "2026-04-12T03:26:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113073,7 +113073,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T08:29:00Z",
           "lastSeen": "2026-04-10T16:52:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113089,7 +113089,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T09:45:00Z",
           "lastSeen": "2026-04-08T01:17:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -113137,7 +113137,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T02:21:00Z",
           "lastSeen": "2026-04-04T06:11:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -113169,7 +113169,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T18:03:00Z",
           "lastSeen": "2026-04-11T23:01:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113249,7 +113249,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T13:42:00Z",
           "lastSeen": "2026-04-08T16:46:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -113265,7 +113265,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-01T08:38:00Z",
           "lastSeen": "2026-04-10T14:41:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113345,7 +113345,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T04:11:00Z",
           "lastSeen": "2026-04-09T00:43:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113377,7 +113377,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T12:23:00Z",
           "lastSeen": "2026-04-11T03:17:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113393,7 +113393,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T09:46:00Z",
           "lastSeen": "2026-04-06T13:07:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113409,7 +113409,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-08T14:39:00Z",
           "lastSeen": "2026-04-11T23:55:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -113425,7 +113425,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T18:16:00Z",
           "lastSeen": "2026-04-11T17:43:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113441,7 +113441,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T08:12:00Z",
           "lastSeen": "2026-04-11T22:33:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113457,7 +113457,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T14:01:00Z",
           "lastSeen": "2026-04-09T03:40:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113473,7 +113473,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T19:18:00Z",
           "lastSeen": "2026-04-10T13:18:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -113601,7 +113601,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T00:36:00Z",
           "lastSeen": "2026-04-10T00:23:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113617,7 +113617,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T10:28:00Z",
           "lastSeen": "2026-04-11T07:14:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -113745,7 +113745,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T19:13:00Z",
           "lastSeen": "2026-04-11T13:24:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113761,7 +113761,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T01:24:00Z",
           "lastSeen": "2026-04-09T20:07:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113777,7 +113777,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-03T11:13:00Z",
           "lastSeen": "2026-04-11T07:52:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113825,7 +113825,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T15:03:00Z",
           "lastSeen": "2026-04-07T20:12:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -113841,7 +113841,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T14:23:00Z",
           "lastSeen": "2026-04-11T08:20:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -113889,7 +113889,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T12:52:00Z",
           "lastSeen": "2026-04-06T14:16:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -113953,7 +113953,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T20:43:00Z",
           "lastSeen": "2026-04-09T01:39:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -113969,7 +113969,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T10:04:00Z",
           "lastSeen": "2026-04-10T07:19:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -114033,7 +114033,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T15:46:00Z",
           "lastSeen": "2026-04-11T16:26:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114081,7 +114081,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T09:59:00Z",
           "lastSeen": "2026-04-08T00:41:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114129,7 +114129,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T13:28:00Z",
           "lastSeen": "2026-04-09T01:26:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114177,7 +114177,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T02:18:00Z",
           "lastSeen": "2026-04-11T00:59:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114241,7 +114241,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-07T13:24:00Z",
           "lastSeen": "2026-04-10T22:37:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114337,7 +114337,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T07:54:00Z",
           "lastSeen": "2026-04-11T07:47:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114417,7 +114417,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-08T02:25:00Z",
           "lastSeen": "2026-04-11T22:45:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114465,7 +114465,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T12:06:00Z",
           "lastSeen": "2026-04-08T19:26:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -114481,7 +114481,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T10:22:00Z",
           "lastSeen": "2026-04-08T16:42:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -114497,7 +114497,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-10T04:00:00Z",
           "lastSeen": "2026-04-11T12:57:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -114513,7 +114513,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-10T12:19:00Z",
           "lastSeen": "2026-04-11T05:58:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114529,7 +114529,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T04:22:00Z",
           "lastSeen": "2026-04-06T20:42:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -114609,7 +114609,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "8",
           "firstSeen": "2026-04-03T07:10:00Z",
           "lastSeen": "2026-04-11T23:28:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -114705,7 +114705,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T21:42:00Z",
           "lastSeen": "2026-04-08T19:15:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114737,7 +114737,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-04T01:58:00Z",
           "lastSeen": "2026-04-10T09:21:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -114769,7 +114769,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-11T03:14:00Z",
           "lastSeen": "2026-04-11T06:04:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -114849,7 +114849,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T01:52:00Z",
           "lastSeen": "2026-04-09T15:40:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114865,7 +114865,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T12:31:00Z",
           "lastSeen": "2026-04-09T11:53:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -114881,7 +114881,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T00:34:00Z",
           "lastSeen": "2026-04-07T22:38:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -114897,7 +114897,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T16:41:00Z",
           "lastSeen": "2026-04-11T08:45:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114913,7 +114913,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T03:52:00Z",
           "lastSeen": "2026-04-08T13:04:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -114945,7 +114945,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T01:45:00Z",
           "lastSeen": "2026-04-02T15:47:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -114977,7 +114977,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T17:31:00Z",
           "lastSeen": "2026-04-12T00:15:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -115025,7 +115025,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T15:02:00Z",
           "lastSeen": "2026-04-10T21:09:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -115041,7 +115041,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T18:47:00Z",
           "lastSeen": "2026-04-07T20:54:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -115073,7 +115073,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T09:58:00Z",
           "lastSeen": "2026-04-05T07:17:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -115121,7 +115121,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T12:25:00Z",
           "lastSeen": "2026-04-06T11:34:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -115137,7 +115137,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T18:20:00Z",
           "lastSeen": "2026-04-07T19:16:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -115153,7 +115153,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T05:43:00Z",
           "lastSeen": "2026-04-09T19:27:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -115201,7 +115201,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T08:08:00Z",
           "lastSeen": "2026-04-10T11:30:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -115233,7 +115233,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T14:36:00Z",
           "lastSeen": "2026-04-10T03:35:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -115281,7 +115281,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T17:17:00Z",
           "lastSeen": "2026-04-04T20:11:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -115441,7 +115441,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-07T01:07:00Z",
           "lastSeen": "2026-04-11T02:58:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -115457,7 +115457,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T08:46:00Z",
           "lastSeen": "2026-04-07T22:09:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -115473,7 +115473,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T18:34:00Z",
           "lastSeen": "2026-04-09T20:14:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -115521,7 +115521,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T06:11:00Z",
           "lastSeen": "2026-04-11T13:51:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -115537,7 +115537,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T23:18:00Z",
           "lastSeen": "2026-04-04T03:58:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -115665,7 +115665,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T13:13:00Z",
           "lastSeen": "2026-04-07T05:41:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -115745,7 +115745,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T08:19:00Z",
           "lastSeen": "2026-04-08T01:17:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -115761,7 +115761,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T14:55:00Z",
           "lastSeen": "2026-04-05T17:57:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -115857,7 +115857,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-09T21:50:00Z",
           "lastSeen": "2026-04-10T04:13:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -115969,7 +115969,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T18:52:00Z",
           "lastSeen": "2026-04-09T11:43:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -115985,7 +115985,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-07T05:14:00Z",
           "lastSeen": "2026-04-09T06:37:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116049,7 +116049,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T01:23:00Z",
           "lastSeen": "2026-04-05T09:25:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116097,7 +116097,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-09T00:31:00Z",
           "lastSeen": "2026-04-09T07:55:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116161,7 +116161,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T11:51:00Z",
           "lastSeen": "2026-04-08T03:32:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116225,7 +116225,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T23:42:00Z",
           "lastSeen": "2026-04-06T09:39:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116241,7 +116241,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T23:40:00Z",
           "lastSeen": "2026-04-08T08:44:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116273,7 +116273,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T22:53:00Z",
           "lastSeen": "2026-04-11T15:54:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116305,7 +116305,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T21:41:00Z",
           "lastSeen": "2026-04-03T19:51:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116321,7 +116321,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T19:24:00Z",
           "lastSeen": "2026-04-08T01:38:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116337,7 +116337,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T12:56:00Z",
           "lastSeen": "2026-04-11T12:50:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116449,7 +116449,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T16:54:00Z",
           "lastSeen": "2026-04-04T05:02:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116513,7 +116513,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T06:33:00Z",
           "lastSeen": "2026-04-10T06:39:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -116529,7 +116529,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T21:36:00Z",
           "lastSeen": "2026-04-05T23:35:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -116561,7 +116561,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T03:50:00Z",
           "lastSeen": "2026-04-11T10:50:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116641,7 +116641,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T10:35:00Z",
           "lastSeen": "2026-04-12T02:15:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116657,7 +116657,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T07:35:00Z",
           "lastSeen": "2026-04-07T00:02:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116833,7 +116833,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T01:29:00Z",
           "lastSeen": "2026-04-05T02:04:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116849,7 +116849,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T09:03:00Z",
           "lastSeen": "2026-04-02T17:11:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -116865,7 +116865,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T05:17:00Z",
           "lastSeen": "2026-04-11T02:56:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -116881,7 +116881,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T08:55:00Z",
           "lastSeen": "2026-04-10T09:04:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -116929,7 +116929,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T14:15:00Z",
           "lastSeen": "2026-04-12T02:18:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -116977,7 +116977,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T20:12:00Z",
           "lastSeen": "2026-04-11T07:43:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117009,7 +117009,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T09:47:00Z",
           "lastSeen": "2026-04-07T09:35:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117025,7 +117025,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T15:29:00Z",
           "lastSeen": "2026-04-09T07:02:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117057,7 +117057,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T13:40:00Z",
           "lastSeen": "2026-04-12T01:34:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -117137,7 +117137,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-01T22:31:00Z",
           "lastSeen": "2026-04-11T12:41:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117153,7 +117153,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T08:54:00Z",
           "lastSeen": "2026-04-10T07:05:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -117217,7 +117217,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T01:57:00Z",
           "lastSeen": "2026-04-09T06:56:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -117233,7 +117233,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T09:15:00Z",
           "lastSeen": "2026-04-11T18:29:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117345,7 +117345,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T10:54:00Z",
           "lastSeen": "2026-04-11T07:28:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117425,7 +117425,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T00:46:00Z",
           "lastSeen": "2026-04-03T03:56:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117473,7 +117473,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T11:58:00Z",
           "lastSeen": "2026-04-10T18:08:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117489,7 +117489,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T16:21:00Z",
           "lastSeen": "2026-04-10T04:55:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117505,7 +117505,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T00:54:00Z",
           "lastSeen": "2026-04-10T08:07:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -117537,7 +117537,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T10:03:00Z",
           "lastSeen": "2026-04-10T07:41:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -117665,7 +117665,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T16:15:00Z",
           "lastSeen": "2026-04-10T00:56:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117681,7 +117681,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-05T05:53:00Z",
           "lastSeen": "2026-04-09T04:40:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -117761,7 +117761,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T07:33:00Z",
           "lastSeen": "2026-04-10T05:28:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117793,7 +117793,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T21:35:00Z",
           "lastSeen": "2026-04-11T21:27:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -117857,7 +117857,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T16:05:00Z",
           "lastSeen": "2026-04-11T21:56:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -117873,7 +117873,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T08:21:00Z",
           "lastSeen": "2026-04-11T23:04:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117905,7 +117905,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T12:40:00Z",
           "lastSeen": "2026-04-07T02:36:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -117921,7 +117921,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T08:58:00Z",
           "lastSeen": "2026-04-10T04:47:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -117937,7 +117937,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T16:56:00Z",
           "lastSeen": "2026-04-12T00:21:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -117985,7 +117985,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T05:00:00Z",
           "lastSeen": "2026-04-09T00:09:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118017,7 +118017,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T16:46:00Z",
           "lastSeen": "2026-04-11T11:11:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118049,7 +118049,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T11:03:00Z",
           "lastSeen": "2026-04-08T14:54:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118065,7 +118065,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T00:08:00Z",
           "lastSeen": "2026-04-06T20:56:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118129,7 +118129,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T08:35:00Z",
           "lastSeen": "2026-04-09T13:02:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118145,7 +118145,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-09T06:45:00Z",
           "lastSeen": "2026-04-11T12:38:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -118177,7 +118177,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T13:58:00Z",
           "lastSeen": "2026-04-05T11:50:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118225,7 +118225,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T07:51:00Z",
           "lastSeen": "2026-04-05T18:08:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118257,7 +118257,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T01:47:00Z",
           "lastSeen": "2026-04-10T14:20:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118305,7 +118305,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T18:24:00Z",
           "lastSeen": "2026-04-10T21:57:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -118353,7 +118353,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T15:15:00Z",
           "lastSeen": "2026-04-11T05:09:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -118369,7 +118369,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T21:15:00Z",
           "lastSeen": "2026-04-09T18:38:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118433,7 +118433,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T07:22:00Z",
           "lastSeen": "2026-04-09T06:46:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118449,7 +118449,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T19:56:00Z",
           "lastSeen": "2026-04-11T17:48:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118481,7 +118481,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-06T02:05:00Z",
           "lastSeen": "2026-04-10T14:24:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118513,7 +118513,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-10T06:27:00Z",
           "lastSeen": "2026-04-10T17:50:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118529,7 +118529,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T19:32:00Z",
           "lastSeen": "2026-04-10T13:13:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118625,7 +118625,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T09:43:00Z",
           "lastSeen": "2026-04-06T01:05:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118641,7 +118641,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T01:05:00Z",
           "lastSeen": "2026-04-08T07:48:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118673,7 +118673,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T11:19:00Z",
           "lastSeen": "2026-04-12T01:21:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118689,7 +118689,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T20:52:00Z",
           "lastSeen": "2026-04-11T10:07:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118705,7 +118705,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T20:45:00Z",
           "lastSeen": "2026-04-08T14:49:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118801,7 +118801,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T14:10:00Z",
           "lastSeen": "2026-04-07T17:15:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -118881,7 +118881,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T12:01:00Z",
           "lastSeen": "2026-04-12T00:28:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -118977,7 +118977,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T19:23:00Z",
           "lastSeen": "2026-04-10T12:25:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119057,7 +119057,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-06T08:30:00Z",
           "lastSeen": "2026-04-12T03:40:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -119089,7 +119089,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T14:08:00Z",
           "lastSeen": "2026-04-10T00:30:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -119121,7 +119121,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T18:44:00Z",
           "lastSeen": "2026-04-09T01:32:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -119137,7 +119137,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T10:50:00Z",
           "lastSeen": "2026-04-11T17:51:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -119153,7 +119153,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T12:37:00Z",
           "lastSeen": "2026-04-12T00:34:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119169,7 +119169,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T19:23:00Z",
           "lastSeen": "2026-04-04T12:15:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119201,7 +119201,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T09:09:00Z",
           "lastSeen": "2026-04-10T20:26:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119233,7 +119233,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T13:29:00Z",
           "lastSeen": "2026-04-10T09:38:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -119281,7 +119281,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T02:36:00Z",
           "lastSeen": "2026-04-11T22:53:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119393,7 +119393,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T12:53:00Z",
           "lastSeen": "2026-04-10T06:39:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119425,7 +119425,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-09T02:33:00Z",
           "lastSeen": "2026-04-12T04:22:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -119473,7 +119473,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-01T13:21:00Z",
           "lastSeen": "2026-04-10T12:10:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -119601,7 +119601,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T05:15:00Z",
           "lastSeen": "2026-04-10T01:54:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119617,7 +119617,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T10:05:00Z",
           "lastSeen": "2026-04-11T15:04:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119633,7 +119633,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T11:39:00Z",
           "lastSeen": "2026-04-09T09:42:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119649,7 +119649,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T14:06:00Z",
           "lastSeen": "2026-04-11T14:39:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -119697,7 +119697,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T16:42:00Z",
           "lastSeen": "2026-04-10T04:16:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119761,7 +119761,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T17:00:00Z",
           "lastSeen": "2026-04-10T09:40:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119809,7 +119809,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T05:43:00Z",
           "lastSeen": "2026-04-05T07:51:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -119857,7 +119857,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T22:43:00Z",
           "lastSeen": "2026-04-09T08:15:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -119953,7 +119953,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T21:11:00Z",
           "lastSeen": "2026-04-06T08:12:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -120017,7 +120017,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-01T22:30:00Z",
           "lastSeen": "2026-04-08T18:12:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120033,7 +120033,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T19:43:00Z",
           "lastSeen": "2026-04-09T17:55:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120049,7 +120049,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-04T01:20:00Z",
           "lastSeen": "2026-04-09T16:00:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -120065,7 +120065,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-01T18:30:00Z",
           "lastSeen": "2026-04-11T16:38:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -120113,7 +120113,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T20:15:00Z",
           "lastSeen": "2026-04-10T23:48:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120145,7 +120145,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T20:13:00Z",
           "lastSeen": "2026-04-11T13:31:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -120161,7 +120161,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T14:55:00Z",
           "lastSeen": "2026-04-09T00:01:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120177,7 +120177,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-02T14:14:00Z",
           "lastSeen": "2026-04-11T02:11:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120225,7 +120225,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T05:32:00Z",
           "lastSeen": "2026-04-09T17:11:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -120257,7 +120257,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T03:51:00Z",
           "lastSeen": "2026-04-11T11:29:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120321,7 +120321,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T04:39:00Z",
           "lastSeen": "2026-04-11T23:37:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -120385,7 +120385,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T05:44:00Z",
           "lastSeen": "2026-04-11T23:19:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120417,7 +120417,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-03T08:32:00Z",
           "lastSeen": "2026-04-11T02:14:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120449,7 +120449,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T15:53:00Z",
           "lastSeen": "2026-04-11T04:43:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120481,7 +120481,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T14:40:00Z",
           "lastSeen": "2026-04-06T18:46:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120513,7 +120513,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T23:09:00Z",
           "lastSeen": "2026-04-08T07:02:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120529,7 +120529,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T21:55:00Z",
           "lastSeen": "2026-04-11T01:47:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120673,7 +120673,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T17:18:00Z",
           "lastSeen": "2026-04-09T09:38:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120801,7 +120801,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T10:11:00Z",
           "lastSeen": "2026-04-08T04:23:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120849,7 +120849,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T19:18:00Z",
           "lastSeen": "2026-04-09T06:44:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -120865,7 +120865,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-05T12:10:00Z",
           "lastSeen": "2026-04-12T00:59:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -120881,7 +120881,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T16:12:00Z",
           "lastSeen": "2026-04-08T23:26:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120913,7 +120913,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T03:56:00Z",
           "lastSeen": "2026-04-10T17:52:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120929,7 +120929,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-09T10:42:00Z",
           "lastSeen": "2026-04-10T08:50:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -120945,7 +120945,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T14:50:00Z",
           "lastSeen": "2026-04-08T16:09:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -120961,7 +120961,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T03:57:00Z",
           "lastSeen": "2026-04-07T09:25:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120977,7 +120977,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T03:07:00Z",
           "lastSeen": "2026-04-11T19:24:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -120993,7 +120993,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T18:37:00Z",
           "lastSeen": "2026-04-10T11:28:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121057,7 +121057,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T02:46:00Z",
           "lastSeen": "2026-04-11T09:30:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -121073,7 +121073,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T10:29:00Z",
           "lastSeen": "2026-04-10T05:21:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121089,7 +121089,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-10T14:34:00Z",
           "lastSeen": "2026-04-11T20:11:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121105,7 +121105,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T12:11:00Z",
           "lastSeen": "2026-04-10T07:18:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121121,7 +121121,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T21:37:00Z",
           "lastSeen": "2026-04-11T20:06:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121169,7 +121169,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T15:44:00Z",
           "lastSeen": "2026-04-09T13:44:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121185,7 +121185,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T22:43:00Z",
           "lastSeen": "2026-04-10T20:16:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121281,7 +121281,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T15:50:00Z",
           "lastSeen": "2026-04-10T14:45:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -121345,7 +121345,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T13:53:00Z",
           "lastSeen": "2026-04-10T08:08:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121393,7 +121393,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T10:04:00Z",
           "lastSeen": "2026-04-12T03:04:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121521,7 +121521,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T18:43:00Z",
           "lastSeen": "2026-04-08T15:23:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121553,7 +121553,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T12:30:00Z",
           "lastSeen": "2026-04-08T05:12:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -121697,7 +121697,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T16:07:00Z",
           "lastSeen": "2026-04-10T14:30:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121745,7 +121745,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T22:31:00Z",
           "lastSeen": "2026-04-09T19:02:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121777,7 +121777,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T20:18:00Z",
           "lastSeen": "2026-04-11T12:53:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121793,7 +121793,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T10:48:00Z",
           "lastSeen": "2026-04-12T03:36:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121857,7 +121857,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T03:45:00Z",
           "lastSeen": "2026-04-05T04:08:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -121905,7 +121905,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T13:33:00Z",
           "lastSeen": "2026-04-12T02:52:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -121969,7 +121969,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T11:30:00Z",
           "lastSeen": "2026-04-08T08:00:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -122001,7 +122001,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T09:42:00Z",
           "lastSeen": "2026-04-11T06:07:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -122145,7 +122145,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T18:28:00Z",
           "lastSeen": "2026-04-04T03:07:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -122161,7 +122161,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-06T14:24:00Z",
           "lastSeen": "2026-04-12T00:38:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -122273,7 +122273,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T09:36:00Z",
           "lastSeen": "2026-04-11T17:21:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -122289,7 +122289,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T02:38:00Z",
           "lastSeen": "2026-04-08T03:35:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -122305,7 +122305,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T15:08:00Z",
           "lastSeen": "2026-04-08T15:49:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -122337,7 +122337,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T23:11:00Z",
           "lastSeen": "2026-04-10T15:44:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -122417,7 +122417,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T16:48:00Z",
           "lastSeen": "2026-04-07T18:17:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -122433,7 +122433,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T13:59:00Z",
           "lastSeen": "2026-04-08T21:51:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -122513,7 +122513,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T15:58:00Z",
           "lastSeen": "2026-04-11T16:57:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -122529,7 +122529,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-05T04:31:00Z",
           "lastSeen": "2026-04-09T03:32:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -122609,7 +122609,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T05:34:00Z",
           "lastSeen": "2026-04-06T11:01:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -122641,7 +122641,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-05T22:25:00Z",
           "lastSeen": "2026-04-08T21:11:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -122689,7 +122689,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-05T20:03:00Z",
           "lastSeen": "2026-04-08T03:29:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -122705,7 +122705,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T23:06:00Z",
           "lastSeen": "2026-04-11T18:51:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -122737,7 +122737,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T13:54:00Z",
           "lastSeen": "2026-04-09T12:44:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -122817,7 +122817,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T16:48:00Z",
           "lastSeen": "2026-04-08T10:14:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -122881,7 +122881,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T07:27:00Z",
           "lastSeen": "2026-04-11T11:30:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -122897,7 +122897,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T05:15:00Z",
           "lastSeen": "2026-04-12T04:59:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -122929,7 +122929,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T06:05:00Z",
           "lastSeen": "2026-04-10T23:03:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -122977,7 +122977,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T15:14:00Z",
           "lastSeen": "2026-04-11T15:47:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123025,7 +123025,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T08:00:00Z",
           "lastSeen": "2026-04-11T07:23:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123041,7 +123041,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T20:49:00Z",
           "lastSeen": "2026-04-11T10:16:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123153,7 +123153,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-08T12:07:00Z",
           "lastSeen": "2026-04-12T02:55:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123217,7 +123217,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T00:22:00Z",
           "lastSeen": "2026-04-11T22:16:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123281,7 +123281,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T15:05:00Z",
           "lastSeen": "2026-04-08T23:32:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123297,7 +123297,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T09:52:00Z",
           "lastSeen": "2026-04-11T03:00:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123329,7 +123329,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T02:14:00Z",
           "lastSeen": "2026-04-04T14:28:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123345,7 +123345,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T01:56:00Z",
           "lastSeen": "2026-04-11T11:04:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123425,7 +123425,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-03T17:35:00Z",
           "lastSeen": "2026-04-09T12:17:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123441,7 +123441,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T17:46:00Z",
           "lastSeen": "2026-04-07T21:11:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123457,7 +123457,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T08:42:00Z",
           "lastSeen": "2026-04-08T22:52:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123473,7 +123473,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T00:06:00Z",
           "lastSeen": "2026-04-07T04:34:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123489,7 +123489,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T05:17:00Z",
           "lastSeen": "2026-04-11T21:12:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123537,7 +123537,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T20:43:00Z",
           "lastSeen": "2026-04-09T00:13:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123569,7 +123569,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T14:07:00Z",
           "lastSeen": "2026-04-10T22:25:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123601,7 +123601,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T04:10:00Z",
           "lastSeen": "2026-04-11T23:06:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123617,7 +123617,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T19:49:00Z",
           "lastSeen": "2026-04-12T03:52:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123633,7 +123633,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T22:22:00Z",
           "lastSeen": "2026-04-09T00:42:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123665,7 +123665,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T18:15:00Z",
           "lastSeen": "2026-04-10T11:07:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123697,7 +123697,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T10:01:00Z",
           "lastSeen": "2026-04-06T16:38:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123713,7 +123713,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T15:32:00Z",
           "lastSeen": "2026-04-10T00:37:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123745,7 +123745,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T23:41:00Z",
           "lastSeen": "2026-04-08T13:39:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123825,7 +123825,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T04:57:00Z",
           "lastSeen": "2026-04-06T23:23:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -123857,7 +123857,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T00:45:00Z",
           "lastSeen": "2026-04-11T21:50:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123873,7 +123873,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-09T14:00:00Z",
           "lastSeen": "2026-04-10T04:08:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123937,7 +123937,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T02:21:00Z",
           "lastSeen": "2026-04-08T19:41:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123953,7 +123953,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T17:29:00Z",
           "lastSeen": "2026-04-10T23:07:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -123985,7 +123985,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T14:48:00Z",
           "lastSeen": "2026-04-10T20:41:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -124065,7 +124065,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T01:09:00Z",
           "lastSeen": "2026-04-10T11:26:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -124113,7 +124113,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T15:10:00Z",
           "lastSeen": "2026-04-10T18:46:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -124129,7 +124129,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T12:15:00Z",
           "lastSeen": "2026-04-11T18:52:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124161,7 +124161,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T08:48:00Z",
           "lastSeen": "2026-04-05T14:49:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124193,7 +124193,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T20:47:00Z",
           "lastSeen": "2026-04-08T01:49:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124257,7 +124257,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T14:24:00Z",
           "lastSeen": "2026-04-10T02:13:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -124273,7 +124273,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T12:50:00Z",
           "lastSeen": "2026-04-11T21:56:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -124289,7 +124289,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T06:39:00Z",
           "lastSeen": "2026-04-10T04:49:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -124321,7 +124321,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T15:44:00Z",
           "lastSeen": "2026-04-07T03:32:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124337,7 +124337,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T13:36:00Z",
           "lastSeen": "2026-04-05T10:28:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124385,7 +124385,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T22:42:00Z",
           "lastSeen": "2026-04-12T01:06:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124401,7 +124401,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T07:41:00Z",
           "lastSeen": "2026-04-11T13:45:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -124481,7 +124481,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T19:09:00Z",
           "lastSeen": "2026-04-02T02:30:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -124545,7 +124545,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T20:40:00Z",
           "lastSeen": "2026-04-09T12:44:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124641,7 +124641,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T08:24:00Z",
           "lastSeen": "2026-04-08T18:24:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124689,7 +124689,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T11:43:00Z",
           "lastSeen": "2026-04-03T20:50:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124705,7 +124705,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T02:12:00Z",
           "lastSeen": "2026-04-11T09:39:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124737,7 +124737,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-07T05:51:00Z",
           "lastSeen": "2026-04-11T03:39:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124769,7 +124769,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-08T17:14:00Z",
           "lastSeen": "2026-04-10T17:33:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -124913,7 +124913,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T18:11:00Z",
           "lastSeen": "2026-04-09T18:08:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -124929,7 +124929,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T15:24:00Z",
           "lastSeen": "2026-04-06T10:51:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125009,7 +125009,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T09:30:00Z",
           "lastSeen": "2026-04-10T11:08:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -125025,7 +125025,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T20:04:00Z",
           "lastSeen": "2026-04-07T17:24:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -125041,7 +125041,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T18:03:00Z",
           "lastSeen": "2026-04-07T03:14:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125089,7 +125089,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T21:26:00Z",
           "lastSeen": "2026-04-09T04:09:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125169,7 +125169,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T16:07:00Z",
           "lastSeen": "2026-04-09T04:49:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125185,7 +125185,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T16:40:00Z",
           "lastSeen": "2026-04-11T10:50:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125201,7 +125201,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T06:58:00Z",
           "lastSeen": "2026-04-09T12:10:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125265,7 +125265,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T23:39:00Z",
           "lastSeen": "2026-04-05T10:16:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125313,7 +125313,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T13:33:00Z",
           "lastSeen": "2026-04-11T16:26:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -125329,7 +125329,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T21:44:00Z",
           "lastSeen": "2026-04-11T09:55:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -125361,7 +125361,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T04:54:00Z",
           "lastSeen": "2026-04-04T05:40:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125425,7 +125425,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T08:29:00Z",
           "lastSeen": "2026-04-09T14:37:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125505,7 +125505,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T06:11:00Z",
           "lastSeen": "2026-04-10T08:59:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125521,7 +125521,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T20:35:00Z",
           "lastSeen": "2026-04-10T02:38:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125569,7 +125569,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T11:56:00Z",
           "lastSeen": "2026-04-08T20:56:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125665,7 +125665,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-08T17:19:00Z",
           "lastSeen": "2026-04-11T19:49:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125713,7 +125713,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T04:11:00Z",
           "lastSeen": "2026-04-08T11:26:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125729,7 +125729,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "8",
           "firstSeen": "2026-04-04T03:02:00Z",
           "lastSeen": "2026-04-11T22:06:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -125761,7 +125761,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T18:04:00Z",
           "lastSeen": "2026-04-08T21:51:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125809,7 +125809,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T20:23:00Z",
           "lastSeen": "2026-04-12T02:47:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -125905,7 +125905,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T20:51:00Z",
           "lastSeen": "2026-04-02T16:02:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125921,7 +125921,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T04:49:00Z",
           "lastSeen": "2026-04-11T10:10:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -125969,7 +125969,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T17:16:00Z",
           "lastSeen": "2026-04-02T22:42:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126033,7 +126033,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T11:21:00Z",
           "lastSeen": "2026-04-10T14:47:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126065,7 +126065,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T15:01:00Z",
           "lastSeen": "2026-04-09T02:08:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126113,7 +126113,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T08:43:00Z",
           "lastSeen": "2026-04-03T11:47:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -126145,7 +126145,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T14:00:00Z",
           "lastSeen": "2026-04-11T10:43:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126177,7 +126177,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T13:16:00Z",
           "lastSeen": "2026-04-10T18:34:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -126193,7 +126193,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-05T08:24:00Z",
           "lastSeen": "2026-04-12T03:42:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126241,7 +126241,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T13:43:00Z",
           "lastSeen": "2026-04-09T13:42:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126257,7 +126257,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T05:06:00Z",
           "lastSeen": "2026-04-10T21:28:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -126289,7 +126289,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T19:54:00Z",
           "lastSeen": "2026-04-06T20:20:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126369,7 +126369,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T15:44:00Z",
           "lastSeen": "2026-04-09T04:40:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126401,7 +126401,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T23:55:00Z",
           "lastSeen": "2026-04-08T22:05:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -126433,7 +126433,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T02:57:00Z",
           "lastSeen": "2026-04-11T12:56:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126449,7 +126449,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T22:50:00Z",
           "lastSeen": "2026-04-09T18:35:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126481,7 +126481,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T12:58:00Z",
           "lastSeen": "2026-04-06T09:18:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126497,7 +126497,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T05:21:00Z",
           "lastSeen": "2026-04-12T00:13:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126513,7 +126513,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T13:19:00Z",
           "lastSeen": "2026-04-11T21:29:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126545,7 +126545,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T19:53:00Z",
           "lastSeen": "2026-04-12T04:35:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -126609,7 +126609,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T19:19:00Z",
           "lastSeen": "2026-04-03T19:10:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126657,7 +126657,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T05:58:00Z",
           "lastSeen": "2026-04-11T08:51:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126705,7 +126705,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T11:35:00Z",
           "lastSeen": "2026-04-03T11:49:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -126769,7 +126769,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T02:49:00Z",
           "lastSeen": "2026-04-10T16:19:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126785,7 +126785,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-10T12:17:00Z",
           "lastSeen": "2026-04-10T15:10:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126801,7 +126801,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T12:36:00Z",
           "lastSeen": "2026-04-11T19:09:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126817,7 +126817,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T18:26:00Z",
           "lastSeen": "2026-04-09T12:14:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126833,7 +126833,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T05:39:00Z",
           "lastSeen": "2026-04-10T23:01:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -126881,7 +126881,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T22:03:00Z",
           "lastSeen": "2026-04-11T09:52:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126897,7 +126897,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T05:45:00Z",
           "lastSeen": "2026-04-10T04:34:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -126929,7 +126929,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T23:24:00Z",
           "lastSeen": "2026-04-06T23:24:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -126977,7 +126977,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T18:41:00Z",
           "lastSeen": "2026-04-03T10:04:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127009,7 +127009,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T11:55:00Z",
           "lastSeen": "2026-04-11T13:09:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127105,7 +127105,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T10:48:00Z",
           "lastSeen": "2026-04-11T13:36:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -127153,7 +127153,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T01:48:00Z",
           "lastSeen": "2026-04-06T04:42:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127201,7 +127201,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "8",
           "firstSeen": "2026-04-03T10:25:00Z",
           "lastSeen": "2026-04-10T18:39:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -127233,7 +127233,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T09:48:00Z",
           "lastSeen": "2026-04-12T03:17:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -127265,7 +127265,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T18:56:00Z",
           "lastSeen": "2026-04-09T13:31:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -127281,7 +127281,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T02:18:00Z",
           "lastSeen": "2026-04-09T23:44:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127297,7 +127297,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T22:44:00Z",
           "lastSeen": "2026-04-09T21:42:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127377,7 +127377,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T09:19:00Z",
           "lastSeen": "2026-04-04T17:41:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127441,7 +127441,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T23:33:00Z",
           "lastSeen": "2026-04-10T05:25:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127489,7 +127489,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T02:49:00Z",
           "lastSeen": "2026-04-07T15:22:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127505,7 +127505,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T05:45:00Z",
           "lastSeen": "2026-04-07T07:21:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -127537,7 +127537,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T13:10:00Z",
           "lastSeen": "2026-04-11T06:49:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127601,7 +127601,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T01:12:00Z",
           "lastSeen": "2026-04-08T19:30:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -127697,7 +127697,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T21:56:00Z",
           "lastSeen": "2026-04-09T19:08:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127729,7 +127729,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T06:37:00Z",
           "lastSeen": "2026-04-12T02:26:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127793,7 +127793,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T16:33:00Z",
           "lastSeen": "2026-04-10T08:20:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -127809,7 +127809,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T23:03:00Z",
           "lastSeen": "2026-04-11T18:30:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -127857,7 +127857,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T20:58:00Z",
           "lastSeen": "2026-04-06T02:32:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127889,7 +127889,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T15:27:00Z",
           "lastSeen": "2026-04-12T00:02:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127905,7 +127905,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T14:45:00Z",
           "lastSeen": "2026-04-09T12:45:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -127921,7 +127921,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T21:47:00Z",
           "lastSeen": "2026-04-03T12:11:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -127969,7 +127969,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T09:57:00Z",
           "lastSeen": "2026-04-07T13:32:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -128017,7 +128017,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T01:16:00Z",
           "lastSeen": "2026-04-12T04:16:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -128049,7 +128049,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T16:33:00Z",
           "lastSeen": "2026-04-12T01:15:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -128097,7 +128097,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-07T08:29:00Z",
           "lastSeen": "2026-04-11T15:12:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -128113,7 +128113,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-06T18:21:00Z",
           "lastSeen": "2026-04-09T08:42:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -128129,7 +128129,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T13:44:00Z",
           "lastSeen": "2026-04-05T08:24:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -128145,7 +128145,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T18:39:00Z",
           "lastSeen": "2026-04-09T02:01:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -128177,7 +128177,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-05T02:07:00Z",
           "lastSeen": "2026-04-12T01:25:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -128193,7 +128193,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-06T23:47:00Z",
           "lastSeen": "2026-04-11T22:31:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -128273,7 +128273,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T05:43:00Z",
           "lastSeen": "2026-04-10T02:12:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -128337,7 +128337,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T00:17:00Z",
           "lastSeen": "2026-04-08T17:18:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -128417,7 +128417,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T06:24:00Z",
           "lastSeen": "2026-04-11T22:13:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -128497,7 +128497,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T09:28:00Z",
           "lastSeen": "2026-04-07T10:12:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -128561,7 +128561,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T02:32:00Z",
           "lastSeen": "2026-04-07T19:29:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -128609,7 +128609,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T03:26:00Z",
           "lastSeen": "2026-04-08T20:39:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -128641,7 +128641,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T23:34:00Z",
           "lastSeen": "2026-04-07T10:06:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -128689,7 +128689,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T19:07:00Z",
           "lastSeen": "2026-04-12T01:55:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -128785,7 +128785,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T10:16:00Z",
           "lastSeen": "2026-04-05T16:30:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -128801,7 +128801,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T14:43:00Z",
           "lastSeen": "2026-04-05T00:18:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -128833,7 +128833,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T19:38:00Z",
           "lastSeen": "2026-04-09T07:55:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -128865,7 +128865,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T13:43:00Z",
           "lastSeen": "2026-04-09T15:10:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -128977,7 +128977,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T03:41:00Z",
           "lastSeen": "2026-04-12T02:07:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -129025,7 +129025,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T08:13:00Z",
           "lastSeen": "2026-04-04T12:36:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -129041,7 +129041,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-10T12:48:00Z",
           "lastSeen": "2026-04-10T20:26:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129105,7 +129105,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T17:10:00Z",
           "lastSeen": "2026-04-12T01:06:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129169,7 +129169,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-05T11:03:00Z",
           "lastSeen": "2026-04-10T23:12:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129185,7 +129185,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T20:37:00Z",
           "lastSeen": "2026-04-10T22:00:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129201,7 +129201,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T08:48:00Z",
           "lastSeen": "2026-04-11T04:58:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129217,7 +129217,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T16:14:00Z",
           "lastSeen": "2026-04-08T09:26:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129297,7 +129297,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T01:49:00Z",
           "lastSeen": "2026-04-07T19:16:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129409,7 +129409,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T03:21:00Z",
           "lastSeen": "2026-04-10T10:59:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -129489,7 +129489,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T19:31:00Z",
           "lastSeen": "2026-04-04T10:47:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129601,7 +129601,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T10:18:00Z",
           "lastSeen": "2026-04-11T10:17:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -129633,7 +129633,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T10:15:00Z",
           "lastSeen": "2026-04-10T08:43:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129649,7 +129649,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-10T15:46:00Z",
           "lastSeen": "2026-04-11T19:33:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -129681,7 +129681,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T10:19:00Z",
           "lastSeen": "2026-04-05T11:57:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129697,7 +129697,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-06T21:16:00Z",
           "lastSeen": "2026-04-08T07:23:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129761,7 +129761,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T16:49:00Z",
           "lastSeen": "2026-04-10T09:56:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -129777,7 +129777,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T15:49:00Z",
           "lastSeen": "2026-04-11T19:39:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -129857,7 +129857,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T14:27:00Z",
           "lastSeen": "2026-04-10T09:45:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -129921,7 +129921,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T09:05:00Z",
           "lastSeen": "2026-04-06T17:16:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130049,7 +130049,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T00:10:00Z",
           "lastSeen": "2026-04-12T02:41:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130081,7 +130081,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T12:42:00Z",
           "lastSeen": "2026-04-11T20:40:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130113,7 +130113,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T10:50:00Z",
           "lastSeen": "2026-04-11T09:15:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130177,7 +130177,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T08:08:00Z",
           "lastSeen": "2026-04-10T09:27:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130209,7 +130209,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T19:23:00Z",
           "lastSeen": "2026-04-08T12:13:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130321,7 +130321,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T16:43:00Z",
           "lastSeen": "2026-04-10T08:20:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -130353,7 +130353,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T16:31:00Z",
           "lastSeen": "2026-04-06T13:20:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130369,7 +130369,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-07T08:43:00Z",
           "lastSeen": "2026-04-10T02:16:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130417,7 +130417,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T03:32:00Z",
           "lastSeen": "2026-04-08T02:44:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130497,7 +130497,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-03T20:51:00Z",
           "lastSeen": "2026-04-11T17:32:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130577,7 +130577,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T20:50:00Z",
           "lastSeen": "2026-04-08T01:20:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130641,7 +130641,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T18:36:00Z",
           "lastSeen": "2026-04-08T01:38:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130673,7 +130673,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T23:40:00Z",
           "lastSeen": "2026-04-08T08:12:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130801,7 +130801,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T10:50:00Z",
           "lastSeen": "2026-04-10T12:11:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -130817,7 +130817,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T18:16:00Z",
           "lastSeen": "2026-04-11T17:58:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -130865,7 +130865,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T21:28:00Z",
           "lastSeen": "2026-04-10T16:16:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -130929,7 +130929,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-03T06:59:00Z",
           "lastSeen": "2026-04-10T21:00:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131009,7 +131009,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T10:02:00Z",
           "lastSeen": "2026-04-11T05:02:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -131073,7 +131073,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T20:21:00Z",
           "lastSeen": "2026-04-05T12:39:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131089,7 +131089,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T08:15:00Z",
           "lastSeen": "2026-04-09T11:38:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131121,7 +131121,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T07:30:00Z",
           "lastSeen": "2026-04-08T14:26:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131153,7 +131153,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-06T00:13:00Z",
           "lastSeen": "2026-04-10T13:15:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -131185,7 +131185,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T20:09:00Z",
           "lastSeen": "2026-04-10T15:13:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131201,7 +131201,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-02T18:32:00Z",
           "lastSeen": "2026-04-11T04:41:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -131217,7 +131217,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T18:53:00Z",
           "lastSeen": "2026-04-07T14:48:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -131249,7 +131249,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T08:44:00Z",
           "lastSeen": "2026-04-10T15:32:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131313,7 +131313,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T14:11:00Z",
           "lastSeen": "2026-04-11T16:03:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -131377,7 +131377,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T08:06:00Z",
           "lastSeen": "2026-04-08T21:59:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131425,7 +131425,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T01:12:00Z",
           "lastSeen": "2026-04-07T00:14:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131505,7 +131505,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-05T10:45:00Z",
           "lastSeen": "2026-04-11T11:35:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131537,7 +131537,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T10:20:00Z",
           "lastSeen": "2026-04-11T14:31:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131601,7 +131601,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T09:36:00Z",
           "lastSeen": "2026-04-10T03:49:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131617,7 +131617,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T06:23:00Z",
           "lastSeen": "2026-04-12T03:59:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131633,7 +131633,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T04:08:00Z",
           "lastSeen": "2026-04-12T03:59:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131649,7 +131649,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T03:36:00Z",
           "lastSeen": "2026-04-10T22:13:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131665,7 +131665,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T22:40:00Z",
           "lastSeen": "2026-04-11T01:38:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -131681,7 +131681,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T12:40:00Z",
           "lastSeen": "2026-04-04T05:47:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131697,7 +131697,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T16:25:00Z",
           "lastSeen": "2026-04-06T00:21:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -131761,7 +131761,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T04:05:00Z",
           "lastSeen": "2026-04-11T06:29:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131777,7 +131777,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T21:33:00Z",
           "lastSeen": "2026-04-10T23:57:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131793,7 +131793,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T09:31:00Z",
           "lastSeen": "2026-04-11T16:02:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131809,7 +131809,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T08:57:00Z",
           "lastSeen": "2026-04-11T23:27:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131889,7 +131889,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T22:39:00Z",
           "lastSeen": "2026-04-10T16:14:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -131921,7 +131921,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T20:01:00Z",
           "lastSeen": "2026-04-11T16:40:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -131937,7 +131937,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T21:04:00Z",
           "lastSeen": "2026-04-08T07:27:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132001,7 +132001,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T17:07:00Z",
           "lastSeen": "2026-04-08T00:27:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -132081,7 +132081,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T13:23:00Z",
           "lastSeen": "2026-04-08T22:28:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132129,7 +132129,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T10:08:00Z",
           "lastSeen": "2026-04-11T18:53:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132145,7 +132145,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T21:14:00Z",
           "lastSeen": "2026-04-08T20:48:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132193,7 +132193,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-10T00:44:00Z",
           "lastSeen": "2026-04-10T03:37:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132257,7 +132257,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T09:11:00Z",
           "lastSeen": "2026-04-02T15:32:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132273,7 +132273,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T08:13:00Z",
           "lastSeen": "2026-04-10T06:28:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -132305,7 +132305,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-02T14:13:00Z",
           "lastSeen": "2026-04-10T13:52:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132369,7 +132369,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T03:41:00Z",
           "lastSeen": "2026-04-11T20:59:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -132401,7 +132401,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T16:56:00Z",
           "lastSeen": "2026-04-06T19:08:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -132417,7 +132417,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T22:58:00Z",
           "lastSeen": "2026-04-05T19:18:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132465,7 +132465,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T15:55:00Z",
           "lastSeen": "2026-04-09T02:12:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -132513,7 +132513,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T12:01:00Z",
           "lastSeen": "2026-04-11T06:48:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132529,7 +132529,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T15:54:00Z",
           "lastSeen": "2026-04-08T12:47:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -132545,7 +132545,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T18:21:00Z",
           "lastSeen": "2026-04-08T12:50:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -132561,7 +132561,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "9",
           "firstSeen": "2026-04-02T12:32:00Z",
           "lastSeen": "2026-04-11T09:17:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -132625,7 +132625,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T22:01:00Z",
           "lastSeen": "2026-04-09T05:15:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132673,7 +132673,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-02T17:45:00Z",
           "lastSeen": "2026-04-10T08:45:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132689,7 +132689,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T00:29:00Z",
           "lastSeen": "2026-04-12T04:31:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132705,7 +132705,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-01T17:43:00Z",
           "lastSeen": "2026-04-04T08:37:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132849,7 +132849,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-05T21:33:00Z",
           "lastSeen": "2026-04-11T13:13:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132945,7 +132945,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T22:10:00Z",
           "lastSeen": "2026-04-04T16:09:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -132961,7 +132961,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T21:05:00Z",
           "lastSeen": "2026-04-07T08:56:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -132977,7 +132977,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T03:29:00Z",
           "lastSeen": "2026-04-08T14:13:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -133009,7 +133009,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-07T12:07:00Z",
           "lastSeen": "2026-04-10T04:56:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -133057,7 +133057,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T17:25:00Z",
           "lastSeen": "2026-04-10T16:10:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -133153,7 +133153,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T06:58:00Z",
           "lastSeen": "2026-04-09T22:12:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -133281,7 +133281,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T03:03:00Z",
           "lastSeen": "2026-04-08T11:35:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -133297,7 +133297,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-03T14:10:00Z",
           "lastSeen": "2026-04-04T11:07:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -133377,7 +133377,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-08T21:47:00Z",
           "lastSeen": "2026-04-11T02:41:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -133425,7 +133425,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T16:53:00Z",
           "lastSeen": "2026-04-09T22:58:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -133489,7 +133489,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-02T21:39:00Z",
           "lastSeen": "2026-04-11T10:37:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -133601,7 +133601,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-06T20:10:00Z",
           "lastSeen": "2026-04-11T10:04:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -133633,7 +133633,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T23:44:00Z",
           "lastSeen": "2026-04-09T22:32:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -133649,7 +133649,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-04T08:07:00Z",
           "lastSeen": "2026-04-08T22:25:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -133697,7 +133697,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T16:47:00Z",
           "lastSeen": "2026-04-10T03:29:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -133729,7 +133729,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T11:00:00Z",
           "lastSeen": "2026-04-09T02:01:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -133761,7 +133761,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T00:25:00Z",
           "lastSeen": "2026-04-11T21:15:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -133857,7 +133857,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-02T10:15:00Z",
           "lastSeen": "2026-04-04T19:36:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -133873,7 +133873,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "7",
           "firstSeen": "2026-04-03T09:44:00Z",
           "lastSeen": "2026-04-11T21:16:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -133905,7 +133905,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-08T03:44:00Z",
           "lastSeen": "2026-04-11T14:04:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -133953,7 +133953,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-04T08:58:00Z",
           "lastSeen": "2026-04-11T12:41:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134017,7 +134017,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T08:12:00Z",
           "lastSeen": "2026-04-12T04:25:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -134033,7 +134033,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-07T07:44:00Z",
           "lastSeen": "2026-04-07T09:07:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134065,7 +134065,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-04T20:30:00Z",
           "lastSeen": "2026-04-08T09:57:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -134081,7 +134081,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-01T20:27:00Z",
           "lastSeen": "2026-04-07T06:01:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -134097,7 +134097,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-06T07:06:00Z",
           "lastSeen": "2026-04-09T12:51:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -134113,7 +134113,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T03:40:00Z",
           "lastSeen": "2026-04-11T19:04:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134129,7 +134129,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-02T09:36:00Z",
           "lastSeen": "2026-04-11T17:46:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -134145,7 +134145,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-03T01:33:00Z",
           "lastSeen": "2026-04-07T01:43:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134209,7 +134209,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T16:29:00Z",
           "lastSeen": "2026-04-11T11:21:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134257,7 +134257,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T18:22:00Z",
           "lastSeen": "2026-04-10T19:29:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134417,7 +134417,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-01T21:14:00Z",
           "lastSeen": "2026-04-11T04:26:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134433,7 +134433,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T03:25:00Z",
           "lastSeen": "2026-04-09T09:33:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -134449,7 +134449,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T12:53:00Z",
           "lastSeen": "2026-04-10T01:21:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134497,7 +134497,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-01T20:41:00Z",
           "lastSeen": "2026-04-10T15:54:00Z",
-          "source": "carrier-feed"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -134545,7 +134545,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-04T01:41:00Z",
           "lastSeen": "2026-04-10T11:34:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134625,7 +134625,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "4",
           "firstSeen": "2026-04-03T18:37:00Z",
           "lastSeen": "2026-04-10T20:37:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134641,7 +134641,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "6",
           "firstSeen": "2026-04-01T10:04:00Z",
           "lastSeen": "2026-04-11T01:48:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -134769,7 +134769,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "2",
           "firstSeen": "2026-04-10T04:59:00Z",
           "lastSeen": "2026-04-11T13:41:00Z",
-          "source": "handset-triangulation"
+          "source": "app-sdk"
         },
         "markings": [
           "TELECOM"
@@ -134785,7 +134785,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "5",
           "firstSeen": "2026-04-05T08:37:00Z",
           "lastSeen": "2026-04-10T14:38:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134801,7 +134801,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T10:51:00Z",
           "lastSeen": "2026-04-09T02:53:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"
@@ -134833,7 +134833,7 @@ window.ontologySeedCatalog = {
           "sightingCount": "3",
           "firstSeen": "2026-04-05T17:15:00Z",
           "lastSeen": "2026-04-09T05:52:00Z",
-          "source": "handset-triangulation"
+          "source": "carrier-feed"
         },
         "markings": [
           "TELECOM"

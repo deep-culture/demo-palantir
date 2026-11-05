@@ -411,7 +411,7 @@ def run(
                     "TRANSFERRED_TO", src_eid, dst_eid,
                     properties={
                         "count": "1",
-                        "totalAmountUsd": str(row.get("amount_usd", "") or ""),
+                        "totalAmountUsd": f"{float(row['amount_usd']):.2f}" if row.get("amount_usd") not in (None, "") else "",
                         "lastTxnTs": row.get("txn_ts", ""),
                         "sampleReference": row.get("reference", ""),
                     },

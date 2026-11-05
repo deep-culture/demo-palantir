@@ -37,7 +37,7 @@ pipeline/0X_*.py                         -> executable, student-readable transfo
 scripts/build_foundry_seed.py            -> orchestrates the pipeline, embeds source code, writes seed.js
 foundry-demo/index.html                  -> static shell
 foundry-demo/seed.js                     -> bundled pipeline + lineage + entity payload
-foundry-demo/app.js                      -> application logic (no framework)
+foundry-demo/app.js, js/app-*.js        -> application logic (no framework; split by tab)
 foundry-demo/styles.css                  -> dark IDE-style presentation (Deep Culture black/green)
 ```
 
@@ -87,7 +87,7 @@ The six transforms are executable Python modules. Filenames begin with a digit (
 ### 4.4 Demo UI
 
 - `foundry-demo/index.html` — static entry point; loads the shared core, then `seed.js`, then `app.js` (§9.1). Does not load Leaflet.
-- `foundry-demo/app.js` — state, render, event delegation, the Markings and Resolution tabs, purpose checks and discussion cards. No framework. About 2,200 lines, one IIFE (no modules: the app shares many small helpers between tabs).
+- `foundry-demo/app.js` and `foundry-demo/js/app-*.js` — the Build app, split by tab (review F-24): `app-state.js` (helpers, UI state, derived helpers), `app-governance.js`, `app-shell.js` (render root, header, tabs, sidebar), `app-pipelines.js`, `app-datasets.js` (with the retention clock), `app-leads.js`, `app-lineage.js`, `app-markings.js`, `app-purposes.js`, `app-resolution.js`, and `app.js` (shared strips, event delegation, `init()`). No framework, no modules: they are classic scripts loaded in that order and share one global script scope, so a top-level function, `const` or `let` in one file is visible in the others. Only `app-state.js` (UI state) and `app.js` (`init()`) run code at load.
 - `foundry-demo/styles.css` — dark IDE-style presentation in the Deep Culture palette. Shared fonts and colours come from `brand/deep-culture.css`.
 
 ## 5. Pipeline DAG

@@ -2,7 +2,7 @@ window.foundrySeedCatalog = {
   "starter": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:68d8ab04a5614b13e1dc22fff61ca664ec68bdc5810761f01a4d1ce82d2a238e",
+      "buildId": "sha256:168d5aedd9ef77f83d0e71b97ed7f418e75c66b448dcb467ac02643e7c598e7c",
       "sources": {
         "bank_transactions.csv": "sha256:0a88981afca6d5f129af59d9eddd670b4fd4786b8d2cca104bbf905f06e94687",
         "clinic_registrations.csv": "sha256:68a6e5270a055ceb0bf89c3b136a110405c95408ba7e9943137a72548b57588d",
@@ -12,10 +12,10 @@ window.foundrySeedCatalog = {
         "mobile_location_pings.jsonl": "sha256:cac9ef6d62b0f0edaff019fc012eeabc151ecb3a7622ea27b4adf36475b36be8",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_foundry_seed.py@12fb2ec",
+      "builder": "build_foundry_seed.py@dirty",
       "title": "Foundry Studio Demo",
       "dataset": "starter",
-      "generatedAt": "2026-11-04T20:40:29.321568Z"
+      "generatedAt": "2026-11-05T10:59:55.988623Z"
     },
     "governance": {
       "markings": [
@@ -1167,7 +1167,7 @@ window.foundrySeedCatalog = {
       ]
     },
     "pipeline": {
-      "generatedAt": "2026-11-04T20:40:29.321568Z",
+      "generatedAt": "2026-11-05T10:59:55.988623Z",
       "transforms": [
         {
           "id": "normalize_sources",
@@ -1186,7 +1186,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/01_normalize_sources.py — Read and normalize all six raw source files.\n\nFor each source:\n- Strip whitespace from all string fields\n- Parse date/datetime strings to ISO format (leave as-is if already ISO)\n- Split pipe-delimited alias fields into Python lists\n- Tag each row with its original 0-based row index as ``_source_row``\n- Copy the dataset's markings, purpose, legal basis and retention from\n  ``manifest.json`` (Dataset.markings / Dataset.purpose / ...), with\n  ``markingProvenance`` pointing at the raw file\n\nReturns six Dataset objects (one per source file).  The clinic file is\noptional: a profile without it yields an empty ``norm_clinic_registrations``.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport csv\nimport json\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\n# Allow imports from the repo root when run directly\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _strip(value: Any) -> Any:\n    if isinstance(value, str):\n        return value.strip()\n    return value\n\n\ndef _clean_row(row: Dict[str, Any]) -> Dict[str, Any]:\n    return {k: _strip(v) for k, v in row.items()}\n\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\n\n\ndef source_label(path: Path) -> str:\n    \"\"\"Repo-relative POSIX path of a raw source file (absolute if outside the repo).\"\"\"\n    resolved = Path(path).resolve()\n    try:\n        return resolved.relative_to(REPO_ROOT).as_posix()\n    except ValueError:\n        return resolved.as_posix()\n\n\ndef read_csv_raw(path: Path) -> List[Dict[str, str]]:\n    with path.open(newline=\"\", encoding=\"utf-8\") as fh:\n        return list(csv.DictReader(fh))\n\n\ndef read_jsonl_raw(path: Path) -> List[Dict[str, Any]]:\n    with path.open(encoding=\"utf-8\") as fh:\n        return [json.loads(line) for line in fh if line.strip()]\n\n\n# ---------------------------------------------------------------------------\n# Per-source normalizers\n# ---------------------------------------------------------------------------\n\ndef normalize_watchlist(path: Path) -> Dataset:\n    \"\"\"watchlist.csv → cleaned rows with aliases as list.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        # Split pipe-delimited aliases\n        raw_alias = row.get(\"alias\", \"\")\n        alias_list = [a.strip() for a in raw_alias.split(\"|\") if a.strip()] if raw_alias else []\n        out.append({\n            \"_source_row\": i,\n            \"watchlist_id\": row.get(\"watchlist_id\", \"\"),\n            \"canonical_name\": row.get(\"canonical_name\", \"\"),\n            \"aliases\": alias_list,\n            \"dob\": row.get(\"dob\", \"\"),\n            \"nationality\": row.get(\"nationality\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"risk_tag\": row.get(\"risk_tag\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"watchlist_id\", \"type\": \"string\"},\n        {\"field\": \"canonical_name\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"json\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"risk_tag\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_watchlist\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_company_registry(path: Path) -> Dataset:\n    \"\"\"company_registry.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"company_id\": row.get(\"company_id\", \"\"),\n            \"company_name\": row.get(\"company_name\", \"\"),\n            \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n            \"incorporation_date\": row.get(\"incorporation_date\", \"\"),\n            \"registered_address\": row.get(\"registered_address\", \"\"),\n            \"director_name\": row.get(\"director_name\", \"\"),\n            \"director_dob\": row.get(\"director_dob\", \"\"),\n            \"beneficial_owner\": row.get(\"beneficial_owner\", \"\"),\n            \"beneficial_owner_dob\": row.get(\"beneficial_owner_dob\", \"\"),\n            \"registered_city\": row.get(\"registered_city\", \"\"),\n            \"registered_country\": row.get(\"registered_country\", \"\"),\n            \"registered_site_type\": row.get(\"registered_site_type\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"company_id\", \"type\": \"string\"},\n        {\"field\": \"company_name\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporation_date\", \"type\": \"date\"},\n        {\"field\": \"registered_address\", \"type\": \"string\"},\n        {\"field\": \"director_name\", \"type\": \"string\"},\n        {\"field\": \"director_dob\", \"type\": \"date\"},\n        {\"field\": \"beneficial_owner\", \"type\": \"string\"},\n        {\"field\": \"beneficial_owner_dob\", \"type\": \"date\"},\n        {\"field\": \"registered_city\", \"type\": \"string\"},\n        {\"field\": \"registered_country\", \"type\": \"string\"},\n        {\"field\": \"registered_site_type\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_company_registry\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_flight_manifests(path: Path) -> Dataset:\n    \"\"\"flight_manifests.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"manifest_id\": row.get(\"manifest_id\", \"\"),\n            \"flight_number\": row.get(\"flight_number\", \"\"),\n            \"departure_airport\": row.get(\"departure_airport\", \"\"),\n            \"arrival_airport\": row.get(\"arrival_airport\", \"\"),\n            \"departure_ts\": row.get(\"departure_ts\", \"\"),\n            \"booking_reference\": row.get(\"booking_reference\", \"\"),\n            \"passenger_name\": row.get(\"passenger_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"phone_number\": row.get(\"phone_number\", \"\"),\n            \"seat\": row.get(\"seat\", \"\"),\n            \"payment_card_last4\": row.get(\"payment_card_last4\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"manifest_id\", \"type\": \"string\"},\n        {\"field\": \"flight_number\", \"type\": \"string\"},\n        {\"field\": \"departure_airport\", \"type\": \"string\"},\n        {\"field\": \"arrival_airport\", \"type\": \"string\"},\n        {\"field\": \"departure_ts\", \"type\": \"date\"},\n        {\"field\": \"booking_reference\", \"type\": \"string\"},\n        {\"field\": \"passenger_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"seat\", \"type\": \"string\"},\n        {\"field\": \"payment_card_last4\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_flight_manifests\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_bank_transactions(path: Path) -> Dataset:\n    \"\"\"bank_transactions.csv → cleaned rows with numeric amount.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        amount_raw = row.get(\"amount_usd\", \"\")\n        try:\n            amount = float(amount_raw) if amount_raw else None\n        except ValueError:\n            amount = None\n        out.append({\n            \"_source_row\": i,\n            \"transaction_id\": row.get(\"transaction_id\", \"\"),\n            \"source_account_id\": row.get(\"source_account_id\", \"\"),\n            \"source_name\": row.get(\"source_name\", \"\"),\n            \"destination_account_id\": row.get(\"destination_account_id\", \"\"),\n            \"destination_name\": row.get(\"destination_name\", \"\"),\n            \"amount_usd\": amount,\n            \"txn_type\": row.get(\"txn_type\", \"\"),\n            \"merchant_or_bank\": row.get(\"merchant_or_bank\", \"\"),\n            \"txn_ts\": row.get(\"txn_ts\", \"\"),\n            \"reference\": row.get(\"reference\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"transaction_id\", \"type\": \"string\"},\n        {\"field\": \"source_account_id\", \"type\": \"string\"},\n        {\"field\": \"source_name\", \"type\": \"string\"},\n        {\"field\": \"destination_account_id\", \"type\": \"string\"},\n        {\"field\": \"destination_name\", \"type\": \"string\"},\n        {\"field\": \"amount_usd\", \"type\": \"float\"},\n        {\"field\": \"txn_type\", \"type\": \"string\"},\n        {\"field\": \"merchant_or_bank\", \"type\": \"string\"},\n        {\"field\": \"txn_ts\", \"type\": \"date\"},\n        {\"field\": \"reference\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_bank_transactions\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_mobile_pings(path: Path) -> Dataset:\n    \"\"\"mobile_location_pings.jsonl → cleaned rows with numeric lat/lon.\"\"\"\n    rows = read_jsonl_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        out.append({\n            \"_source_row\": i,\n            \"ping_id\": str(row.get(\"ping_id\", \"\")),\n            \"device_id\": str(row.get(\"device_id\", \"\")),\n            \"phone_number\": str(row.get(\"phone_number\", \"\")),\n            \"observed_name\": str(row.get(\"observed_name\", \"\")),\n            \"timestamp\": str(row.get(\"timestamp\", \"\")),\n            \"location_label\": str(row.get(\"location_label\", \"\")),\n            \"location_type\": str(row.get(\"location_type\", \"\")),\n            \"city\": str(row.get(\"city\", \"\")),\n            \"country\": str(row.get(\"country\", \"\")),\n            \"lat\": row.get(\"lat\"),\n            \"lon\": row.get(\"lon\"),\n            \"cell_tower\": str(row.get(\"cell_tower\", \"\")),\n            \"source\": str(row.get(\"source\", \"\")),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"ping_id\", \"type\": \"string\"},\n        {\"field\": \"device_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"observed_name\", \"type\": \"string\"},\n        {\"field\": \"timestamp\", \"type\": \"date\"},\n        {\"field\": \"location_label\", \"type\": \"string\"},\n        {\"field\": \"location_type\", \"type\": \"string\"},\n        {\"field\": \"city\", \"type\": \"string\"},\n        {\"field\": \"country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"cell_tower\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_mobile_pings\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef _float_or_none(value: Any) -> Any:\n    try:\n        return float(value) if value not in (None, \"\") else None\n    except ValueError:\n        return None\n\n\ndef normalize_clinic(path: Path) -> Dataset:\n    \"\"\"clinic_registrations.csv → cleaned rows with numeric lat/lon.\n\n    Health data: rows are only ever *attached* to people who already exist\n    (by name + dob, in step 02); an unmatched row stays in this dataset.\n    \"\"\"\n    rows = read_csv_raw(path) if path.exists() else []\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"registration_id\": row.get(\"registration_id\", \"\"),\n            \"patient_name\": row.get(\"patient_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"home_address\": row.get(\"home_address\", \"\"),\n            \"home_city\": row.get(\"home_city\", \"\"),\n            \"home_country\": row.get(\"home_country\", \"\"),\n            \"lat\": _float_or_none(row.get(\"lat\")),\n            \"lon\": _float_or_none(row.get(\"lon\")),\n            \"clinic_code\": row.get(\"clinic_code\", \"\"),\n            \"registered_on\": row.get(\"registered_on\", \"\"),\n            \"source\": row.get(\"source\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"registration_id\", \"type\": \"string\"},\n        {\"field\": \"patient_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"home_address\", \"type\": \"string\"},\n        {\"field\": \"home_city\", \"type\": \"string\"},\n        {\"field\": \"home_country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"clinic_code\", \"type\": \"string\"},\n        {\"field\": \"registered_on\", \"type\": \"date\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_clinic_registrations\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef apply_manifest(ds: Dataset, manifest: Dict[str, Dict[str, Any]], file_name: str) -> Dataset:\n    \"\"\"Copy markings, purpose, legal basis and retention from the manifest.\"\"\"\n    entry = governance.manifest_entry_for_file(manifest, file_name)\n    ds.set_governance(governance.raw_governance(file_name, entry))\n    ds.as_of = entry.get(\"asOf\", \"\")  # type: ignore[attr-defined]\n    ds.derived_from = [file_name]\n    return ds\n\n\n# ---------------------------------------------------------------------------\n# Public entry point\n# ---------------------------------------------------------------------------\n\nRAW_FILES = (\n    \"watchlist.csv\", \"company_registry.csv\", \"flight_manifests.csv\",\n    \"bank_transactions.csv\", \"mobile_location_pings.jsonl\", \"clinic_registrations.csv\",\n)\n\n\ndef run(dataset_dir: Path) -> Tuple[Dataset, Dataset, Dataset, Dataset, Dataset, Dataset]:\n    \"\"\"Normalize all six sources under *dataset_dir*.\n\n    Returns\n    -------\n    (norm_watchlist, norm_company_registry, norm_flight_manifests,\n     norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations)\n    \"\"\"\n    dataset_dir = Path(dataset_dir)\n    manifest = governance.load_manifest(dataset_dir)\n    wl = normalize_watchlist(dataset_dir / \"watchlist.csv\")\n    cr = normalize_company_registry(dataset_dir / \"company_registry.csv\")\n    fm = normalize_flight_manifests(dataset_dir / \"flight_manifests.csv\")\n    bt = normalize_bank_transactions(dataset_dir / \"bank_transactions.csv\")\n    mp = normalize_mobile_pings(dataset_dir / \"mobile_location_pings.jsonl\")\n    cl = normalize_clinic(dataset_dir / \"clinic_registrations.csv\")\n\n    datasets = (wl, cr, fm, bt, mp, cl)\n    for ds, file_name in zip(datasets, RAW_FILES):\n        apply_manifest(ds, manifest, file_name)\n    return datasets\n\n\nif __name__ == \"__main__\":\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    datasets = run(dataset_dir)\n    for ds in datasets:\n        print(f\"{ds.name}: {len(ds)} rows\")\n",
           "rowsIn": 0,
           "rowsOut": 175,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         },
         {
           "id": "resolve_persons",
@@ -1201,10 +1201,10 @@ window.foundrySeedCatalog = {
           ],
           "output": "resolved_persons",
           "codePath": "pipeline/02_resolve_persons.py",
-          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (PII + HEALTH)\n  clinicCode       — latest clinic registration (PII + HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
+          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (PII + HEALTH)\n  clinicCode       — latest clinic registration (PII + HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        # (name, field ref) for names seen in the register and manifests; cited for aliases only if kept.\n        self.written_names: List[Tuple[str, Tuple[str, int, str, str]]] = []\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            self.aliases.add(row[\"canonical_name\"])\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.aliases.add(row[name_field])\n            self.written_names.append((row[name_field], (ds_name, ri, name_field, \"name as written\")))\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.aliases.add(row[\"passenger_name\"])\n            self.written_names.append((row[\"passenger_name\"], (ds_name, ri, \"passenger_name\", \"name as written\")))\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            # A booking's phone number beats one only seen in pings (same rule as build_ontology_seed.py, F-08).\n            self.phone_number = row[\"phone_number\"]\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            if not self.phone_number:\n                self.phone_number = row[\"phone_number\"]\n            if row[\"phone_number\"] == self.phone_number:\n                self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        for name, ref in self.written_names:\n            if name in clean_aliases and ref not in self.field_refs.get(\"aliases\", []):\n                self.field_refs.setdefault(\"aliases\", []).append(ref)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
           "rowsIn": 141,
           "rowsOut": 24,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         },
         {
           "id": "resolve_companies",
@@ -1218,7 +1218,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/03_resolve_companies.py — Entity resolution for Company entities.\n\nKeyed by company_id from the normalized company_registry dataset.\n\nOutput Dataset: company entities\n  id                 — company::{slug(company_id)}\n  companyName\n  jurisdiction\n  incorporationDate\n  registeredAddress\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef run(norm_company_registry: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve Company entities from the normalized company_registry dataset.\"\"\"\n    seen: Dict[str, int] = {}   # company_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for row in norm_company_registry.rows:\n        company_id = row.get(\"company_id\", \"\")\n        if not company_id:\n            continue\n\n        src_row = int(row[\"_source_row\"])\n        ds_name = norm_company_registry.name\n\n        if company_id in seen:\n            # Merge into existing — update any empty fields\n            out_idx = seen[company_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                val = row.get(src_field, \"\")\n                if val and not existing.get(out_field):\n                    existing[out_field] = val\n                    fp.setdefault(out_field, []).append(\n                        {\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"merge\"}\n                    )\n        else:\n            out_idx = len(output_rows)\n            seen[company_id] = out_idx\n            entity_id = f\"company::{slug(company_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"Company\",\n                \"companyName\": row.get(\"company_name\", \"\"),\n                \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n                \"incorporationDate\": row.get(\"incorporation_date\", \"\"),\n                \"registeredAddress\": row.get(\"registered_address\", \"\"),\n            }\n            fp: Dict[str, List[Dict[str, Any]]] = {}\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                if row.get(src_field):\n                    fp[out_field] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"\"}]\n            fp[\"id\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": \"company_id\", \"note\": \"key\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp)\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"companyName\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporationDate\", \"type\": \"date\"},\n        {\"field\": \"registeredAddress\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_companies\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_company_registry])\n    lineage = LineageRecord()\n\n    for out_idx, (out_row, fp) in enumerate(zip(output_rows, fp_per_row)):\n        # Row-level: find the original source row index\n        src_refs = fp.get(\"id\", fp.get(\"companyName\", []))\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"company\")\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, cr, _, _, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(cr)\n    print(f\"Resolved {len(ds)} companies\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"companyName\"])\n",
           "rowsIn": 10,
           "rowsOut": 10,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         },
         {
           "id": "resolve_accounts",
@@ -1232,7 +1232,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/04_resolve_accounts.py — Entity resolution for BankAccount entities.\n\nKeyed by account_id from the normalized bank_transactions dataset.\nBoth source and destination accounts are extracted.\n\nOutput Dataset: bank account entities\n  id           — bankaccount::{slug(account_id)}\n  accountId\n  ownerName\n  accountKind  — \"personal\" | \"corporate\" | \"\" (resolved downstream in step 05)\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\ndef run(norm_bank_transactions: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve BankAccount entities from the normalized bank_transactions dataset.\"\"\"\n    seen: Dict[str, int] = {}   # account_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n    ds_name = norm_bank_transactions.name\n\n    def upsert(account_id: str, owner_name: str, src_row: int, id_field: str, name_field: str) -> None:\n        if not account_id:\n            return\n        if account_id in seen:\n            out_idx = seen[account_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            if owner_name and not existing.get(\"ownerName\"):\n                existing[\"ownerName\"] = owner_name\n                fp.setdefault(\"ownerName\", []).append(\n                    {\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"merge\"}\n                )\n        else:\n            out_idx = len(output_rows)\n            seen[account_id] = out_idx\n            entity_id = f\"bankaccount::{slug(account_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"BankAccount\",\n                \"accountId\": account_id,\n                \"ownerName\": owner_name,\n                \"accountKind\": \"\",\n            }\n            fp_entry: Dict[str, List[Dict[str, Any]]] = {\n                \"id\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"key\"}],\n                \"accountId\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"\"}],\n            }\n            if owner_name:\n                fp_entry[\"ownerName\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp_entry)\n\n    for row in norm_bank_transactions.rows:\n        src_row = int(row[\"_source_row\"])\n        upsert(\n            row.get(\"source_account_id\", \"\"),\n            row.get(\"source_name\", \"\"),\n            src_row,\n            \"source_account_id\",\n            \"source_name\",\n        )\n        upsert(\n            row.get(\"destination_account_id\", \"\"),\n            row.get(\"destination_name\", \"\"),\n            src_row,\n            \"destination_account_id\",\n            \"destination_name\",\n        )\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"accountId\", \"type\": \"string\"},\n        {\"field\": \"ownerName\", \"type\": \"string\"},\n        {\"field\": \"accountKind\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_accounts\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_bank_transactions])\n    lineage = LineageRecord()\n\n    for out_idx, fp in enumerate(fp_per_row):\n        src_refs = fp.get(\"id\", [])\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"account\")\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, _, _, bt, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(bt)\n    print(f\"Resolved {len(ds)} bank accounts\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"ownerName\"])\n",
           "rowsIn": 34,
           "rowsOut": 25,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         },
         {
           "id": "build_ontology",
@@ -1251,10 +1251,10 @@ window.foundrySeedCatalog = {
           ],
           "output": "ontology",
           "codePath": "pipeline/05_build_ontology.py",
-          "code": "\"\"\"\npipeline/05_build_ontology.py — Build the full ontology entity and edge sets.\n\nTakes all resolved entity datasets + normalized sources.  Produces:\n  - Additional entity types: Device, Flight, Airport, Location, WatchlistRecord\n  - All edges:\n      LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT,\n      OWNS_ACCOUNT, HAS_CORP_ACCOUNT, TRANSFERRED_TO,\n      BOOKED_ON, DEPARTED_FROM, ARRIVED_AT,\n      USES_DEVICE, OBSERVED_AT,\n      RESIDES_AT (Phase 1: Person → residential Location, from clinic rows)\n\nClinic rows that the shared resolver attached to a Person (name + dob) become\na residential ``Location`` (``locationType: \"residential\"``) and a\n``RESIDES_AT`` link with ``{asOf, source}``.  Unattached rows produce nothing.\n\nBoth output datasets inherit the union of their inputs' markings, and every\nentity and edge gets contract §3 markings from ``pipeline/governance.py``.\n\nPerson lookups go through the shared resolver in ``pipeline/resolution.py``\n(the same one the Gotham seed builder uses), passing every key the source row\ncarries — passport, phone, name and date of birth — so both demos attach\neach edge to the same person.\n\nReturns:\n  entities_dataset  — all entities (persons + companies + accounts + new types)\n  edges_dataset     — all edges\n  entity_lineage    — LineageRecord for entities\n  edge_lineage      — LineageRecord for edges\n\"\"\"\n\nfrom __future__ import annotations\n\nimport re\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Optional, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\nfrom pipeline.resolution import PersonResolver, attach_clinic_rows, clinic_observations, resolve_people\n\n# ---------------------------------------------------------------------------\n# Airport reference data (from build_ontology_seed.py)\n# ---------------------------------------------------------------------------\nAIRPORT_COORDS: Dict[str, Dict[str, Any]] = {\n    \"ATH\": {\"name\": \"Athens International Airport\", \"city\": \"Athens\", \"country\": \"Greece\", \"lat\": 37.9364, \"lon\": 23.9475},\n    \"BEG\": {\"name\": \"Belgrade Nikola Tesla Airport\", \"city\": \"Belgrade\", \"country\": \"Serbia\", \"lat\": 44.8184, \"lon\": 20.3091},\n    \"DXB\": {\"name\": \"Dubai International Airport\", \"city\": \"Dubai\", \"country\": \"United Arab Emirates\", \"lat\": 25.2532, \"lon\": 55.3657},\n    \"IAD\": {\"name\": \"Washington Dulles International Airport\", \"city\": \"Washington, D.C.\", \"country\": \"United States\", \"lat\": 38.9531, \"lon\": -77.4565},\n    \"IST\": {\"name\": \"Istanbul Airport\", \"city\": \"Istanbul\", \"country\": \"Turkey\", \"lat\": 41.2753, \"lon\": 28.7519},\n    \"LCA\": {\"name\": \"Larnaca International Airport\", \"city\": \"Larnaca\", \"country\": \"Cyprus\", \"lat\": 34.8751, \"lon\": 33.6249},\n    \"LHR\": {\"name\": \"Heathrow Airport\", \"city\": \"London\", \"country\": \"United Kingdom\", \"lat\": 51.4700, \"lon\": -0.4543},\n    \"SOF\": {\"name\": \"Sofia Airport\", \"city\": \"Sofia\", \"country\": \"Bulgaria\", \"lat\": 42.6950, \"lon\": 23.4062},\n    \"VIE\": {\"name\": \"Vienna International Airport\", \"city\": \"Vienna\", \"country\": \"Austria\", \"lat\": 48.1103, \"lon\": 16.5697},\n}\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _norm(value: str) -> str:\n    cleaned = re.sub(r\"[^a-z0-9]+\", \" \", value.lower()).strip()\n    return re.sub(r\"\\s+\", \" \", cleaned)\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Ontology builder\n# ---------------------------------------------------------------------------\n\nclass OntologyBuilder:\n    def __init__(\n        self,\n        resolved_persons: Dataset,\n        resolved_companies: Dataset,\n        resolved_accounts: Dataset,\n        resolver: PersonResolver,\n    ) -> None:\n        # Start with resolved entities\n        self.entities: List[Dict[str, Any]] = []\n        self.entity_index: Dict[str, int] = {}  # entity_id → index in self.entities\n        self.edges: List[Dict[str, Any]] = []\n        self.edge_index: Dict[str, int] = {}\n\n        # Entity lineage: entity_id → list of source refs\n        self.entity_src: Dict[str, List[Dict[str, Any]]] = {}\n        self.entity_field_prov: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}\n\n        # Lookup tables (persons: the shared resolver from step 02)\n        self.resolver = resolver\n        self.company_by_name: Dict[str, str] = {}\n        self.account_by_id: Dict[str, str] = {}\n        self.device_by_id: Dict[str, str] = {}\n        self.airport_by_code: Dict[str, str] = {}\n        self.location_by_label: Dict[str, str] = {}\n\n        # Ingest persons\n        for row in resolved_persons.rows:\n            self._add_entity_row(row, resolved_persons.name)\n\n        # Ingest companies\n        for row in resolved_companies.rows:\n            self._add_entity_row(row, resolved_companies.name)\n            self.company_by_name[_norm(row.get(\"companyName\", \"\"))] = row[\"id\"]\n\n        # Ingest accounts\n        for row in resolved_accounts.rows:\n            self._add_entity_row(row, resolved_accounts.name)\n            self.account_by_id[row[\"accountId\"]] = row[\"id\"]\n\n    def _add_entity_row(self, row: Dict[str, Any], source_ds: str) -> str:\n        eid = row[\"id\"]\n        if eid in self.entity_index:\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        # Build Gotham-compatible entity shape\n        props = {k: v for k, v in row.items() if k not in (\"id\", \"type\", \"resolution\") and v not in (None, \"\")}\n        entity = {\n            \"id\": eid,\n            \"type\": row[\"type\"],\n            \"label\": props.get(\"canonicalName\") or props.get(\"companyName\") or props.get(\"accountId\") or eid,\n            \"properties\": props,\n            \"sourceIds\": [source_ds],\n        }\n        if row.get(\"resolution\"):\n            entity[\"resolution\"] = row[\"resolution\"]\n        self.entities.append(entity)\n        return eid\n\n    def _add_edge(\n        self,\n        rel_type: str,\n        source_id: str,\n        target_id: str,\n        properties: Optional[Dict[str, Any]] = None,\n        dedupe_key: Optional[str] = None,\n    ) -> str:\n        base_key = dedupe_key or f\"{rel_type}:{source_id}:{target_id}\"\n        edge_id = f\"{rel_type.lower()}::{slug(base_key)}\"\n        if edge_id in self.edge_index:\n            idx = self.edge_index[edge_id]\n            if properties:\n                for k, v in properties.items():\n                    if v not in (None, \"\"):\n                        self.edges[idx][\"properties\"][k] = v\n            return edge_id\n        idx = len(self.edges)\n        self.edge_index[edge_id] = idx\n        self.edges.append({\n            \"id\": edge_id,\n            \"type\": rel_type,\n            \"source\": source_id,\n            \"target\": target_id,\n            \"label\": rel_type,\n            \"properties\": {k: v for k, v in (properties or {}).items() if v not in (None, \"\")},\n        })\n        return edge_id\n\n    def _ensure_entity(\n        self, type_id: str, external_key: str, label: str,\n        properties: Dict[str, Any], source_ds: str,\n    ) -> str:\n        eid = f\"{type_id.lower()}::{slug(external_key)}\"\n        if eid in self.entity_index:\n            # Merge\n            existing = self.entities[self.entity_index[eid]]\n            for k, v in properties.items():\n                if v not in (None, \"\") and existing[\"properties\"].get(k) in (None, \"\"):\n                    existing[\"properties\"][k] = v\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        clean_props = {k: v for k, v in properties.items() if v not in (None, \"\")}\n        self.entities.append({\n            \"id\": eid,\n            \"type\": type_id,\n            \"label\": label or external_key,\n            \"properties\": clean_props,\n            \"sourceIds\": [source_ds],\n        })\n        return eid\n\n    def ensure_airport(self, code: str) -> str:\n        if code in self.airport_by_code:\n            return self.airport_by_code[code]\n        info = AIRPORT_COORDS.get(code, {\"name\": code, \"city\": \"\", \"country\": \"\", \"lat\": None, \"lon\": None})\n        eid = self._ensure_entity(\n            \"Airport\", code, info[\"name\"],\n            {\"code\": code, \"airportName\": info[\"name\"], \"city\": info[\"city\"],\n             \"country\": info[\"country\"], \"lat\": info[\"lat\"], \"lon\": info[\"lon\"]},\n            \"norm_flight_manifests\",\n        )\n        self.airport_by_code[code] = eid\n        return eid\n\n    def ensure_location(\n        self, label: str, lat: Any = None, lon: Any = None,\n        cell_tower: str = \"\", location_type: str = \"\", city: str = \"\", country: str = \"\",\n        source_ds: str = \"norm_mobile_pings\",\n    ) -> str:\n        norm = _norm(label)\n        if norm in self.location_by_label:\n            eid = self.location_by_label[norm]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            for k, v in {\"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower,\n                         \"locationType\": location_type, \"city\": city, \"country\": country}.items():\n                if v not in (None, \"\") and props.get(k) in (None, \"\"):\n                    props[k] = v\n            return eid\n        eid = self._ensure_entity(\n            \"Location\", label, label,\n            {\"label\": label, \"locationType\": location_type, \"city\": city, \"country\": country,\n             \"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower},\n            source_ds,\n        )\n        self.location_by_label[norm] = eid\n        return eid\n\n    def ensure_device(self, device_id: str, phone: str, observed_name: str) -> str:\n        if device_id in self.device_by_id:\n            eid = self.device_by_id[device_id]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            if phone:\n                props[\"phoneNumber\"] = _merge(str(props.get(\"phoneNumber\", \"\")), phone)\n            if observed_name:\n                props[\"lastObservedName\"] = _merge(str(props.get(\"lastObservedName\", \"\")), observed_name)\n            return eid\n        eid = self._ensure_entity(\n            \"Device\", device_id, device_id,\n            {\"deviceId\": device_id, \"phoneNumber\": phone, \"lastObservedName\": observed_name},\n            \"norm_mobile_pings\",\n        )\n        self.device_by_id[device_id] = eid\n        return eid\n\n    def find_person(self, passport_id: str = \"\", phone: str = \"\", name: str = \"\", dob: str = \"\",\n                    ref: str = \"\") -> Optional[str]:\n        \"\"\"Person for a source record (``ref``) or, failing that, by key lookup.\"\"\"\n        if ref:\n            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone)\n        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone)\n\n    def link_account_owner(self, account_eid: str, owner_name: str) -> None:\n        norm = _norm(owner_name)\n        acct_props = self.entities[self.entity_index[account_eid]][\"properties\"]\n        if norm in self.company_by_name:\n            company_id = self.company_by_name[norm]\n            self._add_edge(\"HAS_CORP_ACCOUNT\", company_id, account_eid, dedupe_key=f\"{company_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"corporate\"\n            return\n        person_id = self.find_person(name=owner_name)\n        if person_id:\n            self._add_edge(\"OWNS_ACCOUNT\", person_id, account_eid, dedupe_key=f\"{person_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"personal\"\n\n\n# ---------------------------------------------------------------------------\n# Main run\n# ---------------------------------------------------------------------------\n\ndef run(\n    resolved_persons: Dataset,\n    resolved_companies: Dataset,\n    resolved_accounts: Dataset,\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_bank_transactions: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, Dataset, LineageRecord, LineageRecord]:\n\n    resolver = getattr(resolved_persons, \"resolver\", None)\n    if resolver is None:\n        # Rebuild the identical resolver state from the normalised sources.\n        resolver = resolve_people(norm_watchlist.rows, norm_company_registry.rows,\n                                  norm_flight_manifests.rows, norm_mobile_pings.rows)\n        attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts, resolver)\n\n    # --- WatchlistRecord entities + LISTED_ON edges ---\n    for row in norm_watchlist.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            name=row.get(\"canonical_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"watchlist:{row.get('watchlist_id', '')}\",\n        )\n        record_eid = builder._ensure_entity(\n            \"WatchlistRecord\",\n            row.get(\"watchlist_id\", \"\"),\n            row.get(\"watchlist_id\", \"\"),\n            {\n                \"watchlistId\": row.get(\"watchlist_id\", \"\"),\n                \"alias\": \" | \".join(row.get(\"aliases\", [])),\n                \"dob\": row.get(\"dob\", \"\"),\n                \"nationality\": row.get(\"nationality\", \"\"),\n                \"passportId\": row.get(\"passport_id\", \"\"),\n                \"riskTag\": row.get(\"risk_tag\", \"\"),\n            },\n            norm_watchlist.name,\n        )\n        if person_id:\n            builder._add_edge(\"LISTED_ON\", person_id, record_eid,\n                               dedupe_key=f\"{person_id}:{record_eid}\")\n\n    # --- Company edges: DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT ---\n    for row in norm_company_registry.rows:\n        company_eid = f\"company::{slug(row.get('company_id', ''))}\"\n        if company_eid not in builder.entity_index:\n            continue\n\n        # Director\n        director_id = builder.find_person(name=row.get(\"director_name\", \"\"),\n                                           dob=row.get(\"director_dob\", \"\"),\n                                           ref=f\"company:{row.get('company_id', '')}:director\")\n        if director_id:\n            builder._add_edge(\"DIRECTS\", director_id, company_eid,\n                               dedupe_key=f\"{director_id}:{company_eid}\")\n\n        # Beneficial owner\n        owner_id = builder.find_person(name=row.get(\"beneficial_owner\", \"\"),\n                                        dob=row.get(\"beneficial_owner_dob\", \"\"),\n                                        ref=f\"company:{row.get('company_id', '')}:owner\")\n        if owner_id:\n            builder._add_edge(\"BENEFICIALLY_OWNS\", owner_id, company_eid,\n                               dedupe_key=f\"{owner_id}:{company_eid}\")\n\n        # Registered address → Location\n        address = row.get(\"registered_address\", \"\")\n        if address:\n            loc_eid = builder.ensure_location(\n                address, location_type=row.get(\"registered_site_type\", \"\"),\n                city=row.get(\"registered_city\", \"\"),\n                country=row.get(\"registered_country\", \"\"),\n                source_ds=norm_company_registry.name,\n            )\n            builder._add_edge(\"REGISTERED_AT\", company_eid, loc_eid,\n                               dedupe_key=f\"{company_eid}:{loc_eid}\")\n\n    # --- Flight entities + BOOKED_ON, DEPARTED_FROM, ARRIVED_AT ---\n    for row in norm_flight_manifests.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            phone=row.get(\"phone_number\", \"\"),\n            name=row.get(\"passenger_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"flight:{row.get('manifest_id', '')}\",\n        )\n        flight_eid = builder._ensure_entity(\n            \"Flight\",\n            row.get(\"manifest_id\", \"\"),\n            f\"{row.get('flight_number', '')} · {row.get('passenger_name', '')}\",\n            {\n                \"manifestId\": row.get(\"manifest_id\", \"\"),\n                \"flightNumber\": row.get(\"flight_number\", \"\"),\n                \"departureTs\": row.get(\"departure_ts\", \"\"),\n                \"bookingReference\": row.get(\"booking_reference\", \"\"),\n                \"seat\": row.get(\"seat\", \"\"),\n                \"paymentCardLast4\": row.get(\"payment_card_last4\", \"\"),\n            },\n            norm_flight_manifests.name,\n        )\n        dep_eid = builder.ensure_airport(row.get(\"departure_airport\", \"\"))\n        arr_eid = builder.ensure_airport(row.get(\"arrival_airport\", \"\"))\n        if person_id:\n            builder._add_edge(\"BOOKED_ON\", person_id, flight_eid,\n                               dedupe_key=f\"{person_id}:{flight_eid}\")\n        builder._add_edge(\"DEPARTED_FROM\", flight_eid, dep_eid,\n                           dedupe_key=f\"{flight_eid}:{dep_eid}\")\n        builder._add_edge(\"ARRIVED_AT\", flight_eid, arr_eid,\n                           dedupe_key=f\"{flight_eid}:{arr_eid}\")\n\n    # --- Bank account ownership + TRANSFERRED_TO ---\n    for row in norm_bank_transactions.rows:\n        src_acc = row.get(\"source_account_id\", \"\")\n        dst_acc = row.get(\"destination_account_id\", \"\")\n        src_eid = builder.account_by_id.get(src_acc, \"\")\n        dst_eid = builder.account_by_id.get(dst_acc, \"\")\n\n        if src_eid:\n            builder.link_account_owner(src_eid, row.get(\"source_name\", \"\"))\n        if dst_eid:\n            builder.link_account_owner(dst_eid, row.get(\"destination_name\", \"\"))\n\n        if src_eid and dst_eid and row.get(\"txn_type\") == \"transfer\":\n            dedupe = f\"{src_eid}:{dst_eid}\"\n            edge_id = f\"transferred_to::{slug(dedupe)}\"\n            if edge_id in builder.edge_index:\n                idx = builder.edge_index[edge_id]\n                existing = builder.edges[idx]\n                count = int(existing[\"properties\"].get(\"count\", \"1\")) + 1\n                total = float(existing[\"properties\"].get(\"totalAmountUsd\", \"0\")) + float(row.get(\"amount_usd\") or 0)\n                existing[\"properties\"][\"count\"] = str(count)\n                existing[\"properties\"][\"totalAmountUsd\"] = f\"{total:.2f}\"\n                existing[\"properties\"][\"lastTxnTs\"] = row.get(\"txn_ts\", \"\")\n            else:\n                builder._add_edge(\n                    \"TRANSFERRED_TO\", src_eid, dst_eid,\n                    properties={\n                        \"count\": \"1\",\n                        \"totalAmountUsd\": str(row.get(\"amount_usd\", \"\") or \"\"),\n                        \"lastTxnTs\": row.get(\"txn_ts\", \"\"),\n                        \"sampleReference\": row.get(\"reference\", \"\"),\n                    },\n                    dedupe_key=dedupe,\n                )\n\n    # --- Device entities + USES_DEVICE + OBSERVED_AT ---\n    for row in norm_mobile_pings.rows:\n        device_id_str = row.get(\"device_id\", \"\")\n        phone = row.get(\"phone_number\", \"\")\n        observed = row.get(\"observed_name\", \"\")\n\n        device_eid = builder.ensure_device(device_id_str, phone, observed)\n\n        # Ping-only persons were already created by step 02's resolver.\n        person_id = builder.find_person(phone=phone, name=observed,\n                                        ref=f\"ping:{row.get('ping_id', '')}\")\n        if person_id:\n            builder._add_edge(\"USES_DEVICE\", person_id, device_eid,\n                               dedupe_key=f\"{person_id}:{device_eid}\")\n\n        loc_eid = builder.ensure_location(\n            row.get(\"location_label\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            cell_tower=row.get(\"cell_tower\", \"\"),\n            location_type=row.get(\"location_type\", \"\"),\n            city=row.get(\"city\", \"\"),\n            country=row.get(\"country\", \"\"),\n        )\n\n        dedupe = f\"{device_eid}:{loc_eid}\"\n        edge_id = f\"observed_at::{slug(dedupe)}\"\n        if edge_id in builder.edge_index:\n            idx = builder.edge_index[edge_id]\n            existing = builder.edges[idx]\n            count = int(existing[\"properties\"].get(\"sightingCount\", \"1\")) + 1\n            existing[\"properties\"][\"sightingCount\"] = str(count)\n            existing[\"properties\"][\"lastSeen\"] = row.get(\"timestamp\", \"\")\n        else:\n            builder._add_edge(\n                \"OBSERVED_AT\", device_eid, loc_eid,\n                properties={\n                    \"sightingCount\": \"1\",\n                    \"firstSeen\": row.get(\"timestamp\", \"\"),\n                    \"lastSeen\": row.get(\"timestamp\", \"\"),\n                    \"source\": row.get(\"source\", \"\"),\n                },\n                dedupe_key=dedupe,\n            )\n\n    # --- Residential Locations + RESIDES_AT (clinic rows, Phase 1) ---\n    for obs in clinic_observations(norm_clinic_registrations.rows):\n        person_id = resolver.clinic_by_ref.get(obs.ref)\n        if not person_id:\n            continue  # unattached clinic rows create no objects\n        row = obs.row\n        loc_eid = builder.ensure_location(\n            row.get(\"home_address\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            location_type=\"residential\",\n            city=row.get(\"home_city\", \"\"),\n            country=row.get(\"home_country\", \"\"),\n            source_ds=norm_clinic_registrations.name,\n        )\n        dedupe = f\"{person_id}:{loc_eid}\"\n        edge_id = f\"resides_at::{slug(dedupe)}\"\n        as_of = row.get(\"registered_on\", \"\")\n        if edge_id in builder.edge_index:\n            existing = builder.edges[builder.edge_index[edge_id]]\n            if as_of > str(existing[\"properties\"].get(\"asOf\", \"\")):\n                existing[\"properties\"][\"asOf\"] = as_of\n        else:\n            builder._add_edge(\"RESIDES_AT\", person_id, loc_eid,\n                               properties={\"asOf\": as_of, \"source\": row.get(\"source\", \"\")},\n                               dedupe_key=dedupe)\n\n    # --- Markings on every object and link (contract §3) ---\n    raw_inputs = [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                  norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations]\n    file_markings = {ds.derived_from[0]: ds.markings for ds in raw_inputs if ds.derived_from}\n    governance.annotate_objects(builder.entities, builder.edges, file_markings)\n\n    # --- Assemble output datasets ---\n    entities_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"sourceIds\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n        {\"field\": \"propertyMarkings\", \"type\": \"json\"},\n        {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n    ]\n    edges_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n        {\"field\": \"target\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n    ]\n\n    entities_ds = Dataset(\n        name=\"ontology_entities\",\n        rows=sorted(builder.entities, key=lambda e: (str(e[\"type\"]), str(e[\"label\"]))),\n        schema=entities_schema,\n    )\n    edges_ds = Dataset(\n        name=\"ontology_edges\",\n        rows=sorted(builder.edges, key=lambda e: (str(e[\"type\"]), str(e[\"source\"]), str(e[\"target\"]))),\n        schema=edges_schema,\n    )\n\n    ontology_inputs = [resolved_persons, resolved_companies, resolved_accounts] + raw_inputs\n    inherit_markings(entities_ds, ontology_inputs)\n    inherit_markings(edges_ds, ontology_inputs)\n\n    # Trivial lineage: each entity/edge row came from its sourceIds\n    entity_lineage = LineageRecord()\n    for out_idx, entity in enumerate(entities_ds.rows):\n        for src in entity.get(\"sourceIds\", []):\n            entity_lineage.add_source(out_idx, src, 0, note=entity[\"type\"])\n\n    edge_lineage = LineageRecord()\n    for out_idx, edge in enumerate(edges_ds.rows):\n        edge_lineage.add_source(out_idx, edge[\"type\"], 0, note=\"edge\")\n\n    return entities_ds, edges_ds, entity_lineage, edge_lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline import p01_normalize_sources as n01\n    from pipeline import p02_resolve_persons as n02\n    from pipeline import p03_resolve_companies as n03\n    from pipeline import p04_resolve_accounts as n04\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = n01.run(dataset_dir)\n    persons, _ = n02.run(wl, cr, fm, mp, cl)\n    companies, _ = n03.run(cr)\n    accounts, _ = n04.run(bt)\n    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp, cl)\n    print(f\"Entities: {len(entities_ds)}, Edges: {len(edges_ds)}\")\n",
+          "code": "\"\"\"\npipeline/05_build_ontology.py — Build the full ontology entity and edge sets.\n\nTakes all resolved entity datasets + normalized sources.  Produces:\n  - Additional entity types: Device, Flight, Airport, Location, WatchlistRecord\n  - All edges:\n      LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT,\n      OWNS_ACCOUNT, HAS_CORP_ACCOUNT, TRANSFERRED_TO,\n      BOOKED_ON, DEPARTED_FROM, ARRIVED_AT,\n      USES_DEVICE, OBSERVED_AT,\n      RESIDES_AT (Phase 1: Person → residential Location, from clinic rows)\n\nClinic rows that the shared resolver attached to a Person (name + dob) become\na residential ``Location`` (``locationType: \"residential\"``) and a\n``RESIDES_AT`` link with ``{asOf, source}``.  Unattached rows produce nothing.\n\nBoth output datasets inherit the union of their inputs' markings, and every\nentity and edge gets contract §3 markings from ``pipeline/governance.py``.\n\nPerson lookups go through the shared resolver in ``pipeline/resolution.py``\n(the same one the Gotham seed builder uses), passing every key the source row\ncarries — passport, phone, name and date of birth — so both demos attach\neach edge to the same person.\n\nReturns:\n  entities_dataset  — all entities (persons + companies + accounts + new types)\n  edges_dataset     — all edges\n  entity_lineage    — LineageRecord for entities\n  edge_lineage      — LineageRecord for edges\n\"\"\"\n\nfrom __future__ import annotations\n\nimport re\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Optional, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\nfrom pipeline.resolution import PersonResolver, attach_clinic_rows, clinic_observations, resolve_people\n\n# ---------------------------------------------------------------------------\n# Airport reference data (from build_ontology_seed.py)\n# ---------------------------------------------------------------------------\nAIRPORT_COORDS: Dict[str, Dict[str, Any]] = {\n    \"ATH\": {\"name\": \"Athens International Airport\", \"city\": \"Athens\", \"country\": \"Greece\", \"lat\": 37.9364, \"lon\": 23.9475},\n    \"BEG\": {\"name\": \"Belgrade Nikola Tesla Airport\", \"city\": \"Belgrade\", \"country\": \"Serbia\", \"lat\": 44.8184, \"lon\": 20.3091},\n    \"DXB\": {\"name\": \"Dubai International Airport\", \"city\": \"Dubai\", \"country\": \"United Arab Emirates\", \"lat\": 25.2532, \"lon\": 55.3657},\n    \"IAD\": {\"name\": \"Washington Dulles International Airport\", \"city\": \"Washington, D.C.\", \"country\": \"United States\", \"lat\": 38.9531, \"lon\": -77.4565},\n    \"IST\": {\"name\": \"Istanbul Airport\", \"city\": \"Istanbul\", \"country\": \"Turkey\", \"lat\": 41.2753, \"lon\": 28.7519},\n    \"LCA\": {\"name\": \"Larnaca International Airport\", \"city\": \"Larnaca\", \"country\": \"Cyprus\", \"lat\": 34.8751, \"lon\": 33.6249},\n    \"LHR\": {\"name\": \"Heathrow Airport\", \"city\": \"London\", \"country\": \"United Kingdom\", \"lat\": 51.4700, \"lon\": -0.4543},\n    \"SOF\": {\"name\": \"Sofia Airport\", \"city\": \"Sofia\", \"country\": \"Bulgaria\", \"lat\": 42.6950, \"lon\": 23.4062},\n    \"VIE\": {\"name\": \"Vienna International Airport\", \"city\": \"Vienna\", \"country\": \"Austria\", \"lat\": 48.1103, \"lon\": 16.5697},\n}\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _norm(value: str) -> str:\n    cleaned = re.sub(r\"[^a-z0-9]+\", \" \", value.lower()).strip()\n    return re.sub(r\"\\s+\", \" \", cleaned)\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Ontology builder\n# ---------------------------------------------------------------------------\n\nclass OntologyBuilder:\n    def __init__(\n        self,\n        resolved_persons: Dataset,\n        resolved_companies: Dataset,\n        resolved_accounts: Dataset,\n        resolver: PersonResolver,\n    ) -> None:\n        # Start with resolved entities\n        self.entities: List[Dict[str, Any]] = []\n        self.entity_index: Dict[str, int] = {}  # entity_id → index in self.entities\n        self.edges: List[Dict[str, Any]] = []\n        self.edge_index: Dict[str, int] = {}\n\n        # Entity lineage: entity_id → list of source refs\n        self.entity_src: Dict[str, List[Dict[str, Any]]] = {}\n        self.entity_field_prov: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}\n\n        # Lookup tables (persons: the shared resolver from step 02)\n        self.resolver = resolver\n        self.company_by_name: Dict[str, str] = {}\n        self.account_by_id: Dict[str, str] = {}\n        self.device_by_id: Dict[str, str] = {}\n        self.airport_by_code: Dict[str, str] = {}\n        self.location_by_label: Dict[str, str] = {}\n\n        # Ingest persons\n        for row in resolved_persons.rows:\n            self._add_entity_row(row, resolved_persons.name)\n\n        # Ingest companies\n        for row in resolved_companies.rows:\n            self._add_entity_row(row, resolved_companies.name)\n            self.company_by_name[_norm(row.get(\"companyName\", \"\"))] = row[\"id\"]\n\n        # Ingest accounts\n        for row in resolved_accounts.rows:\n            self._add_entity_row(row, resolved_accounts.name)\n            self.account_by_id[row[\"accountId\"]] = row[\"id\"]\n\n    def _add_entity_row(self, row: Dict[str, Any], source_ds: str) -> str:\n        eid = row[\"id\"]\n        if eid in self.entity_index:\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        # Build Gotham-compatible entity shape\n        props = {k: v for k, v in row.items() if k not in (\"id\", \"type\", \"resolution\") and v not in (None, \"\")}\n        entity = {\n            \"id\": eid,\n            \"type\": row[\"type\"],\n            \"label\": props.get(\"canonicalName\") or props.get(\"companyName\") or props.get(\"accountId\") or eid,\n            \"properties\": props,\n            \"sourceIds\": [source_ds],\n        }\n        if row.get(\"resolution\"):\n            entity[\"resolution\"] = row[\"resolution\"]\n        self.entities.append(entity)\n        return eid\n\n    def _add_edge(\n        self,\n        rel_type: str,\n        source_id: str,\n        target_id: str,\n        properties: Optional[Dict[str, Any]] = None,\n        dedupe_key: Optional[str] = None,\n    ) -> str:\n        base_key = dedupe_key or f\"{rel_type}:{source_id}:{target_id}\"\n        edge_id = f\"{rel_type.lower()}::{slug(base_key)}\"\n        if edge_id in self.edge_index:\n            idx = self.edge_index[edge_id]\n            if properties:\n                for k, v in properties.items():\n                    if v not in (None, \"\"):\n                        self.edges[idx][\"properties\"][k] = v\n            return edge_id\n        idx = len(self.edges)\n        self.edge_index[edge_id] = idx\n        self.edges.append({\n            \"id\": edge_id,\n            \"type\": rel_type,\n            \"source\": source_id,\n            \"target\": target_id,\n            \"label\": rel_type,\n            \"properties\": {k: v for k, v in (properties or {}).items() if v not in (None, \"\")},\n        })\n        return edge_id\n\n    def _ensure_entity(\n        self, type_id: str, external_key: str, label: str,\n        properties: Dict[str, Any], source_ds: str,\n    ) -> str:\n        eid = f\"{type_id.lower()}::{slug(external_key)}\"\n        if eid in self.entity_index:\n            # Merge\n            existing = self.entities[self.entity_index[eid]]\n            for k, v in properties.items():\n                if v not in (None, \"\") and existing[\"properties\"].get(k) in (None, \"\"):\n                    existing[\"properties\"][k] = v\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        clean_props = {k: v for k, v in properties.items() if v not in (None, \"\")}\n        self.entities.append({\n            \"id\": eid,\n            \"type\": type_id,\n            \"label\": label or external_key,\n            \"properties\": clean_props,\n            \"sourceIds\": [source_ds],\n        })\n        return eid\n\n    def ensure_airport(self, code: str) -> str:\n        if code in self.airport_by_code:\n            return self.airport_by_code[code]\n        info = AIRPORT_COORDS.get(code, {\"name\": code, \"city\": \"\", \"country\": \"\", \"lat\": None, \"lon\": None})\n        eid = self._ensure_entity(\n            \"Airport\", code, info[\"name\"],\n            {\"code\": code, \"airportName\": info[\"name\"], \"city\": info[\"city\"],\n             \"country\": info[\"country\"], \"lat\": info[\"lat\"], \"lon\": info[\"lon\"]},\n            \"norm_flight_manifests\",\n        )\n        self.airport_by_code[code] = eid\n        return eid\n\n    def ensure_location(\n        self, label: str, lat: Any = None, lon: Any = None,\n        cell_tower: str = \"\", location_type: str = \"\", city: str = \"\", country: str = \"\",\n        source_ds: str = \"norm_mobile_pings\",\n    ) -> str:\n        norm = _norm(label)\n        if norm in self.location_by_label:\n            eid = self.location_by_label[norm]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            for k, v in {\"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower,\n                         \"locationType\": location_type, \"city\": city, \"country\": country}.items():\n                if v not in (None, \"\") and props.get(k) in (None, \"\"):\n                    props[k] = v\n            return eid\n        eid = self._ensure_entity(\n            \"Location\", label, label,\n            {\"label\": label, \"locationType\": location_type, \"city\": city, \"country\": country,\n             \"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower},\n            source_ds,\n        )\n        self.location_by_label[norm] = eid\n        return eid\n\n    def ensure_device(self, device_id: str, phone: str, observed_name: str) -> str:\n        if device_id in self.device_by_id:\n            eid = self.device_by_id[device_id]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            if phone:\n                props[\"phoneNumber\"] = _merge(str(props.get(\"phoneNumber\", \"\")), phone)\n            if observed_name:\n                props[\"lastObservedName\"] = _merge(str(props.get(\"lastObservedName\", \"\")), observed_name)\n            return eid\n        eid = self._ensure_entity(\n            \"Device\", device_id, device_id,\n            {\"deviceId\": device_id, \"phoneNumber\": phone, \"lastObservedName\": observed_name},\n            \"norm_mobile_pings\",\n        )\n        self.device_by_id[device_id] = eid\n        return eid\n\n    def find_person(self, passport_id: str = \"\", phone: str = \"\", name: str = \"\", dob: str = \"\",\n                    ref: str = \"\") -> Optional[str]:\n        \"\"\"Person for a source record (``ref``) or, failing that, by key lookup.\"\"\"\n        if ref:\n            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone)\n        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone)\n\n    def link_account_owner(self, account_eid: str, owner_name: str) -> None:\n        norm = _norm(owner_name)\n        acct_props = self.entities[self.entity_index[account_eid]][\"properties\"]\n        if norm in self.company_by_name:\n            company_id = self.company_by_name[norm]\n            self._add_edge(\"HAS_CORP_ACCOUNT\", company_id, account_eid, dedupe_key=f\"{company_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"corporate\"\n            return\n        person_id = self.find_person(name=owner_name)\n        if person_id:\n            self._add_edge(\"OWNS_ACCOUNT\", person_id, account_eid, dedupe_key=f\"{person_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"personal\"\n\n\n# ---------------------------------------------------------------------------\n# Main run\n# ---------------------------------------------------------------------------\n\ndef run(\n    resolved_persons: Dataset,\n    resolved_companies: Dataset,\n    resolved_accounts: Dataset,\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_bank_transactions: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, Dataset, LineageRecord, LineageRecord]:\n\n    resolver = getattr(resolved_persons, \"resolver\", None)\n    if resolver is None:\n        # Rebuild the identical resolver state from the normalised sources.\n        resolver = resolve_people(norm_watchlist.rows, norm_company_registry.rows,\n                                  norm_flight_manifests.rows, norm_mobile_pings.rows)\n        attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts, resolver)\n\n    # --- WatchlistRecord entities + LISTED_ON edges ---\n    for row in norm_watchlist.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            name=row.get(\"canonical_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"watchlist:{row.get('watchlist_id', '')}\",\n        )\n        record_eid = builder._ensure_entity(\n            \"WatchlistRecord\",\n            row.get(\"watchlist_id\", \"\"),\n            row.get(\"watchlist_id\", \"\"),\n            {\n                \"watchlistId\": row.get(\"watchlist_id\", \"\"),\n                \"alias\": \" | \".join(row.get(\"aliases\", [])),\n                \"dob\": row.get(\"dob\", \"\"),\n                \"nationality\": row.get(\"nationality\", \"\"),\n                \"passportId\": row.get(\"passport_id\", \"\"),\n                \"riskTag\": row.get(\"risk_tag\", \"\"),\n            },\n            norm_watchlist.name,\n        )\n        if person_id:\n            builder._add_edge(\"LISTED_ON\", person_id, record_eid,\n                               dedupe_key=f\"{person_id}:{record_eid}\")\n\n    # --- Company edges: DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT ---\n    for row in norm_company_registry.rows:\n        company_eid = f\"company::{slug(row.get('company_id', ''))}\"\n        if company_eid not in builder.entity_index:\n            continue\n\n        # Director\n        director_id = builder.find_person(name=row.get(\"director_name\", \"\"),\n                                           dob=row.get(\"director_dob\", \"\"),\n                                           ref=f\"company:{row.get('company_id', '')}:director\")\n        if director_id:\n            builder._add_edge(\"DIRECTS\", director_id, company_eid,\n                               dedupe_key=f\"{director_id}:{company_eid}\")\n\n        # Beneficial owner\n        owner_id = builder.find_person(name=row.get(\"beneficial_owner\", \"\"),\n                                        dob=row.get(\"beneficial_owner_dob\", \"\"),\n                                        ref=f\"company:{row.get('company_id', '')}:owner\")\n        if owner_id:\n            builder._add_edge(\"BENEFICIALLY_OWNS\", owner_id, company_eid,\n                               dedupe_key=f\"{owner_id}:{company_eid}\")\n\n        # Registered address → Location\n        address = row.get(\"registered_address\", \"\")\n        if address:\n            loc_eid = builder.ensure_location(\n                address, location_type=row.get(\"registered_site_type\", \"\"),\n                city=row.get(\"registered_city\", \"\"),\n                country=row.get(\"registered_country\", \"\"),\n                source_ds=norm_company_registry.name,\n            )\n            builder._add_edge(\"REGISTERED_AT\", company_eid, loc_eid,\n                               dedupe_key=f\"{company_eid}:{loc_eid}\")\n\n    # --- Flight entities + BOOKED_ON, DEPARTED_FROM, ARRIVED_AT ---\n    for row in norm_flight_manifests.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            phone=row.get(\"phone_number\", \"\"),\n            name=row.get(\"passenger_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"flight:{row.get('manifest_id', '')}\",\n        )\n        flight_eid = builder._ensure_entity(\n            \"Flight\",\n            row.get(\"manifest_id\", \"\"),\n            f\"{row.get('flight_number', '')} · {row.get('passenger_name', '')}\",\n            {\n                \"manifestId\": row.get(\"manifest_id\", \"\"),\n                \"flightNumber\": row.get(\"flight_number\", \"\"),\n                \"departureTs\": row.get(\"departure_ts\", \"\"),\n                \"bookingReference\": row.get(\"booking_reference\", \"\"),\n                \"seat\": row.get(\"seat\", \"\"),\n                \"paymentCardLast4\": row.get(\"payment_card_last4\", \"\"),\n            },\n            norm_flight_manifests.name,\n        )\n        dep_eid = builder.ensure_airport(row.get(\"departure_airport\", \"\"))\n        arr_eid = builder.ensure_airport(row.get(\"arrival_airport\", \"\"))\n        if person_id:\n            builder._add_edge(\"BOOKED_ON\", person_id, flight_eid,\n                               dedupe_key=f\"{person_id}:{flight_eid}\")\n        builder._add_edge(\"DEPARTED_FROM\", flight_eid, dep_eid,\n                           dedupe_key=f\"{flight_eid}:{dep_eid}\")\n        builder._add_edge(\"ARRIVED_AT\", flight_eid, arr_eid,\n                           dedupe_key=f\"{flight_eid}:{arr_eid}\")\n\n    # --- Bank account ownership + TRANSFERRED_TO ---\n    for row in norm_bank_transactions.rows:\n        src_acc = row.get(\"source_account_id\", \"\")\n        dst_acc = row.get(\"destination_account_id\", \"\")\n        src_eid = builder.account_by_id.get(src_acc, \"\")\n        dst_eid = builder.account_by_id.get(dst_acc, \"\")\n\n        if src_eid:\n            builder.link_account_owner(src_eid, row.get(\"source_name\", \"\"))\n        if dst_eid:\n            builder.link_account_owner(dst_eid, row.get(\"destination_name\", \"\"))\n\n        if src_eid and dst_eid and row.get(\"txn_type\") == \"transfer\":\n            dedupe = f\"{src_eid}:{dst_eid}\"\n            edge_id = f\"transferred_to::{slug(dedupe)}\"\n            if edge_id in builder.edge_index:\n                idx = builder.edge_index[edge_id]\n                existing = builder.edges[idx]\n                count = int(existing[\"properties\"].get(\"count\", \"1\")) + 1\n                total = float(existing[\"properties\"].get(\"totalAmountUsd\", \"0\")) + float(row.get(\"amount_usd\") or 0)\n                existing[\"properties\"][\"count\"] = str(count)\n                existing[\"properties\"][\"totalAmountUsd\"] = f\"{total:.2f}\"\n                existing[\"properties\"][\"lastTxnTs\"] = row.get(\"txn_ts\", \"\")\n            else:\n                builder._add_edge(\n                    \"TRANSFERRED_TO\", src_eid, dst_eid,\n                    properties={\n                        \"count\": \"1\",\n                        \"totalAmountUsd\": f\"{float(row['amount_usd']):.2f}\" if row.get(\"amount_usd\") not in (None, \"\") else \"\",\n                        \"lastTxnTs\": row.get(\"txn_ts\", \"\"),\n                        \"sampleReference\": row.get(\"reference\", \"\"),\n                    },\n                    dedupe_key=dedupe,\n                )\n\n    # --- Device entities + USES_DEVICE + OBSERVED_AT ---\n    for row in norm_mobile_pings.rows:\n        device_id_str = row.get(\"device_id\", \"\")\n        phone = row.get(\"phone_number\", \"\")\n        observed = row.get(\"observed_name\", \"\")\n\n        device_eid = builder.ensure_device(device_id_str, phone, observed)\n\n        # Ping-only persons were already created by step 02's resolver.\n        person_id = builder.find_person(phone=phone, name=observed,\n                                        ref=f\"ping:{row.get('ping_id', '')}\")\n        if person_id:\n            builder._add_edge(\"USES_DEVICE\", person_id, device_eid,\n                               dedupe_key=f\"{person_id}:{device_eid}\")\n\n        loc_eid = builder.ensure_location(\n            row.get(\"location_label\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            cell_tower=row.get(\"cell_tower\", \"\"),\n            location_type=row.get(\"location_type\", \"\"),\n            city=row.get(\"city\", \"\"),\n            country=row.get(\"country\", \"\"),\n        )\n\n        dedupe = f\"{device_eid}:{loc_eid}\"\n        edge_id = f\"observed_at::{slug(dedupe)}\"\n        if edge_id in builder.edge_index:\n            idx = builder.edge_index[edge_id]\n            existing = builder.edges[idx]\n            count = int(existing[\"properties\"].get(\"sightingCount\", \"1\")) + 1\n            existing[\"properties\"][\"sightingCount\"] = str(count)\n            existing[\"properties\"][\"lastSeen\"] = row.get(\"timestamp\", \"\")\n        else:\n            builder._add_edge(\n                \"OBSERVED_AT\", device_eid, loc_eid,\n                properties={\n                    \"sightingCount\": \"1\",\n                    \"firstSeen\": row.get(\"timestamp\", \"\"),\n                    \"lastSeen\": row.get(\"timestamp\", \"\"),\n                    \"source\": row.get(\"source\", \"\"),\n                },\n                dedupe_key=dedupe,\n            )\n\n    # --- Residential Locations + RESIDES_AT (clinic rows, Phase 1) ---\n    for obs in clinic_observations(norm_clinic_registrations.rows):\n        person_id = resolver.clinic_by_ref.get(obs.ref)\n        if not person_id:\n            continue  # unattached clinic rows create no objects\n        row = obs.row\n        loc_eid = builder.ensure_location(\n            row.get(\"home_address\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            location_type=\"residential\",\n            city=row.get(\"home_city\", \"\"),\n            country=row.get(\"home_country\", \"\"),\n            source_ds=norm_clinic_registrations.name,\n        )\n        dedupe = f\"{person_id}:{loc_eid}\"\n        edge_id = f\"resides_at::{slug(dedupe)}\"\n        as_of = row.get(\"registered_on\", \"\")\n        if edge_id in builder.edge_index:\n            existing = builder.edges[builder.edge_index[edge_id]]\n            if as_of > str(existing[\"properties\"].get(\"asOf\", \"\")):\n                existing[\"properties\"][\"asOf\"] = as_of\n        else:\n            builder._add_edge(\"RESIDES_AT\", person_id, loc_eid,\n                               properties={\"asOf\": as_of, \"source\": row.get(\"source\", \"\")},\n                               dedupe_key=dedupe)\n\n    # --- Markings on every object and link (contract §3) ---\n    raw_inputs = [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                  norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations]\n    file_markings = {ds.derived_from[0]: ds.markings for ds in raw_inputs if ds.derived_from}\n    governance.annotate_objects(builder.entities, builder.edges, file_markings)\n\n    # --- Assemble output datasets ---\n    entities_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"sourceIds\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n        {\"field\": \"propertyMarkings\", \"type\": \"json\"},\n        {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n    ]\n    edges_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n        {\"field\": \"target\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n    ]\n\n    entities_ds = Dataset(\n        name=\"ontology_entities\",\n        rows=sorted(builder.entities, key=lambda e: (str(e[\"type\"]), str(e[\"label\"]))),\n        schema=entities_schema,\n    )\n    edges_ds = Dataset(\n        name=\"ontology_edges\",\n        rows=sorted(builder.edges, key=lambda e: (str(e[\"type\"]), str(e[\"source\"]), str(e[\"target\"]))),\n        schema=edges_schema,\n    )\n\n    ontology_inputs = [resolved_persons, resolved_companies, resolved_accounts] + raw_inputs\n    inherit_markings(entities_ds, ontology_inputs)\n    inherit_markings(edges_ds, ontology_inputs)\n\n    # Trivial lineage: each entity/edge row came from its sourceIds\n    entity_lineage = LineageRecord()\n    for out_idx, entity in enumerate(entities_ds.rows):\n        for src in entity.get(\"sourceIds\", []):\n            entity_lineage.add_source(out_idx, src, 0, note=entity[\"type\"])\n\n    edge_lineage = LineageRecord()\n    for out_idx, edge in enumerate(edges_ds.rows):\n        edge_lineage.add_source(out_idx, edge[\"type\"], 0, note=\"edge\")\n\n    return entities_ds, edges_ds, entity_lineage, edge_lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline import p01_normalize_sources as n01\n    from pipeline import p02_resolve_persons as n02\n    from pipeline import p03_resolve_companies as n03\n    from pipeline import p04_resolve_accounts as n04\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = n01.run(dataset_dir)\n    persons, _ = n02.run(wl, cr, fm, mp, cl)\n    companies, _ = n03.run(cr)\n    accounts, _ = n04.run(bt)\n    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp, cl)\n    print(f\"Entities: {len(entities_ds)}, Edges: {len(edges_ds)}\")\n",
           "rowsIn": 234,
           "rowsOut": 401,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         },
         {
           "id": "build_leads",
@@ -1271,7 +1271,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/06_build_leads.py — Build address-confidence leads (F8, PHASE3_CONTRACT.md §1).\n\nOne lead per Person with at least one address source.  The scorer lives in\n``pipeline/leads.py`` (shared with the Investigate seed builder, so both apps\nshow the same leads); this step wraps it as a Transform with row- and\nfield-level lineage, like steps 02–05.\n\nInputs\n  resolved_persons            — who each source record belongs to (the shared resolver)\n  norm_clinic_registrations   — PII + HEALTH, weight 0.5, home_address, registered_on\n  norm_mobile_pings           — TELECOM, weight 0.4, location label, latest ping timestamp\n  norm_company_registry       — OPEN,    weight 0.3, registered_address, incorporation_date\n\n    score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))\n\n``ageDays`` counts from ``asOf``, the latest date in the inputs.  The best\naddress is the component with the largest contribution.  The output inherits\nthe union of its inputs' markings (PII, HEALTH, TELECOM and OPEN from the sources,\nPII and LE-SENSITIVE through resolved_persons), so the dataset is HEALTH-marked\neven for leads with no clinic component: markings work per dataset, not per row.\n\nOutput Dataset ``leads``:\n  id             — lead::<personId>\n  personId\n  address        — best address (largest contribution)\n  lat, lon       — coordinates of the best address\n  score          — 0–100, 1 decimal\n  status         — \"open\" (the Close lead Action changes it in the browser)\n  components     — [{source, marking, weight, ageDays, decay, contribution, address, ...}]\n  formula, asOf\n  addressSource  — dataset of the best address's component\n  sourceMarkings — markings of the contributing sources\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.leads import compute_leads\nfrom pipeline.lib import Dataset, LineageRecord, Transform\n\nTRANSFORM_ID = \"build_leads\"\nOUTPUT_NAME = \"leads\"\n\nSCHEMA = [\n    {\"field\": \"id\", \"type\": \"string\"},\n    {\"field\": \"personId\", \"type\": \"string\"},\n    {\"field\": \"address\", \"type\": \"string\"},\n    {\"field\": \"lat\", \"type\": \"float\"},\n    {\"field\": \"lon\", \"type\": \"float\"},\n    {\"field\": \"score\", \"type\": \"float\"},\n    {\"field\": \"status\", \"type\": \"string\"},\n    {\"field\": \"components\", \"type\": \"json\"},\n    {\"field\": \"formula\", \"type\": \"string\"},\n    {\"field\": \"asOf\", \"type\": \"date\"},\n    {\"field\": \"addressSource\", \"type\": \"string\"},\n    {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n]\n\n\ndef _build(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[List[Dict[str, Any]], List[Dict[str, List[Dict[str, Any]]]]]:\n    resolver = resolved_persons.resolver  # type: ignore[attr-defined]\n    rows, provenance, _as_of = compute_leads(\n        resolver, norm_clinic_registrations.rows, norm_mobile_pings.rows, norm_company_registry.rows,\n    )\n    person_row = {row[\"id\"]: i for i, row in enumerate(resolved_persons.rows)}\n    for lead, fp in zip(rows, provenance):\n        ref = {\"dataset\": resolved_persons.name, \"row\": person_row.get(lead[\"personId\"], -1),\n               \"field\": \"id\", \"note\": \"person\"}\n        fp[\"personId\"] = [ref] + fp[\"personId\"]\n        fp[\"id\"] = [ref]\n    return rows, provenance\n\n\ndef run(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    transform = Transform(\n        TRANSFORM_ID,\n        \"Score each person's best address from clinic, ping and registry records.\",\n        [resolved_persons, norm_clinic_registrations, norm_mobile_pings, norm_company_registry],\n        _build,\n    )\n    leads_ds, lineage = transform.run()\n    leads_ds.name = OUTPUT_NAME\n    leads_ds.schema = [dict(f) for f in SCHEMA]\n    leads_ds.as_of = leads_ds.rows[0][\"asOf\"] if leads_ds.rows else \"\"  # type: ignore[attr-defined]\n    return leads_ds, lineage\n\n\nif __name__ == \"__main__\":\n    import importlib.util\n\n    def _load(stem: str):\n        path = Path(__file__).resolve().parent / f\"{stem}.py\"\n        spec = importlib.util.spec_from_file_location(stem, path)\n        module = importlib.util.module_from_spec(spec)\n        spec.loader.exec_module(module)\n        return module\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = _load(\"01_normalize_sources\").run(dataset_dir)\n    persons, _ = _load(\"02_resolve_persons\").run(wl, cr, fm, mp, cl)\n    leads_ds, _ = run(persons, cl, mp, cr)\n    print(f\"Leads: {len(leads_ds)} (asOf {leads_ds.as_of})\")\n    for lead in leads_ds.rows[:5]:\n        print(f\"  {lead['score']:5.1f}  {lead['personId']}  {lead['address']}\")\n",
           "rowsIn": 136,
           "rowsOut": 24,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         }
       ]
     },
@@ -5271,7 +5271,7 @@ window.foundrySeedCatalog = {
             "id": "person::g5510077",
             "type": "Person",
             "canonicalName": "Omar Rahman",
-            "aliases": "",
+            "aliases": "Umar Rahman",
             "dob": "1979-02-02",
             "nationality": "",
             "passportId": "G5510077",
@@ -14805,6 +14805,48 @@ window.foundrySeedCatalog = {
               "row": 87,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 0,
+              "field": "director_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 2,
+              "field": "beneficial_owner",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 9,
+              "field": "director_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 1,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 3,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 19,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 21,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "dob": [
@@ -15186,6 +15228,12 @@ window.foundrySeedCatalog = {
               "row": 83,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 4,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "dob": [
@@ -16079,6 +16127,24 @@ window.foundrySeedCatalog = {
               "row": 55,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 1,
+              "field": "director_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 5,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 22,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "dob": [
@@ -16346,6 +16412,12 @@ window.foundrySeedCatalog = {
               "row": 91,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 24,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -16463,6 +16535,18 @@ window.foundrySeedCatalog = {
               "row": 82,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 2,
+              "field": "director_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 9,
+              "field": "beneficial_owner",
+              "note": "name as written"
             }
           ],
           "dob": [
@@ -20529,6 +20613,7 @@ window.foundrySeedCatalog = {
         "label": "Omar Rahman",
         "properties": {
           "canonicalName": "Omar Rahman",
+          "aliases": "Umar Rahman",
           "dob": "1979-02-02",
           "passportId": "G5510077",
           "phoneNumber": "+447911223344",
@@ -23567,7 +23652,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "4700.0",
+          "totalAmountUsd": "4700.00",
           "lastTxnTs": "2026-04-03T14:05:00Z",
           "sampleReference": "freight adjustment"
         },
@@ -23583,7 +23668,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "4250.0",
+          "totalAmountUsd": "4250.00",
           "lastTxnTs": "2026-04-04T13:55:00Z",
           "sampleReference": "service fee"
         },
@@ -23599,7 +23684,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T17:50:00Z",
           "sampleReference": "fuel"
         },
@@ -23615,7 +23700,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T08:14:00Z",
           "sampleReference": "travel"
         },
@@ -23631,7 +23716,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-07T06:22:00Z",
           "sampleReference": "fuel"
         },
@@ -23647,7 +23732,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-10T14:22:00Z",
           "sampleReference": "fuel"
         },
@@ -23663,7 +23748,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-01T20:42:00Z",
           "sampleReference": "travel"
         },
@@ -23679,7 +23764,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T21:23:00Z",
           "sampleReference": "travel"
         },
@@ -23695,7 +23780,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "4800.0",
+          "totalAmountUsd": "4800.00",
           "lastTxnTs": "2026-04-02T19:45:00Z",
           "sampleReference": "consulting retainer"
         },
@@ -23727,7 +23812,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1995.0",
+          "totalAmountUsd": "1995.00",
           "lastTxnTs": "2026-04-05T09:25:00Z",
           "sampleReference": "expense settle"
         },
@@ -23743,7 +23828,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-04T02:40:00Z",
           "sampleReference": "settlement"
         },
@@ -23759,7 +23844,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "4500.0",
+          "totalAmountUsd": "4500.00",
           "lastTxnTs": "2026-04-03T16:20:00Z",
           "sampleReference": "invoice 447"
         },
@@ -23775,7 +23860,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "4300.0",
+          "totalAmountUsd": "4300.00",
           "lastTxnTs": "2026-04-04T12:10:00Z",
           "sampleReference": "retainer"
         },
@@ -23791,7 +23876,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-04T15:17:00Z",
           "sampleReference": "invoice"
         },
@@ -24029,7 +24114,7 @@ window.foundrySeedCatalog = {
   "simulator": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:5ef9606d13c79b46d8a169595f77e0e3786eedba0d76951e387cb13f4ebbc55b",
+      "buildId": "sha256:195a4d650b3ed96a49b15075f08396e049323c21492f6b69d319af1bfa7a4455",
       "sources": {
         "bank_transactions.csv": "sha256:1b192ef6c107359560bc3df631a4fd42e665aa4e26403630a82bbe9b47a44596",
         "clinic_registrations.csv": "sha256:3b651e31a0bff7bfc2fcf324c827b515d21f43a5c9ff688242cad73c4d453453",
@@ -24039,10 +24124,10 @@ window.foundrySeedCatalog = {
         "mobile_location_pings.jsonl": "sha256:b208310e84c3c8a26d57efb64735d2002767743656d1e496df35ea1c460a94ff",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_foundry_seed.py@12fb2ec",
+      "builder": "build_foundry_seed.py@dirty",
       "title": "Foundry Studio Demo",
       "dataset": "simulator",
-      "generatedAt": "2026-11-04T20:40:29.321568Z"
+      "generatedAt": "2026-11-05T10:59:55.988623Z"
     },
     "governance": {
       "markings": [
@@ -25762,7 +25847,7 @@ window.foundrySeedCatalog = {
       ]
     },
     "pipeline": {
-      "generatedAt": "2026-11-04T20:40:29.321568Z",
+      "generatedAt": "2026-11-05T10:59:55.988623Z",
       "transforms": [
         {
           "id": "normalize_sources",
@@ -25781,7 +25866,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/01_normalize_sources.py — Read and normalize all six raw source files.\n\nFor each source:\n- Strip whitespace from all string fields\n- Parse date/datetime strings to ISO format (leave as-is if already ISO)\n- Split pipe-delimited alias fields into Python lists\n- Tag each row with its original 0-based row index as ``_source_row``\n- Copy the dataset's markings, purpose, legal basis and retention from\n  ``manifest.json`` (Dataset.markings / Dataset.purpose / ...), with\n  ``markingProvenance`` pointing at the raw file\n\nReturns six Dataset objects (one per source file).  The clinic file is\noptional: a profile without it yields an empty ``norm_clinic_registrations``.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport csv\nimport json\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\n# Allow imports from the repo root when run directly\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _strip(value: Any) -> Any:\n    if isinstance(value, str):\n        return value.strip()\n    return value\n\n\ndef _clean_row(row: Dict[str, Any]) -> Dict[str, Any]:\n    return {k: _strip(v) for k, v in row.items()}\n\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\n\n\ndef source_label(path: Path) -> str:\n    \"\"\"Repo-relative POSIX path of a raw source file (absolute if outside the repo).\"\"\"\n    resolved = Path(path).resolve()\n    try:\n        return resolved.relative_to(REPO_ROOT).as_posix()\n    except ValueError:\n        return resolved.as_posix()\n\n\ndef read_csv_raw(path: Path) -> List[Dict[str, str]]:\n    with path.open(newline=\"\", encoding=\"utf-8\") as fh:\n        return list(csv.DictReader(fh))\n\n\ndef read_jsonl_raw(path: Path) -> List[Dict[str, Any]]:\n    with path.open(encoding=\"utf-8\") as fh:\n        return [json.loads(line) for line in fh if line.strip()]\n\n\n# ---------------------------------------------------------------------------\n# Per-source normalizers\n# ---------------------------------------------------------------------------\n\ndef normalize_watchlist(path: Path) -> Dataset:\n    \"\"\"watchlist.csv → cleaned rows with aliases as list.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        # Split pipe-delimited aliases\n        raw_alias = row.get(\"alias\", \"\")\n        alias_list = [a.strip() for a in raw_alias.split(\"|\") if a.strip()] if raw_alias else []\n        out.append({\n            \"_source_row\": i,\n            \"watchlist_id\": row.get(\"watchlist_id\", \"\"),\n            \"canonical_name\": row.get(\"canonical_name\", \"\"),\n            \"aliases\": alias_list,\n            \"dob\": row.get(\"dob\", \"\"),\n            \"nationality\": row.get(\"nationality\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"risk_tag\": row.get(\"risk_tag\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"watchlist_id\", \"type\": \"string\"},\n        {\"field\": \"canonical_name\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"json\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"risk_tag\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_watchlist\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_company_registry(path: Path) -> Dataset:\n    \"\"\"company_registry.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"company_id\": row.get(\"company_id\", \"\"),\n            \"company_name\": row.get(\"company_name\", \"\"),\n            \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n            \"incorporation_date\": row.get(\"incorporation_date\", \"\"),\n            \"registered_address\": row.get(\"registered_address\", \"\"),\n            \"director_name\": row.get(\"director_name\", \"\"),\n            \"director_dob\": row.get(\"director_dob\", \"\"),\n            \"beneficial_owner\": row.get(\"beneficial_owner\", \"\"),\n            \"beneficial_owner_dob\": row.get(\"beneficial_owner_dob\", \"\"),\n            \"registered_city\": row.get(\"registered_city\", \"\"),\n            \"registered_country\": row.get(\"registered_country\", \"\"),\n            \"registered_site_type\": row.get(\"registered_site_type\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"company_id\", \"type\": \"string\"},\n        {\"field\": \"company_name\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporation_date\", \"type\": \"date\"},\n        {\"field\": \"registered_address\", \"type\": \"string\"},\n        {\"field\": \"director_name\", \"type\": \"string\"},\n        {\"field\": \"director_dob\", \"type\": \"date\"},\n        {\"field\": \"beneficial_owner\", \"type\": \"string\"},\n        {\"field\": \"beneficial_owner_dob\", \"type\": \"date\"},\n        {\"field\": \"registered_city\", \"type\": \"string\"},\n        {\"field\": \"registered_country\", \"type\": \"string\"},\n        {\"field\": \"registered_site_type\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_company_registry\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_flight_manifests(path: Path) -> Dataset:\n    \"\"\"flight_manifests.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"manifest_id\": row.get(\"manifest_id\", \"\"),\n            \"flight_number\": row.get(\"flight_number\", \"\"),\n            \"departure_airport\": row.get(\"departure_airport\", \"\"),\n            \"arrival_airport\": row.get(\"arrival_airport\", \"\"),\n            \"departure_ts\": row.get(\"departure_ts\", \"\"),\n            \"booking_reference\": row.get(\"booking_reference\", \"\"),\n            \"passenger_name\": row.get(\"passenger_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"phone_number\": row.get(\"phone_number\", \"\"),\n            \"seat\": row.get(\"seat\", \"\"),\n            \"payment_card_last4\": row.get(\"payment_card_last4\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"manifest_id\", \"type\": \"string\"},\n        {\"field\": \"flight_number\", \"type\": \"string\"},\n        {\"field\": \"departure_airport\", \"type\": \"string\"},\n        {\"field\": \"arrival_airport\", \"type\": \"string\"},\n        {\"field\": \"departure_ts\", \"type\": \"date\"},\n        {\"field\": \"booking_reference\", \"type\": \"string\"},\n        {\"field\": \"passenger_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"seat\", \"type\": \"string\"},\n        {\"field\": \"payment_card_last4\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_flight_manifests\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_bank_transactions(path: Path) -> Dataset:\n    \"\"\"bank_transactions.csv → cleaned rows with numeric amount.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        amount_raw = row.get(\"amount_usd\", \"\")\n        try:\n            amount = float(amount_raw) if amount_raw else None\n        except ValueError:\n            amount = None\n        out.append({\n            \"_source_row\": i,\n            \"transaction_id\": row.get(\"transaction_id\", \"\"),\n            \"source_account_id\": row.get(\"source_account_id\", \"\"),\n            \"source_name\": row.get(\"source_name\", \"\"),\n            \"destination_account_id\": row.get(\"destination_account_id\", \"\"),\n            \"destination_name\": row.get(\"destination_name\", \"\"),\n            \"amount_usd\": amount,\n            \"txn_type\": row.get(\"txn_type\", \"\"),\n            \"merchant_or_bank\": row.get(\"merchant_or_bank\", \"\"),\n            \"txn_ts\": row.get(\"txn_ts\", \"\"),\n            \"reference\": row.get(\"reference\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"transaction_id\", \"type\": \"string\"},\n        {\"field\": \"source_account_id\", \"type\": \"string\"},\n        {\"field\": \"source_name\", \"type\": \"string\"},\n        {\"field\": \"destination_account_id\", \"type\": \"string\"},\n        {\"field\": \"destination_name\", \"type\": \"string\"},\n        {\"field\": \"amount_usd\", \"type\": \"float\"},\n        {\"field\": \"txn_type\", \"type\": \"string\"},\n        {\"field\": \"merchant_or_bank\", \"type\": \"string\"},\n        {\"field\": \"txn_ts\", \"type\": \"date\"},\n        {\"field\": \"reference\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_bank_transactions\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_mobile_pings(path: Path) -> Dataset:\n    \"\"\"mobile_location_pings.jsonl → cleaned rows with numeric lat/lon.\"\"\"\n    rows = read_jsonl_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        out.append({\n            \"_source_row\": i,\n            \"ping_id\": str(row.get(\"ping_id\", \"\")),\n            \"device_id\": str(row.get(\"device_id\", \"\")),\n            \"phone_number\": str(row.get(\"phone_number\", \"\")),\n            \"observed_name\": str(row.get(\"observed_name\", \"\")),\n            \"timestamp\": str(row.get(\"timestamp\", \"\")),\n            \"location_label\": str(row.get(\"location_label\", \"\")),\n            \"location_type\": str(row.get(\"location_type\", \"\")),\n            \"city\": str(row.get(\"city\", \"\")),\n            \"country\": str(row.get(\"country\", \"\")),\n            \"lat\": row.get(\"lat\"),\n            \"lon\": row.get(\"lon\"),\n            \"cell_tower\": str(row.get(\"cell_tower\", \"\")),\n            \"source\": str(row.get(\"source\", \"\")),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"ping_id\", \"type\": \"string\"},\n        {\"field\": \"device_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"observed_name\", \"type\": \"string\"},\n        {\"field\": \"timestamp\", \"type\": \"date\"},\n        {\"field\": \"location_label\", \"type\": \"string\"},\n        {\"field\": \"location_type\", \"type\": \"string\"},\n        {\"field\": \"city\", \"type\": \"string\"},\n        {\"field\": \"country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"cell_tower\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_mobile_pings\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef _float_or_none(value: Any) -> Any:\n    try:\n        return float(value) if value not in (None, \"\") else None\n    except ValueError:\n        return None\n\n\ndef normalize_clinic(path: Path) -> Dataset:\n    \"\"\"clinic_registrations.csv → cleaned rows with numeric lat/lon.\n\n    Health data: rows are only ever *attached* to people who already exist\n    (by name + dob, in step 02); an unmatched row stays in this dataset.\n    \"\"\"\n    rows = read_csv_raw(path) if path.exists() else []\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"registration_id\": row.get(\"registration_id\", \"\"),\n            \"patient_name\": row.get(\"patient_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"home_address\": row.get(\"home_address\", \"\"),\n            \"home_city\": row.get(\"home_city\", \"\"),\n            \"home_country\": row.get(\"home_country\", \"\"),\n            \"lat\": _float_or_none(row.get(\"lat\")),\n            \"lon\": _float_or_none(row.get(\"lon\")),\n            \"clinic_code\": row.get(\"clinic_code\", \"\"),\n            \"registered_on\": row.get(\"registered_on\", \"\"),\n            \"source\": row.get(\"source\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"registration_id\", \"type\": \"string\"},\n        {\"field\": \"patient_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"home_address\", \"type\": \"string\"},\n        {\"field\": \"home_city\", \"type\": \"string\"},\n        {\"field\": \"home_country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"clinic_code\", \"type\": \"string\"},\n        {\"field\": \"registered_on\", \"type\": \"date\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_clinic_registrations\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef apply_manifest(ds: Dataset, manifest: Dict[str, Dict[str, Any]], file_name: str) -> Dataset:\n    \"\"\"Copy markings, purpose, legal basis and retention from the manifest.\"\"\"\n    entry = governance.manifest_entry_for_file(manifest, file_name)\n    ds.set_governance(governance.raw_governance(file_name, entry))\n    ds.as_of = entry.get(\"asOf\", \"\")  # type: ignore[attr-defined]\n    ds.derived_from = [file_name]\n    return ds\n\n\n# ---------------------------------------------------------------------------\n# Public entry point\n# ---------------------------------------------------------------------------\n\nRAW_FILES = (\n    \"watchlist.csv\", \"company_registry.csv\", \"flight_manifests.csv\",\n    \"bank_transactions.csv\", \"mobile_location_pings.jsonl\", \"clinic_registrations.csv\",\n)\n\n\ndef run(dataset_dir: Path) -> Tuple[Dataset, Dataset, Dataset, Dataset, Dataset, Dataset]:\n    \"\"\"Normalize all six sources under *dataset_dir*.\n\n    Returns\n    -------\n    (norm_watchlist, norm_company_registry, norm_flight_manifests,\n     norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations)\n    \"\"\"\n    dataset_dir = Path(dataset_dir)\n    manifest = governance.load_manifest(dataset_dir)\n    wl = normalize_watchlist(dataset_dir / \"watchlist.csv\")\n    cr = normalize_company_registry(dataset_dir / \"company_registry.csv\")\n    fm = normalize_flight_manifests(dataset_dir / \"flight_manifests.csv\")\n    bt = normalize_bank_transactions(dataset_dir / \"bank_transactions.csv\")\n    mp = normalize_mobile_pings(dataset_dir / \"mobile_location_pings.jsonl\")\n    cl = normalize_clinic(dataset_dir / \"clinic_registrations.csv\")\n\n    datasets = (wl, cr, fm, bt, mp, cl)\n    for ds, file_name in zip(datasets, RAW_FILES):\n        apply_manifest(ds, manifest, file_name)\n    return datasets\n\n\nif __name__ == \"__main__\":\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    datasets = run(dataset_dir)\n    for ds in datasets:\n        print(f\"{ds.name}: {len(ds)} rows\")\n",
           "rowsIn": 0,
           "rowsOut": 9210,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         },
         {
           "id": "resolve_persons",
@@ -25796,10 +25881,10 @@ window.foundrySeedCatalog = {
           ],
           "output": "resolved_persons",
           "codePath": "pipeline/02_resolve_persons.py",
-          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (PII + HEALTH)\n  clinicCode       — latest clinic registration (PII + HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
+          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (PII + HEALTH)\n  clinicCode       — latest clinic registration (PII + HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        # (name, field ref) for names seen in the register and manifests; cited for aliases only if kept.\n        self.written_names: List[Tuple[str, Tuple[str, int, str, str]]] = []\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            self.aliases.add(row[\"canonical_name\"])\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.aliases.add(row[name_field])\n            self.written_names.append((row[name_field], (ds_name, ri, name_field, \"name as written\")))\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.aliases.add(row[\"passenger_name\"])\n            self.written_names.append((row[\"passenger_name\"], (ds_name, ri, \"passenger_name\", \"name as written\")))\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            # A booking's phone number beats one only seen in pings (same rule as build_ontology_seed.py, F-08).\n            self.phone_number = row[\"phone_number\"]\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            if not self.phone_number:\n                self.phone_number = row[\"phone_number\"]\n            if row[\"phone_number\"] == self.phone_number:\n                self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        for name, ref in self.written_names:\n            if name in clean_aliases and ref not in self.field_refs.get(\"aliases\", []):\n                self.field_refs.setdefault(\"aliases\", []).append(ref)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
           "rowsIn": 7000,
           "rowsOut": 191,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         },
         {
           "id": "resolve_companies",
@@ -25813,7 +25898,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/03_resolve_companies.py — Entity resolution for Company entities.\n\nKeyed by company_id from the normalized company_registry dataset.\n\nOutput Dataset: company entities\n  id                 — company::{slug(company_id)}\n  companyName\n  jurisdiction\n  incorporationDate\n  registeredAddress\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef run(norm_company_registry: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve Company entities from the normalized company_registry dataset.\"\"\"\n    seen: Dict[str, int] = {}   # company_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for row in norm_company_registry.rows:\n        company_id = row.get(\"company_id\", \"\")\n        if not company_id:\n            continue\n\n        src_row = int(row[\"_source_row\"])\n        ds_name = norm_company_registry.name\n\n        if company_id in seen:\n            # Merge into existing — update any empty fields\n            out_idx = seen[company_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                val = row.get(src_field, \"\")\n                if val and not existing.get(out_field):\n                    existing[out_field] = val\n                    fp.setdefault(out_field, []).append(\n                        {\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"merge\"}\n                    )\n        else:\n            out_idx = len(output_rows)\n            seen[company_id] = out_idx\n            entity_id = f\"company::{slug(company_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"Company\",\n                \"companyName\": row.get(\"company_name\", \"\"),\n                \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n                \"incorporationDate\": row.get(\"incorporation_date\", \"\"),\n                \"registeredAddress\": row.get(\"registered_address\", \"\"),\n            }\n            fp: Dict[str, List[Dict[str, Any]]] = {}\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                if row.get(src_field):\n                    fp[out_field] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"\"}]\n            fp[\"id\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": \"company_id\", \"note\": \"key\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp)\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"companyName\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporationDate\", \"type\": \"date\"},\n        {\"field\": \"registeredAddress\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_companies\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_company_registry])\n    lineage = LineageRecord()\n\n    for out_idx, (out_row, fp) in enumerate(zip(output_rows, fp_per_row)):\n        # Row-level: find the original source row index\n        src_refs = fp.get(\"id\", fp.get(\"companyName\", []))\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"company\")\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, cr, _, _, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(cr)\n    print(f\"Resolved {len(ds)} companies\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"companyName\"])\n",
           "rowsIn": 98,
           "rowsOut": 98,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         },
         {
           "id": "resolve_accounts",
@@ -25827,7 +25912,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/04_resolve_accounts.py — Entity resolution for BankAccount entities.\n\nKeyed by account_id from the normalized bank_transactions dataset.\nBoth source and destination accounts are extracted.\n\nOutput Dataset: bank account entities\n  id           — bankaccount::{slug(account_id)}\n  accountId\n  ownerName\n  accountKind  — \"personal\" | \"corporate\" | \"\" (resolved downstream in step 05)\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\ndef run(norm_bank_transactions: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve BankAccount entities from the normalized bank_transactions dataset.\"\"\"\n    seen: Dict[str, int] = {}   # account_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n    ds_name = norm_bank_transactions.name\n\n    def upsert(account_id: str, owner_name: str, src_row: int, id_field: str, name_field: str) -> None:\n        if not account_id:\n            return\n        if account_id in seen:\n            out_idx = seen[account_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            if owner_name and not existing.get(\"ownerName\"):\n                existing[\"ownerName\"] = owner_name\n                fp.setdefault(\"ownerName\", []).append(\n                    {\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"merge\"}\n                )\n        else:\n            out_idx = len(output_rows)\n            seen[account_id] = out_idx\n            entity_id = f\"bankaccount::{slug(account_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"BankAccount\",\n                \"accountId\": account_id,\n                \"ownerName\": owner_name,\n                \"accountKind\": \"\",\n            }\n            fp_entry: Dict[str, List[Dict[str, Any]]] = {\n                \"id\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"key\"}],\n                \"accountId\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"\"}],\n            }\n            if owner_name:\n                fp_entry[\"ownerName\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp_entry)\n\n    for row in norm_bank_transactions.rows:\n        src_row = int(row[\"_source_row\"])\n        upsert(\n            row.get(\"source_account_id\", \"\"),\n            row.get(\"source_name\", \"\"),\n            src_row,\n            \"source_account_id\",\n            \"source_name\",\n        )\n        upsert(\n            row.get(\"destination_account_id\", \"\"),\n            row.get(\"destination_name\", \"\"),\n            src_row,\n            \"destination_account_id\",\n            \"destination_name\",\n        )\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"accountId\", \"type\": \"string\"},\n        {\"field\": \"ownerName\", \"type\": \"string\"},\n        {\"field\": \"accountKind\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_accounts\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_bank_transactions])\n    lineage = LineageRecord()\n\n    for out_idx, fp in enumerate(fp_per_row):\n        src_refs = fp.get(\"id\", [])\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"account\")\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, _, _, bt, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(bt)\n    print(f\"Resolved {len(ds)} bank accounts\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"ownerName\"])\n",
           "rowsIn": 2210,
           "rowsOut": 282,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         },
         {
           "id": "build_ontology",
@@ -25846,10 +25931,10 @@ window.foundrySeedCatalog = {
           ],
           "output": "ontology",
           "codePath": "pipeline/05_build_ontology.py",
-          "code": "\"\"\"\npipeline/05_build_ontology.py — Build the full ontology entity and edge sets.\n\nTakes all resolved entity datasets + normalized sources.  Produces:\n  - Additional entity types: Device, Flight, Airport, Location, WatchlistRecord\n  - All edges:\n      LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT,\n      OWNS_ACCOUNT, HAS_CORP_ACCOUNT, TRANSFERRED_TO,\n      BOOKED_ON, DEPARTED_FROM, ARRIVED_AT,\n      USES_DEVICE, OBSERVED_AT,\n      RESIDES_AT (Phase 1: Person → residential Location, from clinic rows)\n\nClinic rows that the shared resolver attached to a Person (name + dob) become\na residential ``Location`` (``locationType: \"residential\"``) and a\n``RESIDES_AT`` link with ``{asOf, source}``.  Unattached rows produce nothing.\n\nBoth output datasets inherit the union of their inputs' markings, and every\nentity and edge gets contract §3 markings from ``pipeline/governance.py``.\n\nPerson lookups go through the shared resolver in ``pipeline/resolution.py``\n(the same one the Gotham seed builder uses), passing every key the source row\ncarries — passport, phone, name and date of birth — so both demos attach\neach edge to the same person.\n\nReturns:\n  entities_dataset  — all entities (persons + companies + accounts + new types)\n  edges_dataset     — all edges\n  entity_lineage    — LineageRecord for entities\n  edge_lineage      — LineageRecord for edges\n\"\"\"\n\nfrom __future__ import annotations\n\nimport re\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Optional, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\nfrom pipeline.resolution import PersonResolver, attach_clinic_rows, clinic_observations, resolve_people\n\n# ---------------------------------------------------------------------------\n# Airport reference data (from build_ontology_seed.py)\n# ---------------------------------------------------------------------------\nAIRPORT_COORDS: Dict[str, Dict[str, Any]] = {\n    \"ATH\": {\"name\": \"Athens International Airport\", \"city\": \"Athens\", \"country\": \"Greece\", \"lat\": 37.9364, \"lon\": 23.9475},\n    \"BEG\": {\"name\": \"Belgrade Nikola Tesla Airport\", \"city\": \"Belgrade\", \"country\": \"Serbia\", \"lat\": 44.8184, \"lon\": 20.3091},\n    \"DXB\": {\"name\": \"Dubai International Airport\", \"city\": \"Dubai\", \"country\": \"United Arab Emirates\", \"lat\": 25.2532, \"lon\": 55.3657},\n    \"IAD\": {\"name\": \"Washington Dulles International Airport\", \"city\": \"Washington, D.C.\", \"country\": \"United States\", \"lat\": 38.9531, \"lon\": -77.4565},\n    \"IST\": {\"name\": \"Istanbul Airport\", \"city\": \"Istanbul\", \"country\": \"Turkey\", \"lat\": 41.2753, \"lon\": 28.7519},\n    \"LCA\": {\"name\": \"Larnaca International Airport\", \"city\": \"Larnaca\", \"country\": \"Cyprus\", \"lat\": 34.8751, \"lon\": 33.6249},\n    \"LHR\": {\"name\": \"Heathrow Airport\", \"city\": \"London\", \"country\": \"United Kingdom\", \"lat\": 51.4700, \"lon\": -0.4543},\n    \"SOF\": {\"name\": \"Sofia Airport\", \"city\": \"Sofia\", \"country\": \"Bulgaria\", \"lat\": 42.6950, \"lon\": 23.4062},\n    \"VIE\": {\"name\": \"Vienna International Airport\", \"city\": \"Vienna\", \"country\": \"Austria\", \"lat\": 48.1103, \"lon\": 16.5697},\n}\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _norm(value: str) -> str:\n    cleaned = re.sub(r\"[^a-z0-9]+\", \" \", value.lower()).strip()\n    return re.sub(r\"\\s+\", \" \", cleaned)\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Ontology builder\n# ---------------------------------------------------------------------------\n\nclass OntologyBuilder:\n    def __init__(\n        self,\n        resolved_persons: Dataset,\n        resolved_companies: Dataset,\n        resolved_accounts: Dataset,\n        resolver: PersonResolver,\n    ) -> None:\n        # Start with resolved entities\n        self.entities: List[Dict[str, Any]] = []\n        self.entity_index: Dict[str, int] = {}  # entity_id → index in self.entities\n        self.edges: List[Dict[str, Any]] = []\n        self.edge_index: Dict[str, int] = {}\n\n        # Entity lineage: entity_id → list of source refs\n        self.entity_src: Dict[str, List[Dict[str, Any]]] = {}\n        self.entity_field_prov: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}\n\n        # Lookup tables (persons: the shared resolver from step 02)\n        self.resolver = resolver\n        self.company_by_name: Dict[str, str] = {}\n        self.account_by_id: Dict[str, str] = {}\n        self.device_by_id: Dict[str, str] = {}\n        self.airport_by_code: Dict[str, str] = {}\n        self.location_by_label: Dict[str, str] = {}\n\n        # Ingest persons\n        for row in resolved_persons.rows:\n            self._add_entity_row(row, resolved_persons.name)\n\n        # Ingest companies\n        for row in resolved_companies.rows:\n            self._add_entity_row(row, resolved_companies.name)\n            self.company_by_name[_norm(row.get(\"companyName\", \"\"))] = row[\"id\"]\n\n        # Ingest accounts\n        for row in resolved_accounts.rows:\n            self._add_entity_row(row, resolved_accounts.name)\n            self.account_by_id[row[\"accountId\"]] = row[\"id\"]\n\n    def _add_entity_row(self, row: Dict[str, Any], source_ds: str) -> str:\n        eid = row[\"id\"]\n        if eid in self.entity_index:\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        # Build Gotham-compatible entity shape\n        props = {k: v for k, v in row.items() if k not in (\"id\", \"type\", \"resolution\") and v not in (None, \"\")}\n        entity = {\n            \"id\": eid,\n            \"type\": row[\"type\"],\n            \"label\": props.get(\"canonicalName\") or props.get(\"companyName\") or props.get(\"accountId\") or eid,\n            \"properties\": props,\n            \"sourceIds\": [source_ds],\n        }\n        if row.get(\"resolution\"):\n            entity[\"resolution\"] = row[\"resolution\"]\n        self.entities.append(entity)\n        return eid\n\n    def _add_edge(\n        self,\n        rel_type: str,\n        source_id: str,\n        target_id: str,\n        properties: Optional[Dict[str, Any]] = None,\n        dedupe_key: Optional[str] = None,\n    ) -> str:\n        base_key = dedupe_key or f\"{rel_type}:{source_id}:{target_id}\"\n        edge_id = f\"{rel_type.lower()}::{slug(base_key)}\"\n        if edge_id in self.edge_index:\n            idx = self.edge_index[edge_id]\n            if properties:\n                for k, v in properties.items():\n                    if v not in (None, \"\"):\n                        self.edges[idx][\"properties\"][k] = v\n            return edge_id\n        idx = len(self.edges)\n        self.edge_index[edge_id] = idx\n        self.edges.append({\n            \"id\": edge_id,\n            \"type\": rel_type,\n            \"source\": source_id,\n            \"target\": target_id,\n            \"label\": rel_type,\n            \"properties\": {k: v for k, v in (properties or {}).items() if v not in (None, \"\")},\n        })\n        return edge_id\n\n    def _ensure_entity(\n        self, type_id: str, external_key: str, label: str,\n        properties: Dict[str, Any], source_ds: str,\n    ) -> str:\n        eid = f\"{type_id.lower()}::{slug(external_key)}\"\n        if eid in self.entity_index:\n            # Merge\n            existing = self.entities[self.entity_index[eid]]\n            for k, v in properties.items():\n                if v not in (None, \"\") and existing[\"properties\"].get(k) in (None, \"\"):\n                    existing[\"properties\"][k] = v\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        clean_props = {k: v for k, v in properties.items() if v not in (None, \"\")}\n        self.entities.append({\n            \"id\": eid,\n            \"type\": type_id,\n            \"label\": label or external_key,\n            \"properties\": clean_props,\n            \"sourceIds\": [source_ds],\n        })\n        return eid\n\n    def ensure_airport(self, code: str) -> str:\n        if code in self.airport_by_code:\n            return self.airport_by_code[code]\n        info = AIRPORT_COORDS.get(code, {\"name\": code, \"city\": \"\", \"country\": \"\", \"lat\": None, \"lon\": None})\n        eid = self._ensure_entity(\n            \"Airport\", code, info[\"name\"],\n            {\"code\": code, \"airportName\": info[\"name\"], \"city\": info[\"city\"],\n             \"country\": info[\"country\"], \"lat\": info[\"lat\"], \"lon\": info[\"lon\"]},\n            \"norm_flight_manifests\",\n        )\n        self.airport_by_code[code] = eid\n        return eid\n\n    def ensure_location(\n        self, label: str, lat: Any = None, lon: Any = None,\n        cell_tower: str = \"\", location_type: str = \"\", city: str = \"\", country: str = \"\",\n        source_ds: str = \"norm_mobile_pings\",\n    ) -> str:\n        norm = _norm(label)\n        if norm in self.location_by_label:\n            eid = self.location_by_label[norm]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            for k, v in {\"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower,\n                         \"locationType\": location_type, \"city\": city, \"country\": country}.items():\n                if v not in (None, \"\") and props.get(k) in (None, \"\"):\n                    props[k] = v\n            return eid\n        eid = self._ensure_entity(\n            \"Location\", label, label,\n            {\"label\": label, \"locationType\": location_type, \"city\": city, \"country\": country,\n             \"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower},\n            source_ds,\n        )\n        self.location_by_label[norm] = eid\n        return eid\n\n    def ensure_device(self, device_id: str, phone: str, observed_name: str) -> str:\n        if device_id in self.device_by_id:\n            eid = self.device_by_id[device_id]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            if phone:\n                props[\"phoneNumber\"] = _merge(str(props.get(\"phoneNumber\", \"\")), phone)\n            if observed_name:\n                props[\"lastObservedName\"] = _merge(str(props.get(\"lastObservedName\", \"\")), observed_name)\n            return eid\n        eid = self._ensure_entity(\n            \"Device\", device_id, device_id,\n            {\"deviceId\": device_id, \"phoneNumber\": phone, \"lastObservedName\": observed_name},\n            \"norm_mobile_pings\",\n        )\n        self.device_by_id[device_id] = eid\n        return eid\n\n    def find_person(self, passport_id: str = \"\", phone: str = \"\", name: str = \"\", dob: str = \"\",\n                    ref: str = \"\") -> Optional[str]:\n        \"\"\"Person for a source record (``ref``) or, failing that, by key lookup.\"\"\"\n        if ref:\n            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone)\n        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone)\n\n    def link_account_owner(self, account_eid: str, owner_name: str) -> None:\n        norm = _norm(owner_name)\n        acct_props = self.entities[self.entity_index[account_eid]][\"properties\"]\n        if norm in self.company_by_name:\n            company_id = self.company_by_name[norm]\n            self._add_edge(\"HAS_CORP_ACCOUNT\", company_id, account_eid, dedupe_key=f\"{company_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"corporate\"\n            return\n        person_id = self.find_person(name=owner_name)\n        if person_id:\n            self._add_edge(\"OWNS_ACCOUNT\", person_id, account_eid, dedupe_key=f\"{person_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"personal\"\n\n\n# ---------------------------------------------------------------------------\n# Main run\n# ---------------------------------------------------------------------------\n\ndef run(\n    resolved_persons: Dataset,\n    resolved_companies: Dataset,\n    resolved_accounts: Dataset,\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_bank_transactions: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, Dataset, LineageRecord, LineageRecord]:\n\n    resolver = getattr(resolved_persons, \"resolver\", None)\n    if resolver is None:\n        # Rebuild the identical resolver state from the normalised sources.\n        resolver = resolve_people(norm_watchlist.rows, norm_company_registry.rows,\n                                  norm_flight_manifests.rows, norm_mobile_pings.rows)\n        attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts, resolver)\n\n    # --- WatchlistRecord entities + LISTED_ON edges ---\n    for row in norm_watchlist.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            name=row.get(\"canonical_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"watchlist:{row.get('watchlist_id', '')}\",\n        )\n        record_eid = builder._ensure_entity(\n            \"WatchlistRecord\",\n            row.get(\"watchlist_id\", \"\"),\n            row.get(\"watchlist_id\", \"\"),\n            {\n                \"watchlistId\": row.get(\"watchlist_id\", \"\"),\n                \"alias\": \" | \".join(row.get(\"aliases\", [])),\n                \"dob\": row.get(\"dob\", \"\"),\n                \"nationality\": row.get(\"nationality\", \"\"),\n                \"passportId\": row.get(\"passport_id\", \"\"),\n                \"riskTag\": row.get(\"risk_tag\", \"\"),\n            },\n            norm_watchlist.name,\n        )\n        if person_id:\n            builder._add_edge(\"LISTED_ON\", person_id, record_eid,\n                               dedupe_key=f\"{person_id}:{record_eid}\")\n\n    # --- Company edges: DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT ---\n    for row in norm_company_registry.rows:\n        company_eid = f\"company::{slug(row.get('company_id', ''))}\"\n        if company_eid not in builder.entity_index:\n            continue\n\n        # Director\n        director_id = builder.find_person(name=row.get(\"director_name\", \"\"),\n                                           dob=row.get(\"director_dob\", \"\"),\n                                           ref=f\"company:{row.get('company_id', '')}:director\")\n        if director_id:\n            builder._add_edge(\"DIRECTS\", director_id, company_eid,\n                               dedupe_key=f\"{director_id}:{company_eid}\")\n\n        # Beneficial owner\n        owner_id = builder.find_person(name=row.get(\"beneficial_owner\", \"\"),\n                                        dob=row.get(\"beneficial_owner_dob\", \"\"),\n                                        ref=f\"company:{row.get('company_id', '')}:owner\")\n        if owner_id:\n            builder._add_edge(\"BENEFICIALLY_OWNS\", owner_id, company_eid,\n                               dedupe_key=f\"{owner_id}:{company_eid}\")\n\n        # Registered address → Location\n        address = row.get(\"registered_address\", \"\")\n        if address:\n            loc_eid = builder.ensure_location(\n                address, location_type=row.get(\"registered_site_type\", \"\"),\n                city=row.get(\"registered_city\", \"\"),\n                country=row.get(\"registered_country\", \"\"),\n                source_ds=norm_company_registry.name,\n            )\n            builder._add_edge(\"REGISTERED_AT\", company_eid, loc_eid,\n                               dedupe_key=f\"{company_eid}:{loc_eid}\")\n\n    # --- Flight entities + BOOKED_ON, DEPARTED_FROM, ARRIVED_AT ---\n    for row in norm_flight_manifests.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            phone=row.get(\"phone_number\", \"\"),\n            name=row.get(\"passenger_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"flight:{row.get('manifest_id', '')}\",\n        )\n        flight_eid = builder._ensure_entity(\n            \"Flight\",\n            row.get(\"manifest_id\", \"\"),\n            f\"{row.get('flight_number', '')} · {row.get('passenger_name', '')}\",\n            {\n                \"manifestId\": row.get(\"manifest_id\", \"\"),\n                \"flightNumber\": row.get(\"flight_number\", \"\"),\n                \"departureTs\": row.get(\"departure_ts\", \"\"),\n                \"bookingReference\": row.get(\"booking_reference\", \"\"),\n                \"seat\": row.get(\"seat\", \"\"),\n                \"paymentCardLast4\": row.get(\"payment_card_last4\", \"\"),\n            },\n            norm_flight_manifests.name,\n        )\n        dep_eid = builder.ensure_airport(row.get(\"departure_airport\", \"\"))\n        arr_eid = builder.ensure_airport(row.get(\"arrival_airport\", \"\"))\n        if person_id:\n            builder._add_edge(\"BOOKED_ON\", person_id, flight_eid,\n                               dedupe_key=f\"{person_id}:{flight_eid}\")\n        builder._add_edge(\"DEPARTED_FROM\", flight_eid, dep_eid,\n                           dedupe_key=f\"{flight_eid}:{dep_eid}\")\n        builder._add_edge(\"ARRIVED_AT\", flight_eid, arr_eid,\n                           dedupe_key=f\"{flight_eid}:{arr_eid}\")\n\n    # --- Bank account ownership + TRANSFERRED_TO ---\n    for row in norm_bank_transactions.rows:\n        src_acc = row.get(\"source_account_id\", \"\")\n        dst_acc = row.get(\"destination_account_id\", \"\")\n        src_eid = builder.account_by_id.get(src_acc, \"\")\n        dst_eid = builder.account_by_id.get(dst_acc, \"\")\n\n        if src_eid:\n            builder.link_account_owner(src_eid, row.get(\"source_name\", \"\"))\n        if dst_eid:\n            builder.link_account_owner(dst_eid, row.get(\"destination_name\", \"\"))\n\n        if src_eid and dst_eid and row.get(\"txn_type\") == \"transfer\":\n            dedupe = f\"{src_eid}:{dst_eid}\"\n            edge_id = f\"transferred_to::{slug(dedupe)}\"\n            if edge_id in builder.edge_index:\n                idx = builder.edge_index[edge_id]\n                existing = builder.edges[idx]\n                count = int(existing[\"properties\"].get(\"count\", \"1\")) + 1\n                total = float(existing[\"properties\"].get(\"totalAmountUsd\", \"0\")) + float(row.get(\"amount_usd\") or 0)\n                existing[\"properties\"][\"count\"] = str(count)\n                existing[\"properties\"][\"totalAmountUsd\"] = f\"{total:.2f}\"\n                existing[\"properties\"][\"lastTxnTs\"] = row.get(\"txn_ts\", \"\")\n            else:\n                builder._add_edge(\n                    \"TRANSFERRED_TO\", src_eid, dst_eid,\n                    properties={\n                        \"count\": \"1\",\n                        \"totalAmountUsd\": str(row.get(\"amount_usd\", \"\") or \"\"),\n                        \"lastTxnTs\": row.get(\"txn_ts\", \"\"),\n                        \"sampleReference\": row.get(\"reference\", \"\"),\n                    },\n                    dedupe_key=dedupe,\n                )\n\n    # --- Device entities + USES_DEVICE + OBSERVED_AT ---\n    for row in norm_mobile_pings.rows:\n        device_id_str = row.get(\"device_id\", \"\")\n        phone = row.get(\"phone_number\", \"\")\n        observed = row.get(\"observed_name\", \"\")\n\n        device_eid = builder.ensure_device(device_id_str, phone, observed)\n\n        # Ping-only persons were already created by step 02's resolver.\n        person_id = builder.find_person(phone=phone, name=observed,\n                                        ref=f\"ping:{row.get('ping_id', '')}\")\n        if person_id:\n            builder._add_edge(\"USES_DEVICE\", person_id, device_eid,\n                               dedupe_key=f\"{person_id}:{device_eid}\")\n\n        loc_eid = builder.ensure_location(\n            row.get(\"location_label\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            cell_tower=row.get(\"cell_tower\", \"\"),\n            location_type=row.get(\"location_type\", \"\"),\n            city=row.get(\"city\", \"\"),\n            country=row.get(\"country\", \"\"),\n        )\n\n        dedupe = f\"{device_eid}:{loc_eid}\"\n        edge_id = f\"observed_at::{slug(dedupe)}\"\n        if edge_id in builder.edge_index:\n            idx = builder.edge_index[edge_id]\n            existing = builder.edges[idx]\n            count = int(existing[\"properties\"].get(\"sightingCount\", \"1\")) + 1\n            existing[\"properties\"][\"sightingCount\"] = str(count)\n            existing[\"properties\"][\"lastSeen\"] = row.get(\"timestamp\", \"\")\n        else:\n            builder._add_edge(\n                \"OBSERVED_AT\", device_eid, loc_eid,\n                properties={\n                    \"sightingCount\": \"1\",\n                    \"firstSeen\": row.get(\"timestamp\", \"\"),\n                    \"lastSeen\": row.get(\"timestamp\", \"\"),\n                    \"source\": row.get(\"source\", \"\"),\n                },\n                dedupe_key=dedupe,\n            )\n\n    # --- Residential Locations + RESIDES_AT (clinic rows, Phase 1) ---\n    for obs in clinic_observations(norm_clinic_registrations.rows):\n        person_id = resolver.clinic_by_ref.get(obs.ref)\n        if not person_id:\n            continue  # unattached clinic rows create no objects\n        row = obs.row\n        loc_eid = builder.ensure_location(\n            row.get(\"home_address\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            location_type=\"residential\",\n            city=row.get(\"home_city\", \"\"),\n            country=row.get(\"home_country\", \"\"),\n            source_ds=norm_clinic_registrations.name,\n        )\n        dedupe = f\"{person_id}:{loc_eid}\"\n        edge_id = f\"resides_at::{slug(dedupe)}\"\n        as_of = row.get(\"registered_on\", \"\")\n        if edge_id in builder.edge_index:\n            existing = builder.edges[builder.edge_index[edge_id]]\n            if as_of > str(existing[\"properties\"].get(\"asOf\", \"\")):\n                existing[\"properties\"][\"asOf\"] = as_of\n        else:\n            builder._add_edge(\"RESIDES_AT\", person_id, loc_eid,\n                               properties={\"asOf\": as_of, \"source\": row.get(\"source\", \"\")},\n                               dedupe_key=dedupe)\n\n    # --- Markings on every object and link (contract §3) ---\n    raw_inputs = [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                  norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations]\n    file_markings = {ds.derived_from[0]: ds.markings for ds in raw_inputs if ds.derived_from}\n    governance.annotate_objects(builder.entities, builder.edges, file_markings)\n\n    # --- Assemble output datasets ---\n    entities_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"sourceIds\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n        {\"field\": \"propertyMarkings\", \"type\": \"json\"},\n        {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n    ]\n    edges_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n        {\"field\": \"target\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n    ]\n\n    entities_ds = Dataset(\n        name=\"ontology_entities\",\n        rows=sorted(builder.entities, key=lambda e: (str(e[\"type\"]), str(e[\"label\"]))),\n        schema=entities_schema,\n    )\n    edges_ds = Dataset(\n        name=\"ontology_edges\",\n        rows=sorted(builder.edges, key=lambda e: (str(e[\"type\"]), str(e[\"source\"]), str(e[\"target\"]))),\n        schema=edges_schema,\n    )\n\n    ontology_inputs = [resolved_persons, resolved_companies, resolved_accounts] + raw_inputs\n    inherit_markings(entities_ds, ontology_inputs)\n    inherit_markings(edges_ds, ontology_inputs)\n\n    # Trivial lineage: each entity/edge row came from its sourceIds\n    entity_lineage = LineageRecord()\n    for out_idx, entity in enumerate(entities_ds.rows):\n        for src in entity.get(\"sourceIds\", []):\n            entity_lineage.add_source(out_idx, src, 0, note=entity[\"type\"])\n\n    edge_lineage = LineageRecord()\n    for out_idx, edge in enumerate(edges_ds.rows):\n        edge_lineage.add_source(out_idx, edge[\"type\"], 0, note=\"edge\")\n\n    return entities_ds, edges_ds, entity_lineage, edge_lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline import p01_normalize_sources as n01\n    from pipeline import p02_resolve_persons as n02\n    from pipeline import p03_resolve_companies as n03\n    from pipeline import p04_resolve_accounts as n04\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = n01.run(dataset_dir)\n    persons, _ = n02.run(wl, cr, fm, mp, cl)\n    companies, _ = n03.run(cr)\n    accounts, _ = n04.run(bt)\n    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp, cl)\n    print(f\"Entities: {len(entities_ds)}, Edges: {len(edges_ds)}\")\n",
+          "code": "\"\"\"\npipeline/05_build_ontology.py — Build the full ontology entity and edge sets.\n\nTakes all resolved entity datasets + normalized sources.  Produces:\n  - Additional entity types: Device, Flight, Airport, Location, WatchlistRecord\n  - All edges:\n      LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT,\n      OWNS_ACCOUNT, HAS_CORP_ACCOUNT, TRANSFERRED_TO,\n      BOOKED_ON, DEPARTED_FROM, ARRIVED_AT,\n      USES_DEVICE, OBSERVED_AT,\n      RESIDES_AT (Phase 1: Person → residential Location, from clinic rows)\n\nClinic rows that the shared resolver attached to a Person (name + dob) become\na residential ``Location`` (``locationType: \"residential\"``) and a\n``RESIDES_AT`` link with ``{asOf, source}``.  Unattached rows produce nothing.\n\nBoth output datasets inherit the union of their inputs' markings, and every\nentity and edge gets contract §3 markings from ``pipeline/governance.py``.\n\nPerson lookups go through the shared resolver in ``pipeline/resolution.py``\n(the same one the Gotham seed builder uses), passing every key the source row\ncarries — passport, phone, name and date of birth — so both demos attach\neach edge to the same person.\n\nReturns:\n  entities_dataset  — all entities (persons + companies + accounts + new types)\n  edges_dataset     — all edges\n  entity_lineage    — LineageRecord for entities\n  edge_lineage      — LineageRecord for edges\n\"\"\"\n\nfrom __future__ import annotations\n\nimport re\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Optional, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\nfrom pipeline.resolution import PersonResolver, attach_clinic_rows, clinic_observations, resolve_people\n\n# ---------------------------------------------------------------------------\n# Airport reference data (from build_ontology_seed.py)\n# ---------------------------------------------------------------------------\nAIRPORT_COORDS: Dict[str, Dict[str, Any]] = {\n    \"ATH\": {\"name\": \"Athens International Airport\", \"city\": \"Athens\", \"country\": \"Greece\", \"lat\": 37.9364, \"lon\": 23.9475},\n    \"BEG\": {\"name\": \"Belgrade Nikola Tesla Airport\", \"city\": \"Belgrade\", \"country\": \"Serbia\", \"lat\": 44.8184, \"lon\": 20.3091},\n    \"DXB\": {\"name\": \"Dubai International Airport\", \"city\": \"Dubai\", \"country\": \"United Arab Emirates\", \"lat\": 25.2532, \"lon\": 55.3657},\n    \"IAD\": {\"name\": \"Washington Dulles International Airport\", \"city\": \"Washington, D.C.\", \"country\": \"United States\", \"lat\": 38.9531, \"lon\": -77.4565},\n    \"IST\": {\"name\": \"Istanbul Airport\", \"city\": \"Istanbul\", \"country\": \"Turkey\", \"lat\": 41.2753, \"lon\": 28.7519},\n    \"LCA\": {\"name\": \"Larnaca International Airport\", \"city\": \"Larnaca\", \"country\": \"Cyprus\", \"lat\": 34.8751, \"lon\": 33.6249},\n    \"LHR\": {\"name\": \"Heathrow Airport\", \"city\": \"London\", \"country\": \"United Kingdom\", \"lat\": 51.4700, \"lon\": -0.4543},\n    \"SOF\": {\"name\": \"Sofia Airport\", \"city\": \"Sofia\", \"country\": \"Bulgaria\", \"lat\": 42.6950, \"lon\": 23.4062},\n    \"VIE\": {\"name\": \"Vienna International Airport\", \"city\": \"Vienna\", \"country\": \"Austria\", \"lat\": 48.1103, \"lon\": 16.5697},\n}\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _norm(value: str) -> str:\n    cleaned = re.sub(r\"[^a-z0-9]+\", \" \", value.lower()).strip()\n    return re.sub(r\"\\s+\", \" \", cleaned)\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Ontology builder\n# ---------------------------------------------------------------------------\n\nclass OntologyBuilder:\n    def __init__(\n        self,\n        resolved_persons: Dataset,\n        resolved_companies: Dataset,\n        resolved_accounts: Dataset,\n        resolver: PersonResolver,\n    ) -> None:\n        # Start with resolved entities\n        self.entities: List[Dict[str, Any]] = []\n        self.entity_index: Dict[str, int] = {}  # entity_id → index in self.entities\n        self.edges: List[Dict[str, Any]] = []\n        self.edge_index: Dict[str, int] = {}\n\n        # Entity lineage: entity_id → list of source refs\n        self.entity_src: Dict[str, List[Dict[str, Any]]] = {}\n        self.entity_field_prov: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}\n\n        # Lookup tables (persons: the shared resolver from step 02)\n        self.resolver = resolver\n        self.company_by_name: Dict[str, str] = {}\n        self.account_by_id: Dict[str, str] = {}\n        self.device_by_id: Dict[str, str] = {}\n        self.airport_by_code: Dict[str, str] = {}\n        self.location_by_label: Dict[str, str] = {}\n\n        # Ingest persons\n        for row in resolved_persons.rows:\n            self._add_entity_row(row, resolved_persons.name)\n\n        # Ingest companies\n        for row in resolved_companies.rows:\n            self._add_entity_row(row, resolved_companies.name)\n            self.company_by_name[_norm(row.get(\"companyName\", \"\"))] = row[\"id\"]\n\n        # Ingest accounts\n        for row in resolved_accounts.rows:\n            self._add_entity_row(row, resolved_accounts.name)\n            self.account_by_id[row[\"accountId\"]] = row[\"id\"]\n\n    def _add_entity_row(self, row: Dict[str, Any], source_ds: str) -> str:\n        eid = row[\"id\"]\n        if eid in self.entity_index:\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        # Build Gotham-compatible entity shape\n        props = {k: v for k, v in row.items() if k not in (\"id\", \"type\", \"resolution\") and v not in (None, \"\")}\n        entity = {\n            \"id\": eid,\n            \"type\": row[\"type\"],\n            \"label\": props.get(\"canonicalName\") or props.get(\"companyName\") or props.get(\"accountId\") or eid,\n            \"properties\": props,\n            \"sourceIds\": [source_ds],\n        }\n        if row.get(\"resolution\"):\n            entity[\"resolution\"] = row[\"resolution\"]\n        self.entities.append(entity)\n        return eid\n\n    def _add_edge(\n        self,\n        rel_type: str,\n        source_id: str,\n        target_id: str,\n        properties: Optional[Dict[str, Any]] = None,\n        dedupe_key: Optional[str] = None,\n    ) -> str:\n        base_key = dedupe_key or f\"{rel_type}:{source_id}:{target_id}\"\n        edge_id = f\"{rel_type.lower()}::{slug(base_key)}\"\n        if edge_id in self.edge_index:\n            idx = self.edge_index[edge_id]\n            if properties:\n                for k, v in properties.items():\n                    if v not in (None, \"\"):\n                        self.edges[idx][\"properties\"][k] = v\n            return edge_id\n        idx = len(self.edges)\n        self.edge_index[edge_id] = idx\n        self.edges.append({\n            \"id\": edge_id,\n            \"type\": rel_type,\n            \"source\": source_id,\n            \"target\": target_id,\n            \"label\": rel_type,\n            \"properties\": {k: v for k, v in (properties or {}).items() if v not in (None, \"\")},\n        })\n        return edge_id\n\n    def _ensure_entity(\n        self, type_id: str, external_key: str, label: str,\n        properties: Dict[str, Any], source_ds: str,\n    ) -> str:\n        eid = f\"{type_id.lower()}::{slug(external_key)}\"\n        if eid in self.entity_index:\n            # Merge\n            existing = self.entities[self.entity_index[eid]]\n            for k, v in properties.items():\n                if v not in (None, \"\") and existing[\"properties\"].get(k) in (None, \"\"):\n                    existing[\"properties\"][k] = v\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        clean_props = {k: v for k, v in properties.items() if v not in (None, \"\")}\n        self.entities.append({\n            \"id\": eid,\n            \"type\": type_id,\n            \"label\": label or external_key,\n            \"properties\": clean_props,\n            \"sourceIds\": [source_ds],\n        })\n        return eid\n\n    def ensure_airport(self, code: str) -> str:\n        if code in self.airport_by_code:\n            return self.airport_by_code[code]\n        info = AIRPORT_COORDS.get(code, {\"name\": code, \"city\": \"\", \"country\": \"\", \"lat\": None, \"lon\": None})\n        eid = self._ensure_entity(\n            \"Airport\", code, info[\"name\"],\n            {\"code\": code, \"airportName\": info[\"name\"], \"city\": info[\"city\"],\n             \"country\": info[\"country\"], \"lat\": info[\"lat\"], \"lon\": info[\"lon\"]},\n            \"norm_flight_manifests\",\n        )\n        self.airport_by_code[code] = eid\n        return eid\n\n    def ensure_location(\n        self, label: str, lat: Any = None, lon: Any = None,\n        cell_tower: str = \"\", location_type: str = \"\", city: str = \"\", country: str = \"\",\n        source_ds: str = \"norm_mobile_pings\",\n    ) -> str:\n        norm = _norm(label)\n        if norm in self.location_by_label:\n            eid = self.location_by_label[norm]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            for k, v in {\"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower,\n                         \"locationType\": location_type, \"city\": city, \"country\": country}.items():\n                if v not in (None, \"\") and props.get(k) in (None, \"\"):\n                    props[k] = v\n            return eid\n        eid = self._ensure_entity(\n            \"Location\", label, label,\n            {\"label\": label, \"locationType\": location_type, \"city\": city, \"country\": country,\n             \"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower},\n            source_ds,\n        )\n        self.location_by_label[norm] = eid\n        return eid\n\n    def ensure_device(self, device_id: str, phone: str, observed_name: str) -> str:\n        if device_id in self.device_by_id:\n            eid = self.device_by_id[device_id]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            if phone:\n                props[\"phoneNumber\"] = _merge(str(props.get(\"phoneNumber\", \"\")), phone)\n            if observed_name:\n                props[\"lastObservedName\"] = _merge(str(props.get(\"lastObservedName\", \"\")), observed_name)\n            return eid\n        eid = self._ensure_entity(\n            \"Device\", device_id, device_id,\n            {\"deviceId\": device_id, \"phoneNumber\": phone, \"lastObservedName\": observed_name},\n            \"norm_mobile_pings\",\n        )\n        self.device_by_id[device_id] = eid\n        return eid\n\n    def find_person(self, passport_id: str = \"\", phone: str = \"\", name: str = \"\", dob: str = \"\",\n                    ref: str = \"\") -> Optional[str]:\n        \"\"\"Person for a source record (``ref``) or, failing that, by key lookup.\"\"\"\n        if ref:\n            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone)\n        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone)\n\n    def link_account_owner(self, account_eid: str, owner_name: str) -> None:\n        norm = _norm(owner_name)\n        acct_props = self.entities[self.entity_index[account_eid]][\"properties\"]\n        if norm in self.company_by_name:\n            company_id = self.company_by_name[norm]\n            self._add_edge(\"HAS_CORP_ACCOUNT\", company_id, account_eid, dedupe_key=f\"{company_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"corporate\"\n            return\n        person_id = self.find_person(name=owner_name)\n        if person_id:\n            self._add_edge(\"OWNS_ACCOUNT\", person_id, account_eid, dedupe_key=f\"{person_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"personal\"\n\n\n# ---------------------------------------------------------------------------\n# Main run\n# ---------------------------------------------------------------------------\n\ndef run(\n    resolved_persons: Dataset,\n    resolved_companies: Dataset,\n    resolved_accounts: Dataset,\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_bank_transactions: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, Dataset, LineageRecord, LineageRecord]:\n\n    resolver = getattr(resolved_persons, \"resolver\", None)\n    if resolver is None:\n        # Rebuild the identical resolver state from the normalised sources.\n        resolver = resolve_people(norm_watchlist.rows, norm_company_registry.rows,\n                                  norm_flight_manifests.rows, norm_mobile_pings.rows)\n        attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts, resolver)\n\n    # --- WatchlistRecord entities + LISTED_ON edges ---\n    for row in norm_watchlist.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            name=row.get(\"canonical_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"watchlist:{row.get('watchlist_id', '')}\",\n        )\n        record_eid = builder._ensure_entity(\n            \"WatchlistRecord\",\n            row.get(\"watchlist_id\", \"\"),\n            row.get(\"watchlist_id\", \"\"),\n            {\n                \"watchlistId\": row.get(\"watchlist_id\", \"\"),\n                \"alias\": \" | \".join(row.get(\"aliases\", [])),\n                \"dob\": row.get(\"dob\", \"\"),\n                \"nationality\": row.get(\"nationality\", \"\"),\n                \"passportId\": row.get(\"passport_id\", \"\"),\n                \"riskTag\": row.get(\"risk_tag\", \"\"),\n            },\n            norm_watchlist.name,\n        )\n        if person_id:\n            builder._add_edge(\"LISTED_ON\", person_id, record_eid,\n                               dedupe_key=f\"{person_id}:{record_eid}\")\n\n    # --- Company edges: DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT ---\n    for row in norm_company_registry.rows:\n        company_eid = f\"company::{slug(row.get('company_id', ''))}\"\n        if company_eid not in builder.entity_index:\n            continue\n\n        # Director\n        director_id = builder.find_person(name=row.get(\"director_name\", \"\"),\n                                           dob=row.get(\"director_dob\", \"\"),\n                                           ref=f\"company:{row.get('company_id', '')}:director\")\n        if director_id:\n            builder._add_edge(\"DIRECTS\", director_id, company_eid,\n                               dedupe_key=f\"{director_id}:{company_eid}\")\n\n        # Beneficial owner\n        owner_id = builder.find_person(name=row.get(\"beneficial_owner\", \"\"),\n                                        dob=row.get(\"beneficial_owner_dob\", \"\"),\n                                        ref=f\"company:{row.get('company_id', '')}:owner\")\n        if owner_id:\n            builder._add_edge(\"BENEFICIALLY_OWNS\", owner_id, company_eid,\n                               dedupe_key=f\"{owner_id}:{company_eid}\")\n\n        # Registered address → Location\n        address = row.get(\"registered_address\", \"\")\n        if address:\n            loc_eid = builder.ensure_location(\n                address, location_type=row.get(\"registered_site_type\", \"\"),\n                city=row.get(\"registered_city\", \"\"),\n                country=row.get(\"registered_country\", \"\"),\n                source_ds=norm_company_registry.name,\n            )\n            builder._add_edge(\"REGISTERED_AT\", company_eid, loc_eid,\n                               dedupe_key=f\"{company_eid}:{loc_eid}\")\n\n    # --- Flight entities + BOOKED_ON, DEPARTED_FROM, ARRIVED_AT ---\n    for row in norm_flight_manifests.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            phone=row.get(\"phone_number\", \"\"),\n            name=row.get(\"passenger_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"flight:{row.get('manifest_id', '')}\",\n        )\n        flight_eid = builder._ensure_entity(\n            \"Flight\",\n            row.get(\"manifest_id\", \"\"),\n            f\"{row.get('flight_number', '')} · {row.get('passenger_name', '')}\",\n            {\n                \"manifestId\": row.get(\"manifest_id\", \"\"),\n                \"flightNumber\": row.get(\"flight_number\", \"\"),\n                \"departureTs\": row.get(\"departure_ts\", \"\"),\n                \"bookingReference\": row.get(\"booking_reference\", \"\"),\n                \"seat\": row.get(\"seat\", \"\"),\n                \"paymentCardLast4\": row.get(\"payment_card_last4\", \"\"),\n            },\n            norm_flight_manifests.name,\n        )\n        dep_eid = builder.ensure_airport(row.get(\"departure_airport\", \"\"))\n        arr_eid = builder.ensure_airport(row.get(\"arrival_airport\", \"\"))\n        if person_id:\n            builder._add_edge(\"BOOKED_ON\", person_id, flight_eid,\n                               dedupe_key=f\"{person_id}:{flight_eid}\")\n        builder._add_edge(\"DEPARTED_FROM\", flight_eid, dep_eid,\n                           dedupe_key=f\"{flight_eid}:{dep_eid}\")\n        builder._add_edge(\"ARRIVED_AT\", flight_eid, arr_eid,\n                           dedupe_key=f\"{flight_eid}:{arr_eid}\")\n\n    # --- Bank account ownership + TRANSFERRED_TO ---\n    for row in norm_bank_transactions.rows:\n        src_acc = row.get(\"source_account_id\", \"\")\n        dst_acc = row.get(\"destination_account_id\", \"\")\n        src_eid = builder.account_by_id.get(src_acc, \"\")\n        dst_eid = builder.account_by_id.get(dst_acc, \"\")\n\n        if src_eid:\n            builder.link_account_owner(src_eid, row.get(\"source_name\", \"\"))\n        if dst_eid:\n            builder.link_account_owner(dst_eid, row.get(\"destination_name\", \"\"))\n\n        if src_eid and dst_eid and row.get(\"txn_type\") == \"transfer\":\n            dedupe = f\"{src_eid}:{dst_eid}\"\n            edge_id = f\"transferred_to::{slug(dedupe)}\"\n            if edge_id in builder.edge_index:\n                idx = builder.edge_index[edge_id]\n                existing = builder.edges[idx]\n                count = int(existing[\"properties\"].get(\"count\", \"1\")) + 1\n                total = float(existing[\"properties\"].get(\"totalAmountUsd\", \"0\")) + float(row.get(\"amount_usd\") or 0)\n                existing[\"properties\"][\"count\"] = str(count)\n                existing[\"properties\"][\"totalAmountUsd\"] = f\"{total:.2f}\"\n                existing[\"properties\"][\"lastTxnTs\"] = row.get(\"txn_ts\", \"\")\n            else:\n                builder._add_edge(\n                    \"TRANSFERRED_TO\", src_eid, dst_eid,\n                    properties={\n                        \"count\": \"1\",\n                        \"totalAmountUsd\": f\"{float(row['amount_usd']):.2f}\" if row.get(\"amount_usd\") not in (None, \"\") else \"\",\n                        \"lastTxnTs\": row.get(\"txn_ts\", \"\"),\n                        \"sampleReference\": row.get(\"reference\", \"\"),\n                    },\n                    dedupe_key=dedupe,\n                )\n\n    # --- Device entities + USES_DEVICE + OBSERVED_AT ---\n    for row in norm_mobile_pings.rows:\n        device_id_str = row.get(\"device_id\", \"\")\n        phone = row.get(\"phone_number\", \"\")\n        observed = row.get(\"observed_name\", \"\")\n\n        device_eid = builder.ensure_device(device_id_str, phone, observed)\n\n        # Ping-only persons were already created by step 02's resolver.\n        person_id = builder.find_person(phone=phone, name=observed,\n                                        ref=f\"ping:{row.get('ping_id', '')}\")\n        if person_id:\n            builder._add_edge(\"USES_DEVICE\", person_id, device_eid,\n                               dedupe_key=f\"{person_id}:{device_eid}\")\n\n        loc_eid = builder.ensure_location(\n            row.get(\"location_label\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            cell_tower=row.get(\"cell_tower\", \"\"),\n            location_type=row.get(\"location_type\", \"\"),\n            city=row.get(\"city\", \"\"),\n            country=row.get(\"country\", \"\"),\n        )\n\n        dedupe = f\"{device_eid}:{loc_eid}\"\n        edge_id = f\"observed_at::{slug(dedupe)}\"\n        if edge_id in builder.edge_index:\n            idx = builder.edge_index[edge_id]\n            existing = builder.edges[idx]\n            count = int(existing[\"properties\"].get(\"sightingCount\", \"1\")) + 1\n            existing[\"properties\"][\"sightingCount\"] = str(count)\n            existing[\"properties\"][\"lastSeen\"] = row.get(\"timestamp\", \"\")\n        else:\n            builder._add_edge(\n                \"OBSERVED_AT\", device_eid, loc_eid,\n                properties={\n                    \"sightingCount\": \"1\",\n                    \"firstSeen\": row.get(\"timestamp\", \"\"),\n                    \"lastSeen\": row.get(\"timestamp\", \"\"),\n                    \"source\": row.get(\"source\", \"\"),\n                },\n                dedupe_key=dedupe,\n            )\n\n    # --- Residential Locations + RESIDES_AT (clinic rows, Phase 1) ---\n    for obs in clinic_observations(norm_clinic_registrations.rows):\n        person_id = resolver.clinic_by_ref.get(obs.ref)\n        if not person_id:\n            continue  # unattached clinic rows create no objects\n        row = obs.row\n        loc_eid = builder.ensure_location(\n            row.get(\"home_address\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            location_type=\"residential\",\n            city=row.get(\"home_city\", \"\"),\n            country=row.get(\"home_country\", \"\"),\n            source_ds=norm_clinic_registrations.name,\n        )\n        dedupe = f\"{person_id}:{loc_eid}\"\n        edge_id = f\"resides_at::{slug(dedupe)}\"\n        as_of = row.get(\"registered_on\", \"\")\n        if edge_id in builder.edge_index:\n            existing = builder.edges[builder.edge_index[edge_id]]\n            if as_of > str(existing[\"properties\"].get(\"asOf\", \"\")):\n                existing[\"properties\"][\"asOf\"] = as_of\n        else:\n            builder._add_edge(\"RESIDES_AT\", person_id, loc_eid,\n                               properties={\"asOf\": as_of, \"source\": row.get(\"source\", \"\")},\n                               dedupe_key=dedupe)\n\n    # --- Markings on every object and link (contract §3) ---\n    raw_inputs = [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                  norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations]\n    file_markings = {ds.derived_from[0]: ds.markings for ds in raw_inputs if ds.derived_from}\n    governance.annotate_objects(builder.entities, builder.edges, file_markings)\n\n    # --- Assemble output datasets ---\n    entities_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"sourceIds\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n        {\"field\": \"propertyMarkings\", \"type\": \"json\"},\n        {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n    ]\n    edges_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n        {\"field\": \"target\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n    ]\n\n    entities_ds = Dataset(\n        name=\"ontology_entities\",\n        rows=sorted(builder.entities, key=lambda e: (str(e[\"type\"]), str(e[\"label\"]))),\n        schema=entities_schema,\n    )\n    edges_ds = Dataset(\n        name=\"ontology_edges\",\n        rows=sorted(builder.edges, key=lambda e: (str(e[\"type\"]), str(e[\"source\"]), str(e[\"target\"]))),\n        schema=edges_schema,\n    )\n\n    ontology_inputs = [resolved_persons, resolved_companies, resolved_accounts] + raw_inputs\n    inherit_markings(entities_ds, ontology_inputs)\n    inherit_markings(edges_ds, ontology_inputs)\n\n    # Trivial lineage: each entity/edge row came from its sourceIds\n    entity_lineage = LineageRecord()\n    for out_idx, entity in enumerate(entities_ds.rows):\n        for src in entity.get(\"sourceIds\", []):\n            entity_lineage.add_source(out_idx, src, 0, note=entity[\"type\"])\n\n    edge_lineage = LineageRecord()\n    for out_idx, edge in enumerate(edges_ds.rows):\n        edge_lineage.add_source(out_idx, edge[\"type\"], 0, note=\"edge\")\n\n    return entities_ds, edges_ds, entity_lineage, edge_lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline import p01_normalize_sources as n01\n    from pipeline import p02_resolve_persons as n02\n    from pipeline import p03_resolve_companies as n03\n    from pipeline import p04_resolve_accounts as n04\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = n01.run(dataset_dir)\n    persons, _ = n02.run(wl, cr, fm, mp, cl)\n    companies, _ = n03.run(cr)\n    accounts, _ = n04.run(bt)\n    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp, cl)\n    print(f\"Entities: {len(entities_ds)}, Edges: {len(edges_ds)}\")\n",
           "rowsIn": 9781,
           "rowsOut": 7750,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         },
         {
           "id": "build_leads",
@@ -25866,7 +25951,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/06_build_leads.py — Build address-confidence leads (F8, PHASE3_CONTRACT.md §1).\n\nOne lead per Person with at least one address source.  The scorer lives in\n``pipeline/leads.py`` (shared with the Investigate seed builder, so both apps\nshow the same leads); this step wraps it as a Transform with row- and\nfield-level lineage, like steps 02–05.\n\nInputs\n  resolved_persons            — who each source record belongs to (the shared resolver)\n  norm_clinic_registrations   — PII + HEALTH, weight 0.5, home_address, registered_on\n  norm_mobile_pings           — TELECOM, weight 0.4, location label, latest ping timestamp\n  norm_company_registry       — OPEN,    weight 0.3, registered_address, incorporation_date\n\n    score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))\n\n``ageDays`` counts from ``asOf``, the latest date in the inputs.  The best\naddress is the component with the largest contribution.  The output inherits\nthe union of its inputs' markings (PII, HEALTH, TELECOM and OPEN from the sources,\nPII and LE-SENSITIVE through resolved_persons), so the dataset is HEALTH-marked\neven for leads with no clinic component: markings work per dataset, not per row.\n\nOutput Dataset ``leads``:\n  id             — lead::<personId>\n  personId\n  address        — best address (largest contribution)\n  lat, lon       — coordinates of the best address\n  score          — 0–100, 1 decimal\n  status         — \"open\" (the Close lead Action changes it in the browser)\n  components     — [{source, marking, weight, ageDays, decay, contribution, address, ...}]\n  formula, asOf\n  addressSource  — dataset of the best address's component\n  sourceMarkings — markings of the contributing sources\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.leads import compute_leads\nfrom pipeline.lib import Dataset, LineageRecord, Transform\n\nTRANSFORM_ID = \"build_leads\"\nOUTPUT_NAME = \"leads\"\n\nSCHEMA = [\n    {\"field\": \"id\", \"type\": \"string\"},\n    {\"field\": \"personId\", \"type\": \"string\"},\n    {\"field\": \"address\", \"type\": \"string\"},\n    {\"field\": \"lat\", \"type\": \"float\"},\n    {\"field\": \"lon\", \"type\": \"float\"},\n    {\"field\": \"score\", \"type\": \"float\"},\n    {\"field\": \"status\", \"type\": \"string\"},\n    {\"field\": \"components\", \"type\": \"json\"},\n    {\"field\": \"formula\", \"type\": \"string\"},\n    {\"field\": \"asOf\", \"type\": \"date\"},\n    {\"field\": \"addressSource\", \"type\": \"string\"},\n    {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n]\n\n\ndef _build(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[List[Dict[str, Any]], List[Dict[str, List[Dict[str, Any]]]]]:\n    resolver = resolved_persons.resolver  # type: ignore[attr-defined]\n    rows, provenance, _as_of = compute_leads(\n        resolver, norm_clinic_registrations.rows, norm_mobile_pings.rows, norm_company_registry.rows,\n    )\n    person_row = {row[\"id\"]: i for i, row in enumerate(resolved_persons.rows)}\n    for lead, fp in zip(rows, provenance):\n        ref = {\"dataset\": resolved_persons.name, \"row\": person_row.get(lead[\"personId\"], -1),\n               \"field\": \"id\", \"note\": \"person\"}\n        fp[\"personId\"] = [ref] + fp[\"personId\"]\n        fp[\"id\"] = [ref]\n    return rows, provenance\n\n\ndef run(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    transform = Transform(\n        TRANSFORM_ID,\n        \"Score each person's best address from clinic, ping and registry records.\",\n        [resolved_persons, norm_clinic_registrations, norm_mobile_pings, norm_company_registry],\n        _build,\n    )\n    leads_ds, lineage = transform.run()\n    leads_ds.name = OUTPUT_NAME\n    leads_ds.schema = [dict(f) for f in SCHEMA]\n    leads_ds.as_of = leads_ds.rows[0][\"asOf\"] if leads_ds.rows else \"\"  # type: ignore[attr-defined]\n    return leads_ds, lineage\n\n\nif __name__ == \"__main__\":\n    import importlib.util\n\n    def _load(stem: str):\n        path = Path(__file__).resolve().parent / f\"{stem}.py\"\n        spec = importlib.util.spec_from_file_location(stem, path)\n        module = importlib.util.module_from_spec(spec)\n        spec.loader.exec_module(module)\n        return module\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = _load(\"01_normalize_sources\").run(dataset_dir)\n    persons, _ = _load(\"02_resolve_persons\").run(wl, cr, fm, mp, cl)\n    leads_ds, _ = run(persons, cl, mp, cr)\n    print(f\"Leads: {len(leads_ds)} (asOf {leads_ds.as_of})\")\n    for lead in leads_ds.rows[:5]:\n        print(f\"  {lead['score']:5.1f}  {lead['personId']}  {lead['address']}\")\n",
           "rowsIn": 6424,
           "rowsOut": 191,
-          "builtAt": "2026-11-04T20:40:29.321568Z"
+          "builtAt": "2026-11-05T10:59:55.988623Z"
         }
       ]
     },
@@ -30390,7 +30475,7 @@ window.foundrySeedCatalog = {
             "dob": "1986-03-10",
             "nationality": "",
             "passportId": "X6363836",
-            "phoneNumber": "+971780481547",
+            "phoneNumber": "+49186519602",
             "riskTag": "",
             "homeAddress": "134 Praterstrasse, Vienna",
             "clinicCode": "CLN-VIE-04",
@@ -68246,6 +68331,12 @@ window.foundrySeedCatalog = {
               "row": 5623,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 437,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -68926,6 +69017,18 @@ window.foundrySeedCatalog = {
               "row": 5307,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 168,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 598,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -69601,6 +69704,24 @@ window.foundrySeedCatalog = {
               "row": 5865,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 415,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 425,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 674,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -70971,6 +71092,30 @@ window.foundrySeedCatalog = {
               "row": 5998,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 357,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 391,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 669,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 738,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -71864,6 +72009,24 @@ window.foundrySeedCatalog = {
               "row": 5991,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 55,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 535,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 639,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -72569,6 +72732,12 @@ window.foundrySeedCatalog = {
               "row": 5367,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 637,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -73412,6 +73581,18 @@ window.foundrySeedCatalog = {
               "row": 5847,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 239,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 746,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -74054,18 +74235,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 98,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 296,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 338,
               "field": "phone_number",
               "note": ""
@@ -74073,24 +74242,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 413,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 640,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 806,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 967,
               "field": "phone_number",
               "note": ""
             },
@@ -74108,24 +74259,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1570,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1680,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1703,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1735,
               "field": "phone_number",
               "note": ""
@@ -74133,12 +74266,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 1836,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1992,
               "field": "phone_number",
               "note": ""
             },
@@ -74168,19 +74295,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2503,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2739,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2746,
               "field": "phone_number",
               "note": ""
             },
@@ -74192,37 +74307,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3071,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3240,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3278,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3314,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3456,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3487,
               "field": "phone_number",
               "note": ""
             },
@@ -74234,25 +74319,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3573,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3591,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3855,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3873,
               "field": "phone_number",
               "note": ""
             },
@@ -74276,12 +74343,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3928,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3942,
               "field": "phone_number",
               "note": ""
@@ -74294,49 +74355,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4155,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4157,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4229,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4266,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4275,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4508,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4564,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4698,
               "field": "phone_number",
               "note": ""
             },
@@ -74366,12 +74391,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5066,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5094,
               "field": "phone_number",
               "note": ""
@@ -74379,12 +74398,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5107,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5139,
               "field": "phone_number",
               "note": ""
             },
@@ -74414,25 +74427,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5629,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5771,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5776,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5881,
               "field": "phone_number",
               "note": ""
             },
@@ -74445,12 +74440,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5931,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5993,
               "field": "phone_number",
               "note": ""
             }
@@ -74857,6 +74846,12 @@ window.foundrySeedCatalog = {
               "row": 5993,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 199,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -75629,31 +75624,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 57,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 291,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 312,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 314,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 372,
               "field": "phone_number",
               "note": ""
             },
@@ -75666,12 +75637,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 775,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 840,
               "field": "phone_number",
               "note": ""
             },
@@ -75695,18 +75660,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1280,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1329,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1395,
               "field": "phone_number",
               "note": ""
@@ -75719,31 +75672,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1560,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1773,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1781,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1875,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1973,
               "field": "phone_number",
               "note": ""
             },
@@ -75773,55 +75702,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2563,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2593,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2635,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2673,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2711,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2744,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2878,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2888,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3202,
               "field": "phone_number",
               "note": ""
             },
@@ -75845,31 +75726,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3547,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3548,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3563,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3583,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3773,
               "field": "phone_number",
               "note": ""
             },
@@ -75882,24 +75739,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 3859,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4033,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4042,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4081,
               "field": "phone_number",
               "note": ""
             },
@@ -75929,24 +75768,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4929,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4961,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4971,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5002,
               "field": "phone_number",
               "note": ""
@@ -75954,18 +75775,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5111,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5218,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5268,
               "field": "phone_number",
               "note": ""
             },
@@ -75989,25 +75798,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5583,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5870,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5876,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5995,
               "field": "phone_number",
               "note": ""
             }
@@ -76402,6 +76193,30 @@ window.foundrySeedCatalog = {
               "row": 5995,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 86,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 541,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 615,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 686,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -77184,6 +76999,12 @@ window.foundrySeedCatalog = {
               "row": 5921,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 157,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -78051,6 +77872,18 @@ window.foundrySeedCatalog = {
               "row": 5702,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 223,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 667,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -79210,6 +79043,12 @@ window.foundrySeedCatalog = {
               "row": 5996,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 108,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -80114,6 +79953,18 @@ window.foundrySeedCatalog = {
               "row": 5986,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 46,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 271,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -81018,6 +80869,18 @@ window.foundrySeedCatalog = {
               "row": 5945,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 234,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 345,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -81897,6 +81760,24 @@ window.foundrySeedCatalog = {
               "row": 5646,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 326,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 445,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 592,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -82704,6 +82585,18 @@ window.foundrySeedCatalog = {
               "row": 5842,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 297,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 537,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -83361,6 +83254,24 @@ window.foundrySeedCatalog = {
               "row": 5662,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 61,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 75,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 137,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -84228,6 +84139,24 @@ window.foundrySeedCatalog = {
               "row": 5915,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 292,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 386,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 625,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -84995,6 +84924,12 @@ window.foundrySeedCatalog = {
               "row": 5978,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 262,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -86299,6 +86234,18 @@ window.foundrySeedCatalog = {
               "row": 5819,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 136,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 467,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -87142,6 +87089,12 @@ window.foundrySeedCatalog = {
               "row": 5808,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 520,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -87945,6 +87898,30 @@ window.foundrySeedCatalog = {
               "row": 5849,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 31,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 98,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 213,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 446,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -89253,6 +89230,18 @@ window.foundrySeedCatalog = {
               "row": 5883,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 143,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 172,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -89941,31 +89930,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 139,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 149,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 288,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 367,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 573,
               "field": "phone_number",
               "note": ""
             },
@@ -89983,31 +89948,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 841,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 951,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 962,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1003,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1027,
               "field": "phone_number",
               "note": ""
             },
@@ -90025,55 +89966,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1428,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1555,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1673,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1679,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1741,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1830,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2044,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2293,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2366,
               "field": "phone_number",
               "note": ""
             },
@@ -90086,12 +89979,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 2560,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2678,
               "field": "phone_number",
               "note": ""
             },
@@ -90133,18 +90020,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2884,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2970,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3043,
               "field": "phone_number",
               "note": ""
@@ -90157,25 +90032,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3503,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3545,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3668,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3670,
               "field": "phone_number",
               "note": ""
             },
@@ -90199,12 +90056,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4046,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4048,
               "field": "phone_number",
               "note": ""
@@ -90223,18 +90074,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4198,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4237,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4480,
               "field": "phone_number",
               "note": ""
@@ -90247,25 +90086,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4573,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4588,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4630,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4740,
               "field": "phone_number",
               "note": ""
             },
@@ -90301,25 +90122,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5526,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5775,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5781,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5820,
               "field": "phone_number",
               "note": ""
             }
@@ -90708,6 +90511,18 @@ window.foundrySeedCatalog = {
               "row": 5820,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 358,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 416,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -91392,37 +91207,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 30,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 35,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 52,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 328,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 357,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 398,
               "field": "phone_number",
               "note": ""
             },
@@ -91435,18 +91220,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 569,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 592,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 595,
               "field": "phone_number",
               "note": ""
             },
@@ -91470,19 +91243,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1186,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1351,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1411,
               "field": "phone_number",
               "note": ""
             },
@@ -91494,31 +91255,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1701,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1792,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1832,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1948,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1981,
               "field": "phone_number",
               "note": ""
             },
@@ -91530,37 +91267,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2142,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2435,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2817,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2881,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3220,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3283,
               "field": "phone_number",
               "note": ""
             },
@@ -91584,31 +91291,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3373,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3448,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3534,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3631,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3865,
               "field": "phone_number",
               "note": ""
             },
@@ -91632,43 +91321,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4591,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4761,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5086,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5106,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5136,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5173,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5189,
               "field": "phone_number",
               "note": ""
             },
@@ -91692,25 +91351,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5352,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5483,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5572,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5591,
               "field": "phone_number",
               "note": ""
             },
@@ -91722,25 +91363,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5694,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5709,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5815,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5884,
               "field": "phone_number",
               "note": ""
             },
@@ -92111,6 +91734,18 @@ window.foundrySeedCatalog = {
               "row": 5947,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 280,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 532,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -93787,12 +93422,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 129,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 340,
               "field": "phone_number",
               "note": ""
@@ -93805,31 +93434,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 405,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 563,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 609,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 682,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 963,
               "field": "phone_number",
               "note": ""
             },
@@ -93865,12 +93470,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1453,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1868,
               "field": "phone_number",
               "note": ""
@@ -93889,30 +93488,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2104,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2125,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2132,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2208,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2348,
               "field": "phone_number",
               "note": ""
@@ -93920,12 +93495,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 2414,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2450,
               "field": "phone_number",
               "note": ""
             },
@@ -93949,19 +93518,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2874,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2930,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2956,
               "field": "phone_number",
               "note": ""
             },
@@ -93985,12 +93542,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3019,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3057,
               "field": "phone_number",
               "note": ""
@@ -93998,18 +93549,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 3111,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3148,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3180,
               "field": "phone_number",
               "note": ""
             },
@@ -94045,18 +93584,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3850,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3877,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3935,
               "field": "phone_number",
               "note": ""
@@ -94064,12 +93591,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 4064,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4239,
               "field": "phone_number",
               "note": ""
             },
@@ -94099,31 +93620,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4620,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4633,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4673,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4721,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4722,
               "field": "phone_number",
               "note": ""
             },
@@ -94136,12 +93639,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5090,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5374,
               "field": "phone_number",
               "note": ""
             },
@@ -94172,12 +93669,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5565,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5836,
               "field": "phone_number",
               "note": ""
             },
@@ -94596,6 +94087,60 @@ window.foundrySeedCatalog = {
               "row": 5976,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 11,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 73,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 97,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 363,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 397,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 599,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 657,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 677,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 712,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -96409,6 +95954,24 @@ window.foundrySeedCatalog = {
               "row": 5065,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 133,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 244,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 702,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -97031,25 +96594,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 53,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 275,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 323,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 324,
               "field": "phone_number",
               "note": ""
             },
@@ -97067,24 +96612,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 680,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 689,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 875,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1105,
               "field": "phone_number",
               "note": ""
@@ -97092,48 +96619,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 1134,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1178,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1312,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1377,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1426,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1677,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1729,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1745,
               "field": "phone_number",
               "note": ""
             },
@@ -97163,19 +96648,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2444,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2501,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2626,
               "field": "phone_number",
               "note": ""
             },
@@ -97188,18 +96661,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 3009,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3078,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3089,
               "field": "phone_number",
               "note": ""
             },
@@ -97235,43 +96696,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3638,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3667,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3812,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4017,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4061,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4129,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4333,
               "field": "phone_number",
               "note": ""
             },
@@ -97295,12 +96726,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4831,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5039,
               "field": "phone_number",
               "note": ""
@@ -97313,37 +96738,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5083,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5132,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5336,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5455,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5588,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5652,
               "field": "phone_number",
               "note": ""
             },
@@ -97678,6 +97079,24 @@ window.foundrySeedCatalog = {
               "row": 5858,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 392,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 400,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 596,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -98544,6 +97963,18 @@ window.foundrySeedCatalog = {
               "row": 5760,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 35,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 227,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -99203,6 +98634,18 @@ window.foundrySeedCatalog = {
               "row": 5918,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 409,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 418,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -100001,12 +99444,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 204,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 244,
               "field": "phone_number",
               "note": ""
@@ -100020,12 +99457,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 299,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 447,
               "field": "phone_number",
               "note": ""
             },
@@ -100049,25 +99480,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 712,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 722,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 754,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 777,
               "field": "phone_number",
               "note": ""
             },
@@ -100085,43 +99498,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1197,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1305,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1401,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1405,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1519,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1531,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1653,
               "field": "phone_number",
               "note": ""
             },
@@ -100139,37 +99522,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1827,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2183,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2229,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2599,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2690,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2692,
               "field": "phone_number",
               "note": ""
             },
@@ -100187,12 +99540,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2762,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2766,
               "field": "phone_number",
               "note": ""
@@ -100205,19 +99552,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2895,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2971,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3313,
               "field": "phone_number",
               "note": ""
             },
@@ -100229,19 +99564,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3414,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3500,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3706,
               "field": "phone_number",
               "note": ""
             },
@@ -100271,31 +99594,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4206,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4258,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4285,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4337,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4346,
               "field": "phone_number",
               "note": ""
             },
@@ -100313,55 +99618,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4540,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4690,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4726,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4792,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4953,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5112,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5191,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5282,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5295,
               "field": "phone_number",
               "note": ""
             },
@@ -100379,24 +99636,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5724,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5758,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5764,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5784,
               "field": "phone_number",
               "note": ""
@@ -100404,12 +99643,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5793,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5813,
               "field": "phone_number",
               "note": ""
             },
@@ -100840,6 +100073,42 @@ window.foundrySeedCatalog = {
               "row": 5959,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 158,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 202,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 441,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 454,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 508,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 607,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -101510,6 +100779,12 @@ window.foundrySeedCatalog = {
               "row": 5990,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 344,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -102235,6 +101510,12 @@ window.foundrySeedCatalog = {
               "row": 5731,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 424,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -103092,6 +102373,24 @@ window.foundrySeedCatalog = {
               "row": 5846,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 586,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 636,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 670,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -104001,6 +103300,24 @@ window.foundrySeedCatalog = {
               "row": 5322,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 2,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 58,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 645,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -104717,6 +104034,24 @@ window.foundrySeedCatalog = {
               "row": 5937,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 148,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 203,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 433,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -105634,6 +104969,18 @@ window.foundrySeedCatalog = {
               "row": 5949,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 658,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 743,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -106251,6 +105598,12 @@ window.foundrySeedCatalog = {
               "row": 5973,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 655,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -106909,19 +106262,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 34,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 67,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 108,
               "field": "phone_number",
               "note": ""
             },
@@ -106963,12 +106304,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 653,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 734,
               "field": "phone_number",
               "note": ""
@@ -106981,31 +106316,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 864,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 883,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 949,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 969,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1304,
               "field": "phone_number",
               "note": ""
             },
@@ -107023,43 +106334,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1588,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1591,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1954,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1960,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2006,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2172,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2209,
               "field": "phone_number",
               "note": ""
             },
@@ -107072,12 +106347,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 2546,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2619,
               "field": "phone_number",
               "note": ""
             },
@@ -107101,12 +106370,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2918,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3195,
               "field": "phone_number",
               "note": ""
@@ -107119,31 +106382,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3549,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3576,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3823,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3847,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3985,
               "field": "phone_number",
               "note": ""
             },
@@ -107156,30 +106395,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 4187,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4279,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4351,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4527,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4769,
               "field": "phone_number",
               "note": ""
             },
@@ -107209,37 +106424,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5328,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5582,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5619,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5664,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5751,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5925,
               "field": "phone_number",
               "note": ""
             }
@@ -107580,6 +106771,36 @@ window.foundrySeedCatalog = {
               "row": 5925,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 439,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 458,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 506,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 558,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 560,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -108327,43 +107548,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 247,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 279,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 349,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 420,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 645,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 688,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 847,
               "field": "phone_number",
               "note": ""
             },
@@ -108376,12 +107567,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 955,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1193,
               "field": "phone_number",
               "note": ""
             },
@@ -108405,60 +107590,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1375,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1524,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1696,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1757,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1892,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1974,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2013,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2086,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2186,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2214,
               "field": "phone_number",
               "note": ""
@@ -108466,18 +107597,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 2252,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2515,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2553,
               "field": "phone_number",
               "note": ""
             },
@@ -108495,37 +107614,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2772,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2882,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3028,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3080,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3187,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3200,
               "field": "phone_number",
               "note": ""
             },
@@ -108549,49 +107644,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3750,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3778,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3835,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3840,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3860,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3899,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3909,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3977,
               "field": "phone_number",
               "note": ""
             },
@@ -108609,30 +107662,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4058,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4207,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4212,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4261,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4269,
               "field": "phone_number",
               "note": ""
@@ -108640,48 +107669,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 4281,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4297,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4400,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4498,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4526,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4568,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4609,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4618,
               "field": "phone_number",
               "note": ""
             },
@@ -108717,19 +107704,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5170,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5232,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5349,
               "field": "phone_number",
               "note": ""
             },
@@ -108741,25 +107716,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5580,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5597,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5648,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5708,
               "field": "phone_number",
               "note": ""
             },
@@ -109238,6 +108195,18 @@ window.foundrySeedCatalog = {
               "row": 5979,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 51,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 270,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -109871,6 +108840,12 @@ window.foundrySeedCatalog = {
               "row": 5957,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 258,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -111281,6 +110256,12 @@ window.foundrySeedCatalog = {
               "row": 5928,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 447,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -112048,6 +111029,24 @@ window.foundrySeedCatalog = {
               "row": 5887,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 173,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 240,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 527,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -112738,24 +111737,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 94,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 198,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 223,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 242,
               "field": "phone_number",
               "note": ""
@@ -112768,12 +111749,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 518,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 641,
               "field": "phone_number",
               "note": ""
@@ -112781,30 +111756,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 780,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 909,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 912,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 996,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1303,
               "field": "phone_number",
               "note": ""
             },
@@ -112828,12 +111779,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1658,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1669,
               "field": "phone_number",
               "note": ""
@@ -112846,61 +111791,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1901,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1959,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2031,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2129,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2153,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2173,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2206,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2217,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2235,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2250,
               "field": "phone_number",
               "note": ""
             },
@@ -112918,37 +111815,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2537,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2883,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2927,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3034,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3068,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3140,
               "field": "phone_number",
               "note": ""
             },
@@ -113002,31 +111869,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3972,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4059,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4062,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4148,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4336,
               "field": "phone_number",
               "note": ""
             },
@@ -113038,49 +111881,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4407,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4795,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4796,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4873,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4889,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4898,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5003,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5168,
               "field": "phone_number",
               "note": ""
             },
@@ -113098,19 +111899,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5428,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5518,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5737,
               "field": "phone_number",
               "note": ""
             }
@@ -113493,6 +112282,12 @@ window.foundrySeedCatalog = {
               "row": 5737,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 192,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -114832,6 +113627,18 @@ window.foundrySeedCatalog = {
               "row": 5051,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 95,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 332,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -116149,31 +114956,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 276,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 377,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 390,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 457,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 714,
               "field": "phone_number",
               "note": ""
             },
@@ -116185,61 +114968,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1036,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1098,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1102,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1272,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1424,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1474,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1542,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1600,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1650,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1670,
               "field": "phone_number",
               "note": ""
             },
@@ -116252,12 +114981,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 1922,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2189,
               "field": "phone_number",
               "note": ""
             },
@@ -116281,61 +115004,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2313,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2726,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2910,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2984,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3270,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3337,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3338,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3381,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3467,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3581,
               "field": "phone_number",
               "note": ""
             },
@@ -116359,36 +115034,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3895,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3964,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4165,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4254,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4322,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4330,
               "field": "phone_number",
               "note": ""
@@ -116401,19 +115046,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4450,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4495,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4587,
               "field": "phone_number",
               "note": ""
             },
@@ -116431,25 +115064,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4981,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5075,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5114,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5116,
               "field": "phone_number",
               "note": ""
             },
@@ -116461,37 +115076,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5201,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5246,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5256,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5489,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5598,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5639,
               "field": "phone_number",
               "note": ""
             },
@@ -116856,6 +115441,24 @@ window.foundrySeedCatalog = {
               "row": 6001,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 41,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 102,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 483,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -117939,6 +116542,30 @@ window.foundrySeedCatalog = {
               "row": 5874,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 29,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 338,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 371,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 570,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -120561,6 +119188,18 @@ window.foundrySeedCatalog = {
               "row": 5467,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 369,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 442,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -122851,6 +121490,18 @@ window.foundrySeedCatalog = {
               "row": 5806,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 9,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 346,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -123712,6 +122363,18 @@ window.foundrySeedCatalog = {
               "row": 5867,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 305,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 735,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -124333,6 +122996,12 @@ window.foundrySeedCatalog = {
               "row": 5767,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 531,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -125272,6 +123941,18 @@ window.foundrySeedCatalog = {
               "row": 6005,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 121,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 340,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -126114,6 +124795,30 @@ window.foundrySeedCatalog = {
               "row": 5955,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 28,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 339,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 417,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 488,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -126863,6 +125568,18 @@ window.foundrySeedCatalog = {
               "row": 6008,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 123,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 704,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -129976,6 +128693,36 @@ window.foundrySeedCatalog = {
               "row": 5834,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 0,
+              "field": "director_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 2,
+              "field": "beneficial_owner",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 89,
+              "field": "beneficial_owner",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 176,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 752,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "dob": [
@@ -131095,6 +129842,12 @@ window.foundrySeedCatalog = {
               "row": 6002,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 72,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -131813,12 +130566,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 27,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 29,
               "field": "phone_number",
               "note": ""
@@ -131837,43 +130584,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 205,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 287,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 359,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 406,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 532,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 671,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 679,
               "field": "phone_number",
               "note": ""
             },
@@ -131892,18 +130603,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 842,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1157,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1191,
               "field": "phone_number",
               "note": ""
             },
@@ -131933,31 +130632,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1589,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1626,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1980,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1996,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2130,
               "field": "phone_number",
               "note": ""
             },
@@ -131969,25 +130644,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2275,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2355,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2476,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2604,
               "field": "phone_number",
               "note": ""
             },
@@ -132000,18 +130657,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 3040,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3209,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3304,
               "field": "phone_number",
               "note": ""
             },
@@ -132047,12 +130692,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3675,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3991,
               "field": "phone_number",
               "note": ""
@@ -132060,18 +130699,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 4050,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4101,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4115,
               "field": "phone_number",
               "note": ""
             },
@@ -132089,12 +130716,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4290,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4381,
               "field": "phone_number",
               "note": ""
@@ -132102,12 +130723,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 4468,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4500,
               "field": "phone_number",
               "note": ""
             },
@@ -132125,31 +130740,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4610,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4642,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4774,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4814,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4849,
               "field": "phone_number",
               "note": ""
             },
@@ -132167,18 +130764,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5167,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5320,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5379,
               "field": "phone_number",
               "note": ""
@@ -132186,24 +130771,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5380,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5383,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5431,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5442,
               "field": "phone_number",
               "note": ""
             },
@@ -132221,12 +130788,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5670,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5932,
               "field": "phone_number",
               "note": ""
@@ -132234,18 +130795,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5951,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5984,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5985,
               "field": "phone_number",
               "note": ""
             }
@@ -132688,6 +131237,18 @@ window.foundrySeedCatalog = {
               "row": 5985,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 269,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 384,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -133939,31 +132500,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 228,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 289,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 577,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 590,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 591,
               "field": "phone_number",
               "note": ""
             },
@@ -133975,19 +132512,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 733,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 762,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 793,
               "field": "phone_number",
               "note": ""
             },
@@ -133999,19 +132524,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 980,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1127,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1190,
               "field": "phone_number",
               "note": ""
             },
@@ -134029,24 +132542,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1536,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1541,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1714,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1904,
               "field": "phone_number",
               "note": ""
@@ -134059,37 +132554,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2003,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2043,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2061,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2085,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2108,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2182,
               "field": "phone_number",
               "note": ""
             },
@@ -134101,19 +132566,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2353,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2408,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2457,
               "field": "phone_number",
               "note": ""
             },
@@ -134149,37 +132602,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2759,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2833,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3141,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3160,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3253,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3324,
               "field": "phone_number",
               "note": ""
             },
@@ -134215,12 +132644,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3871,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3901,
               "field": "phone_number",
               "note": ""
@@ -134245,18 +132668,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4392,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4428,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4570,
               "field": "phone_number",
               "note": ""
@@ -134269,49 +132680,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4756,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4759,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4786,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4798,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4877,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5073,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5108,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5158,
               "field": "phone_number",
               "note": ""
             },
@@ -134347,18 +132716,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5560,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5570,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5649,
               "field": "phone_number",
               "note": ""
@@ -134371,25 +132728,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5779,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5920,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5960,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5997,
               "field": "phone_number",
               "note": ""
             }
@@ -134850,6 +133189,18 @@ window.foundrySeedCatalog = {
               "row": 5997,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 347,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 472,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -135820,6 +134171,12 @@ window.foundrySeedCatalog = {
               "row": 5943,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 194,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -136657,6 +135014,12 @@ window.foundrySeedCatalog = {
               "row": 5568,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 165,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "dob": [
@@ -138411,6 +136774,12 @@ window.foundrySeedCatalog = {
               "row": 6007,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 485,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -139513,55 +137882,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 124,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 167,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 235,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 245,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 346,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 374,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 459,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 492,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 506,
               "field": "phone_number",
               "note": ""
             },
@@ -139585,18 +137912,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1022,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1066,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1233,
               "field": "phone_number",
               "note": ""
@@ -139604,36 +137919,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 1240,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1372,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1383,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1432,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1483,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1495,
               "field": "phone_number",
               "note": ""
             },
@@ -139663,37 +137948,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2175,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2223,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2253,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2420,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2447,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2458,
               "field": "phone_number",
               "note": ""
             },
@@ -139705,37 +137960,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2489,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2605,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2732,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2742,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2761,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2816,
               "field": "phone_number",
               "note": ""
             },
@@ -139753,43 +137978,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2965,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3050,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3077,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3138,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3173,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3255,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3347,
               "field": "phone_number",
               "note": ""
             },
@@ -139807,91 +138002,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3472,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3512,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3516,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3553,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3569,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3636,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3798,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3885,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3887,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3917,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3967,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4091,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4105,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4118,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4176,
               "field": "phone_number",
               "note": ""
             },
@@ -139904,12 +138015,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 4439,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4574,
               "field": "phone_number",
               "note": ""
             },
@@ -139939,19 +138044,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4683,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4692,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4713,
               "field": "phone_number",
               "note": ""
             },
@@ -139963,31 +138056,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4894,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4978,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5018,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5091,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5110,
               "field": "phone_number",
               "note": ""
             },
@@ -139999,19 +138068,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5440,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5494,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5507,
               "field": "phone_number",
               "note": ""
             },
@@ -140023,55 +138080,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5673,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5700,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5753,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5778,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5855,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5863,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5878,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5888,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5963,
               "field": "phone_number",
               "note": ""
             }
@@ -140640,6 +138649,24 @@ window.foundrySeedCatalog = {
               "row": 5963,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 33,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 266,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 512,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -141261,6 +139288,12 @@ window.foundrySeedCatalog = {
               "row": 5752,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 303,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -142136,6 +140169,12 @@ window.foundrySeedCatalog = {
               "row": 5897,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 146,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -142830,85 +140869,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 36,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 45,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 64,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 118,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 354,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 521,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 631,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 786,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 798,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 881,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 965,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1017,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1021,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1120,
               "field": "phone_number",
               "note": ""
             },
@@ -142926,43 +140893,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1385,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1420,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1472,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1505,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1518,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1522,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1548,
               "field": "phone_number",
               "note": ""
             },
@@ -142992,61 +140929,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2000,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2019,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2066,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2230,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2233,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2243,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2295,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2342,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2403,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2603,
               "field": "phone_number",
               "note": ""
             },
@@ -143064,19 +140947,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2801,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2806,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2845,
               "field": "phone_number",
               "note": ""
             },
@@ -143094,30 +140965,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3267,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3287,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3410,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3449,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3494,
               "field": "phone_number",
               "note": ""
@@ -143130,61 +140977,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3647,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3692,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3698,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4403,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4754,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4901,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5041,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5305,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5493,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5826,
               "field": "phone_number",
               "note": ""
             },
@@ -143573,6 +141366,12 @@ window.foundrySeedCatalog = {
               "row": 5908,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 114,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -145024,6 +142823,18 @@ window.foundrySeedCatalog = {
               "row": 5635,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 147,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 342,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -146418,6 +144229,18 @@ window.foundrySeedCatalog = {
               "row": 5923,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 210,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 718,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -147189,6 +145012,12 @@ window.foundrySeedCatalog = {
               "row": 5818,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 189,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -147918,6 +145747,18 @@ window.foundrySeedCatalog = {
               "row": 5877,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 141,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 462,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -149387,6 +147228,12 @@ window.foundrySeedCatalog = {
               "row": 5896,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 222,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -150302,37 +148149,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 16,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 196,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 365,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 416,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 584,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 707,
               "field": "phone_number",
               "note": ""
             },
@@ -150344,25 +148161,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 782,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 811,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 871,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 880,
               "field": "phone_number",
               "note": ""
             },
@@ -150392,30 +148191,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1270,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1382,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1414,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1535,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1695,
               "field": "phone_number",
               "note": ""
@@ -150423,12 +148198,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 1903,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1932,
               "field": "phone_number",
               "note": ""
             },
@@ -150446,18 +148215,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2393,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2600,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2664,
               "field": "phone_number",
               "note": ""
@@ -150470,43 +148227,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2897,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2939,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2996,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3041,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3060,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3252,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3273,
               "field": "phone_number",
               "note": ""
             },
@@ -150524,19 +148251,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3435,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3436,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3469,
               "field": "phone_number",
               "note": ""
             },
@@ -150566,30 +148281,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3889,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3973,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4004,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4010,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4067,
               "field": "phone_number",
               "note": ""
@@ -150602,19 +148293,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4232,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4241,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4271,
               "field": "phone_number",
               "note": ""
             },
@@ -150626,25 +148305,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4688,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4697,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4718,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4819,
               "field": "phone_number",
               "note": ""
             },
@@ -150656,25 +148317,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5099,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5104,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5145,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5152,
               "field": "phone_number",
               "note": ""
             },
@@ -150686,37 +148329,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5160,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5446,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5581,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5686,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5695,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5723,
               "field": "phone_number",
               "note": ""
             },
@@ -151165,6 +148778,30 @@ window.foundrySeedCatalog = {
               "row": 5929,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 32,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 47,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 308,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 484,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -152739,6 +150376,24 @@ window.foundrySeedCatalog = {
               "row": 5133,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 112,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 317,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 477,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -153704,6 +151359,30 @@ window.foundrySeedCatalog = {
               "row": 5734,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 228,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 246,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 420,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 638,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -154534,6 +152213,12 @@ window.foundrySeedCatalog = {
               "row": 5889,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 525,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -155473,6 +153158,12 @@ window.foundrySeedCatalog = {
               "row": 6003,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 466,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -156394,6 +154085,24 @@ window.foundrySeedCatalog = {
               "row": 5935,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 396,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 580,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 651,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -158998,6 +156707,54 @@ window.foundrySeedCatalog = {
               "row": 5817,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 1,
+              "field": "director_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 162,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 171,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 254,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 413,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 619,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 664,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 756,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "dob": [
@@ -159529,6 +157286,12 @@ window.foundrySeedCatalog = {
               "row": 6011,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 758,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -160384,6 +158147,12 @@ window.foundrySeedCatalog = {
               "row": 5939,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 449,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -161257,6 +159026,18 @@ window.foundrySeedCatalog = {
               "row": 5804,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 127,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 350,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -161893,24 +159674,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 54,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 128,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 130,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 297,
               "field": "phone_number",
               "note": ""
@@ -161918,12 +159681,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 499,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 528,
               "field": "phone_number",
               "note": ""
             },
@@ -161947,12 +159704,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 839,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 897,
               "field": "phone_number",
               "note": ""
@@ -161960,12 +159711,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 910,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 988,
               "field": "phone_number",
               "note": ""
             },
@@ -161989,24 +159734,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1244,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1249,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1394,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1534,
               "field": "phone_number",
               "note": ""
@@ -162014,12 +159741,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 1707,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1765,
               "field": "phone_number",
               "note": ""
             },
@@ -162043,12 +159764,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1885,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1952,
               "field": "phone_number",
               "note": ""
@@ -162067,19 +159782,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2606,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2677,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2770,
               "field": "phone_number",
               "note": ""
             },
@@ -162092,12 +159795,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 2966,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3113,
               "field": "phone_number",
               "note": ""
             },
@@ -162121,25 +159818,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3451,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3521,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3613,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3906,
               "field": "phone_number",
               "note": ""
             },
@@ -162163,31 +159842,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4202,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4302,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4437,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4458,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4490,
               "field": "phone_number",
               "note": ""
             },
@@ -162200,18 +159855,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 4833,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4866,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4878,
               "field": "phone_number",
               "note": ""
             },
@@ -162235,43 +159878,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5540,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5563,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5564,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5615,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5689,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5898,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5924,
               "field": "phone_number",
               "note": ""
             }
@@ -163436,6 +161043,18 @@ window.foundrySeedCatalog = {
               "row": 5906,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 71,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 672,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -164227,6 +161846,12 @@ window.foundrySeedCatalog = {
               "row": 6006,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 324,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -164872,6 +162497,12 @@ window.foundrySeedCatalog = {
               "row": 5807,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 732,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -165525,6 +163156,18 @@ window.foundrySeedCatalog = {
               "row": 5660,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 117,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 263,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -166296,6 +163939,12 @@ window.foundrySeedCatalog = {
               "row": 5982,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 573,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -167129,6 +164778,18 @@ window.foundrySeedCatalog = {
               "row": 6000,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 179,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 456,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -167780,6 +165441,12 @@ window.foundrySeedCatalog = {
               "row": 5961,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 83,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -169251,37 +166918,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 135,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 191,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 213,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 227,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 268,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 282,
               "field": "phone_number",
               "note": ""
             },
@@ -169294,18 +166931,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 463,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 512,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 605,
               "field": "phone_number",
               "note": ""
             },
@@ -169329,55 +166954,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 939,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 966,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 992,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1019,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1070,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1140,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1167,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1172,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1218,
               "field": "phone_number",
               "note": ""
             },
@@ -169389,49 +166966,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1503,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1651,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1666,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1870,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1879,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1969,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2063,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2228,
               "field": "phone_number",
               "note": ""
             },
@@ -169443,25 +166978,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2350,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2493,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2572,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2633,
               "field": "phone_number",
               "note": ""
             },
@@ -169479,42 +166996,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2885,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2923,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2951,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2995,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3038,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3248,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3492,
               "field": "phone_number",
               "note": ""
@@ -169522,42 +167003,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 3539,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3558,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3578,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3770,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3816,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3867,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3997,
               "field": "phone_number",
               "note": ""
             },
@@ -169575,12 +167020,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4035,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4047,
               "field": "phone_number",
               "note": ""
@@ -169593,67 +167032,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4111,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4154,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4163,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4169,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4189,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4218,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4245,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4291,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4327,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4345,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4389,
               "field": "phone_number",
               "note": ""
             },
@@ -169671,61 +167056,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4528,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4532,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4542,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4543,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4666,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4711,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5159,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5172,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5284,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5301,
               "field": "phone_number",
               "note": ""
             },
@@ -169744,30 +167081,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5520,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5545,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5644,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5697,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5952,
               "field": "phone_number",
               "note": ""
             }
@@ -170300,6 +167613,30 @@ window.foundrySeedCatalog = {
               "row": 5952,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 140,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 465,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 494,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 646,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -170951,6 +168288,12 @@ window.foundrySeedCatalog = {
               "row": 5766,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 668,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -171656,6 +168999,12 @@ window.foundrySeedCatalog = {
               "row": 5845,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 616,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -172409,6 +169758,18 @@ window.foundrySeedCatalog = {
               "row": 5668,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 568,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 751,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -173121,43 +170482,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 434,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 438,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 473,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 800,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1187,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1335,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1393,
               "field": "phone_number",
               "note": ""
             },
@@ -173187,25 +170512,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1723,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1805,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1856,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1862,
               "field": "phone_number",
               "note": ""
             },
@@ -173229,24 +170536,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2242,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2270,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2587,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2924,
               "field": "phone_number",
               "note": ""
@@ -173265,19 +170554,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3036,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3379,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3551,
               "field": "phone_number",
               "note": ""
             },
@@ -173307,19 +170584,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3916,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3992,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4006,
               "field": "phone_number",
               "note": ""
             },
@@ -173337,37 +170602,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4463,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4475,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4590,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4605,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4656,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4806,
               "field": "phone_number",
               "note": ""
             },
@@ -173385,18 +170620,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5012,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5032,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5226,
               "field": "phone_number",
               "note": ""
@@ -173409,18 +170632,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5344,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5397,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5516,
               "field": "phone_number",
               "note": ""
@@ -173428,12 +170639,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5647,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5980,
               "field": "phone_number",
               "note": ""
             }
@@ -173780,6 +170985,48 @@ window.foundrySeedCatalog = {
               "row": 5980,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 116,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 160,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 336,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 578,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 717,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 723,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 734,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -174784,6 +172031,30 @@ window.foundrySeedCatalog = {
               "row": 5953,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 16,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 296,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 299,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 376,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -176004,6 +173275,30 @@ window.foundrySeedCatalog = {
               "row": 5534,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 30,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 191,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 275,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 431,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -177413,19 +174708,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 422,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 537,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 668,
               "field": "phone_number",
               "note": ""
             },
@@ -177437,19 +174720,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 791,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 835,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 855,
               "field": "phone_number",
               "note": ""
             },
@@ -177462,30 +174733,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 1041,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1081,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1095,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1431,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1444,
               "field": "phone_number",
               "note": ""
             },
@@ -177515,31 +174762,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2166,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2459,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2506,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2549,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2559,
               "field": "phone_number",
               "note": ""
             },
@@ -177551,31 +174774,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2814,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2848,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2961,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2962,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2975,
               "field": "phone_number",
               "note": ""
             },
@@ -177587,19 +174786,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3427,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3677,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3682,
               "field": "phone_number",
               "note": ""
             },
@@ -177611,43 +174798,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3946,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4099,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4135,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4192,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4313,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4347,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4546,
               "field": "phone_number",
               "note": ""
             },
@@ -177665,24 +174822,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4820,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4904,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4986,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5064,
               "field": "phone_number",
               "note": ""
@@ -177690,18 +174829,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5120,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5308,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5454,
               "field": "phone_number",
               "note": ""
             },
@@ -177719,19 +174846,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5891,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5954,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5966,
               "field": "phone_number",
               "note": ""
             }
@@ -178060,6 +175175,18 @@ window.foundrySeedCatalog = {
               "row": 5966,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 593,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 692,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -178885,6 +176012,30 @@ window.foundrySeedCatalog = {
               "row": 5994,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 8,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 142,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 419,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 505,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -179818,6 +176969,36 @@ window.foundrySeedCatalog = {
               "row": 5948,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 387,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 403,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 566,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 582,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 691,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -180518,25 +177699,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 59,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 193,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 362,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 480,
               "field": "phone_number",
               "note": ""
             },
@@ -180560,61 +177723,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1119,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1121,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1198,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1204,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1265,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1362,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1391,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1443,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1550,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1644,
               "field": "phone_number",
               "note": ""
             },
@@ -180632,19 +177747,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1891,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1894,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2137,
               "field": "phone_number",
               "note": ""
             },
@@ -180656,37 +177759,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2191,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2352,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2363,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2582,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2695,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2840,
               "field": "phone_number",
               "note": ""
             },
@@ -180704,12 +177783,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3130,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3189,
               "field": "phone_number",
               "note": ""
@@ -180717,12 +177790,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 3364,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3401,
               "field": "phone_number",
               "note": ""
             },
@@ -180752,25 +177819,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3897,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3931,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4009,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4055,
               "field": "phone_number",
               "note": ""
             },
@@ -180783,12 +177832,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 4159,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4284,
               "field": "phone_number",
               "note": ""
             },
@@ -180812,31 +177855,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4464,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4553,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4561,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4931,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4950,
               "field": "phone_number",
               "note": ""
             },
@@ -180860,24 +177879,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5599,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5620,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5627,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5717,
               "field": "phone_number",
               "note": ""
@@ -180891,12 +177892,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5944,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5950,
               "field": "phone_number",
               "note": ""
             }
@@ -182755,6 +179750,18 @@ window.foundrySeedCatalog = {
               "row": 5894,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 600,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 660,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -184406,6 +181413,12 @@ window.foundrySeedCatalog = {
               "row": 5886,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 551,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -185197,6 +182210,18 @@ window.foundrySeedCatalog = {
               "row": 6004,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 1,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 623,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -185934,6 +182959,12 @@ window.foundrySeedCatalog = {
               "row": 5791,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 552,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -186569,6 +183600,18 @@ window.foundrySeedCatalog = {
               "row": 5746,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 170,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 594,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -187046,6 +184089,30 @@ window.foundrySeedCatalog = {
               "row": 5651,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 2,
+              "field": "director_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_company_registry",
+              "row": 21,
+              "field": "beneficial_owner",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 393,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 507,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "dob": [
@@ -189974,61 +187041,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 47,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 78,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 127,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 226,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 232,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 353,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 407,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 432,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 665,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 725,
               "field": "phone_number",
               "note": ""
             },
@@ -190052,49 +187071,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 920,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1001,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1002,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1071,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1153,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1216,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1259,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1438,
               "field": "phone_number",
               "note": ""
             },
@@ -190112,37 +187095,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1554,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1585,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1586,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1604,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1613,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1639,
               "field": "phone_number",
               "note": ""
             },
@@ -190160,18 +187113,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1704,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1731,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1931,
               "field": "phone_number",
               "note": ""
@@ -190179,48 +187120,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 1963,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2068,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2090,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2177,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2225,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2282,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2317,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2343,
               "field": "phone_number",
               "note": ""
             },
@@ -190238,12 +187137,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2446,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2456,
               "field": "phone_number",
               "note": ""
@@ -190256,25 +187149,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2504,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2583,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2592,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2697,
               "field": "phone_number",
               "note": ""
             },
@@ -190286,37 +187161,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2708,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2938,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2947,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2981,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3025,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3081,
               "field": "phone_number",
               "note": ""
             },
@@ -190334,55 +187185,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3203,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3205,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3254,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3297,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3352,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3397,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3544,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3574,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3669,
               "field": "phone_number",
               "note": ""
             },
@@ -190424,43 +187233,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4023,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4097,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4123,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4181,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4230,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4248,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4251,
               "field": "phone_number",
               "note": ""
             },
@@ -190472,25 +187245,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4334,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4378,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4402,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4429,
               "field": "phone_number",
               "note": ""
             },
@@ -190508,55 +187263,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4728,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4768,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4817,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4837,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5036,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5231,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5270,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5370,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5390,
               "field": "phone_number",
               "note": ""
             },
@@ -190569,18 +187282,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5684,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5853,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5907,
               "field": "phone_number",
               "note": ""
             },
@@ -191227,6 +187928,48 @@ window.foundrySeedCatalog = {
               "row": 5981,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 81,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 105,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 144,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 153,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 473,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 697,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 754,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -191936,30 +188679,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 229,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 254,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 281,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 308,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 493,
               "field": "phone_number",
               "note": ""
@@ -191979,24 +188698,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 681,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 719,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 756,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 908,
               "field": "phone_number",
               "note": ""
             },
@@ -192026,12 +188727,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1090,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1326,
               "field": "phone_number",
               "note": ""
@@ -192039,12 +188734,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 1436,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1455,
               "field": "phone_number",
               "note": ""
             },
@@ -192068,19 +188757,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1520,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1635,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1674,
               "field": "phone_number",
               "note": ""
             },
@@ -192110,18 +188787,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2077,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2161,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2187,
               "field": "phone_number",
               "note": ""
@@ -192135,18 +188800,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 2384,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2580,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2753,
               "field": "phone_number",
               "note": ""
             },
@@ -192206,12 +188859,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3749,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3971,
               "field": "phone_number",
               "note": ""
@@ -192225,24 +188872,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 4153,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4224,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4265,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4411,
               "field": "phone_number",
               "note": ""
             },
@@ -192272,12 +188901,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4601,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4730,
               "field": "phone_number",
               "note": ""
@@ -192291,12 +188914,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5131,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5223,
               "field": "phone_number",
               "note": ""
             },
@@ -192320,43 +188937,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5376,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5398,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5438,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5498,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5530,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5585,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5833,
               "field": "phone_number",
               "note": ""
             },
@@ -192817,6 +189398,24 @@ window.foundrySeedCatalog = {
               "row": 5977,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 66,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 327,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 720,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -193690,6 +190289,24 @@ window.foundrySeedCatalog = {
               "row": 5720,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 656,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 725,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 742,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -195125,6 +191742,18 @@ window.foundrySeedCatalog = {
               "row": 5958,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 554,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 629,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -196589,6 +193218,12 @@ window.foundrySeedCatalog = {
               "row": 5748,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 529,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -197361,6 +193996,24 @@ window.foundrySeedCatalog = {
               "row": 5946,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 56,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 218,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 330,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ]
         }
@@ -199701,43 +196354,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 103,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 285,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 379,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 520,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 551,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 559,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 656,
               "field": "phone_number",
               "note": ""
             },
@@ -199755,19 +196378,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 928,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1007,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1084,
               "field": "phone_number",
               "note": ""
             },
@@ -199779,19 +196390,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1141,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1231,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1418,
               "field": "phone_number",
               "note": ""
             },
@@ -199881,25 +196480,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2624,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2646,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2751,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2997,
               "field": "phone_number",
               "note": ""
             },
@@ -199911,37 +196492,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3076,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3108,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3541,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3656,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3658,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3708,
               "field": "phone_number",
               "note": ""
             },
@@ -199965,19 +196516,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4496,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4566,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4615,
               "field": "phone_number",
               "note": ""
             },
@@ -199995,43 +196534,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4748,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4864,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4926,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5022,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5028,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5057,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5072,
               "field": "phone_number",
               "note": ""
             },
@@ -200049,12 +196558,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5150,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5204,
               "field": "phone_number",
               "note": ""
@@ -200067,37 +196570,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5331,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5371,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5417,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5576,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5740,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5772,
               "field": "phone_number",
               "note": ""
             }
@@ -200504,6 +196983,12 @@ window.foundrySeedCatalog = {
               "row": 5772,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 589,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -201962,6 +198447,12 @@ window.foundrySeedCatalog = {
               "row": 5992,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 286,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -202662,55 +199153,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 99,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 120,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 267,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 355,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 380,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 385,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 462,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 627,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 968,
               "field": "phone_number",
               "note": ""
             },
@@ -202746,12 +199195,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1145,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1180,
               "field": "phone_number",
               "note": ""
@@ -202770,12 +199213,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1284,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1313,
               "field": "phone_number",
               "note": ""
@@ -202788,25 +199225,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1358,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1388,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1528,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1719,
               "field": "phone_number",
               "note": ""
             },
@@ -202824,19 +199243,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1872,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1966,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2149,
               "field": "phone_number",
               "note": ""
             },
@@ -202848,43 +199255,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2278,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2410,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2541,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2554,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2564,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2679,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3010,
               "field": "phone_number",
               "note": ""
             },
@@ -202902,61 +199279,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3330,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3345,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3813,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3950,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4073,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4170,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4235,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4445,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4473,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4596,
               "field": "phone_number",
               "note": ""
             },
@@ -202968,25 +199291,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4793,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4867,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4890,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4996,
               "field": "phone_number",
               "note": ""
             },
@@ -203010,18 +199315,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5460,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5478,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5547,
               "field": "phone_number",
               "note": ""
@@ -203029,18 +199322,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5614,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5685,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5770,
               "field": "phone_number",
               "note": ""
             },
@@ -203441,6 +199722,18 @@ window.foundrySeedCatalog = {
               "row": 5844,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 274,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 631,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -204375,12 +200668,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 43,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 165,
               "field": "phone_number",
               "note": ""
@@ -204393,31 +200680,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 255,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 298,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 350,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 386,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 433,
               "field": "phone_number",
               "note": ""
             },
@@ -204441,12 +200704,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 751,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 884,
               "field": "phone_number",
               "note": ""
@@ -204454,12 +200711,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 906,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1057,
               "field": "phone_number",
               "note": ""
             },
@@ -204483,37 +200734,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1223,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1247,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 1398,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1460,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1576,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 1624,
               "field": "phone_number",
               "note": ""
             },
@@ -204525,25 +200746,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 1914,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 2123,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2126,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2220,
               "field": "phone_number",
               "note": ""
             },
@@ -204561,24 +200764,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 2764,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 2850,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3105,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3288,
               "field": "phone_number",
               "note": ""
@@ -204591,49 +200776,13 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3440,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3588,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3718,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3724,
               "field": "phone_number",
               "note": ""
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 3896,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 3944,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 3954,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 4027,
               "field": "phone_number",
               "note": ""
             },
@@ -204663,12 +200812,6 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 4600,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 4770,
               "field": "phone_number",
               "note": ""
@@ -204687,31 +200830,7 @@ window.foundrySeedCatalog = {
             },
             {
               "dataset": "norm_mobile_pings",
-              "row": 5234,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
               "row": 5269,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5297,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5313,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5389,
               "field": "phone_number",
               "note": ""
             },
@@ -204736,18 +200855,6 @@ window.foundrySeedCatalog = {
             {
               "dataset": "norm_mobile_pings",
               "row": 5885,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5901,
-              "field": "phone_number",
-              "note": ""
-            },
-            {
-              "dataset": "norm_mobile_pings",
-              "row": 5911,
               "field": "phone_number",
               "note": ""
             }
@@ -205136,6 +201243,24 @@ window.foundrySeedCatalog = {
               "row": 5911,
               "field": "observed_name",
               "note": "ping alias"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 74,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 198,
+              "field": "passenger_name",
+              "note": "name as written"
+            },
+            {
+              "dataset": "norm_flight_manifests",
+              "row": 722,
+              "field": "passenger_name",
+              "note": "name as written"
             }
           ],
           "homeAddress": [
@@ -240407,7 +236532,7 @@ window.foundrySeedCatalog = {
           "aliases": "A. Keller",
           "dob": "1993-10-10",
           "passportId": "X7003042",
-          "phoneNumber": "+90241102355",
+          "phoneNumber": "+33832363533",
           "homeAddress": "56 Seefeldstrasse, Zurich",
           "clinicCode": "CLN-ZRH-02"
         },
@@ -243094,7 +239219,7 @@ window.foundrySeedCatalog = {
           "aliases": "D. Costa",
           "dob": "1995-01-23",
           "passportId": "X6680114",
-          "phoneNumber": "+971645179180",
+          "phoneNumber": "+49843785903",
           "homeAddress": "129 Makariou Avenue, Limassol",
           "clinicCode": "CLN-LIM-03"
         },
@@ -243430,7 +239555,7 @@ window.foundrySeedCatalog = {
           "aliases": "D. Hale",
           "dob": "1999-03-08",
           "passportId": "X5261032",
-          "phoneNumber": "+90727694430"
+          "phoneNumber": "+44374154962"
         },
         "sourceIds": [
           "resolved_persons"
@@ -244365,7 +240490,7 @@ window.foundrySeedCatalog = {
           "aliases": "E. Byrne",
           "dob": "1996-10-12",
           "passportId": "X4117625",
-          "phoneNumber": "+33588229686",
+          "phoneNumber": "+30738914080",
           "homeAddress": "54 Langstrasse, Zurich",
           "clinicCode": "CLN-ZRH-05"
         },
@@ -244530,7 +240655,7 @@ window.foundrySeedCatalog = {
           "aliases": "E. Keller",
           "dob": "1978-11-07",
           "passportId": "X5842082",
-          "phoneNumber": "+41718257024",
+          "phoneNumber": "+44233523720",
           "homeAddress": "154 Seefeldstrasse, Zurich",
           "clinicCode": "CLN-ZRH-04"
         },
@@ -245011,7 +241136,7 @@ window.foundrySeedCatalog = {
           "aliases": "E. Vale",
           "dob": "2001-03-29",
           "passportId": "X7812810",
-          "phoneNumber": "+971979717936",
+          "phoneNumber": "+49995205588",
           "homeAddress": "163 Moda Caddesi, Istanbul",
           "clinicCode": "CLN-IST-02"
         },
@@ -245436,7 +241561,7 @@ window.foundrySeedCatalog = {
           "aliases": "F. Ionescu",
           "dob": "1977-08-23",
           "passportId": "X5024269",
-          "phoneNumber": "+971154544899",
+          "phoneNumber": "+33692697161",
           "homeAddress": "157 Praterstrasse, Vienna",
           "clinicCode": "CLN-VIE-06"
         },
@@ -247414,7 +243539,7 @@ window.foundrySeedCatalog = {
           "aliases": "J. Hale",
           "dob": "1986-03-10",
           "passportId": "X6363836",
-          "phoneNumber": "+971780481547",
+          "phoneNumber": "+49186519602",
           "homeAddress": "134 Praterstrasse, Vienna",
           "clinicCode": "CLN-VIE-04"
         },
@@ -247625,7 +243750,7 @@ window.foundrySeedCatalog = {
           "aliases": "J. Rossi",
           "dob": "1986-04-07",
           "passportId": "X9094999",
-          "phoneNumber": "+41918739736"
+          "phoneNumber": "+44361704064"
         },
         "sourceIds": [
           "resolved_persons"
@@ -248627,7 +244752,7 @@ window.foundrySeedCatalog = {
           "aliases": "L. Lopez",
           "dob": "1991-01-03",
           "passportId": "X8072684",
-          "phoneNumber": "+44844826434",
+          "phoneNumber": "+41996478772",
           "homeAddress": "9 Langstrasse, Zurich",
           "clinicCode": "CLN-ZRH-03"
         },
@@ -250782,6 +246907,7 @@ window.foundrySeedCatalog = {
         "label": "Omar Rahman",
         "properties": {
           "canonicalName": "Omar Rahman",
+          "aliases": "Umar Rahman",
           "dob": "1979-02-02",
           "passportId": "G5510077",
           "phoneNumber": "+447911223344",
@@ -251887,7 +248013,7 @@ window.foundrySeedCatalog = {
           "aliases": "P. Keller",
           "dob": "1982-12-08",
           "passportId": "X9164991",
-          "phoneNumber": "+30354697684",
+          "phoneNumber": "+33303901283",
           "homeAddress": "41 Halaskargazi Caddesi, Istanbul",
           "clinicCode": "CLN-IST-05"
         },
@@ -252811,7 +248937,7 @@ window.foundrySeedCatalog = {
           "aliases": "R. Keller",
           "dob": "1984-04-28",
           "passportId": "X1615675",
-          "phoneNumber": "+90403566540",
+          "phoneNumber": "+44194553481",
           "homeAddress": "85 Solonos Street, Athens",
           "clinicCode": "CLN-ATH-03"
         },
@@ -253120,7 +249246,7 @@ window.foundrySeedCatalog = {
           "aliases": "R. Patel",
           "dob": "1985-08-17",
           "passportId": "X5936453",
-          "phoneNumber": "+971935021998",
+          "phoneNumber": "+33534222401",
           "homeAddress": "16 Ermou Street, Larnaca",
           "clinicCode": "CLN-LCA-03"
         },
@@ -321261,7 +317387,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "4700.0",
+          "totalAmountUsd": "4700.00",
           "lastTxnTs": "2026-04-03T14:05:00Z",
           "sampleReference": "freight adjustment"
         },
@@ -321277,7 +317403,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "4250.0",
+          "totalAmountUsd": "4250.00",
           "lastTxnTs": "2026-04-04T13:55:00Z",
           "sampleReference": "service fee"
         },
@@ -321309,7 +317435,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-07T01:44:00Z",
           "sampleReference": "invoice"
         },
@@ -321325,7 +317451,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-04T02:26:00Z",
           "sampleReference": "invoice"
         },
@@ -321341,7 +317467,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-01T14:07:00Z",
           "sampleReference": "travel"
         },
@@ -321357,7 +317483,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-04T12:22:00Z",
           "sampleReference": "settlement"
         },
@@ -321373,7 +317499,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-10T05:41:00Z",
           "sampleReference": "ops"
         },
@@ -321389,7 +317515,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-04T22:35:00Z",
           "sampleReference": "invoice"
         },
@@ -321405,7 +317531,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-12T03:28:00Z",
           "sampleReference": "ops"
         },
@@ -321421,7 +317547,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-04T17:22:00Z",
           "sampleReference": "hotel"
         },
@@ -321437,7 +317563,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T01:43:00Z",
           "sampleReference": "ops"
         },
@@ -321469,7 +317595,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T08:42:00Z",
           "sampleReference": "ops"
         },
@@ -321485,7 +317611,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T08:40:00Z",
           "sampleReference": "invoice"
         },
@@ -321501,7 +317627,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-12T02:34:00Z",
           "sampleReference": "settlement"
         },
@@ -321533,7 +317659,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T18:33:00Z",
           "sampleReference": "invoice"
         },
@@ -321549,7 +317675,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-05T18:13:00Z",
           "sampleReference": "fuel"
         },
@@ -321565,7 +317691,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-04T00:01:00Z",
           "sampleReference": "fuel"
         },
@@ -321581,7 +317707,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-05T20:23:00Z",
           "sampleReference": "fuel"
         },
@@ -321597,7 +317723,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T11:29:00Z",
           "sampleReference": "settlement"
         },
@@ -321613,7 +317739,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-02T10:42:00Z",
           "sampleReference": "hotel"
         },
@@ -321629,7 +317755,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-10T08:15:00Z",
           "sampleReference": "settlement"
         },
@@ -321645,7 +317771,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T23:17:00Z",
           "sampleReference": "ops"
         },
@@ -321661,7 +317787,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-12T02:04:00Z",
           "sampleReference": "settlement"
         },
@@ -321677,7 +317803,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-05T18:57:00Z",
           "sampleReference": "ops"
         },
@@ -321693,7 +317819,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-10T06:01:00Z",
           "sampleReference": "fuel"
         },
@@ -321709,7 +317835,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T00:40:00Z",
           "sampleReference": "invoice"
         },
@@ -321725,7 +317851,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-11T08:07:00Z",
           "sampleReference": "fuel"
         },
@@ -321773,7 +317899,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-02T10:52:00Z",
           "sampleReference": "fuel"
         },
@@ -321789,7 +317915,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T13:22:00Z",
           "sampleReference": "hotel"
         },
@@ -321805,7 +317931,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T12:19:00Z",
           "sampleReference": "hotel"
         },
@@ -321821,7 +317947,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T22:37:00Z",
           "sampleReference": "invoice"
         },
@@ -321837,7 +317963,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-09T07:48:00Z",
           "sampleReference": "invoice"
         },
@@ -321853,7 +317979,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-02T10:51:00Z",
           "sampleReference": "invoice"
         },
@@ -321869,7 +317995,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-05T07:36:00Z",
           "sampleReference": "fuel"
         },
@@ -321885,7 +318011,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-08T17:32:00Z",
           "sampleReference": "travel"
         },
@@ -321901,7 +318027,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-05T08:45:00Z",
           "sampleReference": "fuel"
         },
@@ -321917,7 +318043,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T17:03:00Z",
           "sampleReference": "fuel"
         },
@@ -321933,7 +318059,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T15:34:00Z",
           "sampleReference": "travel"
         },
@@ -321949,7 +318075,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T06:19:00Z",
           "sampleReference": "invoice"
         },
@@ -321965,7 +318091,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-09T17:23:00Z",
           "sampleReference": "travel"
         },
@@ -321997,7 +318123,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-06T02:32:00Z",
           "sampleReference": "settlement"
         },
@@ -322013,7 +318139,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T17:32:00Z",
           "sampleReference": "hotel"
         },
@@ -322029,7 +318155,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T01:42:00Z",
           "sampleReference": "ops"
         },
@@ -322045,7 +318171,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-07T12:31:00Z",
           "sampleReference": "settlement"
         },
@@ -322061,7 +318187,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T22:36:00Z",
           "sampleReference": "ops"
         },
@@ -322077,7 +318203,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T22:25:00Z",
           "sampleReference": "fuel"
         },
@@ -322093,7 +318219,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T03:34:00Z",
           "sampleReference": "settlement"
         },
@@ -322109,7 +318235,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-03T16:36:00Z",
           "sampleReference": "invoice"
         },
@@ -322125,7 +318251,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T23:50:00Z",
           "sampleReference": "travel"
         },
@@ -322141,7 +318267,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T13:22:00Z",
           "sampleReference": "invoice"
         },
@@ -322157,7 +318283,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-04T13:07:00Z",
           "sampleReference": "ops"
         },
@@ -322173,7 +318299,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-04T06:31:00Z",
           "sampleReference": "invoice"
         },
@@ -322189,7 +318315,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-07T04:40:00Z",
           "sampleReference": "ops"
         },
@@ -322205,7 +318331,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-02T07:56:00Z",
           "sampleReference": "settlement"
         },
@@ -322221,7 +318347,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-09T03:24:00Z",
           "sampleReference": "settlement"
         },
@@ -322237,7 +318363,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-03T20:27:00Z",
           "sampleReference": "settlement"
         },
@@ -322253,7 +318379,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T15:57:00Z",
           "sampleReference": "hotel"
         },
@@ -322269,7 +318395,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-11T14:29:00Z",
           "sampleReference": "travel"
         },
@@ -322285,7 +318411,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-04T08:38:00Z",
           "sampleReference": "settlement"
         },
@@ -322301,7 +318427,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T03:04:00Z",
           "sampleReference": "settlement"
         },
@@ -322317,7 +318443,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-10T09:00:00Z",
           "sampleReference": "fuel"
         },
@@ -322333,7 +318459,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T18:24:00Z",
           "sampleReference": "ops"
         },
@@ -322349,7 +318475,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T14:34:00Z",
           "sampleReference": "travel"
         },
@@ -322365,7 +318491,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T00:06:00Z",
           "sampleReference": "hotel"
         },
@@ -322381,7 +318507,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-08T21:41:00Z",
           "sampleReference": "fuel"
         },
@@ -322397,7 +318523,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T00:11:00Z",
           "sampleReference": "hotel"
         },
@@ -322445,7 +318571,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-09T05:52:00Z",
           "sampleReference": "travel"
         },
@@ -322461,7 +318587,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T00:23:00Z",
           "sampleReference": "settlement"
         },
@@ -322477,7 +318603,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T03:50:00Z",
           "sampleReference": "invoice"
         },
@@ -322493,7 +318619,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T03:08:00Z",
           "sampleReference": "fuel"
         },
@@ -322525,7 +318651,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T09:20:00Z",
           "sampleReference": "ops"
         },
@@ -322541,7 +318667,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-02T01:54:00Z",
           "sampleReference": "travel"
         },
@@ -322557,7 +318683,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T19:48:00Z",
           "sampleReference": "hotel"
         },
@@ -322573,7 +318699,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-03T05:23:00Z",
           "sampleReference": "invoice"
         },
@@ -322589,7 +318715,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T05:57:00Z",
           "sampleReference": "travel"
         },
@@ -322605,7 +318731,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-06T15:10:00Z",
           "sampleReference": "fuel"
         },
@@ -322621,7 +318747,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T23:13:00Z",
           "sampleReference": "fuel"
         },
@@ -322637,7 +318763,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T13:39:00Z",
           "sampleReference": "travel"
         },
@@ -322653,7 +318779,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T17:36:00Z",
           "sampleReference": "ops"
         },
@@ -322669,7 +318795,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T23:21:00Z",
           "sampleReference": "settlement"
         },
@@ -322685,7 +318811,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-05T17:28:00Z",
           "sampleReference": "settlement"
         },
@@ -322701,7 +318827,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T02:23:00Z",
           "sampleReference": "settlement"
         },
@@ -322717,7 +318843,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T00:11:00Z",
           "sampleReference": "settlement"
         },
@@ -322733,7 +318859,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T13:06:00Z",
           "sampleReference": "fuel"
         },
@@ -322749,7 +318875,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-09T16:23:00Z",
           "sampleReference": "invoice"
         },
@@ -322781,7 +318907,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T08:47:00Z",
           "sampleReference": "hotel"
         },
@@ -322797,7 +318923,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T04:59:00Z",
           "sampleReference": "ops"
         },
@@ -322813,7 +318939,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-10T15:55:00Z",
           "sampleReference": "travel"
         },
@@ -322845,7 +318971,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-08T02:24:00Z",
           "sampleReference": "invoice"
         },
@@ -322861,7 +318987,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T08:11:00Z",
           "sampleReference": "ops"
         },
@@ -322877,7 +319003,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T05:24:00Z",
           "sampleReference": "hotel"
         },
@@ -322893,7 +319019,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T14:10:00Z",
           "sampleReference": "travel"
         },
@@ -322925,7 +319051,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-06T05:01:00Z",
           "sampleReference": "hotel"
         },
@@ -322941,7 +319067,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T20:11:00Z",
           "sampleReference": "invoice"
         },
@@ -322957,7 +319083,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T11:23:00Z",
           "sampleReference": "ops"
         },
@@ -322973,7 +319099,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-07T23:24:00Z",
           "sampleReference": "ops"
         },
@@ -322989,7 +319115,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-08T17:48:00Z",
           "sampleReference": "invoice"
         },
@@ -323005,7 +319131,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T18:54:00Z",
           "sampleReference": "fuel"
         },
@@ -323021,7 +319147,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-08T07:54:00Z",
           "sampleReference": "hotel"
         },
@@ -323037,7 +319163,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-10T23:32:00Z",
           "sampleReference": "ops"
         },
@@ -323069,7 +319195,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-01T14:47:00Z",
           "sampleReference": "travel"
         },
@@ -323117,7 +319243,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T21:52:00Z",
           "sampleReference": "fuel"
         },
@@ -323133,7 +319259,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T18:01:00Z",
           "sampleReference": "settlement"
         },
@@ -323149,7 +319275,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-10T21:12:00Z",
           "sampleReference": "invoice"
         },
@@ -323165,7 +319291,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T06:35:00Z",
           "sampleReference": "hotel"
         },
@@ -323181,7 +319307,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-08T09:48:00Z",
           "sampleReference": "settlement"
         },
@@ -323197,7 +319323,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-01T22:39:00Z",
           "sampleReference": "ops"
         },
@@ -323213,7 +319339,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T05:12:00Z",
           "sampleReference": "hotel"
         },
@@ -323229,7 +319355,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-06T21:35:00Z",
           "sampleReference": "settlement"
         },
@@ -323261,7 +319387,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-11T21:39:00Z",
           "sampleReference": "invoice"
         },
@@ -323277,7 +319403,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-02T12:21:00Z",
           "sampleReference": "hotel"
         },
@@ -323293,7 +319419,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T03:13:00Z",
           "sampleReference": "fuel"
         },
@@ -323309,7 +319435,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T01:13:00Z",
           "sampleReference": "fuel"
         },
@@ -323325,7 +319451,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-11T23:13:00Z",
           "sampleReference": "invoice"
         },
@@ -323341,7 +319467,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-03T21:51:00Z",
           "sampleReference": "ops"
         },
@@ -323357,7 +319483,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-08T16:53:00Z",
           "sampleReference": "settlement"
         },
@@ -323389,7 +319515,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T22:54:00Z",
           "sampleReference": "fuel"
         },
@@ -323405,7 +319531,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T00:07:00Z",
           "sampleReference": "ops"
         },
@@ -323421,7 +319547,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T11:54:00Z",
           "sampleReference": "settlement"
         },
@@ -323437,7 +319563,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-10T14:35:00Z",
           "sampleReference": "invoice"
         },
@@ -323453,7 +319579,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T23:36:00Z",
           "sampleReference": "ops"
         },
@@ -323485,7 +319611,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-10T08:42:00Z",
           "sampleReference": "settlement"
         },
@@ -323501,7 +319627,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-09T21:27:00Z",
           "sampleReference": "travel"
         },
@@ -323517,7 +319643,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T23:53:00Z",
           "sampleReference": "travel"
         },
@@ -323533,7 +319659,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T08:52:00Z",
           "sampleReference": "ops"
         },
@@ -323549,7 +319675,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T15:09:00Z",
           "sampleReference": "hotel"
         },
@@ -323565,7 +319691,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-07T00:35:00Z",
           "sampleReference": "settlement"
         },
@@ -323581,7 +319707,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-10T00:38:00Z",
           "sampleReference": "settlement"
         },
@@ -323613,7 +319739,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T06:29:00Z",
           "sampleReference": "invoice"
         },
@@ -323629,7 +319755,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-01T17:01:00Z",
           "sampleReference": "settlement"
         },
@@ -323645,7 +319771,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T03:04:00Z",
           "sampleReference": "fuel"
         },
@@ -323661,7 +319787,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T07:24:00Z",
           "sampleReference": "ops"
         },
@@ -323677,7 +319803,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T12:54:00Z",
           "sampleReference": "ops"
         },
@@ -323693,7 +319819,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-02T19:57:00Z",
           "sampleReference": "hotel"
         },
@@ -323709,7 +319835,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-10T07:05:00Z",
           "sampleReference": "hotel"
         },
@@ -323725,7 +319851,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-07T02:27:00Z",
           "sampleReference": "fuel"
         },
@@ -323741,7 +319867,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-06T07:25:00Z",
           "sampleReference": "travel"
         },
@@ -323757,7 +319883,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T03:01:00Z",
           "sampleReference": "travel"
         },
@@ -323773,7 +319899,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T19:58:00Z",
           "sampleReference": "travel"
         },
@@ -323789,7 +319915,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-09T13:17:00Z",
           "sampleReference": "hotel"
         },
@@ -323805,7 +319931,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-11T23:05:00Z",
           "sampleReference": "invoice"
         },
@@ -323821,7 +319947,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-03T08:24:00Z",
           "sampleReference": "hotel"
         },
@@ -323837,7 +319963,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T22:35:00Z",
           "sampleReference": "fuel"
         },
@@ -323853,7 +319979,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-10T18:43:00Z",
           "sampleReference": "ops"
         },
@@ -323869,7 +319995,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-03T05:39:00Z",
           "sampleReference": "hotel"
         },
@@ -323885,7 +320011,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T00:59:00Z",
           "sampleReference": "invoice"
         },
@@ -323901,7 +320027,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-03T02:57:00Z",
           "sampleReference": "fuel"
         },
@@ -323917,7 +320043,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-07T04:47:00Z",
           "sampleReference": "travel"
         },
@@ -323933,7 +320059,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-01T09:50:00Z",
           "sampleReference": "ops"
         },
@@ -323965,7 +320091,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T14:48:00Z",
           "sampleReference": "settlement"
         },
@@ -323981,7 +320107,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-10T10:46:00Z",
           "sampleReference": "ops"
         },
@@ -323997,7 +320123,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T04:01:00Z",
           "sampleReference": "settlement"
         },
@@ -324013,7 +320139,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-06T05:02:00Z",
           "sampleReference": "invoice"
         },
@@ -324045,7 +320171,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T12:34:00Z",
           "sampleReference": "settlement"
         },
@@ -324061,7 +320187,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-01T20:42:00Z",
           "sampleReference": "invoice"
         },
@@ -324077,7 +320203,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-10T22:43:00Z",
           "sampleReference": "fuel"
         },
@@ -324093,7 +320219,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T16:50:00Z",
           "sampleReference": "fuel"
         },
@@ -324109,7 +320235,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T13:33:00Z",
           "sampleReference": "travel"
         },
@@ -324125,7 +320251,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T07:58:00Z",
           "sampleReference": "fuel"
         },
@@ -324141,7 +320267,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-06T21:52:00Z",
           "sampleReference": "fuel"
         },
@@ -324157,7 +320283,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T09:21:00Z",
           "sampleReference": "ops"
         },
@@ -324237,7 +320363,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T16:18:00Z",
           "sampleReference": "settlement"
         },
@@ -324253,7 +320379,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-03T16:02:00Z",
           "sampleReference": "hotel"
         },
@@ -324269,7 +320395,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T03:24:00Z",
           "sampleReference": "ops"
         },
@@ -324285,7 +320411,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T14:54:00Z",
           "sampleReference": "travel"
         },
@@ -324301,7 +320427,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-12T04:59:00Z",
           "sampleReference": "fuel"
         },
@@ -324317,7 +320443,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T19:06:00Z",
           "sampleReference": "invoice"
         },
@@ -324333,7 +320459,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T04:10:00Z",
           "sampleReference": "fuel"
         },
@@ -324349,7 +320475,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T01:33:00Z",
           "sampleReference": "invoice"
         },
@@ -324365,7 +320491,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-09T12:28:00Z",
           "sampleReference": "invoice"
         },
@@ -324381,7 +320507,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T22:23:00Z",
           "sampleReference": "invoice"
         },
@@ -324397,7 +320523,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-07T02:34:00Z",
           "sampleReference": "settlement"
         },
@@ -324413,7 +320539,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T03:47:00Z",
           "sampleReference": "ops"
         },
@@ -324429,7 +320555,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T15:19:00Z",
           "sampleReference": "settlement"
         },
@@ -324445,7 +320571,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T01:09:00Z",
           "sampleReference": "settlement"
         },
@@ -324461,7 +320587,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T23:39:00Z",
           "sampleReference": "travel"
         },
@@ -324525,7 +320651,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T21:35:00Z",
           "sampleReference": "invoice"
         },
@@ -324557,7 +320683,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T22:12:00Z",
           "sampleReference": "settlement"
         },
@@ -324573,7 +320699,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T21:25:00Z",
           "sampleReference": "travel"
         },
@@ -324589,7 +320715,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-10T07:07:00Z",
           "sampleReference": "invoice"
         },
@@ -324605,7 +320731,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T20:39:00Z",
           "sampleReference": "invoice"
         },
@@ -324621,7 +320747,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T12:01:00Z",
           "sampleReference": "fuel"
         },
@@ -324637,7 +320763,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T11:09:00Z",
           "sampleReference": "invoice"
         },
@@ -324653,7 +320779,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-06T00:58:00Z",
           "sampleReference": "fuel"
         },
@@ -324669,7 +320795,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-09T11:02:00Z",
           "sampleReference": "fuel"
         },
@@ -324685,7 +320811,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-09T09:21:00Z",
           "sampleReference": "fuel"
         },
@@ -324701,7 +320827,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T11:09:00Z",
           "sampleReference": "hotel"
         },
@@ -324717,7 +320843,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T20:09:00Z",
           "sampleReference": "settlement"
         },
@@ -324733,7 +320859,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-01T10:43:00Z",
           "sampleReference": "hotel"
         },
@@ -324749,7 +320875,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T13:16:00Z",
           "sampleReference": "hotel"
         },
@@ -324781,7 +320907,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T05:26:00Z",
           "sampleReference": "settlement"
         },
@@ -324797,7 +320923,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-05T12:58:00Z",
           "sampleReference": "fuel"
         },
@@ -324813,7 +320939,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T02:23:00Z",
           "sampleReference": "invoice"
         },
@@ -324829,7 +320955,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-05T08:04:00Z",
           "sampleReference": "invoice"
         },
@@ -324845,7 +320971,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-05T09:48:00Z",
           "sampleReference": "fuel"
         },
@@ -324861,7 +320987,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-04T15:08:00Z",
           "sampleReference": "hotel"
         },
@@ -324893,7 +321019,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T09:12:00Z",
           "sampleReference": "ops"
         },
@@ -324925,7 +321051,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T06:51:00Z",
           "sampleReference": "ops"
         },
@@ -324941,7 +321067,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-09T02:48:00Z",
           "sampleReference": "hotel"
         },
@@ -324957,7 +321083,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-08T09:46:00Z",
           "sampleReference": "hotel"
         },
@@ -324973,7 +321099,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T07:39:00Z",
           "sampleReference": "settlement"
         },
@@ -324989,7 +321115,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-10T13:42:00Z",
           "sampleReference": "hotel"
         },
@@ -325005,7 +321131,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-05T05:43:00Z",
           "sampleReference": "travel"
         },
@@ -325021,7 +321147,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-10T02:40:00Z",
           "sampleReference": "settlement"
         },
@@ -325037,7 +321163,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T11:01:00Z",
           "sampleReference": "travel"
         },
@@ -325053,7 +321179,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-04T02:42:00Z",
           "sampleReference": "ops"
         },
@@ -325069,7 +321195,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-03T11:00:00Z",
           "sampleReference": "ops"
         },
@@ -325101,7 +321227,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-02T17:03:00Z",
           "sampleReference": "ops"
         },
@@ -325117,7 +321243,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-02T07:13:00Z",
           "sampleReference": "travel"
         },
@@ -325133,7 +321259,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T18:19:00Z",
           "sampleReference": "fuel"
         },
@@ -325149,7 +321275,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-01T09:09:00Z",
           "sampleReference": "settlement"
         },
@@ -325165,7 +321291,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-04T06:20:00Z",
           "sampleReference": "invoice"
         },
@@ -325181,7 +321307,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T04:46:00Z",
           "sampleReference": "hotel"
         },
@@ -325197,7 +321323,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T09:55:00Z",
           "sampleReference": "hotel"
         },
@@ -325229,7 +321355,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T20:43:00Z",
           "sampleReference": "invoice"
         },
@@ -325245,7 +321371,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T11:34:00Z",
           "sampleReference": "hotel"
         },
@@ -325261,7 +321387,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T15:48:00Z",
           "sampleReference": "travel"
         },
@@ -325277,7 +321403,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T06:07:00Z",
           "sampleReference": "travel"
         },
@@ -325293,7 +321419,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T00:53:00Z",
           "sampleReference": "invoice"
         },
@@ -325309,7 +321435,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-05T20:38:00Z",
           "sampleReference": "invoice"
         },
@@ -325325,7 +321451,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T08:34:00Z",
           "sampleReference": "travel"
         },
@@ -325341,7 +321467,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-09T07:17:00Z",
           "sampleReference": "hotel"
         },
@@ -325357,7 +321483,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-12T01:37:00Z",
           "sampleReference": "settlement"
         },
@@ -325373,7 +321499,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-02T06:06:00Z",
           "sampleReference": "ops"
         },
@@ -325389,7 +321515,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-05T22:22:00Z",
           "sampleReference": "settlement"
         },
@@ -325421,7 +321547,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-06T18:59:00Z",
           "sampleReference": "hotel"
         },
@@ -325437,7 +321563,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-12T01:36:00Z",
           "sampleReference": "travel"
         },
@@ -325469,7 +321595,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T13:54:00Z",
           "sampleReference": "invoice"
         },
@@ -325485,7 +321611,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-06T19:57:00Z",
           "sampleReference": "ops"
         },
@@ -325501,7 +321627,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-10T06:16:00Z",
           "sampleReference": "settlement"
         },
@@ -325517,7 +321643,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T14:12:00Z",
           "sampleReference": "invoice"
         },
@@ -325565,7 +321691,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T09:52:00Z",
           "sampleReference": "hotel"
         },
@@ -325581,7 +321707,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T04:13:00Z",
           "sampleReference": "ops"
         },
@@ -325597,7 +321723,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T06:44:00Z",
           "sampleReference": "invoice"
         },
@@ -325613,7 +321739,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T12:34:00Z",
           "sampleReference": "settlement"
         },
@@ -325629,7 +321755,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T00:07:00Z",
           "sampleReference": "invoice"
         },
@@ -325645,7 +321771,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T04:10:00Z",
           "sampleReference": "hotel"
         },
@@ -325661,7 +321787,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T13:36:00Z",
           "sampleReference": "hotel"
         },
@@ -325677,7 +321803,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T20:59:00Z",
           "sampleReference": "ops"
         },
@@ -325709,7 +321835,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-08T00:54:00Z",
           "sampleReference": "settlement"
         },
@@ -325725,7 +321851,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-09T04:15:00Z",
           "sampleReference": "hotel"
         },
@@ -325741,7 +321867,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-02T09:28:00Z",
           "sampleReference": "settlement"
         },
@@ -325757,7 +321883,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T13:02:00Z",
           "sampleReference": "invoice"
         },
@@ -325773,7 +321899,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T01:17:00Z",
           "sampleReference": "fuel"
         },
@@ -325805,7 +321931,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-04T21:59:00Z",
           "sampleReference": "settlement"
         },
@@ -325821,7 +321947,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-01T13:08:00Z",
           "sampleReference": "settlement"
         },
@@ -325853,7 +321979,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-08T05:27:00Z",
           "sampleReference": "travel"
         },
@@ -325885,7 +322011,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-04T14:50:00Z",
           "sampleReference": "settlement"
         },
@@ -325901,7 +322027,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T04:01:00Z",
           "sampleReference": "fuel"
         },
@@ -325917,7 +322043,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-05T16:27:00Z",
           "sampleReference": "ops"
         },
@@ -325933,7 +322059,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-10T23:30:00Z",
           "sampleReference": "hotel"
         },
@@ -325949,7 +322075,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T11:01:00Z",
           "sampleReference": "hotel"
         },
@@ -325965,7 +322091,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T15:54:00Z",
           "sampleReference": "settlement"
         },
@@ -325981,7 +322107,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-09T18:16:00Z",
           "sampleReference": "invoice"
         },
@@ -326013,7 +322139,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-06T10:25:00Z",
           "sampleReference": "ops"
         },
@@ -326029,7 +322155,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T23:07:00Z",
           "sampleReference": "travel"
         },
@@ -326045,7 +322171,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T18:05:00Z",
           "sampleReference": "ops"
         },
@@ -326061,7 +322187,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T22:03:00Z",
           "sampleReference": "hotel"
         },
@@ -326093,7 +322219,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T06:40:00Z",
           "sampleReference": "settlement"
         },
@@ -326125,7 +322251,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T02:17:00Z",
           "sampleReference": "hotel"
         },
@@ -326141,7 +322267,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T13:04:00Z",
           "sampleReference": "fuel"
         },
@@ -326157,7 +322283,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-07T14:32:00Z",
           "sampleReference": "fuel"
         },
@@ -326173,7 +322299,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-07T15:19:00Z",
           "sampleReference": "hotel"
         },
@@ -326189,7 +322315,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-09T15:11:00Z",
           "sampleReference": "settlement"
         },
@@ -326205,7 +322331,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-06T00:59:00Z",
           "sampleReference": "fuel"
         },
@@ -326237,7 +322363,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T03:11:00Z",
           "sampleReference": "fuel"
         },
@@ -326253,7 +322379,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T05:46:00Z",
           "sampleReference": "invoice"
         },
@@ -326285,7 +322411,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-10T17:27:00Z",
           "sampleReference": "travel"
         },
@@ -326301,7 +322427,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T08:37:00Z",
           "sampleReference": "fuel"
         },
@@ -326317,7 +322443,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T14:34:00Z",
           "sampleReference": "invoice"
         },
@@ -326333,7 +322459,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-12T01:12:00Z",
           "sampleReference": "settlement"
         },
@@ -326349,7 +322475,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-05T06:52:00Z",
           "sampleReference": "hotel"
         },
@@ -326365,7 +322491,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-09T17:08:00Z",
           "sampleReference": "ops"
         },
@@ -326381,7 +322507,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T11:54:00Z",
           "sampleReference": "fuel"
         },
@@ -326397,7 +322523,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-10T01:33:00Z",
           "sampleReference": "hotel"
         },
@@ -326413,7 +322539,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-09T05:13:00Z",
           "sampleReference": "invoice"
         },
@@ -326429,7 +322555,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T20:51:00Z",
           "sampleReference": "settlement"
         },
@@ -326461,7 +322587,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T15:17:00Z",
           "sampleReference": "fuel"
         },
@@ -326477,7 +322603,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-10T05:48:00Z",
           "sampleReference": "ops"
         },
@@ -326493,7 +322619,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-09T19:34:00Z",
           "sampleReference": "invoice"
         },
@@ -326525,7 +322651,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-09T08:15:00Z",
           "sampleReference": "settlement"
         },
@@ -326541,7 +322667,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-12T00:09:00Z",
           "sampleReference": "ops"
         },
@@ -326557,7 +322683,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T06:41:00Z",
           "sampleReference": "ops"
         },
@@ -326573,7 +322699,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T17:40:00Z",
           "sampleReference": "invoice"
         },
@@ -326589,7 +322715,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T15:46:00Z",
           "sampleReference": "hotel"
         },
@@ -326605,7 +322731,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-01T13:19:00Z",
           "sampleReference": "fuel"
         },
@@ -326621,7 +322747,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T20:22:00Z",
           "sampleReference": "hotel"
         },
@@ -326637,7 +322763,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T04:55:00Z",
           "sampleReference": "settlement"
         },
@@ -326669,7 +322795,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T12:33:00Z",
           "sampleReference": "invoice"
         },
@@ -326685,7 +322811,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T22:54:00Z",
           "sampleReference": "ops"
         },
@@ -326717,7 +322843,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-08T08:27:00Z",
           "sampleReference": "hotel"
         },
@@ -326733,7 +322859,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-07T04:21:00Z",
           "sampleReference": "ops"
         },
@@ -326765,7 +322891,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-10T12:57:00Z",
           "sampleReference": "fuel"
         },
@@ -326781,7 +322907,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-07T22:06:00Z",
           "sampleReference": "invoice"
         },
@@ -326797,7 +322923,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T09:51:00Z",
           "sampleReference": "travel"
         },
@@ -326813,7 +322939,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-04T10:17:00Z",
           "sampleReference": "settlement"
         },
@@ -326829,7 +322955,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T06:45:00Z",
           "sampleReference": "fuel"
         },
@@ -326845,7 +322971,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-04T20:03:00Z",
           "sampleReference": "travel"
         },
@@ -326861,7 +322987,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T05:02:00Z",
           "sampleReference": "travel"
         },
@@ -326877,7 +323003,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-01T20:55:00Z",
           "sampleReference": "fuel"
         },
@@ -326893,7 +323019,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-08T14:14:00Z",
           "sampleReference": "invoice"
         },
@@ -326909,7 +323035,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-06T06:26:00Z",
           "sampleReference": "invoice"
         },
@@ -326925,7 +323051,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-04T11:20:00Z",
           "sampleReference": "fuel"
         },
@@ -326941,7 +323067,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-07T16:06:00Z",
           "sampleReference": "invoice"
         },
@@ -326973,7 +323099,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-06T06:19:00Z",
           "sampleReference": "invoice"
         },
@@ -326989,7 +323115,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-12T01:36:00Z",
           "sampleReference": "settlement"
         },
@@ -327005,7 +323131,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T14:51:00Z",
           "sampleReference": "hotel"
         },
@@ -327021,7 +323147,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T00:24:00Z",
           "sampleReference": "invoice"
         },
@@ -327037,7 +323163,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T16:23:00Z",
           "sampleReference": "fuel"
         },
@@ -327053,7 +323179,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-11T23:43:00Z",
           "sampleReference": "travel"
         },
@@ -327069,7 +323195,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T03:27:00Z",
           "sampleReference": "hotel"
         },
@@ -327101,7 +323227,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-04T09:29:00Z",
           "sampleReference": "ops"
         },
@@ -327117,7 +323243,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T02:32:00Z",
           "sampleReference": "settlement"
         },
@@ -327133,7 +323259,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-01T18:49:00Z",
           "sampleReference": "invoice"
         },
@@ -327165,7 +323291,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-07T23:12:00Z",
           "sampleReference": "travel"
         },
@@ -327181,7 +323307,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-06T07:13:00Z",
           "sampleReference": "ops"
         },
@@ -327197,7 +323323,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-11T06:46:00Z",
           "sampleReference": "hotel"
         },
@@ -327213,7 +323339,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-10T19:49:00Z",
           "sampleReference": "fuel"
         },
@@ -327229,7 +323355,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-01T12:56:00Z",
           "sampleReference": "invoice"
         },
@@ -327245,7 +323371,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T21:49:00Z",
           "sampleReference": "settlement"
         },
@@ -327261,7 +323387,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T16:07:00Z",
           "sampleReference": "travel"
         },
@@ -327277,7 +323403,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-10T21:13:00Z",
           "sampleReference": "hotel"
         },
@@ -327293,7 +323419,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-10T18:44:00Z",
           "sampleReference": "settlement"
         },
@@ -327309,7 +323435,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-01T16:01:00Z",
           "sampleReference": "invoice"
         },
@@ -327325,7 +323451,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-01T17:45:00Z",
           "sampleReference": "ops"
         },
@@ -327341,7 +323467,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-09T19:46:00Z",
           "sampleReference": "ops"
         },
@@ -327357,7 +323483,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T13:46:00Z",
           "sampleReference": "fuel"
         },
@@ -327373,7 +323499,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-11T04:49:00Z",
           "sampleReference": "ops"
         },
@@ -327421,7 +323547,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-01T22:39:00Z",
           "sampleReference": "settlement"
         },
@@ -327437,7 +323563,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T20:37:00Z",
           "sampleReference": "ops"
         },
@@ -327469,7 +323595,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-02T12:53:00Z",
           "sampleReference": "settlement"
         },
@@ -327485,7 +323611,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T15:53:00Z",
           "sampleReference": "settlement"
         },
@@ -327501,7 +323627,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T09:54:00Z",
           "sampleReference": "ops"
         },
@@ -327517,7 +323643,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T17:51:00Z",
           "sampleReference": "hotel"
         },
@@ -327533,7 +323659,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-06T11:41:00Z",
           "sampleReference": "invoice"
         },
@@ -327549,7 +323675,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T14:49:00Z",
           "sampleReference": "fuel"
         },
@@ -327581,7 +323707,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-09T00:36:00Z",
           "sampleReference": "invoice"
         },
@@ -327597,7 +323723,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-07T21:21:00Z",
           "sampleReference": "fuel"
         },
@@ -327629,7 +323755,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T12:50:00Z",
           "sampleReference": "travel"
         },
@@ -327645,7 +323771,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-01T19:46:00Z",
           "sampleReference": "hotel"
         },
@@ -327661,7 +323787,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-11T00:55:00Z",
           "sampleReference": "invoice"
         },
@@ -327677,7 +323803,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T15:39:00Z",
           "sampleReference": "fuel"
         },
@@ -327693,7 +323819,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-08T07:08:00Z",
           "sampleReference": "settlement"
         },
@@ -327709,7 +323835,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T14:15:00Z",
           "sampleReference": "travel"
         },
@@ -327725,7 +323851,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T18:04:00Z",
           "sampleReference": "travel"
         },
@@ -327741,7 +323867,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T17:28:00Z",
           "sampleReference": "hotel"
         },
@@ -327757,7 +323883,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-10T16:00:00Z",
           "sampleReference": "invoice"
         },
@@ -327773,7 +323899,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T14:01:00Z",
           "sampleReference": "fuel"
         },
@@ -327789,7 +323915,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-07T02:49:00Z",
           "sampleReference": "invoice"
         },
@@ -327805,7 +323931,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T21:35:00Z",
           "sampleReference": "fuel"
         },
@@ -327821,7 +323947,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T21:01:00Z",
           "sampleReference": "hotel"
         },
@@ -327837,7 +323963,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T17:22:00Z",
           "sampleReference": "hotel"
         },
@@ -327853,7 +323979,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-01T21:51:00Z",
           "sampleReference": "hotel"
         },
@@ -327869,7 +323995,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-10T21:04:00Z",
           "sampleReference": "travel"
         },
@@ -327885,7 +324011,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-08T07:03:00Z",
           "sampleReference": "invoice"
         },
@@ -327901,7 +324027,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T11:22:00Z",
           "sampleReference": "invoice"
         },
@@ -327917,7 +324043,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T04:31:00Z",
           "sampleReference": "invoice"
         },
@@ -327933,7 +324059,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-09T05:28:00Z",
           "sampleReference": "ops"
         },
@@ -327949,7 +324075,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T12:23:00Z",
           "sampleReference": "settlement"
         },
@@ -327965,7 +324091,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-10T12:46:00Z",
           "sampleReference": "hotel"
         },
@@ -327981,7 +324107,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T03:51:00Z",
           "sampleReference": "ops"
         },
@@ -327997,7 +324123,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T16:39:00Z",
           "sampleReference": "fuel"
         },
@@ -328013,7 +324139,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-02T16:45:00Z",
           "sampleReference": "invoice"
         },
@@ -328029,7 +324155,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T01:38:00Z",
           "sampleReference": "invoice"
         },
@@ -328045,7 +324171,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-09T12:16:00Z",
           "sampleReference": "ops"
         },
@@ -328077,7 +324203,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-06T05:17:00Z",
           "sampleReference": "hotel"
         },
@@ -328093,7 +324219,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-06T20:04:00Z",
           "sampleReference": "ops"
         },
@@ -328109,7 +324235,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T21:39:00Z",
           "sampleReference": "fuel"
         },
@@ -328125,7 +324251,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-10T20:04:00Z",
           "sampleReference": "ops"
         },
@@ -328141,7 +324267,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-06T13:00:00Z",
           "sampleReference": "travel"
         },
@@ -328157,7 +324283,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-05T22:44:00Z",
           "sampleReference": "invoice"
         },
@@ -328173,7 +324299,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-10T22:10:00Z",
           "sampleReference": "invoice"
         },
@@ -328189,7 +324315,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T04:05:00Z",
           "sampleReference": "travel"
         },
@@ -328205,7 +324331,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-05T16:23:00Z",
           "sampleReference": "settlement"
         },
@@ -328221,7 +324347,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-11T10:00:00Z",
           "sampleReference": "invoice"
         },
@@ -328237,7 +324363,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-10T07:26:00Z",
           "sampleReference": "hotel"
         },
@@ -328253,7 +324379,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-11T04:21:00Z",
           "sampleReference": "travel"
         },
@@ -328269,7 +324395,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-05T23:23:00Z",
           "sampleReference": "travel"
         },
@@ -328301,7 +324427,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T18:05:00Z",
           "sampleReference": "settlement"
         },
@@ -328317,7 +324443,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-09T15:22:00Z",
           "sampleReference": "ops"
         },
@@ -328333,7 +324459,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T22:26:00Z",
           "sampleReference": "travel"
         },
@@ -328349,7 +324475,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-02T04:23:00Z",
           "sampleReference": "fuel"
         },
@@ -328365,7 +324491,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-09T01:48:00Z",
           "sampleReference": "ops"
         },
@@ -328381,7 +324507,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-10T21:18:00Z",
           "sampleReference": "hotel"
         },
@@ -328397,7 +324523,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-09T13:03:00Z",
           "sampleReference": "invoice"
         },
@@ -328413,7 +324539,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T12:47:00Z",
           "sampleReference": "travel"
         },
@@ -328429,7 +324555,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-05T04:14:00Z",
           "sampleReference": "travel"
         },
@@ -328445,7 +324571,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-05T17:55:00Z",
           "sampleReference": "ops"
         },
@@ -328461,7 +324587,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-06T10:32:00Z",
           "sampleReference": "travel"
         },
@@ -328477,7 +324603,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T11:55:00Z",
           "sampleReference": "ops"
         },
@@ -328493,7 +324619,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-07T18:19:00Z",
           "sampleReference": "invoice"
         },
@@ -328509,7 +324635,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-08T08:00:00Z",
           "sampleReference": "ops"
         },
@@ -328525,7 +324651,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-04T03:25:00Z",
           "sampleReference": "invoice"
         },
@@ -328541,7 +324667,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-04T08:43:00Z",
           "sampleReference": "ops"
         },
@@ -328557,7 +324683,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-08T11:49:00Z",
           "sampleReference": "fuel"
         },
@@ -328573,7 +324699,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-12T00:39:00Z",
           "sampleReference": "travel"
         },
@@ -328589,7 +324715,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-02T17:23:00Z",
           "sampleReference": "hotel"
         },
@@ -328605,7 +324731,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T09:11:00Z",
           "sampleReference": "travel"
         },
@@ -328637,7 +324763,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T10:26:00Z",
           "sampleReference": "travel"
         },
@@ -328653,7 +324779,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-05T17:19:00Z",
           "sampleReference": "ops"
         },
@@ -328685,7 +324811,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T03:03:00Z",
           "sampleReference": "hotel"
         },
@@ -328701,7 +324827,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-04T09:46:00Z",
           "sampleReference": "hotel"
         },
@@ -328717,7 +324843,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T11:31:00Z",
           "sampleReference": "fuel"
         },
@@ -328733,7 +324859,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-05T02:54:00Z",
           "sampleReference": "invoice"
         },
@@ -328749,7 +324875,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T14:06:00Z",
           "sampleReference": "hotel"
         },
@@ -328765,7 +324891,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T07:47:00Z",
           "sampleReference": "hotel"
         },
@@ -328781,7 +324907,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-09T03:00:00Z",
           "sampleReference": "hotel"
         },
@@ -328797,7 +324923,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T19:00:00Z",
           "sampleReference": "settlement"
         },
@@ -328813,7 +324939,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-06T03:53:00Z",
           "sampleReference": "invoice"
         },
@@ -328829,7 +324955,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-04T04:33:00Z",
           "sampleReference": "invoice"
         },
@@ -328845,7 +324971,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-06T04:15:00Z",
           "sampleReference": "settlement"
         },
@@ -328861,7 +324987,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-09T02:22:00Z",
           "sampleReference": "invoice"
         },
@@ -328877,7 +325003,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-08T01:27:00Z",
           "sampleReference": "fuel"
         },
@@ -328893,7 +325019,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-05T08:04:00Z",
           "sampleReference": "fuel"
         },
@@ -328909,7 +325035,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-12T03:58:00Z",
           "sampleReference": "invoice"
         },
@@ -328941,7 +325067,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T07:36:00Z",
           "sampleReference": "travel"
         },
@@ -328957,7 +325083,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T06:52:00Z",
           "sampleReference": "invoice"
         },
@@ -328989,7 +325115,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T15:05:00Z",
           "sampleReference": "hotel"
         },
@@ -329005,7 +325131,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-01T13:42:00Z",
           "sampleReference": "hotel"
         },
@@ -329021,7 +325147,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T11:47:00Z",
           "sampleReference": "fuel"
         },
@@ -329037,7 +325163,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-03T21:08:00Z",
           "sampleReference": "hotel"
         },
@@ -329053,7 +325179,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-02T08:37:00Z",
           "sampleReference": "fuel"
         },
@@ -329069,7 +325195,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T23:43:00Z",
           "sampleReference": "invoice"
         },
@@ -329085,7 +325211,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T23:33:00Z",
           "sampleReference": "settlement"
         },
@@ -329149,7 +325275,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-06T14:13:00Z",
           "sampleReference": "travel"
         },
@@ -329165,7 +325291,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-10T10:04:00Z",
           "sampleReference": "invoice"
         },
@@ -329181,7 +325307,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-05T04:41:00Z",
           "sampleReference": "travel"
         },
@@ -329197,7 +325323,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-10T06:53:00Z",
           "sampleReference": "ops"
         },
@@ -329213,7 +325339,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T09:01:00Z",
           "sampleReference": "settlement"
         },
@@ -329245,7 +325371,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-11T19:54:00Z",
           "sampleReference": "invoice"
         },
@@ -329261,7 +325387,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-10T17:47:00Z",
           "sampleReference": "settlement"
         },
@@ -329277,7 +325403,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T03:19:00Z",
           "sampleReference": "ops"
         },
@@ -329293,7 +325419,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-09T09:04:00Z",
           "sampleReference": "travel"
         },
@@ -329309,7 +325435,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T21:21:00Z",
           "sampleReference": "fuel"
         },
@@ -329325,7 +325451,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-10T15:51:00Z",
           "sampleReference": "ops"
         },
@@ -329357,7 +325483,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-06T18:37:00Z",
           "sampleReference": "fuel"
         },
@@ -329373,7 +325499,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-10T23:15:00Z",
           "sampleReference": "fuel"
         },
@@ -329389,7 +325515,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T21:11:00Z",
           "sampleReference": "travel"
         },
@@ -329405,7 +325531,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-09T15:43:00Z",
           "sampleReference": "fuel"
         },
@@ -329421,7 +325547,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-06T16:26:00Z",
           "sampleReference": "travel"
         },
@@ -329437,7 +325563,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-05T05:11:00Z",
           "sampleReference": "hotel"
         },
@@ -329453,7 +325579,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-08T06:54:00Z",
           "sampleReference": "hotel"
         },
@@ -329469,7 +325595,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-02T06:16:00Z",
           "sampleReference": "fuel"
         },
@@ -329485,7 +325611,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-01T16:42:00Z",
           "sampleReference": "travel"
         },
@@ -329501,7 +325627,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-02T09:59:00Z",
           "sampleReference": "settlement"
         },
@@ -329517,7 +325643,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T15:53:00Z",
           "sampleReference": "fuel"
         },
@@ -329533,7 +325659,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T16:22:00Z",
           "sampleReference": "travel"
         },
@@ -329549,7 +325675,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-07T20:44:00Z",
           "sampleReference": "travel"
         },
@@ -329565,7 +325691,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-08T23:28:00Z",
           "sampleReference": "travel"
         },
@@ -329581,7 +325707,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-04T02:51:00Z",
           "sampleReference": "settlement"
         },
@@ -329597,7 +325723,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-04T09:40:00Z",
           "sampleReference": "invoice"
         },
@@ -329613,7 +325739,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-08T05:42:00Z",
           "sampleReference": "settlement"
         },
@@ -329629,7 +325755,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T23:37:00Z",
           "sampleReference": "fuel"
         },
@@ -329645,7 +325771,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-10T17:54:00Z",
           "sampleReference": "ops"
         },
@@ -329661,7 +325787,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-05T05:27:00Z",
           "sampleReference": "fuel"
         },
@@ -329677,7 +325803,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T19:28:00Z",
           "sampleReference": "invoice"
         },
@@ -329709,7 +325835,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T14:08:00Z",
           "sampleReference": "fuel"
         },
@@ -329725,7 +325851,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T10:43:00Z",
           "sampleReference": "settlement"
         },
@@ -329741,7 +325867,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T12:46:00Z",
           "sampleReference": "invoice"
         },
@@ -329757,7 +325883,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-08T21:12:00Z",
           "sampleReference": "travel"
         },
@@ -329773,7 +325899,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T12:29:00Z",
           "sampleReference": "ops"
         },
@@ -329789,7 +325915,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T12:14:00Z",
           "sampleReference": "invoice"
         },
@@ -329805,7 +325931,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-02T09:45:00Z",
           "sampleReference": "invoice"
         },
@@ -329821,7 +325947,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-11T09:44:00Z",
           "sampleReference": "hotel"
         },
@@ -329837,7 +325963,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-05T23:16:00Z",
           "sampleReference": "ops"
         },
@@ -329853,7 +325979,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-02T18:31:00Z",
           "sampleReference": "invoice"
         },
@@ -329869,7 +325995,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T22:09:00Z",
           "sampleReference": "fuel"
         },
@@ -329885,7 +326011,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-01T19:48:00Z",
           "sampleReference": "travel"
         },
@@ -329917,7 +326043,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T15:32:00Z",
           "sampleReference": "invoice"
         },
@@ -329949,7 +326075,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-05T17:31:00Z",
           "sampleReference": "settlement"
         },
@@ -329965,7 +326091,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T05:01:00Z",
           "sampleReference": "travel"
         },
@@ -329981,7 +326107,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T22:36:00Z",
           "sampleReference": "settlement"
         },
@@ -329997,7 +326123,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T14:34:00Z",
           "sampleReference": "invoice"
         },
@@ -330013,7 +326139,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-08T09:54:00Z",
           "sampleReference": "ops"
         },
@@ -330029,7 +326155,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-01T22:27:00Z",
           "sampleReference": "travel"
         },
@@ -330045,7 +326171,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-04T17:36:00Z",
           "sampleReference": "fuel"
         },
@@ -330061,7 +326187,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T05:57:00Z",
           "sampleReference": "settlement"
         },
@@ -330077,7 +326203,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T01:46:00Z",
           "sampleReference": "hotel"
         },
@@ -330093,7 +326219,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T03:53:00Z",
           "sampleReference": "travel"
         },
@@ -330109,7 +326235,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-08T18:12:00Z",
           "sampleReference": "invoice"
         },
@@ -330125,7 +326251,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-01T21:49:00Z",
           "sampleReference": "hotel"
         },
@@ -330141,7 +326267,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-09T20:17:00Z",
           "sampleReference": "fuel"
         },
@@ -330157,7 +326283,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T07:39:00Z",
           "sampleReference": "ops"
         },
@@ -330173,7 +326299,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-01T16:04:00Z",
           "sampleReference": "fuel"
         },
@@ -330189,7 +326315,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-12T02:07:00Z",
           "sampleReference": "fuel"
         },
@@ -330205,7 +326331,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T00:22:00Z",
           "sampleReference": "invoice"
         },
@@ -330221,7 +326347,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T03:41:00Z",
           "sampleReference": "travel"
         },
@@ -330237,7 +326363,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T01:06:00Z",
           "sampleReference": "hotel"
         },
@@ -330253,7 +326379,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-01T09:36:00Z",
           "sampleReference": "hotel"
         },
@@ -330269,7 +326395,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-10T00:57:00Z",
           "sampleReference": "invoice"
         },
@@ -330285,7 +326411,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-09T11:45:00Z",
           "sampleReference": "travel"
         },
@@ -330301,7 +326427,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-08T01:14:00Z",
           "sampleReference": "travel"
         },
@@ -330317,7 +326443,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T01:32:00Z",
           "sampleReference": "ops"
         },
@@ -330365,7 +326491,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T08:19:00Z",
           "sampleReference": "invoice"
         },
@@ -330381,7 +326507,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T13:05:00Z",
           "sampleReference": "hotel"
         },
@@ -330397,7 +326523,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-11T03:11:00Z",
           "sampleReference": "ops"
         },
@@ -330429,7 +326555,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-09T03:54:00Z",
           "sampleReference": "fuel"
         },
@@ -330445,7 +326571,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T01:20:00Z",
           "sampleReference": "fuel"
         },
@@ -330461,7 +326587,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-05T02:34:00Z",
           "sampleReference": "fuel"
         },
@@ -330477,7 +326603,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-02T12:47:00Z",
           "sampleReference": "settlement"
         },
@@ -330493,7 +326619,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-11T13:46:00Z",
           "sampleReference": "ops"
         },
@@ -330509,7 +326635,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-05T22:09:00Z",
           "sampleReference": "invoice"
         },
@@ -330525,7 +326651,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T06:23:00Z",
           "sampleReference": "ops"
         },
@@ -330541,7 +326667,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T08:45:00Z",
           "sampleReference": "ops"
         },
@@ -330557,7 +326683,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-05T05:44:00Z",
           "sampleReference": "invoice"
         },
@@ -330573,7 +326699,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T09:43:00Z",
           "sampleReference": "hotel"
         },
@@ -330589,7 +326715,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-05T06:46:00Z",
           "sampleReference": "travel"
         },
@@ -330605,7 +326731,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T04:35:00Z",
           "sampleReference": "fuel"
         },
@@ -330621,7 +326747,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-11T08:34:00Z",
           "sampleReference": "fuel"
         },
@@ -330637,7 +326763,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-09T18:23:00Z",
           "sampleReference": "fuel"
         },
@@ -330653,7 +326779,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T18:28:00Z",
           "sampleReference": "invoice"
         },
@@ -330669,7 +326795,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T06:54:00Z",
           "sampleReference": "invoice"
         },
@@ -330685,7 +326811,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-02T21:28:00Z",
           "sampleReference": "hotel"
         },
@@ -330701,7 +326827,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-07T07:25:00Z",
           "sampleReference": "hotel"
         },
@@ -330717,7 +326843,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-01T12:38:00Z",
           "sampleReference": "ops"
         },
@@ -330749,7 +326875,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T07:42:00Z",
           "sampleReference": "invoice"
         },
@@ -330765,7 +326891,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T00:11:00Z",
           "sampleReference": "travel"
         },
@@ -330781,7 +326907,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-02T17:10:00Z",
           "sampleReference": "travel"
         },
@@ -330813,7 +326939,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T19:26:00Z",
           "sampleReference": "invoice"
         },
@@ -330829,7 +326955,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-01T21:43:00Z",
           "sampleReference": "invoice"
         },
@@ -330845,7 +326971,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T18:13:00Z",
           "sampleReference": "ops"
         },
@@ -330877,7 +327003,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-11T13:32:00Z",
           "sampleReference": "settlement"
         },
@@ -330893,7 +327019,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-08T21:25:00Z",
           "sampleReference": "ops"
         },
@@ -330925,7 +327051,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-06T15:43:00Z",
           "sampleReference": "settlement"
         },
@@ -330941,7 +327067,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T03:51:00Z",
           "sampleReference": "hotel"
         },
@@ -330957,7 +327083,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T11:17:00Z",
           "sampleReference": "settlement"
         },
@@ -330973,7 +327099,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T01:29:00Z",
           "sampleReference": "fuel"
         },
@@ -330989,7 +327115,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T09:49:00Z",
           "sampleReference": "ops"
         },
@@ -331005,7 +327131,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-05T12:05:00Z",
           "sampleReference": "travel"
         },
@@ -331021,7 +327147,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-08T22:26:00Z",
           "sampleReference": "travel"
         },
@@ -331037,7 +327163,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T11:50:00Z",
           "sampleReference": "invoice"
         },
@@ -331053,7 +327179,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-09T16:46:00Z",
           "sampleReference": "travel"
         },
@@ -331069,7 +327195,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-11T09:59:00Z",
           "sampleReference": "travel"
         },
@@ -331085,7 +327211,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-12T04:13:00Z",
           "sampleReference": "travel"
         },
@@ -331101,7 +327227,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-10T23:21:00Z",
           "sampleReference": "hotel"
         },
@@ -331117,7 +327243,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-05T19:34:00Z",
           "sampleReference": "settlement"
         },
@@ -331133,7 +327259,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T18:01:00Z",
           "sampleReference": "settlement"
         },
@@ -331149,7 +327275,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-09T09:08:00Z",
           "sampleReference": "fuel"
         },
@@ -331165,7 +327291,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-01T09:10:00Z",
           "sampleReference": "hotel"
         },
@@ -331181,7 +327307,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-04T17:17:00Z",
           "sampleReference": "hotel"
         },
@@ -331197,7 +327323,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T23:13:00Z",
           "sampleReference": "travel"
         },
@@ -331213,7 +327339,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-05T18:42:00Z",
           "sampleReference": "travel"
         },
@@ -331229,7 +327355,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-05T01:38:00Z",
           "sampleReference": "hotel"
         },
@@ -331245,7 +327371,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-06T06:24:00Z",
           "sampleReference": "ops"
         },
@@ -331261,7 +327387,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T23:46:00Z",
           "sampleReference": "settlement"
         },
@@ -331277,7 +327403,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T10:25:00Z",
           "sampleReference": "ops"
         },
@@ -331293,7 +327419,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-08T22:52:00Z",
           "sampleReference": "hotel"
         },
@@ -331309,7 +327435,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-01T15:24:00Z",
           "sampleReference": "travel"
         },
@@ -331325,7 +327451,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T17:35:00Z",
           "sampleReference": "invoice"
         },
@@ -331341,7 +327467,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-10T03:14:00Z",
           "sampleReference": "travel"
         },
@@ -331357,7 +327483,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T12:45:00Z",
           "sampleReference": "settlement"
         },
@@ -331373,7 +327499,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T05:31:00Z",
           "sampleReference": "hotel"
         },
@@ -331389,7 +327515,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-07T16:31:00Z",
           "sampleReference": "hotel"
         },
@@ -331405,7 +327531,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T04:56:00Z",
           "sampleReference": "travel"
         },
@@ -331437,7 +327563,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-09T18:26:00Z",
           "sampleReference": "ops"
         },
@@ -331453,7 +327579,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-11T13:36:00Z",
           "sampleReference": "invoice"
         },
@@ -331469,7 +327595,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T13:14:00Z",
           "sampleReference": "hotel"
         },
@@ -331501,7 +327627,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-09T15:35:00Z",
           "sampleReference": "invoice"
         },
@@ -331517,7 +327643,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-12T01:35:00Z",
           "sampleReference": "travel"
         },
@@ -331533,7 +327659,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-02T05:42:00Z",
           "sampleReference": "invoice"
         },
@@ -331549,7 +327675,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-12T01:10:00Z",
           "sampleReference": "ops"
         },
@@ -331565,7 +327691,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T17:24:00Z",
           "sampleReference": "settlement"
         },
@@ -331581,7 +327707,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T21:51:00Z",
           "sampleReference": "fuel"
         },
@@ -331613,7 +327739,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-09T11:06:00Z",
           "sampleReference": "fuel"
         },
@@ -331629,7 +327755,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-03T12:05:00Z",
           "sampleReference": "hotel"
         },
@@ -331661,7 +327787,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T12:19:00Z",
           "sampleReference": "settlement"
         },
@@ -331677,7 +327803,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-09T00:09:00Z",
           "sampleReference": "fuel"
         },
@@ -331693,7 +327819,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T04:43:00Z",
           "sampleReference": "hotel"
         },
@@ -331709,7 +327835,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T20:22:00Z",
           "sampleReference": "settlement"
         },
@@ -331725,7 +327851,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-10T07:05:00Z",
           "sampleReference": "invoice"
         },
@@ -331757,7 +327883,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-10T16:16:00Z",
           "sampleReference": "travel"
         },
@@ -331773,7 +327899,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-03T17:37:00Z",
           "sampleReference": "invoice"
         },
@@ -331789,7 +327915,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-09T07:08:00Z",
           "sampleReference": "hotel"
         },
@@ -331805,7 +327931,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-06T16:11:00Z",
           "sampleReference": "fuel"
         },
@@ -331821,7 +327947,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-02T05:58:00Z",
           "sampleReference": "fuel"
         },
@@ -331837,7 +327963,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T08:44:00Z",
           "sampleReference": "travel"
         },
@@ -331853,7 +327979,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-02T11:09:00Z",
           "sampleReference": "travel"
         },
@@ -331885,7 +328011,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T04:34:00Z",
           "sampleReference": "fuel"
         },
@@ -331901,7 +328027,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-02T22:12:00Z",
           "sampleReference": "hotel"
         },
@@ -331917,7 +328043,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-05T08:40:00Z",
           "sampleReference": "ops"
         },
@@ -331933,7 +328059,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T02:25:00Z",
           "sampleReference": "ops"
         },
@@ -331949,7 +328075,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T05:51:00Z",
           "sampleReference": "settlement"
         },
@@ -331997,7 +328123,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-03T19:32:00Z",
           "sampleReference": "travel"
         },
@@ -332013,7 +328139,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-11T22:16:00Z",
           "sampleReference": "invoice"
         },
@@ -332029,7 +328155,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T09:31:00Z",
           "sampleReference": "travel"
         },
@@ -332045,7 +328171,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-06T20:21:00Z",
           "sampleReference": "hotel"
         },
@@ -332061,7 +328187,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T16:25:00Z",
           "sampleReference": "ops"
         },
@@ -332077,7 +328203,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-11T21:34:00Z",
           "sampleReference": "fuel"
         },
@@ -332093,7 +328219,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-04T14:21:00Z",
           "sampleReference": "invoice"
         },
@@ -332109,7 +328235,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-11T02:59:00Z",
           "sampleReference": "travel"
         },
@@ -332125,7 +328251,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T20:37:00Z",
           "sampleReference": "invoice"
         },
@@ -332141,7 +328267,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-01T10:20:00Z",
           "sampleReference": "ops"
         },
@@ -332157,7 +328283,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-02T15:45:00Z",
           "sampleReference": "ops"
         },
@@ -332173,7 +328299,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T05:52:00Z",
           "sampleReference": "invoice"
         },
@@ -332189,7 +328315,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-02T18:22:00Z",
           "sampleReference": "invoice"
         },
@@ -332205,7 +328331,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-11T19:29:00Z",
           "sampleReference": "travel"
         },
@@ -332237,7 +328363,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-09T13:18:00Z",
           "sampleReference": "hotel"
         },
@@ -332253,7 +328379,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-09T18:40:00Z",
           "sampleReference": "travel"
         },
@@ -332269,7 +328395,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-11T09:17:00Z",
           "sampleReference": "fuel"
         },
@@ -332285,7 +328411,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-09T13:22:00Z",
           "sampleReference": "fuel"
         },
@@ -332301,7 +328427,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-06T04:50:00Z",
           "sampleReference": "invoice"
         },
@@ -332317,7 +328443,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T00:24:00Z",
           "sampleReference": "invoice"
         },
@@ -332349,7 +328475,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T12:08:00Z",
           "sampleReference": "settlement"
         },
@@ -332381,7 +328507,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-07T10:24:00Z",
           "sampleReference": "hotel"
         },
@@ -332397,7 +328523,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T04:09:00Z",
           "sampleReference": "ops"
         },
@@ -332413,7 +328539,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-01T18:46:00Z",
           "sampleReference": "ops"
         },
@@ -332429,7 +328555,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T06:05:00Z",
           "sampleReference": "ops"
         },
@@ -332445,7 +328571,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-02T11:44:00Z",
           "sampleReference": "invoice"
         },
@@ -332461,7 +328587,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-08T13:29:00Z",
           "sampleReference": "settlement"
         },
@@ -332477,7 +328603,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-11T05:01:00Z",
           "sampleReference": "ops"
         },
@@ -332493,7 +328619,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-01T23:14:00Z",
           "sampleReference": "hotel"
         },
@@ -332509,7 +328635,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-03T23:09:00Z",
           "sampleReference": "ops"
         },
@@ -332541,7 +328667,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-06T14:28:00Z",
           "sampleReference": "hotel"
         },
@@ -332557,7 +328683,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-09T08:54:00Z",
           "sampleReference": "ops"
         },
@@ -332573,7 +328699,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-11T11:26:00Z",
           "sampleReference": "travel"
         },
@@ -332589,7 +328715,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-08T12:40:00Z",
           "sampleReference": "settlement"
         },
@@ -332605,7 +328731,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-08T02:15:00Z",
           "sampleReference": "fuel"
         },
@@ -332621,7 +328747,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-09T01:24:00Z",
           "sampleReference": "ops"
         },
@@ -332637,7 +328763,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T03:34:00Z",
           "sampleReference": "settlement"
         },
@@ -332653,7 +328779,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T21:35:00Z",
           "sampleReference": "travel"
         },
@@ -332669,7 +328795,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-02T00:42:00Z",
           "sampleReference": "fuel"
         },
@@ -332701,7 +328827,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-10T06:01:00Z",
           "sampleReference": "invoice"
         },
@@ -332749,7 +328875,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-11T23:42:00Z",
           "sampleReference": "settlement"
         },
@@ -332765,7 +328891,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-06T22:51:00Z",
           "sampleReference": "invoice"
         },
@@ -332797,7 +328923,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-05T05:22:00Z",
           "sampleReference": "settlement"
         },
@@ -332813,7 +328939,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-11T10:55:00Z",
           "sampleReference": "hotel"
         },
@@ -332829,7 +328955,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-09T12:39:00Z",
           "sampleReference": "settlement"
         },
@@ -332845,7 +328971,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-10T12:31:00Z",
           "sampleReference": "hotel"
         },
@@ -332861,7 +328987,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-06T20:57:00Z",
           "sampleReference": "hotel"
         },
@@ -332877,7 +329003,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-06T17:57:00Z",
           "sampleReference": "settlement"
         },
@@ -332893,7 +329019,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-03T08:17:00Z",
           "sampleReference": "invoice"
         },
@@ -332909,7 +329035,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-02T13:10:00Z",
           "sampleReference": "settlement"
         },
@@ -332925,7 +329051,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-08T19:56:00Z",
           "sampleReference": "fuel"
         },
@@ -332941,7 +329067,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-07T18:23:00Z",
           "sampleReference": "travel"
         },
@@ -332973,7 +329099,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-05T02:16:00Z",
           "sampleReference": "settlement"
         },
@@ -332989,7 +329115,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-05T02:24:00Z",
           "sampleReference": "hotel"
         },
@@ -333005,7 +329131,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-06T19:36:00Z",
           "sampleReference": "ops"
         },
@@ -333021,7 +329147,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-06T02:20:00Z",
           "sampleReference": "settlement"
         },
@@ -333037,7 +329163,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-07T11:04:00Z",
           "sampleReference": "invoice"
         },
@@ -333053,7 +329179,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-10T13:26:00Z",
           "sampleReference": "ops"
         },
@@ -333069,7 +329195,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "4800.0",
+          "totalAmountUsd": "4800.00",
           "lastTxnTs": "2026-04-02T19:45:00Z",
           "sampleReference": "consulting retainer"
         },
@@ -333101,7 +329227,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-05T05:28:00Z",
           "sampleReference": "travel"
         },
@@ -333133,7 +329259,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-02T07:33:00Z",
           "sampleReference": "settlement"
         },
@@ -333149,7 +329275,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T01:49:00Z",
           "sampleReference": "fuel"
         },
@@ -333165,7 +329291,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1995.0",
+          "totalAmountUsd": "1995.00",
           "lastTxnTs": "2026-04-05T09:25:00Z",
           "sampleReference": "expense settle"
         },
@@ -333197,7 +329323,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "3225.0",
+          "totalAmountUsd": "3225.00",
           "lastTxnTs": "2026-04-10T14:37:00Z",
           "sampleReference": "fuel"
         },
@@ -333213,7 +329339,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "4500.0",
+          "totalAmountUsd": "4500.00",
           "lastTxnTs": "2026-04-03T16:20:00Z",
           "sampleReference": "invoice 447"
         },
@@ -333229,7 +329355,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "4300.0",
+          "totalAmountUsd": "4300.00",
           "lastTxnTs": "2026-04-04T12:10:00Z",
           "sampleReference": "retainer"
         },
@@ -333245,7 +329371,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-10T12:44:00Z",
           "sampleReference": "settlement"
         },
@@ -333261,7 +329387,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-08T23:04:00Z",
           "sampleReference": "travel"
         },
@@ -333277,7 +329403,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "48.5",
+          "totalAmountUsd": "48.50",
           "lastTxnTs": "2026-04-02T00:15:00Z",
           "sampleReference": "ops"
         },
@@ -333293,7 +329419,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T15:08:00Z",
           "sampleReference": "ops"
         },
@@ -333325,7 +329451,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "1250.0",
+          "totalAmountUsd": "1250.00",
           "lastTxnTs": "2026-04-04T21:12:00Z",
           "sampleReference": "fuel"
         },
@@ -333341,7 +329467,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "72.2",
+          "totalAmountUsd": "72.20",
           "lastTxnTs": "2026-04-05T07:01:00Z",
           "sampleReference": "fuel"
         },
@@ -333357,7 +329483,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "118.0",
+          "totalAmountUsd": "118.00",
           "lastTxnTs": "2026-04-10T10:09:00Z",
           "sampleReference": "hotel"
         },
@@ -333373,7 +329499,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-04T00:54:00Z",
           "sampleReference": "travel"
         },
@@ -333389,7 +329515,7 @@ window.foundrySeedCatalog = {
         "label": "TRANSFERRED_TO",
         "properties": {
           "count": "1",
-          "totalAmountUsd": "880.0",
+          "totalAmountUsd": "880.00",
           "lastTxnTs": "2026-04-03T12:05:00Z",
           "sampleReference": "ops"
         },
