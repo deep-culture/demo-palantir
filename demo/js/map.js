@@ -211,7 +211,7 @@ export function renderMapSvg(mapData) {
       const radius = Math.max(6, Math.min(14, 5 + place.relatedCount * 0.4));
       const selected = mapData.selectedPlace?.id === place.id ? "selected" : "";
       return `
-          <g class="map-marker ${selected}" data-action="select-map-node" data-id="${escapeHtml(place.id)}" transform="translate(${point.x}, ${point.y})">
+          <g class="map-marker ${selected}" data-action="select-map-node" data-id="${escapeHtml(place.id)}" tabindex="0" role="button" aria-label="${escapeHtml(`Place ${place.label}`)}" transform="translate(${point.x}, ${point.y})">
             <circle r="${radius}" fill="${escapeHtml(place.color)}"></circle>
             <text x="${radius + 6}" y="4">${escapeHtml(truncate(place.label, 24))}</text>
           </g>
@@ -303,7 +303,7 @@ export function initializeLeafletMap(mapData) {
         dashArray: "8 6",
       }
     )
-      .bindTooltip(`${route.fromLabel} -> ${route.toLabel} · ${route.flightCount} flights · ${route.passengerCount} passengers`)
+      .bindTooltip(escapeHtml(`${route.fromLabel} -> ${route.toLabel} · ${route.flightCount} flights · ${route.passengerCount} passengers`))
       .addTo(mapRuntime.routeLayer);
   });
 
@@ -340,7 +340,7 @@ export function initializeLeafletMap(mapData) {
         className: "map-lead-pin",
       })
         .bindPopup(leadPopupHtml(pin))
-        .bindTooltip(`Lead ${pin.label} · ${Number(pin.score).toFixed(1)}`)
+        .bindTooltip(escapeHtml(`Lead ${pin.label} · ${Number(pin.score).toFixed(1)}`))
         .addTo(mapRuntime.leadLayer);
     });
   }

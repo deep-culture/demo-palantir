@@ -23,6 +23,7 @@ export function severityClass(severity) {
   const s = String(severity).toLowerCase();
   if (s === "high") return "severity-high";
   if (s === "medium") return "severity-medium";
+  if (s === "unrated") return "severity-unrated";
   return "severity-low";
 }
 
@@ -35,6 +36,8 @@ export function renderField(label, value, config = {}) {
     config.entityId ? `data-entity-id="${escapeHtml(config.entityId)}"` : "",
     config.propertyId ? `data-property-id="${escapeHtml(config.propertyId)}"` : "",
     config.disabled ? "disabled" : "",
+    config.readonly ? "readonly" : "",
+    `aria-label="${escapeHtml(label)}"`,
     `type="${escapeHtml(type)}"`,
   ]
     .filter(Boolean)
@@ -51,7 +54,7 @@ export function renderSelect(label, value, options, config = {}) {
   return `
       <div class="field">
         <label>${escapeHtml(label)}</label>
-        <select
+        <select aria-label="${escapeHtml(label)}"
           ${config.scope ? `data-scope="${escapeHtml(config.scope)}"` : ""}
           ${config.field ? `data-field="${escapeHtml(config.field)}"` : ""}
           ${config.propertyId ? `data-property-id="${escapeHtml(config.propertyId)}"` : ""}

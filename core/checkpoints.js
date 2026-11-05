@@ -15,7 +15,9 @@
  *     strict also needs >= 40 characters.
  *   - Continue writes the "checkpoint" event (outcome "continued") and only then runs fn(record).
  *     Cancel / Esc writes outcome "cancelled".
- *   - No checkpoint defined (older seed without governance): fn runs directly, outcome "no-checkpoint".
+ *   - No checkpoint defined and no governance block (older seed): fn runs directly, outcome "no-checkpoint".
+ *     With a governance block, an undefined checkpoint is logged (outcome "missing-definition") and the
+ *     operation is refused (review F-17). Record ids: "cpr-YYYYMMDD-<seq>-<hex4>" (review F-16).
  *
  *   record = {recordId: "cpr-YYYYMMDD-NNNN", checkpointId, trigger, promptText, justification,
  *             purpose, outcome, objectIds, datasetId, summary, tags, rule, eventId}
@@ -27,6 +29,9 @@
  *   Pass record.recordId as checkpointId on the event of the operation itself, so they join.
  *
  * Additions: isOpen(), STRICT_MIN_LENGTH.
+ * Fix round: context.items = [text] lists every item the operation covers (Approve all lists each
+ * staged edit, and the list is part of payload.items); context.note adds a highlighted line under the
+ * prompt (e.g. "Self-certified exception: …"). Object ids are shown through DC.markings.displayId.
  */
 (function () {
   "use strict";
@@ -45,11 +50,23 @@
       .replace(/'/g, "&#39;");
   }
 
+  // Review F-16: ids are unique across clears and tabs: the audit sequence number the record's event is
+  // about to get, plus a random suffix (two tabs can race for the same sequence number).
+  function randomHex(n) {
+    try {
+      const bytes = new Uint8Array(Math.ceil(n / 2));
+      window.crypto.getRandomValues(bytes);
+      return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, n);
+    } catch (_) {
+      return Math.random().toString(16).slice(2, 2 + n).padEnd(n, "0");
+    }
+  }
+
   function recordId() {
     const now = new Date();
     const day = now.toISOString().slice(0, 10).replace(/-/g, "");
-    const count = DC.audit ? DC.audit.readEvents({ kind: "checkpoint" }).length + 1 : 1;
-    return `cpr-${day}-${String(count).padStart(4, "0")}`;
+    const seq = DC.audit && DC.audit.nextSeq ? DC.audit.nextSeq() : 1;
+    return `cpr-${day}-${String(seq).padStart(4, "0")}-${randomHex(4)}`;
   }
 
   function focusables(container) {
@@ -117,14 +134,20 @@
       </header>`;
   }
 
+  function shownId(id) {
+    return DC.markings && DC.markings.displayId ? DC.markings.displayId(id) : id;
+  }
+
   function itemsBlock(context) {
     const ids = (context.objectIds || []).filter(Boolean);
-    if (!context.summary && !ids.length && !context.datasetId) return "";
-    const shown = ids.slice(0, 6).map((id) => `<code>${escapeHtml(id)}</code>`).join(" ");
+    const items = (Array.isArray(context.items) ? context.items : []).filter(Boolean);
+    if (!context.summary && !ids.length && !context.datasetId && !items.length) return "";
+    const shown = ids.slice(0, 6).map((id) => `<code>${escapeHtml(shownId(id))}</code>`).join(" ");
     return `
       <div class="dc-modal-items">
         <div class="dc-modal-label">Items involved</div>
         ${context.summary ? `<div>${escapeHtml(context.summary)}</div>` : ""}
+        ${items.length ? `<ol class="dc-modal-list" data-dc="items">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>` : ""}
         ${context.datasetId ? `<div>Dataset <code>${escapeHtml(context.datasetId)}</code></div>` : ""}
         ${ids.length ? `<div class="dc-modal-ids">${shown}${ids.length > 6 ? ` <span>+${ids.length - 6} more</span>` : ""}</div>` : ""}
       </div>`;
@@ -163,6 +186,8 @@
           purpose: record.purpose,
           outcome: record.outcome,
           summary: record.summary,
+          ...(Array.isArray(context.items) && context.items.length ? { items: context.items.slice(0, 50) } : {}),
+          ...(context.note ? { note: context.note } : {}),
           ...(tags.length ? { tags } : {}),
           ...(record.rule ? { rule: record.rule } : {}),
           ...(Array.isArray(context.purposes) && context.purposes.length ? { purposes: context.purposes } : {}),
@@ -232,6 +257,7 @@
           ${header(id, "State your purpose")}
           <form class="dc-modal-body" novalidate>
             <p class="dc-modal-prompt" id="${id}-prompt">${escapeHtml(checkpoint.prompt || "State the purpose of this operation.")}</p>
+            ${context.note ? `<p class="dc-modal-note dc-modal-callout" data-dc="note">${escapeHtml(context.note)}</p>` : ""}
             ${itemsBlock(context)}
             <label class="dc-modal-label" for="${id}-just">Justification</label>
             <textarea id="${id}-just" rows="3" data-dc="justification" placeholder="Why do you need this?"></textarea>
@@ -289,7 +315,16 @@
   async function withCheckpoint(checkpointIdOrTrigger, context, fn) {
     const ctx = { surface: (DC.session && DC.session.surface()) || "unknown", ...(context || {}) };
     const run = typeof fn === "function" ? fn : () => undefined;
-    const checkpoint = DC.governance && DC.governance.checkpoint(checkpointIdOrTrigger);
+    // A definition object may be passed instead of an id (a core fallback for a seed that predates it).
+    const given = checkpointIdOrTrigger && typeof checkpointIdOrTrigger === "object" ? checkpointIdOrTrigger : null;
+    const checkpoint = given ? (DC.governance && DC.governance.checkpoint(given.id)) || given : DC.governance && DC.governance.checkpoint(checkpointIdOrTrigger);
+    if (!checkpoint && DC.governance && DC.governance.isActive()) {
+      // Review F-17: with a governance block, a Checkpoint the seed does not define fails closed: the
+      // attempt is logged as "missing-definition" and the operation does not run.
+      const missing = { id: String(checkpointIdOrTrigger), trigger: String(checkpointIdOrTrigger) };
+      const record = await writeRecord(missing, ctx, { promptText: `No Checkpoint “${missing.id}” is defined in this dataset's governance block; the operation was refused.`, outcome: "missing-definition" });
+      return { outcome: "refused", record, result: undefined, reason: "missing-definition" };
+    }
     if (!checkpoint) {
       const result = await run(null);
       return { outcome: "no-checkpoint", record: null, result };

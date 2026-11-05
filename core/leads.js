@@ -19,6 +19,8 @@
  *       session purpose) removes a component the role could otherwise see. The role may see what
  *       was removed, so canKnowFull is true when every withheld component was removed by a rule.
  *   key(component)                stable identity of a component within a lead
+ *   componentMarkings(component)  component.markings (fix round: clinic components ["PII","HEALTH"]),
+ *                                 or [component.marking] for older seeds
  */
 (function () {
   "use strict";
@@ -56,6 +58,11 @@
     return [component.source, component.marking, component.address || "", component.ageDays].join("|");
   }
 
+  function componentMarkings(component) {
+    const list = Array.isArray(component && component.markings) && component.markings.length ? component.markings : [component && component.marking];
+    return [...new Set(list.filter(Boolean))];
+  }
+
   function removedMarkings() {
     return DC.markings && DC.markings.removedAtOntology ? DC.markings.removedAtOntology() : new Set();
   }
@@ -69,14 +76,15 @@
     const visible = [];
     const withheld = [];
     components.forEach((component) => {
-      const markings = [component.marking].filter((marking) => marking && !removed.has(marking));
+      // Fix round: components carry markings ["PII","HEALTH"] (older seeds: marking only).
+      const markings = componentMarkings(component).filter((marking) => !removed.has(marking));
       const missing = active ? DC.markings.missing(roleId, markings) : [];
       if (missing.length) {
         withheld.push({ component, reason: "marking", missing, rule: null });
         return;
       }
       if (opts.purposeCheck !== false && DC.purposes && DC.purposes.enabled()) {
-        const purposes = DC.purposes.purposesForMarkings([component.marking]);
+        const purposes = DC.purposes.purposesForMarkings(componentMarkings(component));
         const result = DC.purposes.check("view", { dataPurposes: purposes });
         if (!result.allowed && result.effect === "block") {
           withheld.push({ component, reason: "rule", missing: [], rule: result.rule, purposes, sessionPurpose: result.sessionPurpose });
@@ -95,5 +103,5 @@
     };
   }
 
-  DC.leads = { FORMULA, decay, contribution, score, best, split, key };
+  DC.leads = { FORMULA, decay, contribution, score, best, split, key, componentMarkings };
 })();

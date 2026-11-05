@@ -134,6 +134,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   gap: 12px;
 }
 .header-stats .stat-val { color: #fff; font-weight: 600; }
+.header-stats .stat-note { color: rgba(255, 255, 255, 0.85); font-family: var(--sans); font-size: 10px; align-self: center; }
 
 /* ---- Tab bar ---- */
 .tab-bar {
@@ -399,7 +400,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 .code-block .ln {
   display: inline-block;
   width: 3em;
-  color: #5f555d;
+  color: #8a8088;
   user-select: none;
   text-align: right;
   margin-right: 12px;
@@ -526,7 +527,10 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   cursor: pointer;
   padding: 0;
   text-decoration: underline;
-  text-underline-offset: 2px;
+  /* Below the descenders, so underscores in code-like names (norm_watchlist) stay visible. */
+  text-underline-offset: 0.32em;
+  text-decoration-thickness: 1px;
+  text-decoration-skip-ink: none;
 }
 .link-btn:hover { color: #fff; }
 
@@ -657,11 +661,17 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   background: #0b0b0b;
   color: var(--mk-c, var(--mk-unknown));
 }
+/* Removed: no strike-through and no dimmed text (FIXROUND §3). Light text on the dark surface,
+   a dotted outline in the marking's colour, and the word "removed" carry the state. */
 .mk-badge.removed {
-  background: transparent;
-  color: var(--text-muted);
+  background: var(--surface);
+  color: var(--text);
   border-style: dotted;
-  text-decoration: line-through;
+  text-decoration: none;
+}
+.mk-badge.removed .mk-removed-tag {
+  display: inline-block; margin-left: 4px; padding: 0 4px; border-radius: 2px;
+  background: var(--text); color: #0b0b0b; font-weight: 700; text-transform: lowercase; letter-spacing: 0.02em;
 }
 .mk-line { margin: 2px 0; }
 .gov-table td:last-child { word-break: normal; }
@@ -763,7 +773,10 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 .mk-legend-label { color: var(--text); }
 
 .mk-table td { white-space: normal; }
-.mk-removed-row td { color: var(--text-muted); }
+.mk-removed-row td { color: var(--text); }
+.mk-remove.mk-restore { background: var(--surface-2); border-color: var(--accent); color: var(--text); }
+.mk-remove.mk-restore:hover { background: var(--accent); color: #0b0b0b; border-color: var(--accent); }
+.mk-restore-note { font-family: var(--sans); font-size: 11px; line-height: 1.45; max-width: 760px; }
 .mk-remove {
   font-family: var(--sans);
   font-size: 11px;
@@ -940,14 +953,15 @@ details.purpose-panel[open] > summary { margin-bottom: 6px; }
 .ret-na strong { color: var(--text); font-family: var(--sans); font-size: 12px; }
 .ret-datecol { font-family: var(--sans); font-size: 9px; padding: 0 5px; margin-left: 4px; border: 1px solid var(--accent); color: var(--accent); border-radius: 2px; }
 /* Row states: the word in the retention column carries the meaning; the styling repeats it. */
-.data-table tr.ret-expired td { color: #7d747b; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 6px, transparent 6px 12px); }
-.data-table tr.ret-expired td:not(.ret-cell) { text-decoration: line-through; text-decoration-color: rgba(163, 154, 161, 0.55); }
+/* AA on black (FIXROUND §3): no strike-through and no dark grey text; the tag in the retention
+   column says "past retention" / "not yet collected", the hatching and italics only repeat it. */
+.data-table tr.ret-expired td { color: #c9c0c7; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 6px, transparent 6px 12px); }
 .data-table tr.ret-carries td:first-child { box-shadow: inset 3px 0 0 var(--amber); }
-.data-table tr.ret-future td { color: #6e666c; font-style: italic; }
+.data-table tr.ret-future td { color: var(--text-muted); font-style: italic; }
 .ret-tag { display: inline-block; font-family: var(--mono); font-size: 9px; padding: 0 5px; border-radius: 2px; white-space: nowrap; font-style: normal; text-decoration: none; }
 .ret-tag-expired { border: 1px solid #8c8389; color: #d8d0d6; background: #2a2428; }
 .ret-tag-carries { border: 1px solid var(--amber); color: var(--amber); }
-.ret-tag-future { border: 1px dashed #6e666c; color: #a39aa1; }
+.ret-tag-future { border: 1px dashed #8c8389; color: var(--text-muted); }
 .ret-tag-na { border: 1px dotted var(--border-2); color: var(--text-muted); }
 .ret-table td { white-space: normal; }
 
@@ -967,3 +981,50 @@ details.purpose-panel[open] > summary { margin-bottom: 6px; }
 /* DC.ui.leadFormula is written for Investigate's white workspace: give it a light card here. */
 .lead-formula-host { background: #fff; color: var(--dc-ink); padding: 10px 12px; border-radius: var(--radius); font-size: 12px; }
 .lead-formula-host a { color: var(--dc-purple); }
+
+/* ============================================================
+   Fix round (context/FIXROUND_CONTRACT.md §3)
+   ============================================================ */
+
+/* ---- Horizontal scroll cue for the pipeline and markings DAGs ---- */
+.scroll-wrap { position: relative; }
+.scroll-wrap .dag-canvas::-webkit-scrollbar, .scroll-wrap .mk-dag::-webkit-scrollbar { height: 10px; }
+.scroll-wrap .dag-canvas::-webkit-scrollbar-thumb, .scroll-wrap .mk-dag::-webkit-scrollbar-thumb { background: #6a5f67; border-radius: 4px; }
+.scroll-wrap .dag-canvas::-webkit-scrollbar-track, .scroll-wrap .mk-dag::-webkit-scrollbar-track { background: var(--surface-2); }
+.scroll-cue {
+  display: none; position: absolute; top: 4px; z-index: 3; pointer-events: none;
+  font-family: var(--sans); font-size: 11px; font-weight: 600; line-height: 1.4;
+  padding: 2px 8px; border-radius: 3px; background: var(--dc-green); color: #0b0b0b;
+}
+.scroll-cue-sub { font-weight: 400; }
+.scroll-cue-right { right: 8px; }
+.scroll-cue-left { left: 8px; }
+.scroll-wrap.more-right .scroll-cue-right, .scroll-wrap.more-left .scroll-cue-left { display: block; }
+.scroll-wrap.more-right::after {
+  content: ""; position: absolute; top: 0; right: 0; bottom: 12px; width: 56px; pointer-events: none; z-index: 2;
+  background: linear-gradient(to right, rgba(11, 11, 11, 0), var(--bg));
+}
+
+/* ---- Withheld sources (A4): count and marking, no dataset name or row numbers ---- */
+.tree-node.tree-withheld { align-items: center; }
+.prov-withheld td { white-space: normal; }
+.signal-note {
+  margin: 0 0 12px; padding: 6px 10px; font-size: 11px; line-height: 1.45; color: var(--text);
+  border-left: 3px solid var(--border-2); background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0; max-width: 820px;
+}
+.signal-note strong { color: var(--accent); font-weight: 600; }
+
+/* ---- Resolution threshold: read only for roles that may not move it ---- */
+#res-threshold:disabled { accent-color: #8c8389; cursor: not-allowed; }
+.res-presets .mk-filter:disabled { cursor: not-allowed; color: var(--text-muted); border-style: dashed; box-shadow: none; }
+.res-locked { flex-basis: 100%; font-size: 12px; color: var(--text); }
+.res-locked-tag {
+  display: inline-block; margin-right: 6px; padding: 0 6px; border-radius: 2px; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; background: var(--amber); color: #0b0b0b;
+}
+
+/* ---- Field markings on the company register (fix round) ---- */
+.field-note { font-size: 12px; line-height: 1.45; padding: 6px 10px; border-left: 3px solid var(--mk-pii); background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0; max-width: 900px; }
+.field-note code { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+.field-note-tag { display: inline-block; margin-right: 6px; padding: 0 6px; border-radius: 2px; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: var(--mk-pii); color: #0b0b0b; }
+.res-weights-note { font-size: 12px; margin: 8px 0 0; padding: 6px 10px; border-left: 3px solid var(--dc-purple-soft); background: rgba(131, 33, 97, 0.18); border-radius: 0 var(--radius) var(--radius) 0; }

@@ -70,6 +70,7 @@ export function renderAnalyticsTool() {
               ${(selectedRule.purposes || []).map(core.ui.purposeChip).join("")}
             </div>
             ${selectedRule.exception ? `<p class="microcopy">Exception granted under Checkpoint record <code>${escapeHtml(selectedRule.exception.recordId || "")}</code> (rule ${escapeHtml(selectedRule.exception.rules.join(", "))}).</p>` : ""}
+            ${selectedRule.r2Note ? `<p class="rule-r2-note" data-r2-note="${escapeHtml(selectedRule.r2Note)}">HEALTH data is withheld from your role anyway; rule ${escapeHtml(selectedRule.r2Note)} would also exclude it under this purpose.</p>` : ""}
             ${renderActionFootnote(selectedRule)}
             ${core.objectSets && !selectedRule.blocked && selectedRule.hits.length ? `<div class="inline-actions"><button class="button-secondary" data-action="save-object-set" data-source="rule" data-id="${escapeHtml(selectedRule.id)}">Save hits as object set</button></div>` : ""}
           </div>

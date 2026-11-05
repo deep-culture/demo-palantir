@@ -27,7 +27,8 @@ MARKINGS = {
 ROLES = {
     "patrol": ("Patrol officer", ["OPEN", "PII", "TELECOM", "LE-SENSITIVE"], ["public-order"], False, False, False),
     "fin-analyst": ("Financial-crime analyst", ["OPEN", "PII", "FIN", "LE-SENSITIVE"], ["financial-crime"], True, False, False),
-    "dpo": ("Data protection officer", ALL, ["oversight"], False, True, True),
+    # Fix round: the DPO may assume public order to test purpose rules.
+    "dpo": ("Data protection officer", ALL, ["oversight", "public-order"], False, True, True),
     "auditor": ("Auditor", ["OPEN"], ["oversight"], False, False, True),
     "contractor": ("Platform contractor", ["OPEN"], ["maintenance"], False, False, False),
 }
@@ -50,6 +51,18 @@ CHECKPOINTS = {
     "cp-danger-statement": ("expand.danger", ["patrol", "fin-analyst", "dpo"],
                             "Describe the concrete danger that justifies widening this analysis beyond the first hop."),
     "cp-exception": ("purpose.exception", ["fin-analyst", "dpo"], None),
+    # Fix round (FIXROUND_CONTRACT.md §1)
+    "cp-marking-restore": ("marking.restore", ["dpo"],
+                           "You are restoring a marking. Everything derived from this dataset will again be withheld from roles without it. State why."),
+}
+# docUrl host -> docLabel (FIXROUND_CONTRACT.md §1: no blanket "Palantir documentation").
+DOC_LABEL_BY_HOST = {
+    "www.palantir.com": "Palantir documentation",
+    "palantir.com": "Palantir documentation",
+    "blog.palantir.com": "Palantir blog",
+    "bundesverfassungsgericht.de": "BVerfG press release",
+    "docs.aleph.occrp.org": "OCCRP Aleph docs",
+    "gigazine.net": "News report",
 }
 
 HONESTY_IDS = ["inv.agent", "inv.investigations", "inv.analytics", "inv.map", "inv.object-types",
@@ -108,6 +121,9 @@ def test_roles_table(gotham, foundry):
         assert block["defaultRole"] == "fin-analyst"
         # Nobody but the DPO sees HEALTH.
         assert [r["id"] for r in block["roles"] if "HEALTH" in r["markingsVisible"]] == ["dpo"]
+        dpo = next(r for r in block["roles"] if r["id"] == "dpo")
+        assert ("May assume an operational purpose (public order) to test purpose rules; "
+                "this is a simulation convenience, not a power a real DPO has") in dpo["description"]
 
 
 def test_purposes(gotham, foundry):
@@ -132,7 +148,11 @@ def test_checkpoints_exact(gotham, foundry):
         assert removal["refusalText"] == "Your role cannot remove markings. This attempt has been logged."
         assert removal["minLength"] == 20
         purposeful = {c["id"] for c in block["checkpoints"] if c["requiresPurpose"]}
-        assert purposeful == {"cp-export", "cp-marking-remove", "cp-action-sensitive", "cp-exception"}
+        assert purposeful == {"cp-export", "cp-marking-remove", "cp-action-sensitive", "cp-exception",
+                              "cp-marking-restore"}
+        restore = next(c for c in block["checkpoints"] if c["id"] == "cp-marking-restore")
+        assert restore["minLength"] == 20 and restore["allowedRoles"] == ["dpo"]
+        assert restore["refusalText"] == "Your role cannot restore markings. This attempt has been logged."
         by_id = {c["id"]: c for c in block["checkpoints"]}
         assert by_id["cp-danger-statement"]["minLength"] == 30
         assert by_id["cp-exception"]["tag"] == "exception"
@@ -147,9 +167,13 @@ def test_honesty_entries(gotham, foundry):
             assert h["kind"] in HONESTY_LABELS, h["id"]
             assert h["label"] == HONESTY_LABELS[h["kind"]], h["id"]
             assert h["title"] and h["text"], h["id"]
+            assert "docLabel" in h, h["id"]
             if h["docUrl"] is not None:
                 assert h["docUrl"] in sources, (h["id"], h["docUrl"])
                 assert urlparse(h["docUrl"]).scheme == "https"
+                assert h["docLabel"] == DOC_LABEL_BY_HOST[urlparse(h["docUrl"]).netloc], (h["id"], h["docLabel"])
+            else:
+                assert h["docLabel"] is None, h["id"]
             if h["id"] in HONESTY_FIXED:
                 assert (h["kind"], h["text"]) == HONESTY_FIXED[h["id"]]
         by_id = {h["id"]: h for h in block["honesty"]}

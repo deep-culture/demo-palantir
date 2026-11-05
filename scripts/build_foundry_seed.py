@@ -313,7 +313,7 @@ def build_catalog_entry(
         {
             "id": "build_leads",
             "name": "06 Build Leads",
-            "description": "Score each person's best address from three sources: clinic registrations (HEALTH, weight 0.5), mobile location pings (TELECOM, 0.4) and the company registry (OPEN, 0.3), each decayed by age: score = 100 · min(1, Σ weight · exp(−ageDays / 365)). One lead per person with an address source; the output inherits every input's markings.",
+            "description": "Score each person's best address from three sources: clinic registrations (PII and HEALTH, weight 0.5), mobile location pings (TELECOM, 0.4) and the company registry (OPEN, 0.3), each decayed by age: score = 100 · min(1, Σ weight · exp(−ageDays / 365)). One lead per person with an address source; the output inherits every input's markings.",
             "inputs": ["resolved_persons", "norm_clinic_registrations", "norm_mobile_pings", "norm_company_registry"],
             "output": "leads",
             "codePath": PIPELINE_CODE_PATHS["build_leads"],

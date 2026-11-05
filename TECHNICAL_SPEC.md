@@ -100,12 +100,12 @@ Runtime model:
 The demo uses six linked sources per dataset, plus a manifest:
 
 1. `watchlist.csv` — marked `LE-SENSITIVE`
-2. `company_registry.csv` — `OPEN`
+2. `company_registry.csv` — `OPEN`; the fields `beneficial_owner` and `beneficial_owner_dob` are marked `PII` at field level (`fieldMarkings` in the manifest, fix round: *WM and Sovim*)
 3. `flight_manifests.csv` — `PII`
 4. `bank_transactions.csv` — `FIN`
 5. `mobile_location_pings.jsonl` — `TELECOM`
-6. `clinic_registrations.csv` (Phase 1) — `HEALTH`: `registration_id, patient_name, dob, home_address, home_city, home_country, lat, lon, clinic_code, registered_on, source` (`source = "clinic-ehr"`)
-7. `manifest.json` — per dataset `{file, markings, purpose, legalBasis, retentionDays, asOf}`. The values come from `pipeline/governance.py` (`SOURCE_DATASETS`); the builders read the manifest. Legal bases are illustrative.
+6. `clinic_registrations.csv` (Phase 1) — `PII`, `HEALTH` (PII since the fix round, so removing HEALTH alone opens nothing to roles without PII): `registration_id, patient_name, dob, home_address, home_city, home_country, lat, lon, clinic_code, registered_on, source` (`source = "clinic-ehr"`)
+7. `manifest.json` — per dataset `{file, markings, purpose, legalBasis, retentionDays, asOf}`, plus optional `fieldMarkings: {field: [marking]}` and `fieldNote` (only `company_registry`). The values come from `pipeline/governance.py` (`SOURCE_DATASETS`); the builders read the manifest. Legal bases are illustrative. Since the fix round, `flight_manifests` names *Ligue des droits humains* (C-817/19, 21 June 2022: blanket retention beyond six months is not strictly necessary; the dataset still keeps five years) and `company_registry` names *WM and Sovim* (C-37/20, 22 November 2022: no general public access to beneficial-ownership data). Field markings are copied to the source descriptor and the raw and `norm_` datasets as `fieldMarkings` / `fieldNote`; they do not change the dataset's own `markings`.
 
 Clinic rows are health data collected for care. They are only ever *attached* to people who already exist in the other sources (exact name + date of birth); a row that matches nobody creates nothing (§8.7).
 
@@ -174,7 +174,7 @@ Current relationship types:
 - `OBSERVED_AT`
 - `RESIDES_AT` (Phase 1: `Person -> Location`, from clinic rows)
 
-Person gains `homeAddress` and `clinicCode` (both HEALTH-marked); a clinic-derived Location has `locationType: "residential"`. No new object type.
+Person gains `homeAddress` and `clinicCode` (both marked PII and HEALTH); a clinic-derived Location has `locationType: "residential"`. No new object type.
 
 Each relationship type contains:
 
@@ -247,12 +247,12 @@ governance: {
   roles:       [{id, label, description, markingsVisible, purposes, canApprove, canRemoveMarkings, canOpenOversight}],
   defaultRole: "fin-analyst",
   purposes:    [{id, label}],
-  checkpoints: [{id, trigger, prompt, requiresPurpose, allowedRoles, refusalText}],
-  honesty:     [{id, kind: "mirrors"|"simplified"|"extension", label, title, text, docUrl}]
+  checkpoints: [{id, trigger, prompt, requiresPurpose, allowedRoles, refusalText, minLength?, tag?}],
+  honesty:     [{id, kind: "mirrors"|"simplified"|"extension", label, title, text, docUrl, docLabel}]
 }
 ```
 
-`label` on an honesty entry is the chip text ("Mirrors Foundry", "Simplified", "Teaching extension"); `title` is the surface name; `docUrl` is a source from the research report §G, or `null`. Marking lists are always in the order of `governance.markings`.
+`label` on an honesty entry is the chip text ("Mirrors Foundry", "Simplified", "Teaching extension"); `title` is the surface name; `docUrl` is a source from the research report §G, or `null`; `docLabel` (fix round) names the kind of source for the link text: "Palantir documentation", "Palantir blog", "BVerfG press release", "OCCRP Aleph docs" or "News report" (`null` when there is no `docUrl`). The DPO's `purposes` are `["oversight", "public-order"]` (fix round): public order is a simulation convenience so the DPO, who alone sees HEALTH, can test R2. Marking lists are always in the order of `governance.markings`.
 
 Phase 2 additions (PHASE2_CONTRACT.md §4–§5), same module:
 
@@ -261,16 +261,18 @@ governance: {
   ...,
   checkpoints: [...,   // + cp-action-sensitive (action.execute), cp-danger-statement (expand.danger, minLength 30),
                        //   cp-exception (purpose.exception, requiresPurpose, tag: "exception")
+                       // fix round: + cp-marking-restore (marking.restore, dpo, requiresPurpose, minLength 20)
   ],
   honesty: [...,       // + inv.actions (mirrors), inv.karlsruhe (extension), build.resolution (simplified)
   ],
-  purposeRules: [{id: "R1"|"R2"|"R3", text, operations, requires?, incompatible?: {data, session}, depthOver?, effect, checkpointId?}],
-  legalBasisNote: "Our abstraction of the BVerfG 2023 ruling's logic, not its text [...]",
+  purposeRules: [{id: "R1"|"R2"|"R3", text, operations, requires?, incompatible?: {data, session}, depthOver?, effect, checkpointId?,
+                  note}],   // fix round: what the rule abstracts and what it leaves out
+  legalBasisNote: "Karlsruhe mode is our abstraction of the logic of ... (BVerfG press release 18/2023), not its text ...",
   discussions: [{id, title, attachedTo: [surface ids], summary, questions: [q1, q2], sources: [url], disclaimer}]
 }
 ```
 
-Discussion cards: `disc-ice-elite` (build.markings, inv.leads), `disc-bverfg-2023` (session.checkpoints, inv.karlsruhe), `disc-raffinaderij` (oversight.audit), `disc-nhs-fdp` (session.roles, build.markings), `disc-pol-intel` (build.pipelines, deployment), `disc-maven` (inv.agent). Summaries paraphrase research report §A and §D; every source URL is from §G.
+Discussion cards: `disc-ice-elite` (build.markings, inv.leads), `disc-bverfg-2023` (session.checkpoints, inv.karlsruhe), `disc-raffinaderij` (oversight.audit), `disc-nhs-fdp` (session.roles, build.markings), `disc-pol-intel` (build.pipelines, deployment), `disc-maven` (inv.agent) and (fix round) `disc-data-subjects` (oversight.audit, inv.actions, session.roles). Summaries paraphrase research report §A and §D; every source URL is from §G, except the EUR-Lex texts of the GDPR and the LED on `disc-data-subjects` (`governance.EXTRA_SOURCES`). In the fix round the NHS, Raffinaderij and POL-INTEL cards and the Karlsruhe notes were checked against their cited sources (see the comments in `pipeline/governance.py`); claims the sources do not support were dropped.
 
 Phase 3 additions (PHASE3_CONTRACT.md §1): honesty entries `inv.leads` (simplified: "the formula is ours; ELITE's is not public"), `inv.object-sets` (mirrors), `build.retention` (simplified) and `deployment` (extension); `inv.agent` is reworded for the scripted tool-calling agent (no LLM; failures scripted); the `disc-maven` card (Maven Smart System: about $1.3bn ceiling through 2029, 20,000+ users in May 2025, NATO version) and the attachments in the list above. The surface id `deployment` is the new root page `deployment.html`.
 
@@ -283,6 +285,8 @@ resolution: {
   defaultThreshold: 0.75,   // = the pipeline's own Persons; no candidate reaches it
   minThreshold: 0.30,       // candidates below this are dropped
   fixedNote: "Merges made by the pipeline's deterministic rules are fixed in this build — see each person's resolution record.",
+  note: "There is no passport-conflict signal. Should two different passports veto a merge? Who decides?",
+  discussion: "...",        // the same string (fix round; the signal is deliberately not added)
   signals: [{id, weight, label, note, markings}],
   candidates: [{id, left, right, score, signals: [signalId], block, explanation, markings}]
 }
@@ -307,16 +311,16 @@ leads: {
   formula: "score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))",
   decayDays: 365,
   properties: [{id, label, type}],  // lead fields (for the Action drawer and effects)
-  weights: [{source, rawSource, label, marking, weight, addressField, dateField}],
-            // norm_clinic_registrations HEALTH 0.5 · norm_mobile_pings TELECOM 0.4 · norm_company_registry OPEN 0.3
+  weights: [{source, rawSource, label, marking, markings, weight, addressField, dateField}],
+            // norm_clinic_registrations HEALTH (markings PII, HEALTH) 0.5 · norm_mobile_pings TELECOM 0.4 · norm_company_registry OPEN 0.3
   items: [{id: "lead::<personId>", personId, address, lat, lon, score, status: "open",
-           components: [{source, marking, weight, ageDays, decay, contribution, address,
+           components: [{source, marking, markings, weight, ageDays, decay, contribution, address,
                          label, rawSource, purpose, date, lat, lon, record, ...}],
            formula, asOf, addressSource, sourceMarkings}]
 }
 ```
 
-One lead per Person with an address source (starter 24, simulator 191), sorted by score, then person ID. `lat`/`lon` and `address` belong to the best component (largest contribution); every component carries its own `lat`/`lon`, so the browser can move the pin when a component is withheld. **The lead-level `address`, `lat`, `lon` and `score` are the all-markings view**: a role that cannot see a component's marking must recompute them from the visible components (`addressSource` names the component they came from). `purpose` on a component is its source dataset's purpose (`healthcare` for the clinic component, which Karlsruhe R2 removes for law-enforcement purposes).
+One lead per Person with an address source (starter 24, simulator 191), sorted by score, then person ID. `lat`/`lon` and `address` belong to the best component (largest contribution); every component carries its own `lat`/`lon`, so the browser can move the pin when a component is withheld. **The lead-level `address`, `lat`, `lon` and `score` are the all-markings view**: a role that cannot see a component's marking must recompute them from the visible components (`addressSource` names the component they came from). `markings` on a component (fix round) is everything a role needs to see it: `["PII", "HEALTH"]` for the clinic component, `["OPEN", "PII"]` for a registry component read from the beneficial-owner columns, otherwise `[marking]`; `sourceMarkings` is their union. `purpose` on a component is its source dataset's purpose (`healthcare` for the clinic component, which Karlsruhe R2 removes for law-enforcement purposes).
 
 ### 7.2 Source descriptors
 
@@ -347,13 +351,13 @@ Rules (PHASE1_CONTRACT.md §3; `pipeline/governance.py` `annotate_objects`):
 
 | Object type | `markings` | `propertyMarkings` | `sourceMarkings` from |
 |---|---|---|---|
-| Person | `PII` | `phoneNumber: TELECOM`, `riskTag: LE-SENSITIVE`, `passportId: PII`, `homeAddress: HEALTH`, `clinicCode: HEALTH` | datasets of `resolution.mergedFrom`, plus clinic if it has a `RESIDES_AT` link |
+| Person | `PII` | `phoneNumber: TELECOM`, `riskTag: LE-SENSITIVE`, `passportId: PII`, `homeAddress: PII, HEALTH`, `clinicCode: PII, HEALTH` | datasets of `resolution.mergedFrom`, plus clinic if it has a `RESIDES_AT` link |
 | Company | — | — | company registry |
 | BankAccount | `FIN` | — | bank transactions |
 | Device | `TELECOM` | — | pings |
 | Flight | `PII` | `paymentCardLast4: FIN` | flight manifests |
 | Airport | — | — | flight manifests |
-| Location | — ; `HEALTH` if the target of a `RESIDES_AT` link | — | datasets behind its `REGISTERED_AT` / `OBSERVED_AT` / `RESIDES_AT` links |
+| Location | — ; `PII, HEALTH` if the target of a `RESIDES_AT` link | — | datasets behind its `REGISTERED_AT` / `OBSERVED_AT` / `RESIDES_AT` links |
 | WatchlistRecord | `LE-SENSITIVE` | — | watchlist |
 
 Note that "9 Al Noor Park, Dubai" has `locationType: "residential"` from the registry but is not clinic-derived and is not marked.
@@ -380,7 +384,7 @@ Each edge contains:
 - `target`
 - `label`
 - `properties`
-- `markings` — `FIN` for `OWNS_ACCOUNT`, `HAS_CORP_ACCOUNT`, `TRANSFERRED_TO`; `TELECOM` for `USES_DEVICE`, `OBSERVED_AT`; `LE-SENSITIVE` for `LISTED_ON`; `PII` for `BOOKED_ON`; `HEALTH` for `RESIDES_AT`; `[]` otherwise
+- `markings` — `FIN` for `OWNS_ACCOUNT`, `HAS_CORP_ACCOUNT`, `TRANSFERRED_TO`; `TELECOM` for `USES_DEVICE`, `OBSERVED_AT`; `LE-SENSITIVE` for `LISTED_ON`; `PII` for `BOOKED_ON`; `PII, HEALTH` for `RESIDES_AT`; `[]` otherwise
 
 ## 8. Identity and entity resolution
 
@@ -612,6 +616,8 @@ Migration: the pre-redesign key `ontology-studio-demo-v2:{datasetKey}` is read o
 | `actions-ui.js` | Action drawer state and handlers (`ACTION_CLICKS`, `ACTION_INPUTS`, `ACTION_CHANGES`), the applier `applyEffects`, `riskTaggedByActions` (§31.1) |
 | `render/action-drawer.js`, `render/resolution.js` | the drawer, scenario Action card, inspector Actions and External systems, the rule footnote; merge chip, merge explanation, threshold chip |
 | `render/leads.js`, `render/object-sets.js` | the Leads and Object sets tabs (Phase 3); `render/agent.js` is the Agent tab (trace, answer, staged edits, evals, answer graph) |
+| `editor.js` | fix round A3: the schema/Objects editor handlers (`EDITOR_CLICKS`, `EDITOR_CHANGES`, `EDITOR_INPUTS`), governed properties, source-record guard, `kind: "edit"` logging, Reset dataset (§33) |
+| `disclosure.js` | fix round A4: `displayId`, `splitRefs` (mergedFrom by source marking), `citeLabel`, `safeForRole` (Raw JSON and export) (§33) |
 
 Modules import each other in cycles (render ↔ state ↔ derive …). That is safe because no module does work at evaluation time except declaring constants; everything else happens in `main.js`, which is the entry point (nothing imports it), so every other module has finished evaluating before its body runs. Boot order in `main.js`:
 
@@ -1021,9 +1027,12 @@ Defaults: `--seed 20260401` (clinic data), `--legacy-seed 42` (Phase 0 files). R
 - `tests/test_resolution_parity.py` — Gotham and Foundry seeds have identical entity IDs, edge sets, Person labels and `resolution` blocks, for both datasets
 - `tests/test_person_names.py` — no Person `canonicalName`/`label` starts with `person::`
 - `tests/test_seed_contract.py` — `schemaVersion` 3, `buildId` present, stable across builds and CRLF-insensitive, every Person has a valid `resolution`, `governance` present, seeds under 10 MB, and the committed `demo/seed.js` / `foundry-demo/seed.js` match a fresh `buildId` (regenerate them when sources, builders or `pipeline/*.py` change)
-- `tests/test_governance_block.py` — markings, roles, purposes, checkpoints (exact prompt texts) and honesty ids match PHASE1_CONTRACT.md; the block is identical in both seeds and every dataset; honesty `docUrl`s come from the research report's sources
-- `tests/test_object_markings.py` — the §3 rules hold for every entity and edge in both seeds and are identical between them; residential Locations are reached only via `RESIDES_AT`; clinic data changes no existing identity (seed built with and without the clinic file); unmatched clinic rows create nothing
-- `tests/test_markings_propagation.py` — manifest markings; the union rule and provenance on every Build dataset; `HEALTH` on exactly the datasets downstream of `clinic_registrations.csv`; `Transform.run()` unions
+- `tests/test_governance_block.py` — markings, roles, purposes, checkpoints (exact prompt texts) and honesty ids match PHASE1_CONTRACT.md; the block is identical in both seeds and every dataset; honesty `docUrl`s come from the research report's sources and each has the right `docLabel`; the DPO's purposes and description; `cp-marking-restore`
+- `tests/test_object_markings.py` — the §3 rules hold for every entity and edge in both seeds and are identical between them; residential Locations are reached only via `RESIDES_AT`; clinic-derived objects, links and properties are PII as well as HEALTH, so a HEALTH removal leaves them withheld from the auditor and contractor; clinic data changes no existing identity (seed built with and without the clinic file); unmatched clinic rows create nothing
+- `tests/test_markings_propagation.py` — manifest markings; the union rule and provenance on every Build dataset; `HEALTH` on exactly the datasets downstream of `clinic_registrations.csv`; the CJEU cases in the PNR and register legal bases; `fieldMarkings` on the register's beneficial-owner fields; `Transform.run()` unions
+- `tests/test_discussions.py` — the seven cards, their attachments, sources (research §G plus the EUR-Lex texts), required phrases, and the claims removed in the fix round; quotations under 15 words
+- `tests/test_purpose_rules.py` — the R1–R3 rule shapes, each rule's `note`, the `legalBasisNote` (no placeholder), the DPO's public-order purpose for testing R2
+- `tests/test_leads.py`, `tests/test_candidates.py` — also check component `markings` (clinic `PII`+`HEALTH`) and the weights-table note on the missing passport-conflict signal; `tests/test_seed_contract.py` also checks that no "[to verify" text is in either seed
 - `tests/test_generator_determinism.py` — same `--seed` gives byte-identical output, equal to the committed files; `--seed` changes only clinic data; the five Phase 0 files are unchanged since Phase 0
 
 There is currently no automated browser test suite.
@@ -1286,3 +1295,25 @@ The seed's lead-level `address`, `lat`, `lon` and `score` are the all-markings v
 - **Bulk approvals**: every `action.approveAll` with `approvedBy` and the count.
 - **Object sets**: current sets (members, version, creator, sharing) and every `objectset` event.
 - Filters: a new *Agent run* select (matches `payload.runId` or `payload.runIds`); the role filter applies to the new panels. The redaction toggle covers them.
+
+
+## 33. Fix round: governance repairs in core, Investigate and Oversight
+
+Contract: `context/FIXROUND_CONTRACT.md` §2 (authoritative), plus the independent review (`fable-review.md`, F-ids below). Every change degrades on seeds built before the fix round (no PII on clinic rows, no `cp-marking-restore`, DPO without `public-order`): the core carries the contract's `cp-marking-restore` definition as a fallback, and the R2 demonstration needs the new DPO purpose.
+
+Core load order (Investigate and Oversight): `store, governance, session, audit, markings, checkpoints, purposes, resolution, actions, actions-approve, agent, objectsets, leads, ui`. `core/actions-approve.js` (new) holds `approveAction`, `approveAll`, `rejectAction` (Build does not load it and does not approve staged edits).
+
+| Item | Where | What |
+|---|---|---|
+| A1 | `actions-approve.js`, `agent-run.js` | Approving a staged edit of a sensitive type runs `cp-action-sensitive`; Approve all asks once, the prompt lists every item (`context.items`, also in `payload.items`), one checkpoint record, one `action.approveAll` with `count`, `sensitive` and the record id; each `action.apply` carries it. Approval re-runs `purposes.check("action")` and `plan().problems` (outcomes `blocked`, `not-applicable`; skipped in a bulk approval) (F-05). Evals: four checks; check 3 accounts for every staged edit (F-22), check 4 "every sensitive edit passed a Checkpoint". |
+| A2 | `mutations.js` `roleExport()` | Export is the role view throughout: entities, edges, leads recomputed by `buildLeadRows` (visible components only), object sets the role may open (visible members), candidate pairs between visible people, the action log for visible objects; `safeForRole` masks phone-embedded ids and withheld `mergedFrom`. |
+| A3 | `editor.js`, `render/objects.js` | Properties an Action type sets (`DC.actions.governedProperties`) are read-only with "Use the Action …"; deleting a source record, a type with source records, or a governed property is refused, explained and logged; every editor create/update/delete is `kind: "edit"` (`editor.object.update` …); Reset dataset logs `dataset.reset`. Merged persons are read-only ("unmerge first", F-14). |
+| A4 | `disclosure.js`, `core/markings.js`, `core/ui.js` | `DC.markings.displayId` masks runs of 9+ digits for roles without TELECOM (Objects list, editor, drawer, merge section, citations, Checkpoint items, audit strip, Oversight). `mergedFrom` shows "n records withheld (marking X)". Lead components withheld by marking read "1 source withheld (marking X)" with a note that the marking is itself a signal. `_merge.conflicts` go through propertyMarkings (F-01). |
+| A5 | `core/markings.js`, `audit/oversight-governance.js` | `restoreMarking({datasetId, marking, checkpointRecordId})` (DPO only, `marking.restore` restored / refused / not-found) and `requestRestore()` through `cp-marking-restore`; Oversight's *Marking overrides* panel with Restore for the DPO. `missing`/`canSee` ignore markings removed at the ontology (F-02). |
+| A6 | `core/audit.js`, `core/session.js`, `core/ui.js`, `audit/oversight.js` | Meta `{lastSeq, count, headSeq, headHash, dropped, capReached, quotaDropped}`; numbering continues from `lastSeq`; `verifyChain` reports `problem` tail / head / seq / count / link / hash with a sentence, and `capDropped` only when the cap was reached. Session flag `instructor` (*Instructor mode*, logged) shows Strict checkpoints, Failure mode and Clear audit; `DC.audit.clear(reason)` refuses (and logs) without it or with fewer than 10 characters. Still tamper evidence, not tamper-proof. |
+| A7 | `governance.js`, `events.js` | `looksLikePhone`: 4+ digits or a leading `+` (not a date); the Checkpoint opens after a 700 ms pause in typing; one `graph.search` / `map.search` per settled query (900 ms, or Enter / leaving the field; change events fired by a re-render are ignored). |
+| A8 | `core/purposes.js`, `core/ui.js`, `audit/oversight-governance.js` | The exception button and Checkpoint say "Self-certified exception: takes effect now, recorded for review by the data protection officer"; records are tagged `self-certified`; Oversight lists *Exceptions to review*, the DPO marks them reviewed (`exception.review`, kind `review`). |
+| D | various | Merged record "Merged at 0.55 from 2 source identities (score 0.55)"; `DC.resolution.canSetThreshold` (fin-analyst, dpo, or roles with `canSetThreshold`) and refused `setThreshold` logged; `reject`/`restore` limited to act-unmerge-person's roles (F-19); trace header shows the failure mode only in instructor mode; `DC.objectSets.canEdit` (owner or DPO) and view-only shared sets; graph and map nodes focusable (`tabindex`, `role="button"`, `aria-label`, Enter/Space); audit strip fixed with body padding; labelled controls; readable citation chips; wrapping tab bar; AA contrast; the small bugs of the contract list (transfers, stale selection, lead row, example prompt, Run action, purpose on role switch, unrated 1-node scenario, "withheld" totals). |
+| B 2.5.3 | `purpose-gate.js` | Rules are checked against everything their hits carry (`fullPurposesOfIds`: markings, source markings, valued property markings, links) for roles that see HEALTH; other roles get the line "HEALTH data is withheld from your role anyway; rule R2 would also exclude it under this purpose". |
+
+Review findings also handled: F-03/F-10 a role change drops the agent run and the telecom / phone / exception caches (`forgetRoleState`); F-04 `search_objects({objectSetId})` denies sets the role cannot open; F-11 Oversight shows copied values (Action diffs, writebacks) through the viewer's markings and says the log is itself personal data (with `disc-data-subjects`); F-12 Leaflet tooltips escaped; F-13 the agent's `expand` gates every traversed telecom link; F-15 the core honours `onlyIfSetByAction`, `onlyCreatedByAction` and `refusal`; F-16 record ids `cpr-YYYYMMDD-<seq>-<hex4>`; F-17 an undefined Checkpoint under an active governance block is logged `missing-definition` and refused; F-21 `DC.store.patch(key, fn)` for every governance writer; F-25 events always carry the session role (`payload.claimedRole` otherwise).

@@ -226,14 +226,15 @@ button {
 .tool-tabs {
   border-radius: 8px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.3rem;
   padding: 0.5rem 0.6rem;
-  overflow-x: auto;
 }
 
 .tab-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.3rem;
   align-items: center;
 }
@@ -1205,7 +1206,7 @@ tbody tr:last-child td {
   margin-top: 0.75rem;
   padding-top: 0.5rem;
   border-top: 1px solid var(--border);
-  color: var(--dc-green-dark);
+  color: #1f5a2a; /* AA on white (was --dc-green-dark, 4.1:1) */
   font-size: 0.78rem;
 }
 
@@ -1299,12 +1300,17 @@ tbody tr:last-child td {
   margin: -1rem -1.25rem 0;
 }
 
+/* Fix round: the strip is fixed to the bottom and the page is padded by its height, so nothing ends
+   under it (it used to sit on the last row of graph nodes); focus scrolls items clear of it. */
 .shell > .dc-audit-strip {
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 900;
-  margin: auto -1.25rem -1.25rem;
 }
+html { scroll-padding-bottom: 4rem; }
+body { padding-bottom: 3.4rem; }
 
 .topbar .chip-withheld {
   border-style: dashed;
@@ -1394,3 +1400,21 @@ tbody tr:last-child td {
   position: relative;
   top: -0.15em;
 }
+
+/* ─── Fix round ─── */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.graph-node:focus { outline: none; }
+.graph-node:focus-visible rect, .graph-node:focus rect { stroke: var(--dc-black); stroke-width: 3px; }
+.map-marker:focus-visible { outline: 3px solid var(--dc-black); }
+.severity-unrated { background: #f0f0f0; color: #3a363a; border: 1px dashed #6b6670; }
+.governed-field input[readonly] { background: #f3f1f4; color: #2a262b; border-style: dashed; }
+.chip-governed { font-size: 0.68rem; padding: 0.05rem 0.4rem; border-radius: 999px; background: #efe3eb; color: #5b1745; border: 1px solid #c79bb7; margin-left: 0.3rem; }
+.editor-notice { margin: 0 0 0.8rem; padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid #b42318; background: #fff4f2; color: #6e1a12; }
+.editor-notice .ghost-button { margin-left: 0.5rem; }
+.refs-withheld { font-style: italic; color: #3a363a; }
+.set-viewonly { padding: 0.45rem 0.7rem; border-left: 3px solid var(--dc-purple); background: #f6eff4; color: #3a1530; font-size: 0.85rem; }
+.rule-r2-note { margin: 0.5rem 0 0; padding: 0.45rem 0.7rem; border-left: 3px solid #b42318; background: #fff4f2; color: #6e1a12; font-size: 0.86rem; }
+.merge-discussion { margin-top: 0.5rem; padding: 0.4rem 0.6rem; background: #f6eff4; border-left: 3px solid var(--dc-purple); font-size: 0.84rem; color: #3a1530; }
+.lead-row { cursor: pointer; }
+.lead-row:hover td { background: #f6eff4; }
+.cite-chip { max-width: 22rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }

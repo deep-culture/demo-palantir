@@ -30,8 +30,8 @@ Output Dataset: person entities
   passportId
   phoneNumber
   riskTag
-  homeAddress      — latest clinic registration (HEALTH)
-  clinicCode       — latest clinic registration (HEALTH)
+  homeAddress      — latest clinic registration (PII + HEALTH)
+  clinicCode       — latest clinic registration (PII + HEALTH)
   resolution       — {method, confidence, mergedFrom, splitRisk, note}
 
 The resolver itself is attached to the output dataset as

@@ -15,9 +15,18 @@
       "OPEN"
     ],
     "purpose": "public-record",
-    "legalBasis": "Public company register, open by law; illustrative",
+    "legalBasis": "Public company register; illustrative. In WM and Sovim (C-37/20 and C-601/20, 22 November 2022) the CJEU invalidated the AML Directive's rule giving the general public access to beneficial-ownership information, as a serious interference with Charter Arts 7 and 8. The beneficial-owner fields are therefore marked PII.",
     "retentionDays": 3650,
-    "asOf": "2026-04-01"
+    "asOf": "2026-04-01",
+    "fieldMarkings": {
+      "beneficial_owner": [
+        "PII"
+      ],
+      "beneficial_owner_dob": [
+        "PII"
+      ]
+    },
+    "fieldNote": "beneficial_owner and beneficial_owner_dob are personal data (PII): since WM and Sovim (CJEU, 22 November 2022) they may not be open to the general public. The rest of the register stays OPEN."
   },
   "flight_manifests": {
     "file": "flight_manifests.csv",
@@ -25,7 +34,7 @@
       "PII"
     ],
     "purpose": "border-security",
-    "legalBasis": "PNR Directive (EU) 2016/681, five-year retention; illustrative",
+    "legalBasis": "PNR Directive (EU) 2016/681, Art. 12 (five years); illustrative. In Ligue des droits humains (C-817/19, 21 June 2022) the CJEU held that keeping every passenger's data beyond the first six months is not strictly necessary without objective evidence of a risk. This dataset still keeps every row for five years.",
     "retentionDays": 1825,
     "asOf": "2026-04-11"
   },
@@ -52,6 +61,7 @@
   "clinic_registrations": {
     "file": "clinic_registrations.csv",
     "markings": [
+      "PII",
       "HEALTH"
     ],
     "purpose": "healthcare",

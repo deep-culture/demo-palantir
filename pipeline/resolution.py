@@ -89,7 +89,7 @@ alias fallback, and a row that matches nobody never creates a Person.
 Attaching registers no lookup keys and changes no name, method or
 ``mergedFrom``, so every Phase 0 identity, edge and resolution block is
 unchanged.  The clinic link is held in ``PersonResolver.clinic_refs`` and shows
-up only as HEALTH-marked properties (``homeAddress``, ``clinicCode``) and
+up only as PII- and HEALTH-marked properties (``homeAddress``, ``clinicCode``) and
 ``RESIDES_AT`` links; putting ``clinic:REG-…`` into ``mergedFrom`` would leak
 the health record to every role that can see the resolution block.
 """

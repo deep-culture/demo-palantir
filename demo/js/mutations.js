@@ -1,7 +1,10 @@
 // demo/js/mutations.js — Ontology edits (types, properties, links, objects), JSON export and persist-and-render.
 import { slugify } from "./util.js";
-import { data, fullData, persist, roleView, ui } from "./state.js";
+import { core, data, fullData, persist, roleView, ui } from "./state.js";
 import { currentRoleId } from "./governance.js";
+import { buildLeadRows } from "./leads.js";
+import { splitMembers, visibleSets } from "./object-sets.js";
+import { safeForRole } from "./disclosure.js";
 import { entityById, entityTypeById, relationshipById } from "./derive.js";
 import { render } from "./render/index.js";
 
@@ -114,20 +117,76 @@ export function createEdge(sourceId) {
   });
 }
 
-// Exports the role's view (withheld properties stay as {withheld: [...]} placeholders; withheld
-// objects are counted, not included) with a note of who exported it under which Checkpoint.
-export function exportJson(record) {
+// Exports the role's view (fix round A2): every block goes through the role view, not only the
+// entities. Withheld properties stay as {withheld: [...]} placeholders; withheld objects are counted.
+// leads: recomputed per role (withheld components removed, score and best address recomputed);
+// objectSets: the sets the role may open, members it can see; resolution: candidate pairs between
+// people the role can see; actionLog: Actions on objects the role can see. Ids embedding a phone number
+// are masked for roles without TELECOM (safeForRole).
+function storedVisible(id) {
+  const stored = roleView.storedById.get(id);
+  if (!stored) return false;
+  if (!roleView.active) return true;
+  const redacted = core.markings.redactEntity(stored, roleView.roleId);
+  return !(redacted && redacted._withheld);
+}
+
+export function roleExport(record) {
   const withheldByType = Object.fromEntries([...roleView.withheldByType.entries()].map(([type, list]) => [type, list.length]));
+  const leadRows = buildLeadRows();
+  const leads = leadRows.block
+    ? {
+        objectType: leadRows.block.objectType,
+        asOf: leadRows.block.asOf,
+        formula: leadRows.block.formula,
+        weights: leadRows.block.weights,
+        items: leadRows.rows.map((row) => ({
+          id: row.lead.id,
+          personId: row.person.id,
+          memberLeadIds: row.lead.memberIds,
+          status: row.status,
+          outcome: row.outcome,
+          closeReason: row.closeReason,
+          score: row.score,
+          address: row.address,
+          lat: row.lat,
+          lon: row.lon,
+          components: row.split.visible,
+          withheldComponents: row.split.withheld.length,
+        })),
+        withheldLeads: leadRows.withheldLeads,
+      }
+    : undefined;
+  const sets = visibleSets().map((set) => {
+    const split = splitMembers(set.memberIds);
+    return { ...set, memberIds: split.visible.concat(split.merged), withheldMembers: split.withheld, versions: (set.versions || []).map((v) => ({ v: v.v, ts: v.ts, by: v.by })) };
+  });
+  const seedResolution = fullData.resolution || data.resolution;
+  const resolution = seedResolution
+    ? { ...seedResolution, candidates: (seedResolution.candidates || []).filter((item) => storedVisible(item.left) && storedVisible(item.right)) }
+    : undefined;
+  const actionLog = core.actions ? core.actions.log({ datasetId: ui.datasetKey }).filter((item) => storedVisible(item.objectId) || (leads && leads.items.some((lead) => lead.id === item.objectId || lead.memberLeadIds.includes(item.objectId)))) : [];
   const payload = {
     ...data,
+    leads,
+    resolution,
+    objectSets: sets,
+    actionLog,
     exportMetadata: {
       exportedAt: new Date().toISOString(),
       role: currentRoleId(),
       checkpointRecordId: record ? record.recordId : null,
       withheldObjectsByType: withheldByType,
       withheldLinks: roleView.withheldEdges.length,
+      withheldLeads: leads ? leads.withheldLeads : 0,
+      note: "Everything in this file passed through the role view; withheld values, components, candidates and records are counted, not included.",
     },
   };
+  return safeForRole(payload);
+}
+
+export function exportJson(record) {
+  const payload = roleExport(record);
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");

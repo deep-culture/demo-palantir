@@ -25,7 +25,14 @@ TABLE = {
     "norm_company_registry": ("OPEN", 0.3, "company_registry.csv"),
 }
 LEAD_KEYS = {"id", "personId", "address", "lat", "lon", "score", "status", "components", "formula", "asOf"}
-COMPONENT_KEYS = {"source", "marking", "weight", "ageDays", "decay", "contribution", "address"}
+COMPONENT_KEYS = {"source", "marking", "markings", "weight", "ageDays", "decay", "contribution", "address"}
+# Fix round (FIXROUND_CONTRACT.md §1): every marking a role needs per component.
+COMPONENT_MARKINGS = {
+    "norm_clinic_registrations": ["PII", "HEALTH"],
+    "norm_mobile_pings": ["TELECOM"],
+    "norm_company_registry": ["OPEN"],   # ["OPEN", "PII"] when read from the beneficial-owner columns
+}
+ORDER = ["OPEN", "PII", "FIN", "TELECOM", "HEALTH", "LE-SENSITIVE"]
 NAMESAKE = "person::g5510077"
 WATCHLISTED = ("person::p8842101", "person::l1029921", "person::n5538219", "person::b7730042")
 AS_OF = "2026-04-12"
@@ -130,6 +137,10 @@ def test_leads_and_components(gotham, dataset):
             assert COMPONENT_KEYS <= set(c)
             marking, weight, raw = TABLE[c["source"]]
             assert (c["marking"], c["weight"], c["rawSource"]) == (marking, weight, raw)
+            expected = list(COMPONENT_MARKINGS[c["source"]])
+            if c["source"] == "norm_company_registry" and c.get("role") == "owner":
+                expected = ["OPEN", "PII"]
+            assert c["markings"] == expected, (lead["id"], c["source"])
             assert isinstance(c["ageDays"], int) and c["ageDays"] >= 0
             assert c["address"]
             assert isinstance(c["lat"], float) and isinstance(c["lon"], float), (lead["id"], c["address"])
@@ -138,7 +149,7 @@ def test_leads_and_components(gotham, dataset):
         best = max(comps, key=lambda c: c["contribution"])
         assert lead["address"] == best["address"] and (lead["lat"], lead["lon"]) == (best["lat"], best["lon"])
         assert lead["addressSource"] == best["source"]
-        assert lead["sourceMarkings"] == [m for m in ("OPEN", "TELECOM", "HEALTH") if m in {c["marking"] for c in comps}]
+        assert lead["sourceMarkings"] == [m for m in ORDER if m in {m2 for c in comps for m2 in c["markings"]}]
     scores = [(-l["score"], l["personId"]) for l in items]
     assert scores == sorted(scores), "sorted by score, then person"
 
@@ -294,3 +305,20 @@ def test_scorer_is_deterministic():
     a, _ = s06.run(persons_ds, cl, mp, cr)
     b, _ = s06.run(persons_ds, cl, mp, cr)
     assert a.rows == b.rows and a.name == "leads"
+
+
+@pytest.mark.parametrize("dataset", DATASETS)
+def test_clinic_components_stay_withheld_without_pii(gotham, foundry, dataset):
+    """After a HEALTH removal, a role without PII still cannot see a clinic
+    component, so the namesake's score cannot regain it there."""
+    seen = 0
+    for lead in gotham[dataset]["leads"]["items"]:
+        for c in lead["components"]:
+            if c["source"] == "norm_clinic_registrations":
+                seen += 1
+                assert c["marking"] == "HEALTH" and c["markings"] == ["PII", "HEALTH"]
+                assert not set(c["markings"]) <= {"OPEN", "HEALTH"}
+    assert seen
+    weights = {w["source"]: w for w in gotham[dataset]["leads"]["weights"]}
+    assert weights["norm_clinic_registrations"]["markings"] == ["PII", "HEALTH"]
+    assert weights["norm_clinic_registrations"]["marking"] == "HEALTH"

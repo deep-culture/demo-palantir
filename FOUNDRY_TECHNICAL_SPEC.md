@@ -127,12 +127,14 @@ Raw datasets take their markings from `manifest.json`; every other dataset gets 
 
 | Dataset | Markings |
 |---|---|
-| raw / `norm_*` | `watchlist` LE-SENSITIVE · `company_registry` OPEN · `flight_manifests` PII · `bank_transactions` FIN · `mobile_location_pings` TELECOM · `clinic_registrations` HEALTH |
+| raw / `norm_*` | `watchlist` LE-SENSITIVE · `company_registry` OPEN · `flight_manifests` PII · `bank_transactions` FIN · `mobile_location_pings` TELECOM · `clinic_registrations` PII, HEALTH (PII since the fix round) |
 | `resolved_persons` | OPEN, PII, TELECOM, HEALTH, LE-SENSITIVE |
 | `resolved_companies` | OPEN |
 | `resolved_accounts` | FIN |
 | `ontology_entities`, `ontology_edges` | all six |
 | `leads` | OPEN, PII, TELECOM, HEALTH, LE-SENSITIVE (PII and LE-SENSITIVE come through `resolved_persons`) |
+
+Since the fix round `clinic_registrations` is also PII, so `markingProvenance.PII` of every dataset downstream of it includes `clinic_registrations.csv`; no dataset's marking list changes (they all held PII already), and a HEALTH removal leaves them PII-marked. `company_registry.csv` and `norm_company_registry` carry `fieldMarkings: {beneficial_owner: ["PII"], beneficial_owner_dob: ["PII"]}` and a `fieldNote` (*WM and Sovim*); the datasets stay OPEN.
 
 `HEALTH` reaches **5** datasets downstream of `clinic_registrations.csv`: `norm_clinic_registrations`, `resolved_persons`, `ontology_entities`, `ontology_edges`, `leads` (6 with the raw dataset itself). The spec's "7" assumed a longer DAG. Derived datasets get `purpose: "financial-crime"`, `legalBasis` "Not recorded …", `inputPurposes` (the purposes of everything upstream) and `retentionDays` = the shortest input retention.
 
@@ -142,7 +144,7 @@ Raw datasets take their markings from `manifest.json`; every other dataset gets 
 
 | source dataset (`component.source`) | marking | weight | address used | date used |
 |---|---|---|---|---|
-| `norm_clinic_registrations` | HEALTH | 0.5 | `home_address` of the latest attached registration | `registered_on` |
+| `norm_clinic_registrations` | HEALTH (`markings`: PII, HEALTH) | 0.5 | `home_address` of the latest attached registration | `registered_on` |
 | `norm_mobile_pings` | TELECOM | 0.4 | the residential location if any ping is residential, else the most frequently observed non-airport location (ties: more recent, then label) | latest ping `timestamp` at that location |
 | `norm_company_registry` | OPEN | 0.3 | `registered_address` of the most recently incorporated company the person directs or owns | `incorporation_date` |
 
@@ -154,12 +156,13 @@ Lead shape (identical in `leads.sampleRows` here and in the Investigate seed's `
 
 ```js
 {id: "lead::<personId>", personId, address, lat, lon, score, status: "open",
- components: [{source, marking, weight, ageDays, decay, contribution, address,
+ components: [{source, marking, markings, weight, ageDays, decay, contribution, address,
+               // markings (fix round): clinic ["PII","HEALTH"]; registry via beneficial owner ["OPEN","PII"]; else [marking]
                // additions to the contract shape:
                label, rawSource, purpose, date, lat, lon, record, pingCount?, companyId?, role?}],
  formula, asOf,
  addressSource,       // component.source of the best address
- sourceMarkings}      // markings of the contributing sources
+ sourceMarkings}      // union of the components' markings
 ```
 
 The `leads` dataset entry adds `formula`, `decayDays: 365`, `weights` (the table above), `objectType: "Lead"`, `properties` (lead fields for the Close lead Action), `asOf`, and `rowLineage: {leadId: {sourceRows, fieldProvenance}}` for the sample rows. Sample rows are the **top 50** leads (sorted by score, then person ID); the Investigate seed carries all of them. Field provenance: `id`/`personId` → `resolved_persons` row (plus the matching name/dob or phone cells); `address`, `lat`, `lon` → the best component's cells; `score` → each component's date cell; `components[i]` → that component's address, date and coordinate cells.
@@ -239,6 +242,7 @@ The browser consumes a per-dataset payload with this top-level shape:
       markings: ["PII", ...],                   // union rule, §5.1
       markingProvenance: {HEALTH: ["clinic_registrations.csv"], ...},
       purpose, legalBasis, retentionDays, inputPurposes,
+      fieldMarkings?, fieldNote?,               // company_registry.csv, norm_company_registry (fix round)
       asOf }                                    // raw, norm_* and leads
     // Phase 3: the `leads` entry also has formula, decayDays, weights, objectType,
     // properties and rowLineage (§5.2)
@@ -288,7 +292,7 @@ The application is a static client-side SPA implemented without a framework.
 4. `js/leads.js` and `js/retention.js` — pure helpers (Phase 3) on `window.BuildLeads` and `window.BuildRetention`; no DOM, no core calls
 5. `app.js`
 
-On start the app calls `DC.governance.init(seed.governance)` once, with the first dataset key that carries a governance block. It then initialises the Phase 2 modules for the active dataset (again on every dataset switch), each only when present:
+On start the app calls `DC.governance.init(seed.governance)` with the first dataset key that carries a governance block, and again with the active dataset's block on every dataset switch (review F-18). Limitation: marking overrides and `ontologyRemoved` in `dc-palantir:governance` carry no dataset key, so a removal made while viewing starter also applies to simulator (both seeds have the same dataset ids and DAG, so the recomputed `ontologyRemoved` is the same either way). It then initialises the Phase 2 modules for the active dataset (again on every dataset switch), each only when present:
 
 - `DC.purposes.init(seed.governance.purposeRules)`
 - `DC.resolution.init(seed.resolution)` (also accepted at `seed.ontology.resolution`)
@@ -338,7 +342,7 @@ The seed data itself is **not** persisted — it is reloaded from `seed.js` on e
 
 ### 10.1 Header
 
-Purple band with the logo, the title **Build (Foundry-style)**, a link back to the landing page, the dataset switcher (`starter` / `simulator`) and object/link/dataset counts. Below it, in order:
+Purple band with the logo, the title **Build (Foundry-style)**, a link back to the landing page, the dataset switcher (`starter` / `simulator`) and object/link/dataset counts. With a role the counts are role-filtered, shown as *visible / total* (`visibleCounts()`, cached per role, dataset and marking overrides): objects whose redaction is not withheld, links that are visible (`DC.markings.edgeVisible`) with both ends visible, and datasets whose rows the role can open. Below it, in order:
 
 - the **session strip**, `DC.ui.renderSessionStrip(el, {surface: "build"})`, in a dark host (`#build-session-strip.dc-on-dark`): role selector, purpose, strict-Checkpoint toggle, audit count, Oversight link;
 - the tab bar: **Pipelines**, **Datasets**, **Lineage**, **Markings**, **Resolution**;
@@ -362,18 +366,20 @@ The strip hosts sit outside the re-rendered regions, so they are rendered once o
 - Raw datasets in the current seed carry the name of their normalised counterpart (`watchlist.csv` is named `norm_watchlist`); the UI shows the id for raw datasets, and lineage references resolve by id before name.
 - Row highlighting: when navigated from the Lineage tab via `goto-dataset-row`, the target row gets a glow style and the pagination offset auto-adjusts to bring it into view.
 
+- **Field markings** (fix round): a dataset may carry `fieldMarkings: {field: [markings]}` and a `fieldNote` (the company register's `beneficial_owner` and `beneficial_owner_dob` are PII after *WM and Sovim*). The schema table shows the field's marking badge; in the sample rows a column the role cannot see is hatched (`data-field-withheld`), and the note is shown above the table. The rest of the dataset stays visible.
 - **Retention clock** (F12, §10.10) between the header and the Governance table; with no dataset selected the main pane shows the clock and an overview of every dataset.
 - **Leads dataset** (F8, §10.11): the sample-row table is replaced by the leads view.
 
 ### 10.4 Lineage tab
 
-- Left sidebar: typeahead search over object labels the current role may see (withheld objects are listed by id and match only by id).
+- Left sidebar: typeahead search over object labels the current role may see. Withheld objects are listed as "withheld — marking X" with their type only, and match no search (their IDs can embed an address).
 - Main pane: when an object is selected, shows (all values read through `DC.markings.redactEntity(entity, role)`; a withheld value `{withheld: [...]}` renders as a hatched "withheld — marking X" cell; a withheld object `{_withheld: [...]}` hides its label and every property and shows "Why can't I see this?"):
   - **Object properties** — full property table for the selected object
   - **Markings** — `markings`, `sourceMarkings` and `propertyMarkings` as text badges, each property marked visible or withheld for the current role; markings in `DC.markings.removedAtOntology()` are struck through
-  - **Upstream source rows** — grouped by source dataset, each with the contributing row indices, its effective markings and any merge notes; each dataset name is a backlink to the Datasets tab
+  - **Upstream source rows** — grouped by source dataset, each with the contributing row indices, its effective markings and any merge notes; each dataset name is a backlink to the Datasets tab. **Withheld sources** (fix round, A4): a source dataset whose effective markings the role cannot all see is not named and its rows are not listed; it appears as "*n* sources withheld — marking X" (`withheldSources()`, `data-withheld-sources`), followed by a note that naming the marking is itself a signal. Per-field provenance collapses refs into such datasets into one "*n* source rows withheld" row per field, with no row link. An object with no row lineage says which transform built it and from what.
+  - **Display IDs** (`displayId()`): for roles without TELECOM, digit runs in an ID that match a phone number in the seed (or have 10+ digits) are masked (`person::c-silva-•••`); withheld objects show `type::•••`. A core helper (`DC.markings.displayId` / `DC.ui.displayId`) is preferred when present. Real IDs stay in `data-*` attributes; a masked object's Investigate link is a button, so the ID is not in an `href`.
   - **Per-field provenance** — table with one row per ontology field; each row links to the specific source row via `goto-dataset-row`
-  - **Resolution** — when the entity carries `resolution`, a small table with the match method, confidence and merged-from records, plus a warm "RESOLUTION NOTE" callout with `resolution.note` when `splitRisk` is true; nothing when `resolution` is absent
+  - **Resolution** — when the entity carries `resolution`, a small table with the match method, confidence and merged-from records, plus a warm "RESOLUTION NOTE" callout with `resolution.note` when `splitRisk` is true; nothing when `resolution` is absent. `mergedFrom` references are mapped to their source dataset by prefix (`ping:` → `norm_mobile_pings`, `flight:`, `company:`, `watchlist:`, `clinic:`); those the role cannot see become "*n* records withheld — marking X". When the person is merged at the current threshold, a first row says "merged at *t* from *n* source identities (scores …)" and the pipeline's method and confidence are labelled as such.
   - **Cross-link footer** — `<a href="../demo/index.html#object={encodeURIComponent(id)}&dataset={datasetKey}">View {label} in Investigate (Gotham-style) →</a>` (opens in new tab; Investigate selects the object and opens the graph)
 
 ### 10.5 Markings tab (F2)
@@ -383,7 +389,9 @@ The strip hosts sit outside the re-rendered regions, so they are rendered once o
 - **Highlight** buttons, one per marking: boxes and edges carrying the marking are outlined in its colour, the rest dimmed, and a summary line counts the datasets (at source / inherited).
 - **Legend**: badge, label, description and the roles that can see each marking; the inherited style is explained.
 - Each box also shows the dataset's purpose (legal basis on hover); in Karlsruhe mode, boxes whose production breaks a purpose rule carry the red rule badge and the purpose panel sits above the DAG (§10.8). Below the legend: discussion cards for `build.markings` (§10.9).
-- Inspector: the selected dataset's markings as `{id, inheritedFrom}` (inheritedFrom = the raw dataset id(s) from `markingProvenance`, or null when the dataset carries the marking itself), removed markings with the override, "Rows visible to" (roles that can see every effective marking), and a **Remove marking** button per marking.
+- Inspector: the selected dataset's markings as `{id, inheritedFrom}` (inheritedFrom = the raw dataset id(s) from `markingProvenance`, shown as "(this dataset)" when the dataset carries the marking itself), removed markings with the override, "Rows visible to" (roles that can see every effective marking), a **Remove marking** button per marking and a **Restore marking** button per removed marking (on a downstream dataset it restores at the dataset where the removal was made, and says so).
+- Restore marking (fix round, A5): logs `marking.restore.request`, then `DC.checkpoints.withCheckpoint("cp-marking-restore", {surface: "build", objectIds: [], datasetId, summary}, record => DC.markings.restoreMarking({datasetId, marking, checkpointRecordId: record.recordId}))`. Roles other than `dpo` get the refusal; the DPO gives a purpose and at least 20 characters. The button is hidden unless `DC.markings.restoreMarking`, `DC.checkpoints.withCheckpoint` and the seed's `cp-marking-restore` all exist.
+- Removed markings are a light badge on the dark surface with a dotted outline and the word *removed* (no strike-through, no dimmed text). The legend explains the inherited (dashed, example badge) and removed styles.
 - Remove marking: logs `marking.remove.request`, then `DC.checkpoints.withCheckpoint("cp-marking-remove", {surface: "build", objectIds: [], datasetId, summary}, record => DC.markings.removeMarking({datasetId, marking, checkpointRecordId: record.id}))`. The core decides: roles other than `dpo` see the refusal text and the function never runs; the DPO must give a justification. Build only re-renders afterwards.
 - Effective markings come from `DC.markings.effectiveDatasetMarkings(dataset, datasetsById)`, which may return ids or `{id, inheritedFrom}` objects; both are accepted.
 
@@ -397,6 +405,8 @@ All with `surface: "build"` via `DC.audit.logEvent`:
 | dataset opened (Datasets or Markings tab, or from lineage) | `view` | `dataset.view` | `datasetId`, `payload: {tab, row?}` |
 | object selected on the Lineage tab | `view` | `lineage.view` | `objectIds: [id]` |
 | Remove marking clicked | `marking` | `marking.remove.request` | `datasetId`, `payload: {marking}` |
+| Restore marking clicked | `marking` | `marking.restore.request` | `datasetId`, `payload: {marking}` |
+| threshold change arriving for a role that may not move it (control disabled) | `resolution` | `resolution.setThreshold` | `payload: {from, to, outcome: "refused", role}`; the threshold is not changed |
 
 | tab switch to Resolution | `view` | `tab.view` | `payload: {tab: "resolution", dataset}` |
 | person selected for a merge explanation | `view` | `resolution.explain.view` | `objectIds: [personId]`, `payload: {threshold}` |
@@ -413,17 +423,18 @@ The Checkpoint record (`kind: "checkpoint"`, outcome continued/cancelled/refused
 Shown when the seed carries `resolution` (PHASE2_CONTRACT §2). Honesty chip `build.resolution`.
 
 - **Left sidebar:** every Person that appears in a candidate pair, highest-scoring pairs first; selecting one opens its merge explanation.
-- **Threshold slider:** `resolution.minThreshold` (0.30) to 0.95, step 0.01, default `resolution.defaultThreshold` (0.75), with presets 0.55, 0.65 and 0.75. Dragging (`input`) re-renders only the results under the slider (`#res-results`), so the slider survives the drag; releasing (`change`) or a preset commits through `DC.resolution.setThreshold(t)`, which persists and logs, and the whole page re-renders. Above the default a note says that the pipeline's deterministic merges are fixed in this build.
+- **Threshold slider:** `resolution.minThreshold` (0.30) to 0.95, step 0.01, default `resolution.defaultThreshold` (0.75), with presets 0.55, 0.65 and 0.75. Only the financial-crime analyst and the DPO may move it (fix round): the rule is read from a core predicate (`DC.resolution.canSetThreshold` or similar) when present, else role flags or `thresholdRoles` in the seed, else that list. Other roles see the slider and presets disabled with a *read only* tag and the reason. Build passes the risk-tagged Persons to `DC.resolution.init(block, {watchlisted})`, so the cluster representative is the watchlisted member, as in Investigate. Dragging (`input`) re-renders only the results under the slider (`#res-results`), so the slider survives the drag; releasing (`change`) or a preset commits through `DC.resolution.setThreshold(t)`, which persists and logs, and the whole page re-renders. Above the default a note says that the pipeline's deterministic merges are fixed in this build.
 - **Counts:** Persons at the current threshold vs at the default, the difference, and the number of merges. Persons = Person objects in the seed minus (cluster size − 1) for every merged cluster.
 - **People who changed identity at this threshold:** every cluster whose membership differs from the default, with its representative and, when the representative has a `riskTag` the role can see, which members inherit it.
 - **Candidate pairs table:** left, right (names read through the role's redaction; auditor and contractor see "withheld — PII"), score, signals with weights (negative weights in red), and the decision at the current threshold: `merged` (in `resolveAt(t).merges`), `separate`, `same person via another pair` (transitive merge), or `rejected by override` (an override in `resolutionOverrides`, with who and why; honoured at every threshold).
-- **The scorer's weights:** the full `resolution.signals` table (id, signed weight, label, note), so students can argue with it.
+- **The scorer's weights:** the full `resolution.signals` table (id, signed weight, label, note), so students can argue with it, followed by `resolution.note` (or `discussion`) as a Discussion line: there is no passport-conflict signal.
+- An override's free-text reason is shown only to roles that can see both persons ("reason withheld" otherwise).
 - **Merge explanation** (right column, sticky): for the selected Person, its cluster at the current threshold and the merge chain from `DC.resolution.explain(personId)` (falling back to the merged pairs of its cluster). Each pair shows the arithmetic, one row per signal (`+0.45 name-exact`, `+0.20 shared-route`, `−0.10 dob-conflict`) and the total (`= 0.55`, clamped to 0–1, with a warning if the seed's score differs from the sum), the verdict against the threshold, and the candidate's plain-English `explanation` (only when the role can see both persons). Pairs that do not merge are listed with "would merge at *score* or lower".
-- **Unmerge:** each merged pair offers *Unmerge in Investigate →*, a deep link `../demo/index.html#object=<representative>&dataset=<key>` where the Action runs. When `DC.actions` is loaded with an `act-unmerge-person` type that the current role may run (`DC.actions.applicable("Person", role)`), Build also shows the Action's parameters (the candidate id is filled in) and an Unmerge button that calls `DC.actions.applyAction("act-unmerge-person", representativeId, params, {staged: false, apply: () => {}})`. The `apply` callback is a no-op: the override lives in shared governance, not in Build's data. If the Action completed but no override for the candidate exists afterwards, Build writes it with `DC.resolution.reject(candidateId, reason)`.
+- **Unmerge:** each merged pair offers *Unmerge in Investigate →*, a deep link `../demo/index.html#object=<representative>&dataset=<key>` where the Action runs. When `DC.actions` is loaded with an `act-unmerge-person` type that the current role may run (`DC.actions.applicable("Person", role)`), Build also shows the Action's parameters (the candidate id is filled in) and an Unmerge button that calls `DC.actions.applyAction("act-unmerge-person", representativeId, params, {staged: false, apply: () => {}})`. The `apply` callback is a no-op: the override lives in shared governance, not in Build's data, and only the Action writes it (`core/actions.js` calls `DC.resolution.reject` with the instance id). Build never writes an override itself: any outcome other than `applied` changes nothing (review F-19).
 
 ### 10.8 Purposes and Karlsruhe mode (F9)
 
-Rules come from `seed.governance.purposeRules` (or `DC.purposes.rules()` when the core exposes it); the mode from `DC.purposes.enabled()` (toggle in the session strip). Build evaluates the rules that have an `incompatible: {data, session}` clause (R2) per **derived dataset**, not per transform, so `normalize_sources`, which copies each source on its own, is not flagged:
+Each rule's `note` (what it abstracts and what it leaves out) is listed in the open purpose panel; the seed's `legalBasisNote` is shown with any old "[to verify …]" placeholder stripped. Rules come from `seed.governance.purposeRules` (or `DC.purposes.rules()` when the core exposes it); the mode from `DC.purposes.enabled()` (toggle in the session strip). Build evaluates the rules that have an `incompatible: {data, session}` clause (R2) per **derived dataset**, not per transform, so `normalize_sources`, which copies each source on its own, is not flagged:
 
 - the data purposes of a dataset are its manifest `purpose` plus purposes implied by its effective markings (`HEALTH` ⇒ `healthcare`);
 - a dataset breaks the rule when one parent has a purpose in `incompatible.data` and another parent, or the dataset's own `purpose`, has a purpose in `incompatible.session`. In the current seeds `resolved_persons` (clinic data joined into the financial-crime person table), `ontology_entities` and `ontology_edges` break R2.
@@ -450,6 +461,7 @@ PHASE3_CONTRACT §4; honesty chip `build.retention` (Simplified). Computation in
 PHASE3_CONTRACT §1 and §4. The `06 Build Leads` transform (`build_leads`) and the `leads` dataset need no special code on the Pipelines and Markings tabs: they are an ordinary transform and an ordinary derived dataset, inheriting OPEN, PII, TELECOM, HEALTH and LE-SENSITIVE through `markingProvenance`, and flagged by R2 in Karlsruhe mode (clinic data joined into a financial-crime output).
 
 - **Leads view** (Datasets tab, `renderLeadsView`): rows come from `seed.leads.items` if present, else the dataset's `sampleRows`. Columns: retention tag, person (through the role's redaction), best address, stored score, score you can see, sources (marking badge, source, contribution) and newest age. Selecting a lead shows its formula with the numbers filled in: `DC.ui.leadFormula(lead, visibleComponents)` when the core has it, else a local table (`weight × exp(−ageDays / 365) = decay → contribution`, sum capped at 100).
+- **Withheld components** are a marking badge and "1 source withheld": no dataset name, weight or address (the weights table would name the source). Redaction uses each component's full `markings` list (clinic `["PII", "HEALTH"]`), falling back to `marking`. In a lead's lineage, withheld components and source rows are counted by marking.
 - **Per-role columns:** leads mix sources with different markings, so the dataset is shown component by component, as in Investigate, rather than withheld whole. A component whose marking the role cannot see is hatched (or "blocked by rule R2" in Karlsruhe mode with a law-enforcement session purpose). The row's top-level `address`, `lat`, `lon` and `score` are the all-markings view, so as soon as one component is withheld they are withheld too: the address column shows the best address among the visible components ("best of the sources you can see") and the score is recomputed from them. Rows are sorted by the visible score, because the stored order is itself the all-markings ranking. When the core's `leadFormula` is called for such a role it receives a copy of the lead without the all-markings fields. Tested: as DPO the namesake `person::g5510077` is the top lead with "41 Oak Lane, Birmingham"; as fin-analyst he is not top and "41 Oak Lane" appears nowhere in Build.
 - **Lineage tab:** leads are listed under a **Leads** group after the objects (they are not ontology objects); a lead's page shows its properties (same redaction), the formula, and a tree from the lead through `06 Build Leads` to each component's source dataset with its marking, age and date.
 
@@ -531,6 +543,7 @@ Pure functions, checkable with `node`: `BuildLeads.score(components)` evaluates 
 - Deep Culture design: purple header band (`#832161`) with the green line logo; black workspace (`#0b0b0b`, surfaces `#151315` / `#221d21`); green `#ADFC92` as the code/selection accent; transforms tinted purple
 - Build-status palette: built green `#ADFC92`, stale `#f2c14e`, broken `#ff7a7a`
 - Typography: monospace for data/code/IDs, Lexend (bundled, `brand/fonts/`) for chrome
+- Contrast (fix round): every changed state is WCAG AA on black — expired rows `#c9c0c7` (11.1:1, no strike-through; the retention tag carries the meaning), not-yet-collected rows `--text-muted` (7.2:1), code line numbers `#8a8088` (5.2:1). Links are underlined at `0.32em` so underscores stay visible. The pipeline and markings DAGs sit in a `.scroll-wrap` that shows a green "More to the right →" cue (and "← more to the left") while columns are hidden, with a wider scrollbar.
 - Dense layout: persistent left sidebar (240px), main pane, bottom inspector (Pipelines and Markings only); the Resolution tab uses a two-column main pane (table left, sticky merge explanation right; one column below 1,100px)
 - Rule badges: red `#d93a3a` with the rule id written out (`R2`); merge decisions as text pills (`merged` green, `separate` outlined, `rejected by override` red); negative signal weights in light red
 - Marking palette as CSS variables, light tints on black with black text on solid badges: `--mk-open #d6d6d6`, `--mk-pii #7db8ff`, `--mk-fin #ffc94d`, `--mk-telecom #4fd8c8`, `--mk-health #ff7b7b`, `--mk-le-sensitive #d39bff` (`--mk-le` alias, `--mk-unknown` fallback). The seed names the variable per marking (`governance.markings[].colour`). Colour never carries meaning alone: every marking is also a text badge, inherited badges are dashed outlines, withheld values are hatched with the marking named

@@ -13,14 +13,22 @@ function fmt(value) {
   return Number.isFinite(Number(value)) ? Number(value).toFixed(1) : "—";
 }
 
+// Visible components show their marking chips; a component withheld by marking shows only that a
+// source is withheld and which marking hides it (A4: naming the dataset would reveal the category).
+function componentMarkings(component) {
+  return core.leads.componentMarkings ? core.leads.componentMarkings(component) : [component.marking];
+}
+
 function sourceChips(row) {
-  const visible = row.split.visible.map((component) => core.ui.markingChip(component.marking));
-  const hidden = row.split.withheld.map((item) =>
-    item.reason === "rule"
-      ? `<span class="lead-chip-withheld" data-withheld="rule" title="Removed by purpose rule ${escapeHtml(item.rule?.id || "")}">${escapeHtml(item.component.marking)} · ${escapeHtml(item.rule?.id || "rule")}</span>`
-      : `<span class="lead-chip-withheld" data-withheld="marking" title="Withheld: your role does not hold this marking">${escapeHtml(item.component.marking)} withheld</span>`
-  );
-  return visible.concat(hidden).join(" ");
+  const visible = [...new Set(row.split.visible.flatMap(componentMarkings))].map((marking) => core.ui.markingChip(marking));
+  const byMarking = row.split.withheld.filter((item) => item.reason !== "rule");
+  const byRule = row.split.withheld.filter((item) => item.reason === "rule");
+  const hiddenMarks = [...new Set(byMarking.flatMap((item) => item.missing && item.missing.length ? item.missing : componentMarkings(item.component)))];
+  const hidden = byMarking.length
+    ? [`<span class="lead-chip-withheld" data-withheld="marking" title="Showing that a source is withheld, and its marking, is itself a signal">${escapeHtml(`${byMarking.length} source${byMarking.length === 1 ? "" : "s"} withheld (marking ${hiddenMarks.join(", ")})`)}</span>`]
+    : [];
+  const rules = byRule.map((item) => `<span class="lead-chip-withheld" data-withheld="rule" title="Removed by purpose rule ${escapeHtml(item.rule?.id || "")}">${escapeHtml(componentMarkings(item.component).join("+"))} · ${escapeHtml(item.rule?.id || "rule")}</span>`);
+  return visible.concat(hidden, rules).join(" ");
 }
 
 function scoreCell(row) {
@@ -39,7 +47,7 @@ function renderTable(rows) {
           ${rows
             .map(
               (row) => `
-            <tr class="${row === selectedLeadRow(rows) ? "active" : ""}" data-lead-row="${escapeHtml(row.lead.id)}">
+            <tr class="lead-row ${row === selectedLeadRow(rows) ? "active" : ""}" data-lead-row="${escapeHtml(row.lead.id)}" data-action="select-lead" data-id="${escapeHtml(row.lead.id)}"${row === selectedLeadRow(rows) ? ' aria-selected="true"' : ""}>
               <td>${row.rank}</td>
               <td><button class="link-button" data-action="select-lead" data-id="${escapeHtml(row.lead.id)}">${escapeHtml(row.person.label)}</button>${mergeChip(row.person)}</td>
               <td>${row.address ? escapeHtml(row.address) : `<span class="muted">no visible address</span>`}</td>
@@ -61,7 +69,7 @@ function renderRuleNote(row) {
   const rule = byRule[0].rule || {};
   const session = core.governance.purpose(byRule[0].sessionPurpose || "")?.label || byRule[0].sessionPurpose || "";
   return `<div class="lead-rule-note" data-rule="${escapeHtml(rule.id || "")}">
-      <strong>Karlsruhe mode: rule ${escapeHtml(rule.id || "")} removed ${byRule.map((item) => escapeHtml(item.component.marking)).join(", ")}.</strong>
+      <strong>Karlsruhe mode: rule ${escapeHtml(rule.id || "")} removed ${[...new Set(byRule.flatMap((item) => componentMarkings(item.component)))].map(escapeHtml).join(", ")} data.</strong>
       ${escapeHtml(rule.text || "")} The session purpose is ${escapeHtml(session || "a law-enforcement purpose")}, so the score is recomputed without that source.
     </div>`;
 }

@@ -8,6 +8,7 @@ import { entityById } from "../derive.js";
 import { COPILOT_EXAMPLES } from "../agent.js";
 import { citeResolves, runApplied, runPending } from "../agent-run.js";
 import { renderPhoneHold } from "./banners.js";
+import { citeLabel, displayId } from "../disclosure.js";
 import { honestyChip } from "./common.js";
 import { buildEntityGraph } from "./graph.js";
 
@@ -51,7 +52,7 @@ function traceJson(run) {
       steps: run.steps.map((step) => ({ n: step.n, tool: step.tool, args: step.args, resultIds: step.resultIds.slice(0, 8), denied: step.denied, ...(step.reason ? { reason: step.reason } : {}), ms: step.ms })),
       answer: run.answer.map((sentence) => ({ text: sentence.text, cites: sentence.cites })),
       stagedActions: run.stagedActions,
-      failureMode: run.failureMode === "none" ? null : run.failureMode,
+      ...(core.session?.instructorMode?.() ? { failureMode: run.failureMode === "none" ? null : run.failureMode } : {}),
       evals: run.evals ? run.evals.map((item) => ({ id: item.id, pass: item.pass })) : "not checked",
     },
     null,
@@ -63,7 +64,7 @@ function renderTrace(run) {
   return `
     <div class="agent-trace dc-on-dark" aria-label="Plan and trace">
       <div class="agent-trace-head"><span class="agent-trace-title">Plan and trace</span>
-        <span>${escapeHtml(run.id)} · role ${escapeHtml(run.role)} · mode ${escapeHtml(run.mode)}${run.threshold !== null ? ` · threshold ${Number(run.threshold).toFixed(2)}` : ""}${run.failureMode !== "none" ? ` · failure mode ${escapeHtml(FAILURE_TEXT[run.failureMode])} (${escapeHtml(run.failureSource)})` : ""}</span></div>
+        <span>${escapeHtml(run.id)} · role ${escapeHtml(run.role)} · mode ${escapeHtml(run.mode)}${run.threshold !== null ? ` · threshold ${Number(run.threshold).toFixed(2)}` : ""}${run.failureMode !== "none" && core.session?.instructorMode?.() ? ` · failure mode ${escapeHtml(FAILURE_TEXT[run.failureMode])} (${escapeHtml(run.failureSource)})` : ""}</span></div>
       <div class="agent-trace-query">&gt; ${escapeHtml(run.query)}</div>
       <div class="agent-trace-plan">plan: ${run.plan.map((item) => escapeHtml(item)).join(" → ")}</div>
       <ol class="agent-trace-steps">${run.steps.map(stepLine).join("") || `<li class="trace-step">…</li>`}</ol>
@@ -72,11 +73,14 @@ function renderTrace(run) {
     </div>`;
 }
 
+// Readable chip text (object label, or link type and target); the id is in the tooltip (A4: masked
+// for roles without TELECOM when it embeds a phone number).
 function citeChip(id) {
   const entity = entityById(id);
-  const title = entity ? `${entity.type}: ${entity.label}` : id;
+  const shown = displayId(id);
+  const title = entity ? `${entity.type}: ${entity.label} (${shown})` : shown;
   const active = copilotState.highlight === id ? " is-active" : "";
-  return `<button class="cite-chip${active}" data-action="agent-cite" data-id="${escapeHtml(id)}" title="${escapeHtml(title)} — highlight in the answer graph">[${escapeHtml(id)}]</button>`;
+  return `<button class="cite-chip${active}" data-action="agent-cite" data-id="${escapeHtml(id)}" title="${escapeHtml(title)} — highlight in the answer graph" aria-label="Citation: ${escapeHtml(citeLabel(id))}">[${escapeHtml(citeLabel(id))}]</button>`;
 }
 
 function renderAnswer(run) {
@@ -99,7 +103,7 @@ function renderAnswer(run) {
 function stagedRow(item, status) {
   const after = Object.entries(item.after || {}).map(([key, value]) => `${key} → “${value}”`).join(", ");
   return `<li class="staged-edit staged-${status}" data-staged="${escapeHtml(item.id)}">
-      <div><strong>${escapeHtml(item.label || item.actionTypeId)}</strong> on ${escapeHtml(item.objectLabel || item.objectId)} <span class="muted">${escapeHtml(item.id)}</span></div>
+      <div><strong>${escapeHtml(item.label || item.actionTypeId)}</strong> on ${escapeHtml(item.objectLabel || item.objectId)} <span class="muted">${escapeHtml(item.id)}</span>${core.actions.type(item.actionTypeId)?.sensitive ? ` <span class="chip chip-sensitive">sensitive · Checkpoint on approval</span>` : ""}</div>
       <div class="microcopy">${escapeHtml(after || "no ontology change")}${item.params?.reason ? ` · reason “${escapeHtml(item.params.reason)}”` : ""}</div>
       ${status === "pending"
         ? `<div class="inline-actions"><button class="button-secondary" data-action="agent-approve" data-id="${escapeHtml(item.id)}">Approve</button><button class="ghost-button" data-action="agent-reject" data-id="${escapeHtml(item.id)}">Reject</button></div>`
@@ -124,17 +128,18 @@ function renderStaged(run) {
         ${applied.map((item) => stagedRow(item, "applied")).join("")}
       </ul>
       ${pending.length > 1 || nudge ? `<button class="${nudge ? "button-primary agent-approve-all-nudged" : "button-secondary"}" data-action="agent-approve-all">Approve all ${pending.length}</button>` : ""}
-      ${last && last.outcome === "refused" ? `<p class="lead-close-msg bad" role="alert">${escapeHtml(last.message || "Refused.")}</p>` : ""}
+      <p class="microcopy">Approving a sensitive edit asks for the same Checkpoint as running the Action by hand; Approve all asks once, for every edit listed.</p>
+      ${last && ["refused", "cancelled", "blocked", "not-applicable"].includes(last.outcome) ? `<p class="lead-close-msg bad" role="alert">${escapeHtml(last.message || "Refused.")}</p>` : ""}
     </div>`;
 }
 
 function renderEvals(run) {
   const evals = run.checked ? run.evals : null;
-  const labels = ["Every claim cites an existing object or link", "No denied tool result was used", "No edit was applied without approval"];
+  const labels = ["Every claim cites an existing object or link", "No denied tool result was used", "No edit was applied without approval", "Every sensitive edit passed a Checkpoint"];
   return `
     <div class="property-card agent-evals">
       <div class="list-item-title"><h3>Evals</h3><button class="button-secondary" data-action="agent-check" ${copilotState.running ? "disabled" : ""}>Check</button></div>
-      <p class="microcopy">Three seeded checks, as AIP Evals would run them. Nothing is checked until you click Check.</p>
+      <p class="microcopy">Four seeded checks, as AIP Evals would run them. Nothing is checked until you click Check.</p>
       <ul class="eval-list">
         ${labels
           .map((label, index) => {
@@ -158,7 +163,7 @@ function renderGraph(run) {
   return `
     <div class="property-card">
       <div class="list-item-title"><h3>Answer graph</h3><span class="muted">${escapeHtml(`${run.graph.nodes.length} objects · ${run.graph.edges.length} links`)}</span></div>
-      ${copilotState.highlight ? `<p class="microcopy">Highlighted: <code>${escapeHtml(copilotState.highlight)}</code>${highlightMissing ? " — nothing in the graph carries this id." : ""}</p>` : ""}
+      ${copilotState.highlight ? `<p class="microcopy">Highlighted: <code>${escapeHtml(displayId(copilotState.highlight))}</code>${highlightMissing ? " — nothing in the graph carries this id." : ""}</p>` : ""}
       <div class="graph-canvas agent-graph">${graph.svg}</div>
     </div>`;
 }
@@ -175,6 +180,17 @@ function renderIntro() {
         <div class="fact-item">${escapeHtml(core.governance?.honesty("inv.agent")?.text || "Rule-based stand-in for an AIP chatbot. Real AIP uses an LLM with tools and stages edits for review.")}</div>
       </div>
     </div>`;
+}
+
+// Review F-03: a run made under another role is never re-rendered (its answer, graph and trace hold what
+// that role could see).
+function renderOtherRole(run) {
+  return `<div class="property-card agent-stale" role="status">The last run was made as ${escapeHtml(roleLabel(run.role))}; its answer is not shown to ${escapeHtml(roleLabel(currentRoleId()))}. <button class="ghost-button" data-action="agent-rerun">Ask again as ${escapeHtml(roleLabel(currentRoleId()))}</button></div>`;
+}
+
+function renderDropped() {
+  const dropped = copilotState.droppedRun;
+  return `<div class="property-card agent-stale" role="status">The role changed: the previous answer (made as ${escapeHtml(roleLabel(dropped.role))}) was cleared. Press “Ask the agent” to run the question as ${escapeHtml(roleLabel(currentRoleId()))}.</div>`;
 }
 
 export function renderCopilotTool() {
@@ -202,7 +218,7 @@ export function renderCopilotTool() {
               </div>
               ${held.length ? renderPhoneHold("agent", held[0]) : ""}
             </div>
-            ${run ? renderTrace(run) + renderAnswer(run) + renderGraph(run) + renderStaged(run) + renderEvals(run) : renderIntro()}
+            ${run && run.role !== currentRoleId() ? renderOtherRole(run) : run ? renderTrace(run) + renderAnswer(run) + renderGraph(run) + renderStaged(run) + renderEvals(run) : copilotState.droppedRun ? renderDropped() + renderIntro() : renderIntro()}
             ${core.ui?.discussionCardsFor ? core.ui.discussionCardsFor("inv.agent") : ""}
         </div>
       </div>

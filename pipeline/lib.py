@@ -83,6 +83,10 @@ class Dataset:
         self.retention_days: Optional[int] = None
         self.input_purposes: List[str] = []
         self.derived_from: List[str] = []
+        # Optional field-level markings from the manifest (raw and normalised
+        # datasets only; e.g. the company register's beneficial-owner columns).
+        self.field_markings: Dict[str, List[str]] = {}
+        self.field_note: str = ""
 
     # Governance helpers
     def governance(self) -> Dict[str, Any]:
@@ -94,6 +98,8 @@ class Dataset:
             "legalBasis": self.legal_basis,
             "retentionDays": self.retention_days,
             "inputPurposes": list(self.input_purposes),
+            **({"fieldMarkings": {k: list(v) for k, v in self.field_markings.items()},
+                "fieldNote": self.field_note} if self.field_markings else {}),
         }
 
     def set_governance(self, fields: Dict[str, Any]) -> None:
@@ -103,6 +109,8 @@ class Dataset:
         self.legal_basis = fields.get("legalBasis", "")
         self.retention_days = fields.get("retentionDays")
         self.input_purposes = list(fields.get("inputPurposes", []))
+        self.field_markings = {k: list(v) for k, v in (fields.get("fieldMarkings") or {}).items()}
+        self.field_note = fields.get("fieldNote", "")
 
     # Convenience helpers
     def __len__(self) -> int:

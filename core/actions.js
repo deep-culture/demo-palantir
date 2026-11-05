@@ -1,58 +1,37 @@
 /*
  * core/actions.js — Action types with parameters, validation, permissions, Checkpoints, purpose rules,
- * effects and writeback (spec §4.5, F5; contract §3, §6).
+ * effects and writeback (spec §4.5, F5; contract §3, §6). Classic script; attaches window.DC.actions.
+ * Load after store, governance, session, audit, markings, checkpoints, purposes, resolution.
+ * The core never touches an app's data: it resolves an Action's effects and the app's apply callback
+ * performs them.
  *
- * Classic script; attaches window.DC.actions. Load after store, governance, session, audit, markings,
- * checkpoints, purposes, resolution.
+ *   init(actionTypes, externalSystems) · applicable(objectType, roleId)
+ *   applyAction(typeId, objectId, params, opts) -> Promise<{outcome, instance?, errors?, message?, rule?, record?}>
+ *     opts: {apply(effects, ctx), object, linked(linkType, targetType), staged, runId, surface, datasetId,
+ *            dataPurposes, exceptRules, exceptionRecordId}
+ *     validate ("invalid") → role ("refused", logged) → purposes.check ("blocked", logged) → plan
+ *     ("not-applicable", logged) → staged ? pending only ("staged") : Checkpoint (type.checkpointId, or
+ *     cp-action-sensitive when sensitive) → apply → instance in governance.actionLog → "action.apply"
+ *     (before/after) and one "action.writeback" per writeback.
+ *   pending() — staged edits. approveAction / approveAll / rejectAction live in core/actions-approve.js
+ *     (load it after this file). Fix round (A1): approving a staged edit of a sensitive type runs the same Checkpoint as running it
+ *     by hand. approveAll asks ONCE: the prompt lists every item (context.items), one checkpoint record,
+ *     then ONE "action.approveAll" event {count, ids, instanceIds, approvedBy "<role> (bulk)", runIds,
+ *     sensitive} carrying that record id; each edit logs its own "action.apply" with the record id.
+ *     Cancel or refusal at the Checkpoint applies nothing (outcome "cancelled" | "refused").
+ *   log(filter) {objectId, actionTypeId, role, datasetId, sessionId} · inbox(systemId)
  *
- * The core never touches an app's data: it resolves an Action's effects (parameter, session and object
- * values filled in), and the app's apply callback performs them on its own data.
- *
- *   DC.actions.init(actionTypes, externalSystems)   catalog[ds].ontology.actionTypes / .externalSystems
- *   DC.actions.applicable(objectType, roleId)       action types for that object type the role may run
- *   DC.actions.applyAction(typeId, objectId, params, opts) -> Promise<{outcome, instance?, errors?,
- *       message?, rule?, record?}>
- *     opts: {apply(effects, ctx) -> {created?, deleted?}?, object, linked(linkType, targetType) -> [obj],
- *            staged, surface, datasetId, dataPurposes, exceptRules: ["R2"], exceptionRecordId}
- *     Steps: validate params ("invalid") → role in allowedRoles ("refused", logged) → purposes.check
- *     ("blocked" by a rule, logged; pass exceptRules after a granted exception) → plan the effects
- *     ("not-applicable" when e.g. Remove from watchlist finds nothing an Action set, logged) →
- *     staged ? pending only ("staged") : Checkpoint (type.checkpointId, or "cp-action-sensitive" when
- *     sensitive; its outcome "cancelled"/"refused" is returned) → opts.apply(effects, ctx) → instance
- *     recorded in dc-palantir:governance.actionLog → "action" event "action.apply" with before/after
- *     and one "action.writeback" event per writeback ("applied").
- *   DC.actions.pending() / approveAction(id, opts?) / rejectAction(id, reason?)
- *   DC.actions.log(filter?)   {objectId, actionTypeId, role, datasetId, sessionId} -> instances, oldest first
- *   DC.actions.inbox(systemId) -> [{system, message, ts, instanceId, objectId, objectLabel, actionTypeId, role}],
- *                                 newest first
- *
- * Effect ops: setProperty {property, from: "param:x" | "value:…"}; createObject {type, properties}
- * (values "param:x", "session:role", "now", "object:prop", literals); createLink {linkType, target:
- * "created:<Type>" | "object"}; deleteLinked {linkType, targetType} (only targets an Action created);
- * writeback {system, template} ({label} {id} {type} {role} {ts}, any param, any object property).
- * A type with deleteLinked is a reversal: its setProperty with "value:" (empty) restores the value from
- * before the Action that set the property, and the Action is refused when the current value was not
- * set by an Action. act-unmerge-person (or an effect op "unmerge") rejects the person's merge
- * candidates through DC.resolution.reject.
- *
+ * Effect ops: setProperty {property, from: "param:x" | "value:…"}; createObject {type, properties};
+ * createLink {linkType, target: "created:<Type>" | "object"}; deleteLinked {linkType, targetType} (only
+ * Action-created targets); writeback {system, template}. A type with deleteLinked is a reversal: it
+ * restores the value from before the Action that set the property, and is refused when the current
+ * value came from the source data. act-unmerge-person rejects merge candidates via DC.resolution.reject.
  * Instance: {id, actionTypeId, label, objectId, objectLabel, objectType, datasetId, sessionId, ts, role,
- *   params, before, after, created, deleted, writebacks: [{system, message, ts, deliveredTs}],
- *   stagedBy: "user" | "agent", approvedBy, checkpointRecordId, purposes, exceptionRecordId, status}
- *
- * Phase 3 (contract §5, spec §4.7):
- *   applyAction(..., {staged: true, runId}) tags the pending instance (and its "action.stage" event) with
- *     the agent run that proposed it; stagedBy defaults to "agent" for staged edits.
- *   DC.actions.approveAll(ids, {by, objectFor(id), linkedFor(id), apply}) -> Promise<{outcome, count,
- *     instances, refused}>: applies every staged edit in `ids` (default: all pending) with
- *     approvedBy "<role> (bulk)" (or opts.by) and writes ONE audit event
- *     {kind: "action", verb: "action.approveAll", payload: {count, ids, instanceIds, approvedBy, runIds}}
- *     instead of one "action.approve" per edit. Each edit still logs its own "action.apply" (and
- *     writebacks): that is the effect, the approval is the single bulk event.
- *
- * Additions: isActive(), types(), type(id), systems(), system(id), forType(objectType), validate(typeId,
- *   params), plan(typeId, object, params, opts) (the preview: before/after, writebacks, problems),
- *   setByAction(objectId, property, currentValue, filter?), objectsSetByAction(property, valueOf, filter?),
- *   registerApplier(fn) (default apply for approveAction), checkpointFor(type), onChange(cb), LOG_CAP.
+ *   params, before, after, created, deleted, writebacks, stagedBy, approvedBy, checkpointRecordId,
+ *   purposes, exceptionRecordId, status, runId}
+ * Additions: isActive(), types(), type(id), systems(), system(id), forType(t), validate(), plan() (the
+ *   preview), setByAction(), objectsSetByAction(), registerApplier(fn), checkpointFor(type),
+ *   governedProperties(objectType) (properties an Action type sets: read-only in editors), onChange(cb).
  */
 (function () {
   "use strict";
@@ -78,9 +57,8 @@
   }
 
   function writeState(patch) {
-    const next = { ...readState(), ...patch };
-    memoryState = next;
-    if (store) store.set(GOV_KEY, next);
+    memoryState = { ...memoryState, ...patch };
+    if (store) store.patch(GOV_KEY, (current) => ({ ...current, ...patch })); // review F-21
     lastSeen = fingerprint();
   }
 
@@ -266,12 +244,15 @@
       if (effect.op === "setProperty") {
         const current = propertyOf(target, effect.property);
         let value = resolveValue(effect.from, ctx);
-        if (reversal && effect.from === "value:") {
+        // Review F-15: the seed's flag onlyIfSetByAction (and its refusal text) decides; a reversal type's
+        // "value:" effect is the structural fallback for seeds without the flag.
+        const guarded = effect.onlyIfSetByAction === true || (effect.onlyIfSetByAction === undefined && reversal && effect.from === "value:");
+        if (guarded) {
           const setter = setByAction(target.id, effect.property, current, { datasetId: options.datasetId });
           if (!setter) {
             result.problems.push(
               current
-                ? `${target.label || target.id}'s ${effect.property} (“${current}”) was not set by an Action in this platform: it comes from the source data. “${actionType.label}” only reverses an Action; correcting a source is not an Action here.`
+                ? `${target.label || target.id}'s ${effect.property} (“${current}”) was not set by an Action in this platform: ${effect.refusal ? effect.refusal : `it comes from the source data. “${actionType.label}” only reverses an Action; correcting a source is not an Action here.`}`
                 : `${target.label || target.id} has no ${effect.property} to remove.`
             );
             value = current;
@@ -279,7 +260,7 @@
             value = setter.before && effect.property in setter.before ? setter.before[effect.property] : "";
             result.notes.push(`Reverses ${setter.id} (${setter.label || setter.actionTypeId}, ${setter.ts.slice(0, 16).replace("T", " ")}).`);
           }
-        } else if (!reversal && current && String(current) !== String(value) && effect.property === "riskTag") {
+        } else if (!guarded && current && String(current) !== String(value) && effect.property === "riskTag") {
           result.notes.push(`${target.label || target.id} is already risk-tagged (“${current}”); the Action overwrites it.`);
         }
         result.before[effect.property] = current;
@@ -297,7 +278,8 @@
         result.created.push({ link: effect.linkType, target: effect.target || "object" });
       } else if (effect.op === "deleteLinked") {
         const linked = typeof options.linked === "function" ? asList(options.linked(effect.linkType, effect.targetType)) : [];
-        const own = linked.filter((item) => item && item.createdByAction);
+        // Review F-15: onlyCreatedByAction (default true) keeps source records out of a reversal's reach.
+        const own = effect.onlyCreatedByAction === false ? linked.filter(Boolean) : linked.filter((item) => item && item.createdByAction);
         own.forEach((item) => result.deleted.push({ id: item.id, type: item.type || effect.targetType, label: item.label || item.id, link: effect.linkType }));
         if (linked.length > own.length) {
           result.notes.push(`${linked.length - own.length} ${effect.targetType} record${linked.length - own.length === 1 ? "" : "s"} from the source data stay${linked.length - own.length === 1 ? "s" : ""}: only Action-created records are deleted.`);
@@ -477,7 +459,9 @@
       extra.checkpointRecordId = cpRecord ? cpRecord.recordId : null;
       return execute(actionType, target, values, options, planned, extra);
     };
-    if (checkpointId && DC.checkpoints && DC.governance && DC.governance.checkpoint(checkpointId)) {
+    // Review F-17: a named Checkpoint always goes through withCheckpoint, which refuses (and logs) when the
+    // governance block does not define it, instead of running the Action unguarded.
+    if (checkpointId && DC.checkpoints && DC.governance && (DC.governance.isActive() || DC.governance.checkpoint(checkpointId))) {
       const diff = Object.keys(planned.after).map((key) => `${key}: “${planned.before[key] || "—"}” → “${planned.after[key] || "—"}”`).join("; ");
       const answer = await DC.checkpoints.withCheckpoint(
         checkpointId,
@@ -495,88 +479,6 @@
   function pending() {
     const list = readState().pendingActions;
     return Array.isArray(list) ? list.slice() : [];
-  }
-
-  function mayApprove(actionType) {
-    const role = DC.governance && DC.governance.role(roleId());
-    if (!(DC.governance && DC.governance.isActive())) return true;
-    return Boolean(role && (role.canApprove || asList(actionType && actionType.allowedRoles).includes(role.id)));
-  }
-
-  async function applyStaged(staged, options, approvedBy) {
-    const actionType = type(staged.actionTypeId);
-    const target = options.object || { id: staged.objectId, type: staged.objectType, label: staged.objectLabel, properties: {} };
-    const planned = plan(actionType, target, staged.params, { linked: options.linked, datasetId: staged.datasetId });
-    writeState({ pendingActions: pending().filter((item) => item.id !== staged.id) });
-    return execute(actionType, target, staged.params, { ...options, datasetId: staged.datasetId, stagedBy: staged.stagedBy, runId: staged.runId }, planned, {
-      approvedBy,
-      stagedId: staged.id,
-      purposes: staged.purposes || [],
-    });
-  }
-
-  async function approveAction(id, opts) {
-    const options = opts || {};
-    const staged = pending().find((item) => item.id === id);
-    if (!staged) return { outcome: "not-found" };
-    const actionType = type(staged.actionTypeId);
-    if (!mayApprove(actionType)) {
-      await logAction("action.approve", { objectIds: [staged.objectId], payload: { instanceId: id, outcome: "refused", runId: staged.runId || null } });
-      return { outcome: "refused", message: "Your role cannot approve staged Actions. This attempt has been logged." };
-    }
-    if (!actionType) return { outcome: "unknown-type" };
-    const instance = await applyStaged(staged, options, options.approvedBy || roleId());
-    await logAction("action.approve", { objectIds: [staged.objectId], payload: { instanceId: instance.id, stagedId: id, outcome: "approved", approvedBy: instance.approvedBy, runId: staged.runId || null } });
-    return { outcome: "applied", instance };
-  }
-
-  // One approval for many edits (spec §4.7 failure mode c). One audit event with the count.
-  async function approveAll(ids, opts) {
-    const options = opts || {};
-    const wanted = Array.isArray(ids) && ids.length ? new Set(ids) : null;
-    const list = pending().filter((item) => !wanted || wanted.has(item.id));
-    const by = options.by || `${roleId()} (bulk)`;
-    if (!list.length) return { outcome: "nothing", count: 0, instances: [], refused: [] };
-    const refused = list.filter((item) => !type(item.actionTypeId) || !mayApprove(type(item.actionTypeId)));
-    const runIds = [...new Set(list.map((item) => item.runId).filter(Boolean))];
-    if (refused.length === list.length) {
-      await logAction("action.approveAll", { objectIds: list.map((item) => item.objectId), payload: { count: 0, ids: list.map((item) => item.id), outcome: "refused", approvedBy: by, runIds } });
-      return { outcome: "refused", count: 0, instances: [], refused: refused.map((item) => item.id), message: "Your role cannot approve staged Actions. This attempt has been logged." };
-    }
-    const instances = [];
-    for (const staged of list) {
-      if (refused.includes(staged)) continue;
-      const each = {
-        ...options,
-        object: typeof options.objectFor === "function" ? options.objectFor(staged.objectId, staged) : options.object,
-        linked: typeof options.linkedFor === "function" ? options.linkedFor(staged.objectId, staged) : options.linked,
-      };
-      instances.push(await applyStaged(staged, each, by));
-    }
-    await logAction("action.approveAll", {
-      objectIds: instances.map((item) => item.objectId),
-      payload: {
-        count: instances.length,
-        ids: list.filter((item) => !refused.includes(item)).map((item) => item.id),
-        instanceIds: instances.map((item) => item.id),
-        approvedBy: by,
-        outcome: "approved",
-        refused: refused.map((item) => item.id),
-        runIds,
-      },
-    });
-    notify("local");
-    return { outcome: "applied", count: instances.length, instances, refused: refused.map((item) => item.id) };
-  }
-
-  async function rejectAction(id, reason) {
-    const list = pending();
-    const staged = list.find((item) => item.id === id);
-    if (!staged) return { outcome: "not-found" };
-    writeState({ pendingActions: list.filter((item) => item.id !== id) });
-    await logAction("action.reject", { objectIds: [staged.objectId], payload: { stagedId: id, outcome: "rejected", reason: String(reason || ""), runId: staged.runId || null, label: staged.label } });
-    notify("local");
-    return { outcome: "rejected" };
   }
 
   // ── reading ──
@@ -624,17 +526,21 @@
     forType,
     applicable,
     checkpointFor,
+    governedProperties(objectType) {
+      const props = new Set();
+      forType(objectType).forEach((item) => asList(item.effects).forEach((effect) => effect.op === "setProperty" && effect.property && props.add(effect.property)));
+      return [...props];
+    },
     validate,
     plan,
     applyAction,
     pending,
-    approveAction,
-    approveAll,
-    rejectAction,
     log,
     inbox,
     setByAction,
     objectsSetByAction,
+    // For core/actions-approve.js (approveAction / approveAll / rejectAction), which attaches to DC.actions.
+    _internal: { readState, writeState, execute, plan, logAction, notify, roleId, asList, type, system, checkpointFor },
     registerApplier(fn) {
       applier = typeof fn === "function" ? fn : null;
     },

@@ -8,7 +8,7 @@ field-level lineage, like steps 02–05.
 
 Inputs
   resolved_persons            — who each source record belongs to (the shared resolver)
-  norm_clinic_registrations   — HEALTH,  weight 0.5, home_address, registered_on
+  norm_clinic_registrations   — PII + HEALTH, weight 0.5, home_address, registered_on
   norm_mobile_pings           — TELECOM, weight 0.4, location label, latest ping timestamp
   norm_company_registry       — OPEN,    weight 0.3, registered_address, incorporation_date
 
@@ -16,7 +16,7 @@ Inputs
 
 ``ageDays`` counts from ``asOf``, the latest date in the inputs.  The best
 address is the component with the largest contribution.  The output inherits
-the union of its inputs' markings (HEALTH, TELECOM and OPEN from the sources,
+the union of its inputs' markings (PII, HEALTH, TELECOM and OPEN from the sources,
 PII and LE-SENSITIVE through resolved_persons), so the dataset is HEALTH-marked
 even for leads with no clinic component: markings work per dataset, not per row.
 

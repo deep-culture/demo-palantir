@@ -43,6 +43,15 @@
  *     is shown next to the visible one ("score without withheld sources"). options.showFull forces the
  *     full score (for a role that can see every withheld marking). options.compact drops the table.
  *   DC.ui.leadScore(components)   the score code path (DC.leads.score when loaded)
+ *
+ * Fix round (contract §2):
+ *   Session strip "Instructor mode" checkbox (data-dc="instructor", off by default, logged). Strict
+ *     checkpoints and Failure mode are shown only while it is on (their values persist when hidden).
+ *   leadFormula: a component withheld by marking is shown as "1 source withheld (marking X)" without
+ *     naming its dataset, with a note that showing a marking is itself a signal.
+ *   blockedCard: shows rule.note (what the rule abstracts) when the seed carries it; the exception
+ *     button reads "Request a self-certified exception" with EXCEPTION_LABEL under it.
+ *   EXCEPTION_LABEL, displayId(id) (DC.markings.displayId), describeEvent masks phone-embedded ids.
  */
 (function () {
   "use strict";
@@ -60,6 +69,12 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
+  }
+
+  const EXCEPTION_LABEL = "Self-certified exception: takes effect now, recorded for review by the data protection officer.";
+
+  function displayId(id) {
+    return DC.markings && DC.markings.displayId ? DC.markings.displayId(id) : String(id ?? "");
   }
 
   const KIND_LABELS = { mirrors: "Mirrors", simplified: "Simplified", extension: "Teaching extension" };
@@ -114,7 +129,7 @@
     if (event.kind === "resolution" && payload.to !== undefined) parts.push(`${payload.from} → ${payload.to}`);
     if (payload.query) parts.push(`“${String(payload.query).slice(0, 40)}”`);
     if (event.kind === "role" && payload.to) parts.push(`→ ${payload.to}`);
-    if (event.objectIds && event.objectIds.length) parts.push(event.objectIds.length === 1 ? event.objectIds[0] : `${event.objectIds.length} objects`);
+    if (event.objectIds && event.objectIds.length) parts.push(event.objectIds.length === 1 ? displayId(event.objectIds[0]) : `${event.objectIds.length} objects`);
     return parts.join(" · ");
   }
 
@@ -161,13 +176,17 @@
           ${purposes.map((purpose) => `<option value="${escapeHtml(purpose.id)}" ${purpose.id === session.purpose ? "selected" : ""}>${escapeHtml(purpose.label)}</option>`).join("")}
         </select>
       </div>
-      <div class="dc-strip-group">
+      ${karlsruheGroup(id, session, options)}
+      <div class="dc-strip-group dc-strip-instructor${session.flags.instructor ? " is-on" : ""}">
+        <input type="checkbox" id="${id}-instructor" data-dc="instructor" ${session.flags.instructor ? "checked" : ""}>
+        <label for="${id}-instructor" class="dc-strip-toggle" title="Shows the instructor controls (Strict checkpoints, Failure mode, Clear audit). Toggling is logged.">Instructor mode</label>
+      </div>
+      ${session.flags.instructor ? `<div class="dc-strip-group dc-strip-strict">
         <input type="checkbox" id="${id}-strict" data-dc="strict" ${session.flags.strictCheckpoints ? "checked" : ""}>
         <label for="${id}-strict" class="dc-strip-toggle">Strict checkpoints <span class="dc-strip-sub">(instructor)</span></label>
         ${honestyChip("session.checkpoints", { onDark: themeClass(options) === "dc-strip-dark" })}
-      </div>
-      ${karlsruheGroup(id, session, options)}
-      ${failureModeGroup(id, session, options)}
+      </div>` : ""}
+      ${session.flags.instructor ? failureModeGroup(id, session, options) : ""}
       <span class="dc-strip-spacer"></span>
       ${auditLink}
     </div>`;
@@ -230,6 +249,16 @@
       .replace(/_/g, " ");
   }
 
+  // The markings that hide a component from the current role (only those: naming the others could
+  // reveal the source category). Falls back to every marking of the component.
+  function withheldMarkings(component) {
+    const all = DC.leads && DC.leads.componentMarkings ? DC.leads.componentMarkings(component) : [component.marking].filter(Boolean);
+    if (!DC.markings || !DC.session) return all;
+    const removed = DC.markings.removedAtOntology ? DC.markings.removedAtOntology() : new Set();
+    const lacking = DC.markings.missing(DC.session.get().role, all.filter((marking) => !removed.has(marking)));
+    return lacking.length ? lacking : all;
+  }
+
   function leadFormula(lead, visibleComponents, options) {
     if (!lead) return "";
     const opts = options || {};
@@ -249,14 +278,15 @@
       const points = 100 * (Number(component.weight) || 0) * decay;
       const rule = ruleOf.get(componentKey(component));
       if (!shownKeys.has(componentKey(component)) && !rule) {
-        return `<tr class="dc-lead-withheld" data-component="${escapeHtml(component.source)}" data-withheld="marking">
-          <td>${escapeHtml(sourceLabel(component.source))}</td><td>${markingChip(component.marking)}</td>
-          <td colspan="5" class="dc-lead-hatch">withheld — marking ${escapeHtml(component.marking || "?")}: your role does not see this source, its age, its weight or its address</td></tr>`;
+        const marks = withheldMarkings(component);
+        return `<tr class="dc-lead-withheld" data-withheld="marking">
+          <td>1 source withheld</td><td>${marks.map(markingChip).join("")}</td>
+          <td colspan="5" class="dc-lead-hatch">withheld (marking ${escapeHtml(marks.join(", ") || "?")}): your role does not see this source, its dataset, its age, its weight or its address</td></tr>`;
       }
       const struck = rule ? " dc-lead-struck" : "";
       return `<tr class="${rule ? "dc-lead-withheld dc-lead-rule" : ""}" data-component="${escapeHtml(component.source)}"${rule ? ` data-withheld="rule" data-rule="${escapeHtml(rule.rule ? rule.rule.id : "")}"` : ""}>
         <td>${escapeHtml(sourceLabel(component.source))}${rule ? ` <span class="dc-lead-rule-chip">removed by rule ${escapeHtml(rule.rule ? rule.rule.id : "")}</span>` : ""}</td>
-        <td>${markingChip(component.marking)}</td>
+        <td>${(DC.leads && DC.leads.componentMarkings ? DC.leads.componentMarkings(component) : [component.marking]).map(markingChip).join("")}</td>
         <td class="num${struck}">${fmt(component.weight, 2)}</td>
         <td class="num${struck}">${escapeHtml(String(component.ageDays ?? "—"))}</td>
         <td class="num${struck}">${fmt(decay, 3)}</td>
@@ -265,6 +295,9 @@
     };
     const terms = visible.map((component) => `${fmt(component.weight, 2)}·exp(−${escapeHtml(String(component.ageDays))}/365)`).join(" + ") || "0";
     const sumLine = `= 100 · min(1, ${terms}) = <strong data-lead-score="visible">${fmt(visibleScore, 1)}</strong>`;
+    const signalNote = byMarking.length
+      ? `<p class="dc-lead-signal">Showing that a source is withheld, and its marking, is itself a signal: being listed in a health dataset is health data. The tool names the marking but not the dataset.</p>`
+      : "";
     const withheldNote = hidden.length
       ? `<p class="dc-lead-note" data-lead-withheld="${hidden.length}"><strong>Score from visible sources: ${fmt(visibleScore, 1)}</strong> · ${hidden.length} component${hidden.length === 1 ? "" : "s"} withheld${
           knowFull ? ` · full score <span data-lead-score="full">${fmt(fullScore, 1)}</span> (score without withheld sources: ${fmt(visibleScore, 1)})` : ""
@@ -279,6 +312,7 @@
       ${table}
       <p class="dc-lead-sum mono">${sumLine}</p>
       ${withheldNote}
+      ${signalNote}
       ${lead.asOf ? `<p class="dc-lead-asof">Ages are counted to the dataset date ${escapeHtml(lead.asOf)}.</p>` : ""}
     </div>`;
   }
@@ -319,15 +353,17 @@
     } else {
       why = "This operation needs a Checkpoint first.";
     }
-    const note = DC.purposes ? DC.purposes.legalBasisNote() : "";
+    // The seed's editorial placeholder ("[to verify …]") is never shown to students.
+    const note = (DC.purposes ? DC.purposes.legalBasisNote() : "").replace(/\s*\[to verify[^\]]*\]/gi, "").trim();
     const exception = opts.exception
-      ? `<p class="dc-blocked-exception">Exception granted under Checkpoint record <code>${escapeHtml(opts.exception)}</code>.</p>`
+      ? `<p class="dc-blocked-exception">Self-certified exception granted under Checkpoint record <code>${escapeHtml(opts.exception)}</code>; recorded for review by the data protection officer.</p>`
       : opts.buttonAttrs !== undefined
-        ? `<button type="button" class="dc-btn dc-btn-blocked" ${opts.buttonAttrs}>Request exception</button>`
+        ? `<button type="button" class="dc-btn dc-btn-blocked" ${opts.buttonAttrs}>Request a self-certified exception</button><p class="dc-blocked-selfcert">${escapeHtml(EXCEPTION_LABEL)}</p>`
         : "";
     return `<div class="dc-blocked" role="alert" data-rule="${escapeHtml(rule.id)}" data-operation="${escapeHtml(opts.operation || result.operation || "")}">
       <div class="dc-blocked-head"><span class="dc-blocked-title">Blocked by rule ${escapeHtml(rule.id)}</span>${honestyChip("inv.karlsruhe")}</div>
       <p class="dc-blocked-rule">${escapeHtml(rule.text || "")}</p>
+      ${rule.note ? `<p class="dc-blocked-abstracts"><strong>What this rule abstracts:</strong> ${escapeHtml(rule.note)}</p>` : ""}
       <p class="dc-blocked-why">${escapeHtml(why)}</p>
       ${purposes ? `<p class="dc-blocked-purposes">Data purposes: ${purposes}${result.sessionPurpose ? ` · session: ${purposeChip(result.sessionPurpose)}` : ""}</p>` : ""}
       ${note ? `<p class="dc-blocked-note">${escapeHtml(note)}</p>` : ""}
@@ -450,6 +486,8 @@
           if (current && typeof current.options.onRoleChange === "function") current.options.onRoleChange(control.value);
         } else if (control.dataset.dc === "purpose") {
           DC.session.setPurpose(control.value || null);
+        } else if (control.dataset.dc === "instructor") {
+          DC.session.setFlag("instructor", control.checked);
         } else if (control.dataset.dc === "strict") {
           DC.session.setFlag("strictCheckpoints", control.checked);
         } else if (control.dataset.dc === "karlsruhe" && DC.purposes) {
@@ -490,6 +528,8 @@
     },
     withheldCell,
     whyLine,
+    displayId,
+    EXCEPTION_LABEL,
     escapeHtml,
     describeEvent,
   };

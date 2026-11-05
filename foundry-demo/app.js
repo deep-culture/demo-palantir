@@ -347,6 +347,7 @@
   function effectiveIds(ds) { return effectiveMarkings(ds).map(m => m.id); }
 
   function isWithheld(value) {
+    if (core("markings", "isWithheld")) return Boolean(safe("markings.isWithheld", () => window.DC.markings.isWithheld(value), false));
     return Boolean(value) && typeof value === "object" && !Array.isArray(value) && Array.isArray(value.withheld);
   }
 
@@ -386,7 +387,7 @@
       ? `${def.label}: inherited from ${(m.sources && m.sources.length ? m.sources : [m.inheritedFrom]).join(", ")}`
       : `${def.label}${def.description ? " — " + def.description : ""}`;
     const cls = ["mk-badge", inherited ? "inherited" : "", opts.removed ? "removed" : "", opts.small ? "small" : ""].filter(Boolean).join(" ");
-    return `<span class="${cls}" style="--mk-c:${markingColour(id)}" title="${esc(title)}">${esc(id)}${opts.removed ? " (removed)" : ""}</span>`;
+    return `<span class="${cls}" style="--mk-c:${markingColour(id)}" title="${esc(title)}">${esc(id)}${opts.removed ? `<span class="mk-removed-tag">removed</span>` : ""}</span>`;
   }
 
   function markingBadges(list, opts) {
@@ -397,12 +398,17 @@
   function withheldCell(markings) {
     const ids = (markings || []).join(", ");
     const who = rolesThatCanSee(markings).map(r => r.label).join(", ");
-    return `<span class="withheld" title="${esc(who ? "Visible to: " + who : "Not visible to any role")}">withheld — marking ${esc(ids)}</span>`;
+    // Same text and data-withheld attribute as DC.ui.withheldCell; Build keeps its dark-theme class and tooltip.
+    return `<span class="withheld" data-withheld="${esc((markings || []).join(" "))}" title="${esc(who ? "Visible to: " + who : "Not visible to any role")}">withheld — marking ${esc(ids)}</span>`;
   }
 
   function whyLine(markings) {
     const roleId = currentRoleId();
     const who = rolesThatCanSee(markings).map(r => r.label);
+    // The sentence comes from the core (DC.markings.whyWithheld), so both apps explain it alike;
+    // the markup stays Build's (dark workspace).
+    const sentence = core("markings", "whyWithheld") ? safe("markings.whyWithheld", () => window.DC.markings.whyWithheld(markings, roleId), "") : "";
+    if (sentence) return `<div class="why-line"><strong>Why can't I see this?</strong> ${esc(sentence)}</div>`;
     return `<div class="why-line"><strong>Why can't I see this?</strong> It carries ${markings.map(m => `<code>${esc(m)}</code>`).join(", ")}, which your role (${esc(roleLabel(roleId))}) cannot see.
       ${who.length ? `Roles that can: ${esc(who.join(", "))}.` : "No role can see it."}</div>`;
   }
@@ -410,6 +416,119 @@
   function displayValue(v) {
     if (isWithheld(v)) return withheldCell(v.withheld);
     return esc(typeof v === "object" && v !== null ? JSON.stringify(v) : v);
+  }
+
+  // ------------------------------------------------------------------ withheld means withheld (FIXROUND §2 A4, §3)
+  // A role that cannot see a source must not learn that the source holds a row about this object:
+  // being in the clinic data is itself health data. Withheld sources are shown as a count and the
+  // marking, never by dataset name or row number. Display IDs that embed a phone number are masked
+  // for roles without TELECOM, and withheld objects show their type only. The real IDs stay in the
+  // data-* attributes the app dispatches on.
+
+  /** Markings of a dataset the current role lacks ([] when it may see the rows). */
+  function lackingMarkings(ds) {
+    const roleId = currentRoleId();
+    if (!roleId || !ds) return [];
+    return effectiveIds(ds).filter(m => !canSee(roleId, [m]));
+  }
+
+  /** Dataset a lineage or mergedFrom reference points at ("norm_mobile_pings", "ping:PG-0002", …). */
+  const MERGED_PREFIX_STEMS = { ping: "mobile_pings", pings: "mobile_pings", flight: "flight_manifests", company: "company_registry", watchlist: "watchlist", clinic: "clinic_registrations", bank: "bank_transactions", txn: "bank_transactions" };
+  function datasetForRecordRef(ref) {
+    const prefix = String(ref || "").split(":")[0].toLowerCase();
+    const stem = MERGED_PREFIX_STEMS[prefix] || prefix;
+    const datasets = getDatasets();
+    return datasets.find(d => d.producedBy === "normalize_sources" && stemOf(d.id) === stem)
+      || datasets.find(d => d.producedBy === "normalize_sources" && stemOf(d.id).includes(stem))
+      || datasets.find(d => !d.producedBy && stemOf(d.id).includes(stem))
+      || null;
+  }
+
+  /** "2 sources withheld — marking HEALTH" chip (no dataset name, no row numbers). */
+  function withheldSources(count, markings, noun) {
+    const n = Number(count) || 0;
+    const word = noun || "source";
+    const ids = Array.from(new Set(markings || [])).join(", ");
+    const who = rolesThatCanSee(markings).map(r => r.label).join(", ");
+    return `<span class="withheld" data-withheld-sources="${n}" title="${esc(who ? "Visible to: " + who : "Not visible to any role")}">${n} ${esc(word)}${n === 1 ? "" : "s"} withheld — marking ${esc(ids)}</span>`;
+  }
+
+  function signalNote() {
+    return `<div class="signal-note"><strong>Absence is a signal.</strong> The withheld line names the marking, so it still tells you that a source of that kind holds data about this record. A real platform would have to decide whether even that may be shown.</div>`;
+  }
+
+  /** Phone numbers in the seed, digits only (Device, Person and ping rows). */
+  let phoneKey = null;
+  let phoneDigits = new Set();
+  function knownPhoneDigits() {
+    if (phoneKey === ui.datasetKey) return phoneDigits;
+    phoneKey = ui.datasetKey;
+    phoneDigits = new Set();
+    const add = (v) => { const d = String(v || "").replace(/\D/g, ""); if (d.length >= 7) phoneDigits.add(d); };
+    getEntities().forEach(e => { const p = e.properties || {}; add(p.phoneNumber); add(p.phone); });
+    getDatasets().forEach(d => (d.sampleRows || []).forEach(r => { if (r && typeof r === "object") { add(r.phone_number); add(r.phoneNumber); } }));
+    return phoneDigits;
+  }
+
+  function idEmbedsPhone(id) {
+    const runs = String(id || "").match(/\d{7,}/g) || [];
+    const known = knownPhoneDigits();
+    return runs.some(run => known.has(run) || run.length >= 10);
+  }
+
+  /** Masks the phone-number digits in an ID: person::c-silva-30131994523 -> person::c-silva-•••. */
+  function maskPhoneDigits(id) {
+    const known = knownPhoneDigits();
+    return String(id).replace(/\d{7,}/g, run => (known.has(run) || run.length >= 10 ? "•••" : run));
+  }
+
+  function roleLacks(marking) {
+    const roleId = currentRoleId();
+    return Boolean(roleId) && !canSee(roleId, [marking]);
+  }
+
+  /**
+   * The ID as the current role may see it. opts.withheld: the object itself is withheld, so only
+   * its type is shown (residential Location IDs embed the address). A core helper, if the
+   * Investigate builder added one, is preferred.
+   */
+  function displayId(id, opts) {
+    const raw = String(id == null ? "" : id);
+    if (!raw) return "";
+    if (opts && opts.withheld) return `${raw.split("::")[0]}::•••`;
+    for (const [mod, fn] of [["markings", "displayId"], ["ui", "displayId"], ["markings", "maskId"]]) {
+      if (core(mod, fn)) {
+        const v = safe(`${mod}.${fn}`, () => window.DC[mod][fn](raw, currentRoleId()), null);
+        if (typeof v === "string" && v) return v;
+      }
+    }
+    return roleLacks("TELECOM") && idEmbedsPhone(raw) ? maskPhoneDigits(raw) : raw;
+  }
+
+  function idIsMasked(id, opts) { return displayId(id, opts) !== String(id == null ? "" : id); }
+
+  /** Visible / total objects, links and datasets with visible rows, for the header. */
+  const countsCache = new Map();
+  function visibleCounts() {
+    const roleId = currentRoleId();
+    const entities = getEntities();
+    const edges = getEdges();
+    const datasets = getDatasets();
+    const total = { objects: entities.length, links: edges.length, datasets: datasets.length };
+    if (!roleId || !core("markings", "canSee")) return { visible: null, total };
+    const removed = Array.from(removedAtOntology()).sort().join(",");
+    const key = `${ui.datasetKey}|${roleId}|${removed}|${JSON.stringify(markingOverrides().map(o => [o.datasetId, o.removed]))}`;
+    if (countsCache.has(key)) return countsCache.get(key);
+    const visibleIds = new Set(entities.filter(e => !objectWithheld(redact(e))).map(e => e.id));
+    const edgeOk = (edge) => {
+      if (core("markings", "edgeVisible")) return safe("markings.edgeVisible", () => window.DC.markings.edgeVisible(edge, roleId), true);
+      return canSee(roleId, (edge.markings || []).filter(m => !removedAtOntology().has(m)));
+    };
+    const links = edges.filter(edge => visibleIds.has(edge.source) && visibleIds.has(edge.target) && edgeOk(edge)).length;
+    const out = { visible: { objects: visibleIds.size, links, datasets: datasets.filter(d => !lackingMarkings(d).length).length }, total };
+    if (countsCache.size > 40) countsCache.clear();
+    countsCache.set(key, out);
+    return out;
   }
 
   // ------------------------------------------------------------------ render root
@@ -438,6 +557,7 @@
     el("build-body").innerHTML = renderBody();
     attachHandlers();
     if (ui.activeTab === "markings") drawMarkingEdges();
+    updateScrollCues();
 
     if (activeId) {
       const restored = document.getElementById(activeId);
@@ -467,8 +587,11 @@
 
   // ------------------------------------------------------------------ header
   function renderHeader() {
-    const entities = getEntities();
-    const edges = getEdges();
+    const { visible, total } = visibleCounts();
+    const stat = (key, noun, title) => visible
+      ? `<span data-stat="${key}" title="${esc(title)}"><span class="stat-val">${visible[key].toLocaleString()}</span> / ${total[key].toLocaleString()} ${noun}</span>`
+      : `<span data-stat="${key}"><span class="stat-val">${total[key].toLocaleString()}</span> ${noun}</span>`;
+    const who = esc(roleLabel(currentRoleId()));
 
     return `
     <header class="app-header">
@@ -483,10 +606,11 @@
           </button>
         `).join("")}
       </div>
-      <div class="header-stats">
-        <span><span class="stat-val">${entities.length}</span> objects</span>
-        <span><span class="stat-val">${edges.length}</span> links</span>
-        <span><span class="stat-val">${getDatasets().length}</span> datasets</span>
+      <div class="header-stats" ${visible ? `aria-label="Counts visible to your role (${who}) out of the total"` : ""}>
+        ${stat("objects", "objects", `Objects your role (${roleLabel(currentRoleId())}) can see, out of all objects in the seed`)}
+        ${stat("links", "links", "Links your role can see (both ends and the link's own markings), out of all links")}
+        ${stat("datasets", "datasets", "Datasets whose rows your role can open, out of all datasets")}
+        ${visible ? `<span class="stat-note">visible / total</span>` : ""}
       </div>
     </header>`;
   }
@@ -583,13 +707,14 @@
     if (hidden) return { text: "", withheld: hidden };
     const label = r.label;
     if (isWithheld(label)) return { text: "", withheld: label.withheld };
-    return { text: label || entity.id, withheld: null };
+    return { text: label || displayId(entity.id), withheld: null };
   }
 
   function renderLineageSidebar() {
     const entities = getEntities();
     const search = ui.lineageEntitySearch.toLowerCase();
-    const match = ({ e, v }) => !search || v.text.toLowerCase().includes(search) || (e.id || "").toLowerCase().includes(search);
+    // Withheld objects match nothing (their IDs can embed an address); other IDs match as displayed.
+    const match = ({ e, v }) => !search || (!v.withheld && (v.text.toLowerCase().includes(search) || displayId(e.id).toLowerCase().includes(search)));
     const objects = entities.map(e => ({ e, v: visibleLabel(e) })).filter(match).slice(0, 40);
     // Leads (Phase 3) are listed after the objects, so that every lead stays reachable.
     const leadItems = leadLineageItems().filter(match).slice(0, search ? 40 : 12);
@@ -598,7 +723,7 @@
                data-action="select-entity" data-id="${esc(e.id)}" tabindex="0" role="button">
             <div style="flex:1;overflow:hidden;">
               <div class="item-name">${v.withheld ? `<span class="withheld small">withheld — ${esc(v.withheld.join(", "))}</span>` : esc(v.text)}</div>
-              <div class="item-meta" style="margin:0;">${esc(e.type)}${v.withheld ? ` · ${esc(e.id)}` : ""}</div>
+              <div class="item-meta" style="margin:0;">${esc(e.type)}</div>
             </div>
           </div>`;
     const filtered = objects.concat(leadItems);
@@ -709,7 +834,36 @@
       `;
     }).join("");
 
-    return `<div class="dag-canvas scroll-x">${rawCols}${transformCols}</div>`;
+    return scrollWrap(`<div class="dag-canvas scroll-x" data-scroller>${rawCols}${transformCols}</div>`, "pipeline");
+  }
+
+  /**
+   * A horizontally scrolling region with a visible cue while columns are hidden to the right
+   * (or left). The cue is text, not only a fade, and disappears at the end (FIXROUND §3).
+   */
+  function scrollWrap(inner, name) {
+    return `<div class="scroll-wrap" data-scroll-cue="${esc(name)}">
+      ${inner}
+      <div class="scroll-cue scroll-cue-right" data-cue="right"><span>More to the right →</span> <span class="scroll-cue-sub">scroll sideways or use the bar below</span></div>
+      <div class="scroll-cue scroll-cue-left" data-cue="left"><span>← more to the left</span></div>
+    </div>`;
+  }
+
+  function updateScrollCues() {
+    document.querySelectorAll("[data-scroll-cue]").forEach(wrap => {
+      const sc = wrap.querySelector("[data-scroller]");
+      if (!sc) return;
+      const update = () => {
+        const max = sc.scrollWidth - sc.clientWidth;
+        wrap.classList.toggle("more-right", max > 4 && sc.scrollLeft < max - 4);
+        wrap.classList.toggle("more-left", max > 4 && sc.scrollLeft > 4);
+      };
+      if (!sc.dataset.cueBound) {
+        sc.dataset.cueBound = "1";
+        sc.addEventListener("scroll", update, { passive: true });
+      }
+      update();
+    });
   }
 
   // ------------------------------------------------------------------ inspector panel
@@ -862,6 +1016,16 @@
     const leads = leadRows(ds);
     const rowsWithheld = hiddenMarks.length > 0 && !leads;
     const showRet = Boolean(report && (report.applicable || report.upstream));
+    // Field-level markings (fix round: beneficial_owner / beneficial_owner_dob are PII on the open
+    // company register, after WM and Sovim): the column stays, its values are hatched for roles
+    // without the marking, and the dataset's fieldNote says why.
+    const fieldMarks = ds.fieldMarkings && typeof ds.fieldMarkings === "object" ? ds.fieldMarkings : {};
+    const hiddenFields = {};
+    Object.entries(fieldMarks).forEach(([f, ms]) => {
+      const lacking = roleId ? (Array.isArray(ms) ? ms : []).filter(m => !canSee(roleId, [m])) : [];
+      if (lacking.length) hiddenFields[f] = lacking;
+    });
+    const fieldNote = Object.keys(fieldMarks).length && ds.fieldNote ? `<div class="field-note mb-8"><span class="field-note-tag">field markings</span> ${esc(ds.fieldNote)}${Object.keys(hiddenFields).length ? ` <span class="text-amber">Withheld from your role (${esc(roleLabel(roleId))}): ${Object.keys(hiddenFields).map(f => `<code>${esc(f)}</code>`).join(", ")}.</span>` : ""}</div>` : "";
 
     return `
       ${renderDatasetGovernance(ds, hiddenMarks, { columns: Boolean(leads) })}
@@ -874,7 +1038,7 @@
           <tbody>
             ${(ds.schema || []).map(f => `
               <tr>
-                <td class="text-mono">${esc(f.field)}${report && report.dateField === f.field ? ` <span class="ret-datecol" title="The retention clock reads this column">retention date</span>` : ""}</td>
+                <td class="text-mono">${esc(f.field)}${report && report.dateField === f.field ? ` <span class="ret-datecol" title="The retention clock reads this column">retention date</span>` : ""}${Array.isArray(fieldMarks[f.field]) ? ` ${markingBadges(fieldMarks[f.field], { small: true })}${hiddenFields[f.field] ? ` <span class="text-amber">withheld from your role</span>` : ""}` : ""}</td>
                 <td><span class="type-pill">${esc(f.type)}</span></td>
               </tr>
             `).join("")}
@@ -882,6 +1046,7 @@
         </table>
       </div>
 
+      ${fieldNote}
       ${leads ? renderLeadsView(ds, leads, report) : `
       <div class="section-header">
         <div class="section-title">Sample rows</div>
@@ -902,7 +1067,7 @@
               const status = report ? report.rowStatus.get(absIdx) || "" : "";
               return `<tr class="${[isHighlighted ? "highlighted" : "", status ? `ret-${status}` : ""].filter(Boolean).join(" ")}" ${status ? `data-retention="${esc(status)}"` : ""}>
                 ${showRet ? `<td class="ret-cell">${retentionCell(status, Boolean(ds.producedBy))}</td>` : ""}
-                ${fields.map(f => `<td title="${esc(JSON.stringify(row[f]))}">${esc(renderCellValue(row[f]))}</td>`).join("")}
+                ${fields.map(f => hiddenFields[f] ? `<td data-field-withheld="${esc(f)}">${withheldCell(hiddenFields[f])}</td>` : `<td title="${esc(JSON.stringify(row[f]))}">${esc(renderCellValue(row[f]))}</td>`).join("")}
               </tr>`;
             }).join("")}
           </tbody>
@@ -1185,7 +1350,7 @@
   /** Purpose rule that blocks showing data with these markings (Karlsruhe mode on, R2-style rules only). */
   function purposeBlock(markings) {
     if (!karlsruheOn() || !core("purposes", "check")) return null;
-    const dataPurposes = (markings || []).map(m => MARKING_PURPOSES[m]).filter(Boolean);
+    const dataPurposes = purposesForMarkings(markings || []);
     if (!dataPurposes.length) return null;
     const r = safe("purposes.check", () => window.DC.purposes.check("view", { dataPurposes }), null);
     return r && r.allowed === false && r.effect === "block" && r.rule && r.rule.incompatible ? r.rule : null;
@@ -1193,11 +1358,22 @@
 
   function componentAccess(c) {
     const roleId = currentRoleId();
-    const marks = c && c.marking ? [c.marking] : [];
-    if (roleId && marks.length && !canSee(roleId, marks)) return { visible: false, reason: "marking", markings: marks };
+    // Fix round: clinic components carry markings ["PII", "HEALTH"]; older seeds only `marking`.
+    // F-02: markings the DPO removed at the ontology no longer protect a component, exactly as
+    // DC.leads.split and DC.markings.redactEntity treat them, so Build and Investigate agree.
+    const removed = removedAtOntology();
+    const marks = componentMarkings(c).filter(m => !removed.has(m));
+    if (roleId && marks.length && !canSee(roleId, marks)) return { visible: false, reason: "marking", markings: marks.filter(m => !canSee(roleId, [m])) };
     const rule = purposeBlock(marks);
     if (rule) return { visible: false, reason: "rule", markings: marks, rule };
     return { visible: true, markings: marks };
+  }
+
+  function componentMarkings(c) {
+    if (!c) return [];
+    const list = Array.isArray(c.markings) && c.markings.length ? c.markings.slice() : [];
+    if (c.marking && !list.includes(c.marking)) list.push(c.marking);
+    return list.filter(Boolean);
   }
 
   function leadView(lead) {
@@ -1234,7 +1410,7 @@
 
   function personCell(lead, v) {
     if (v.person.withheld) return `<span class="withheld small">withheld — ${esc(v.person.withheld.join(", "))}</span>`;
-    return `<button class="link-btn" data-action="goto-entity" data-id="${esc(lead.personId)}" title="${esc(lead.personId)}">${esc(v.person.text)}</button>`;
+    return `<button class="link-btn" data-action="goto-entity" data-id="${esc(lead.personId)}" title="${esc(displayId(lead.personId))}">${esc(v.person.text)}</button>`;
   }
 
   function addressCell(lead, v) {
@@ -1249,7 +1425,7 @@
       const badge = markingBadge({ id: c.marking || "?" }, { small: true });
       const ds = sourceDataset(c.source, c.marking);
       const name = ds ? stemOf(ds.id).split("_")[0] : stemOf(c.source);
-      return `<span class="lead-chip ${access.visible ? "" : "hidden"}">${badge} ${access.visible ? `${esc(name)} <span class="text-mono">${esc(LeadsLib.fmt(LeadsLib.contribution(c)))}</span>` : `<span class="withheld small">withheld</span>`}</span>`;
+      return `<span class="lead-chip ${access.visible ? "" : "hidden"}">${badge} ${access.visible ? `${esc(name)} <span class="text-mono">${esc(LeadsLib.fmt(LeadsLib.contribution(c)))}</span>` : `<span class="withheld small" data-withheld-sources="1">1 source withheld</span>`}</span>`;
     }).join(" ");
   }
 
@@ -1284,7 +1460,7 @@
               const v = leadView(lead);
               const carry = carries.has(lead.id);
               const ages = v.visible.map(c => Number(c.ageDays)).filter(Number.isFinite);
-              return `<tr class="clickable ${lead.id === ui.selectedLeadId ? "highlighted" : ""} ${carry ? "ret-carries" : ""}" data-action="select-lead" data-id="${esc(lead.id)}" data-lead="${esc(lead.id)}" tabindex="0" role="button" aria-label="${esc(`Lead ${v.person.text || lead.id}: score ${LeadsLib.fmt(v.shown)}`)}">
+              return `<tr class="clickable ${lead.id === ui.selectedLeadId ? "highlighted" : ""} ${carry ? "ret-carries" : ""}" data-action="select-lead" data-id="${esc(lead.id)}" data-lead="${esc(lead.id)}" tabindex="0" role="button" aria-label="${esc(`Lead ${v.person.text || displayId(lead.id, { withheld: Boolean(v.person.withheld) })}: score ${LeadsLib.fmt(v.shown)}`)}">
                 ${showRet ? `<td class="ret-cell">${retentionCell(carry ? "carries" : "", true)}</td>` : ""}
                 <td>${personCell(lead, v)}</td>
                 <td class="lead-addr">${addressCell(lead, v)}</td>
@@ -1322,6 +1498,10 @@
     const rows = v.states.map(({ c, access }) => {
       const ds = sourceDataset(c.source, c.marking);
       const src = `${markingBadge({ id: c.marking || "?" }, { small: true })} ${ds ? `<button class="link-btn" data-action="goto-dataset" data-id="${esc(ds.id)}">${esc(dsName(ds))}</button>` : esc(c.source || "")}`;
+      if (!access.visible && access.reason === "marking") {
+        // Neither the dataset nor the weight (the weights table would name the source) is shown.
+        return `<tr class="lead-hidden"><td class="text-mono res-w">—</td><td>${markingBadge({ id: c.marking || access.markings[0] || "?" }, { small: true })} ${withheldSources(1, access.markings)}</td><td colspan="2" class="text-muted">left out of the score you can see</td></tr>`;
+      }
       if (!access.visible) {
         return `<tr class="lead-hidden"><td class="text-mono res-w">${esc(Number(c.weight).toFixed(2))}</td><td>${src}</td><td colspan="2">${withheldWhy(access)}</td></tr>`;
       }
@@ -1344,7 +1524,7 @@
     const rule = v.hidden.find(h => h.access.reason === "rule");
     return `
       <div class="lead-detail" aria-live="polite" data-lead-detail="${esc(lead.id)}">
-        <div class="section-title mb-8">${v.person.withheld ? `<span class="withheld small">withheld — ${esc(v.person.withheld.join(", "))}</span>` : esc(v.person.text)} <span class="text-muted text-mono">${esc(lead.id)}</span></div>
+        <div class="section-title mb-8">${v.person.withheld ? `<span class="withheld small">withheld — ${esc(v.person.withheld.join(", "))}</span>` : esc(v.person.text)} <span class="text-muted text-mono">${esc(displayId(lead.id, { withheld: Boolean(v.person.withheld) }))}</span></div>
         <p class="lead-formula-line"><code>${esc(lead.formula || LeadsLib.FORMULA)}</code> <span class="text-muted">asOf ${esc(lead.asOf || "")}; the best address is the component with the largest contribution.</span></p>
         ${renderLeadFormula(lead, v)}
         ${rule ? `<div class="purpose-conflict inline">${ruleBadge([{ rule: rule.access.rule }])}<div><strong>Karlsruhe mode:</strong> rule ${esc(rule.access.rule.id)} removes the ${esc(rule.access.markings.join(", "))} component for this session's purpose. <span class="purpose-rule-text">“${esc(rule.access.rule.text || "")}”</span></div></div>` : ""}
@@ -1363,23 +1543,33 @@
     const rec = getLineage()[lead.id] || null;
     const title = v.person.withheld ? withheldCell(v.person.withheld) : esc(`${v.person.text} · lead`);
     const byDataset = {};
+    const withheldByMarking = new Map(); // "HEALTH" -> count of components hidden by marking
     v.states.forEach(({ c, access }) => {
+      if (!access.visible && access.reason === "marking") {
+        const k = access.markings.join(", ");
+        withheldByMarking.set(k, (withheldByMarking.get(k) || 0) + 1);
+        return;
+      }
       const src = sourceDataset(c.source, c.marking);
       const key = src ? src.id : c.source || "unknown";
       (byDataset[key] = byDataset[key] || []).push({ c, access });
     });
+    const rowRefs = rec && Array.isArray(rec.sourceRows) ? rec.sourceRows : [];
+    const visibleRowRefs = rowRefs.filter(r => !lackingMarkings(findDataset(r.dataset)).length);
+    const hiddenRowRefs = rowRefs.filter(r => lackingMarkings(findDataset(r.dataset)).length);
+    const hiddenRowMarks = Array.from(new Set(hiddenRowRefs.flatMap(r => lackingMarkings(findDataset(r.dataset)))));
     const asOf = Ret ? Ret.parseDate(lead.asOf) : null;
     return `
       <div class="section-header">
         <div class="section-title">${title}</div>
-        <div class="section-sub"><span class="entity-type">Lead</span> &nbsp; ${esc(lead.id)}</div>
+        <div class="section-sub"><span class="entity-type">Lead</span> &nbsp; ${esc(displayId(lead.id, { withheld: Boolean(v.person.withheld) }))}</div>
         ${honestyChip("build.lineage")}
       </div>
       <div class="section-title mb-8">Lead properties</div>
       <table class="prop-table mb-12">
         <tbody>
-          <tr><td>id</td><td>${esc(lead.id)}</td></tr>
-          <tr><td>personId</td><td>${v.person.withheld ? withheldCell(v.person.withheld) : `<button class="link-btn" data-action="goto-entity" data-id="${esc(lead.personId)}">${esc(lead.personId)}</button>`}</td></tr>
+          <tr><td>id</td><td>${esc(displayId(lead.id, { withheld: Boolean(v.person.withheld) }))}</td></tr>
+          <tr><td>personId</td><td>${v.person.withheld ? withheldCell(v.person.withheld) : `<button class="link-btn" data-action="goto-entity" data-id="${esc(lead.personId)}">${esc(displayId(lead.personId))}</button>`}</td></tr>
           <tr><td>address</td><td>${addressCell(lead, v)}</td></tr>
           <tr><td>score</td><td>${v.hidden.length ? `${esc(LeadsLib.fmt(v.shown))} <span class="text-amber">from the sources you can see; stored score</span> ${withheldCell(hiddenOf(v))}` : esc(LeadsLib.fmt(v.full))}</td></tr>
           <tr><td>status</td><td>${esc(lead.status || "")}</td></tr>
@@ -1391,7 +1581,7 @@
       ${renderLeadFormula(lead, v)}
       <div class="section-title mt-16 mb-8">Upstream sources</div>
       <div class="lineage-tree mb-12">
-        <div class="tree-node"><span class="tree-icon">◈</span><span class="tree-label">${v.person.withheld ? esc(lead.id) : esc(v.person.text)}</span><span class="tree-meta">&nbsp;— Lead</span></div>
+        <div class="tree-node"><span class="tree-icon">◈</span><span class="tree-label">${v.person.withheld ? esc(displayId(lead.id, { withheld: true })) : esc(v.person.text)}</span><span class="tree-meta">&nbsp;— Lead</span></div>
         <div class="tree-children">
           <div class="tree-node"><span class="tree-icon">⬡</span><span class="tree-label">${t ? `<button class="link-btn" data-action="goto-transform" data-id="${esc(t.id)}">${esc(t.name || t.id)}</button>` : `<span class="text-muted">${esc((ds && ds.producedBy) || "unknown transform")}</span>`}</span><span class="tree-meta">&nbsp;transform</span></div>
           <div class="tree-children">
@@ -1405,8 +1595,11 @@
                   ? `${esc(c.address || "")} · ${esc(c.ageDays)} days old${asOf != null ? ` (${esc(Ret.isoDay(asOf - Number(c.ageDays) * DAY_MS))})` : ""}`
                   : withheldWhy(access)).join("; ")}</span>
               </div>`;
-            }).join("") || `<div class="tree-node"><span class="tree-meta">No components recorded</span></div>`}
-            ${rec && Array.isArray(rec.sourceRows) && rec.sourceRows.length ? `<div class="tree-node"><span class="tree-meta">Source rows: ${rec.sourceRows.map(r => `${esc(dsName(findDataset(r.dataset), r.dataset))} row ${esc(r.row)}`).join(", ")}</span></div>` : ""}
+            }).join("")}
+            ${Array.from(withheldByMarking.entries()).map(([k, n]) => `<div class="tree-node tree-withheld"><span class="tree-icon">▤</span>${withheldSources(n, k.split(", "))}<span class="tree-meta">&nbsp;dataset, rows and values hidden from your role</span></div>`).join("")}
+            ${!v.states.length ? `<div class="tree-node"><span class="tree-meta">No components recorded</span></div>` : ""}
+            ${rowRefs.length ? `<div class="tree-node"><span class="tree-meta">Source rows: ${visibleRowRefs.map(r => `${esc(dsName(findDataset(r.dataset), r.dataset))} row ${esc(r.row)}`).join(", ")}${hiddenRowRefs.length ? `${visibleRowRefs.length ? "; " : ""}${withheldSources(hiddenRowRefs.length, hiddenRowMarks, "row")}` : ""}</span></div>` : ""}
+            ${withheldByMarking.size || hiddenRowRefs.length ? signalNote() : ""}
           </div>
         </div>
       </div>
@@ -1446,7 +1639,7 @@
       <table class="prop-table gov-table mb-12">
         <tbody>
           <tr><td>markings</td><td>${entityMarkingBadges(entity.markings || [], removed)} <span class="text-muted">needed to see that this object exists</span></td></tr>
-          ${Array.isArray(entity.sourceMarkings) ? `<tr><td>sourceMarkings</td><td>${entityMarkingBadges(entity.sourceMarkings, removed)} <span class="text-muted">union of the datasets that contributed${removed.size ? "; struck-through markings were removed upstream by a DPO" : ""}</span></td></tr>` : ""}
+          ${Array.isArray(entity.sourceMarkings) ? `<tr><td>sourceMarkings</td><td>${entityMarkingBadges(entity.sourceMarkings, removed)} <span class="text-muted">union of the datasets that contributed${removed.size ? "; markings tagged “removed” were lifted upstream by the data protection officer" : ""}</span></td></tr>` : ""}
           ${Object.entries(propMarks).map(([prop, ms]) => {
             const visible = roleId ? canSee(roleId, ms) && !hiddenObject : true;
             return `<tr><td>${esc(prop)}</td><td>${entityMarkingBadges(ms || [], removed)}${roleId ? ` <span class="${visible ? "text-muted" : "text-amber"}">${visible ? "visible to your role" : "withheld from your role"}</span>` : ""}</td></tr>`;
@@ -1494,10 +1687,18 @@
     const sourceRows = lineage.sourceRows || [];
     const fieldProv = lineage.fieldProvenance || {};
 
-    // Group source rows by dataset
+    // Group source rows by dataset; datasets the role cannot open are counted by marking only.
     const byDataset = {};
+    const withheldSrc = new Map(); // "HEALTH" -> Set of dataset refs
     sourceRows.forEach(ref => {
       const ds = ref.dataset || "unknown";
+      const lacking = lackingMarkings(findDataset(ds));
+      if (lacking.length) {
+        const k = lacking.join(", ");
+        if (!withheldSrc.has(k)) withheldSrc.set(k, new Set());
+        withheldSrc.get(k).add(ds);
+        return;
+      }
       byDataset[ds] = byDataset[ds] || [];
       byDataset[ds].push(ref);
     });
@@ -1509,25 +1710,35 @@
     allFields.forEach(field => {
       const val = hiddenObject ? { withheld: hiddenObject } : props[field];
       const refs = fieldProv[field] || [];
+      const hidden = new Map(); // markings -> count of refs into datasets the role cannot open
       refs.forEach(ref => {
+        const lacking = lackingMarkings(findDataset(ref.dataset));
+        if (lacking.length) { const k = lacking.join(", "); hidden.set(k, (hidden.get(k) || 0) + 1); return; }
         fieldProvRows.push({ field, val, ref });
       });
+      hidden.forEach((n, k) => fieldProvRows.push({ field, val, ref: null, withheld: { count: n, markings: k.split(", ") } }));
       if (!refs.length && val !== undefined && val !== null && val !== "") {
         fieldProvRows.push({ field, val, ref: null });
       }
     });
+    const anyWithheldSource = withheldSrc.size > 0 || fieldProvRows.some(r => r.withheld);
+    const idShown = displayId(eid, { withheld: Boolean(hiddenObject) });
+    const idMasked = idShown !== eid;
 
     const label = hiddenObject || isWithheld(redacted.label) ? "" : (redacted.label || "");
     const titleHtml = label ? esc(label) : withheldCell(hiddenObject || (redacted.label && redacted.label.withheld) || []);
     const gothamHref = `../demo/index.html#object=${encodeURIComponent(eid)}&dataset=${encodeURIComponent(ui.datasetKey)}`;
-    const crossLink = `<a href="${esc(gothamHref)}" target="_blank" class="link-btn" style="font-size:12px;">
+    // A masked ID must not reappear in a visible link target, so the link becomes a button.
+    const crossLink = idMasked
+      ? `<button class="link-btn" data-action="open-investigate" data-id="${esc(eid)}" style="font-size:12px;">View ${label ? esc(label) : "this object"} in Investigate (Gotham-style) →</button>`
+      : `<a href="${esc(gothamHref)}" target="_blank" rel="noopener" class="link-btn" style="font-size:12px;">
       View ${label ? esc(label) : "this object"} in Investigate (Gotham-style) →
     </a>`;
 
     return `
       <div class="section-header">
         <div class="section-title">${titleHtml}</div>
-        <div class="section-sub"><span class="entity-type">${esc(entity.type)}</span> &nbsp; ${esc(eid)}</div>
+        <div class="section-sub"><span class="entity-type">${esc(entity.type)}</span> &nbsp; <span data-display-id title="${esc(idMasked ? (hiddenObject ? "ID withheld with the object" : "This ID contains a phone number (TELECOM); masked for your role") : "")}">${esc(idShown)}</span></div>
         ${chip}
       </div>
       ${hiddenObject ? whyLine(hiddenObject) : ""}
@@ -1535,7 +1746,7 @@
       <div class="section-title mb-8">Object properties</div>
       <table class="prop-table mb-12">
         <tbody>
-          <tr><td>id</td><td>${esc(eid)}</td></tr>
+          <tr><td>id</td><td>${esc(idShown)}${idMasked && !hiddenObject ? ` <span class="text-muted">(phone digits masked: TELECOM)</span>` : ""}</td></tr>
           <tr><td>type</td><td>${esc(entity.type)}</td></tr>
           ${Object.entries(props).map(([k, v]) => `
             <tr><td>${esc(k)}</td><td>${hiddenObject ? withheldCell(hiddenObject) : displayValue(v)}</td></tr>
@@ -1549,7 +1760,7 @@
       <div class="lineage-tree mb-12">
         <div class="tree-node">
           <span class="tree-icon">◈</span>
-          <span class="tree-label">${label ? esc(label) : esc(eid)}</span>
+          <span class="tree-label">${label ? esc(label) : esc(idShown)}</span>
           <span class="tree-meta">&nbsp;— ${esc(entity.type)}</span>
         </div>
         <div class="tree-children">
@@ -1577,11 +1788,18 @@
                   <span class="tree-meta">&nbsp;rows: ${rowNums.join(", ")}</span>
                 </div>`;
             }).join("")}
-            ${Object.keys(byDataset).length === 0
-              ? `<div class="tree-node"><span class="tree-meta">No source rows recorded</span></div>` : ""}
+            ${Array.from(withheldSrc.entries()).map(([k, set]) => `
+                <div class="tree-node tree-withheld">
+                  <span class="tree-icon">▤</span>
+                  ${withheldSources(set.size, k.split(", "))}
+                  <span class="tree-meta">&nbsp;dataset and row numbers hidden from your role</span>
+                </div>`).join("")}
+            ${sourceRows.length === 0
+              ? `<div class="tree-node"><span class="tree-meta">No source rows recorded: ${esc(producedByTransform.name || lineage.producedBy || "the pipeline")} keeps no row lineage for ${esc(entity.type)} objects in this seed${transformInputsText(producedByTransform)}.</span></div>` : ""}
           </div>
         </div>
       </div>
+      ${anyWithheldSource ? signalNote() : ""}
 
       <div class="section-title mb-8">Per-field provenance</div>
       <div class="scroll-x mb-12">
@@ -1597,7 +1815,10 @@
             </tr>
           </thead>
           <tbody>
-            ${fieldProvRows.map(({ field, val, ref }) => {
+            ${fieldProvRows.map(({ field, val, ref, withheld }) => {
+              if (withheld) {
+                return `<tr class="prov-withheld"><td>${esc(field)}</td><td>${displayValue(val)}</td><td colspan="4">${withheldSources(withheld.count, withheld.markings, "source row")}</td></tr>`;
+              }
               const dsObj = ref ? (findDataset(ref.dataset) || {}) : {};
               const rowIdx = ref ? ref.row : null;
               return `<tr class="${ref ? "clickable" : ""}"
@@ -1618,6 +1839,14 @@
 
       <div class="mt-8">${crossLink}</div>
     `;
+  }
+
+  /** " (it reads a, b and c)" for the no-row-lineage message, or "". */
+  function transformInputsText(t) {
+    const inputs = t && Array.isArray(t.inputs) ? t.inputs : [];
+    if (!inputs.length) return "";
+    const names = inputs.map(id => dsName(getDataset(id), id));
+    return `; it reads ${names.length > 3 ? names.slice(0, 3).join(", ") + ` and ${names.length - 3} more` : names.join(", ")}`;
   }
 
   // ------------------------------------------------------------------ markings tab (F2)
@@ -1672,14 +1901,14 @@
       </div>
       ${purposePanel()}
       ${filter ? `<div class="mk-summary" aria-live="polite"><strong>${esc(filter)}</strong> is carried by ${hit.length} dataset${hit.length === 1 ? "" : "s"}: ${own.length} at source, ${hit.length - own.length} inherited downstream.</div>` : ""}
-      <div class="mk-dag" id="mk-dag">
+      ${scrollWrap(`<div class="mk-dag" id="mk-dag" data-scroller>
         <svg class="mk-edges" id="mk-edges" aria-hidden="true"></svg>
         ${cols.map((items, i) => `
           <div class="mk-col">
             <div class="dag-column-label" title="${esc(columnLabel(items, i))}">${esc(columnLabel(items, i))}</div>
             ${items.map(box).join("")}
           </div>`).join("")}
-      </div>
+      </div>`, "markings")}
       ${renderMarkingLegend(ids)}
       ${discussionCards("build.markings")}
     `;
@@ -1699,9 +1928,14 @@
           </div>`;
         }).join("")}
         <div class="mk-legend-row">
-          ${markingBadge({ id: "ID", inheritedFrom: "upstream" })}
-          <span class="mk-legend-label">Inherited</span>
-          <span class="text-muted">Dashed outline (and a hatched stripe on the box): the marking came from an upstream dataset (see markingProvenance).</span>
+          ${markingBadge({ id: ids.includes("PII") ? "PII" : (ids[0] || "PII"), inheritedFrom: "upstream" })}
+          <span class="mk-legend-label">Inherited (dashed)</span>
+          <span class="text-muted">Dashed outline, coloured text on black (and a hatched stripe on the box): the marking came from an upstream dataset (see markingProvenance). A solid badge is carried by the dataset itself.</span>
+        </div>
+        <div class="mk-legend-row">
+          ${markingBadge({ id: ids.includes("HEALTH") ? "HEALTH" : (ids[0] || "PII") }, { removed: true })}
+          <span class="mk-legend-label">Removed</span>
+          <span class="text-muted">Dotted outline and the word “removed”: the data protection officer lifted this marking (here or upstream). It can be restored from the inspector below.</span>
         </div>
       </div>`;
   }
@@ -1710,6 +1944,7 @@
     const marks = effectiveMarkings(ds);
     const removed = removedMarkings(ds);
     const canAttempt = Boolean(core("checkpoints", "withCheckpoint") && core("markings", "removeMarking"));
+    const canRestore = restoreAvailable();
     const visibleTo = rolesThatCanSee(marks.map(m => m.id)).map(r => r.label);
     return `
     <div class="inspector">
@@ -1725,14 +1960,15 @@
               <tr>
                 <td>${markingBadge(m)}</td>
                 <td>${esc(markingDef(m.id).label)}</td>
-                <td>${m.inheritedFrom ? esc(m.sources.length ? m.sources.join(", ") : m.inheritedFrom) : `<span class="text-muted">null (carried by this dataset)</span>`}</td>
+                <td>${m.inheritedFrom ? esc(m.sources.length ? m.sources.join(", ") : m.inheritedFrom) : `<span class="text-muted">(this dataset)</span>`}</td>
                 <td>${canAttempt ? `<button class="mk-remove" data-action="mk-remove" data-id="${esc(ds.id)}" data-marking="${esc(m.id)}">Remove marking</button>` : ""}</td>
               </tr>`).join("")}
             ${removed.map(r => `
-              <tr class="mk-removed-row">
+              <tr class="mk-removed-row" data-removed="${esc(r.id)}">
                 <td>${markingBadge({ id: r.id }, { removed: true })}</td>
                 <td>${esc(markingDef(r.id).label)}</td>
-                <td colspan="2">${r.override ? `removed by ${esc(roleLabel(r.override.by))}${r.upstream ? ` on ${esc(r.override.datasetId)}` : ""}${r.override.ts ? ` · ${esc(formatTs(r.override.ts))}` : ""}` : "removed"}</td>
+                <td>${r.override ? `removed by ${esc(roleLabel(r.override.by))}${r.upstream ? ` on ${esc(r.override.datasetId)}` : ""}${r.override.ts ? ` · ${esc(formatTs(r.override.ts))}` : ""}` : "removed"}</td>
+                <td>${canRestore && r.override ? `<button class="mk-remove mk-restore" data-action="mk-restore" data-id="${esc(r.override.datasetId)}" data-marking="${esc(r.id)}"${r.upstream ? ` title="${esc(`The removal was made on ${r.override.datasetId}; restoring it there restores it here and on every dataset downstream`)}"` : ""}>Restore marking${r.upstream ? ` on ${esc(dsName(getDataset(r.override.datasetId), r.override.datasetId))}` : ""}</button>` : ""}</td>
               </tr>`).join("")}
             ${marks.length + removed.length === 0 ? `<tr><td colspan="4" class="text-muted">No markings</td></tr>` : ""}
           </tbody>
@@ -1740,6 +1976,7 @@
         ${ds.purpose || ds.legalBasis ? `<div class="mt-8 mk-basis">${ds.purpose ? `<span class="info-chip purpose-chip">Purpose: <strong>${esc(purposeLabel(ds.purpose))}</strong></span>` : ""} ${ds.legalBasis ? `<span class="info-chip purpose-chip">Legal basis: <strong>${esc(ds.legalBasis)}</strong></span>` : ""}</div>` : ""}
         ${karlsruheOn() ? purposeConflictsForDataset(ds).map(c => `<div class="purpose-conflict inline">${ruleBadge([c])}<div>Joins ${c.dataSide.map(d => `<code>${esc(d.name)}</code> (${esc(d.purposes.map(purposeLabel).join(", "))})`).join(", ")} with ${c.against.map(a => esc(purposeLabel(a.purpose))).join(", ")}. <span class="purpose-rule-text">Rule ${esc(c.rule.id)}: “${esc(c.rule.text || "")}”</span></div></div>`).join("") : ""}
         ${allRoles().length && core("markings", "canSee") ? `<div class="mt-8 text-muted">Rows visible to: <span class="text-accent">${esc(visibleTo.join(", ") || "no role")}</span></div>` : ""}
+        ${removed.length && canRestore ? `<div class="mt-8 text-muted mk-restore-note">Restoring puts the marking back on this dataset and everything derived from it, so roles without it lose sight of those rows again. Only the data protection officer may restore, after a Checkpoint; the restore is logged.</div>` : ""}
       </div>
     </div>`;
   }
@@ -1785,12 +2022,41 @@
         (record) => window.DC.markings.removeMarking({
           datasetId,
           marking,
-          checkpointRecordId: record && typeof record === "object" ? (record.id || record.recordId || null) : (record || null),
+          checkpointRecordId: record && typeof record === "object" ? (record.recordId || record.id || null) : (record || null),
         })
       );
     } catch (error) {
       console.warn("[build] marking removal did not complete", error);
     }
+    countsCache.clear();
+    render();
+    refreshAuditStrip();
+  }
+
+  /** Restore needs the core function and the seed's cp-marking-restore Checkpoint (FIXROUND §1, §2 A5). */
+  function restoreAvailable() {
+    if (!core("checkpoints", "withCheckpoint") || !core("markings", "restoreMarking")) return false;
+    if (!core("governance", "checkpoint")) return false;
+    return Boolean(safe("governance.checkpoint", () => window.DC.governance.checkpoint("cp-marking-restore"), null));
+  }
+
+  async function attemptMarkingRestore(datasetId, marking) {
+    logEvent({ kind: "marking", verb: "marking.restore.request", datasetId, payload: { marking, tab: "markings" } });
+    if (!restoreAvailable()) return;
+    try {
+      await window.DC.checkpoints.withCheckpoint(
+        "cp-marking-restore",
+        { surface: SURFACE, objectIds: [], datasetId, summary: `Restore ${marking} on ${datasetId}` },
+        (record) => window.DC.markings.restoreMarking({
+          datasetId,
+          marking,
+          checkpointRecordId: record && typeof record === "object" ? (record.recordId || record.id || null) : (record || null),
+        })
+      );
+    } catch (error) {
+      console.warn("[build] marking restore did not complete", error);
+    }
+    countsCache.clear();
     render();
     refreshAuditStrip();
   }
@@ -1810,13 +2076,32 @@
     const method = RESOLUTION_METHOD_LABELS[r.method] || (r.method ? `Matched by ${r.method}` : "Match method not recorded");
     const confidence = typeof r.confidence === "number" && Number.isFinite(r.confidence) ? r.confidence.toFixed(2) : "—";
     const mergedFrom = Array.isArray(r.mergedFrom) ? r.mergedFrom.filter(Boolean) : [];
+    // A4: records from a source the role cannot open are counted by marking, never listed.
+    const shownRefs = [];
+    const hiddenRefs = new Map(); // markings -> count
+    mergedFrom.forEach(ref => {
+      const lacking = lackingMarkings(datasetForRecordRef(ref));
+      if (lacking.length) { const k = lacking.join(", "); hiddenRefs.set(k, (hiddenRefs.get(k) || 0) + 1); } else shownRefs.push(ref);
+    });
+    // D (fix round): a threshold merge is not the pipeline's passport match; say so on the record.
+    let atThreshold = "";
+    if (resolutionBlock() && entity.type === "Person") {
+      const t = currentThreshold();
+      const res = resolveAt(t);
+      const cluster = clusterOf(res, entity.id);
+      if (cluster.length > 1) {
+        const scores = res.merges.filter(m => cluster.includes(m.candidate.left) || cluster.includes(m.candidate.right)).map(m => fmtScore(m.candidate.score));
+        atThreshold = `<tr><td>at threshold</td><td data-merged-at="${esc(fmtScore(t))}"><strong>merged at ${esc(fmtScore(t))} from ${cluster.length} source identities</strong>${scores.length ? ` (score${scores.length === 1 ? "" : "s"} ${esc(scores.join(", "))})` : ""} <span class="text-muted">— see the Resolution tab; the pipeline's own record below describes only this object's rows</span></td></tr>`;
+      }
+    }
     return `
       <div class="section-title mb-8">Resolution</div>
       <table class="prop-table mb-12">
         <tbody>
-          <tr><td>method</td><td>${esc(method)} <span class="text-muted text-mono">(${esc(r.method || "—")})</span></td></tr>
-          <tr><td>confidence</td><td>${esc(confidence)}</td></tr>
-          ${mergedFrom.length ? `<tr><td>mergedFrom</td><td>${esc(mergedFrom.join(", "))}</td></tr>` : ""}
+          ${atThreshold}
+          <tr><td>${atThreshold ? "pipeline method" : "method"}</td><td>${esc(method)} <span class="text-muted text-mono">(${esc(r.method || "—")})</span></td></tr>
+          <tr><td>${atThreshold ? "pipeline confidence" : "confidence"}</td><td>${esc(confidence)}</td></tr>
+          ${mergedFrom.length ? `<tr><td>mergedFrom</td><td>${[shownRefs.length ? esc(shownRefs.join(", ")) : ""].concat(Array.from(hiddenRefs.entries()).map(([k, n]) => withheldSources(n, k.split(", "), "record"))).filter(Boolean).join(" · ")}</td></tr>` : ""}
         </tbody>
       </table>
       ${r.splitRisk ? `
@@ -1831,7 +2116,16 @@
   // PHASE2_CONTRACT §4. The rules come from the seed (governance.purposeRules); whether they are
   // enforced comes from DC.purposes.enabled(). Build only *shows* which transforms would combine
   // incompatible purposes: the pipeline has already run, so nothing here is blocked.
+  // Fallback only: the core derives the marking → purpose map (DC.purposes.purposesForMarkings).
   const MARKING_PURPOSES = { HEALTH: "healthcare" };
+
+  function purposesForMarkings(markings) {
+    if (core("purposes", "purposesForMarkings")) {
+      const list = safe("purposes.purposesForMarkings", () => window.DC.purposes.purposesForMarkings(markings), null);
+      if (Array.isArray(list)) return list;
+    }
+    return (markings || []).map(m => MARKING_PURPOSES[m]).filter(Boolean);
+  }
 
   function seedGovernanceBlock() {
     return seedData.governance || firstGovernance() || {};
@@ -1863,7 +2157,7 @@
     const out = new Set();
     if (!ds) return out;
     if (ds.purpose) out.add(ds.purpose);
-    effectiveIds(ds).forEach(m => { if (MARKING_PURPOSES[m]) out.add(MARKING_PURPOSES[m]); });
+    purposesForMarkings(effectiveIds(ds)).forEach(x => out.add(x));
     return out;
   }
 
@@ -1936,8 +2230,14 @@
               joins ${c.dataSide.map(d => `<code>${esc(d.name)}</code> (${esc(d.purposes.map(purposeLabel).join(", "))})`).join(", ")}
               with ${c.against.map(a => `${esc(purposeLabel(a.purpose))} <span class="text-muted">from ${esc(a.from)}</span>`).join(", ")}.</div>
           </div>`).join("")}
-        ${note ? `<div class="purpose-note text-muted">${esc(note)}</div>` : ""}
+        ${rules.filter(r => r.note).map(r => `<div class="purpose-note text-muted"><strong>What rule ${esc(r.id)} abstracts:</strong> ${esc(r.note)}</div>`).join("")}
+        ${note ? `<div class="purpose-note text-muted">${esc(cleanPlaceholder(note))}</div>` : ""}
       </details>`;
+  }
+
+  /** Older seeds carried an editorial "[to verify …]" placeholder in legalBasisNote; never show it. */
+  function cleanPlaceholder(text) {
+    return String(text || "").replace(/\s*\[to verify[^\]]*\]/gi, "").trim();
   }
 
   // ------------------------------------------------------------------ discussion cards (spec §5.4)
@@ -2136,7 +2436,7 @@
 
   function personName(id) {
     const e = entityById(id);
-    if (!e) return { html: `<code>${esc(id)}</code>`, text: id, withheld: null };
+    if (!e) return { html: `<code>${esc(displayId(id))}</code>`, text: displayId(id), withheld: null };
     const v = visibleLabel(e);
     if (v.withheld) return { html: `<span class="withheld small">withheld — ${esc(v.withheld.join(", "))}</span>`, text: "", withheld: v.withheld };
     return { html: esc(v.text), text: v.text, withheld: null };
@@ -2159,7 +2459,7 @@
   function personButton(id, opts) {
     const n = personName(id);
     const hint = opts && opts.hint === false ? "" : personHint(id);
-    return `<button class="link-btn res-person" data-action="res-select" data-id="${esc(id)}" title="${esc(id)}">${n.html}</button>${hint ? ` <span class="text-muted res-hint">${hint.split(" · ").map(b => `<span class="nowrap">${esc(b)}</span>`).join(" · ")}</span>` : ""}`;
+    return `<button class="link-btn res-person" data-action="res-select" data-id="${esc(id)}" title="${esc(displayId(id, { withheld: Boolean(n.withheld) }))}">${n.html}</button>${hint ? ` <span class="text-muted res-hint">${hint.split(" · ").map(b => `<span class="nowrap">${esc(b)}</span>`).join(" · ")}</span>` : ""}`;
   }
 
   function fmtScore(x) { return (Math.round(x * 100) / 100).toFixed(2); }
@@ -2226,7 +2526,7 @@
           <div class="sidebar-item ${id === ui.selectedPersonId ? "active" : ""}" data-action="res-select" data-id="${esc(id)}" tabindex="0" role="button">
             <div style="flex:1;overflow:hidden;">
               <div class="item-name">${n.html}</div>
-              <div class="item-meta" style="margin:0;">${esc(id)}</div>
+              <div class="item-meta" style="margin:0;">${esc(displayId(id, { withheld: Boolean(n.withheld) }))}</div>
             </div>
           </div>`;
         }).join("")}
@@ -2250,6 +2550,8 @@
     }
     const t = ui.resPreview != null ? ui.resPreview : currentThreshold();
     const def = defaultThreshold();
+    const perm = thresholdPermission();
+    const off = perm.allowed ? "" : " disabled aria-disabled=\"true\"";
     return `
       <div class="section-header">
         <div class="section-title">Entity resolution</div>
@@ -2260,13 +2562,14 @@
       <div class="res-controls">
         <label for="res-threshold" class="res-label">Merge threshold</label>
         <input type="range" id="res-threshold" min="${esc(minThreshold())}" max="${MAX_THRESHOLD}" step="0.01" value="${esc(t)}"
-               aria-valuetext="${esc(fmtScore(t))}" aria-describedby="res-threshold-help">
+               aria-valuetext="${esc(fmtScore(t))}" aria-describedby="res-threshold-help${perm.allowed ? "" : " res-threshold-why"}"${off}>
         <output id="res-threshold-value" for="res-threshold" class="res-value">${esc(fmtScore(t))}</output>
         <span class="res-presets" role="group" aria-label="Threshold presets">
-          ${[0.55, 0.65, def].filter((v, i, a) => a.indexOf(v) === i).map(v => `<button class="mk-filter ${Math.abs(v - t) < 0.001 ? "active" : ""}" data-action="res-threshold" data-value="${esc(v)}">${esc(fmtScore(v))}${v === def ? " (default)" : ""}</button>`).join("")}
+          ${[0.55, 0.65, def].filter((v, i, a) => a.indexOf(v) === i).map(v => `<button class="mk-filter ${Math.abs(v - t) < 0.001 ? "active" : ""}" data-action="res-threshold" data-value="${esc(v)}"${off}>${esc(fmtScore(v))}${v === def ? " (default)" : ""}</button>`).join("")}
         </span>
         ${hasResolutionCore() ? `<span class="text-muted res-shared" id="res-threshold-help">Shared with Investigate; every change is logged.</span>`
           : `<span class="text-amber res-shared" id="res-threshold-help">core/resolution.js is not loaded: this threshold applies to this page only and is not logged.</span>`}
+        ${perm.allowed ? "" : `<div class="res-locked" id="res-threshold-why" role="note"><span class="res-locked-tag">read only</span> ${esc(perm.reason)}</div>`}
       </div>
       <div id="res-results">${renderResolutionResults(t)}</div>
     `;
@@ -2320,7 +2623,7 @@
                     <td>${personButton(c.right)}</td>
                     <td class="text-mono res-score">${esc(fmtScore(c.score))}</td>
                     <td class="res-sigs">${candidateSignals(c).map(s => `<span class="res-sig ${s.weight < 0 ? "neg" : ""}" title="${esc(s.label || s.id)}">${esc(s.id)} ${esc(fmtWeight(Number(s.weight) || 0))}</span>`).join(" ")}</td>
-                    <td><span class="res-decision res-decision-${d.id}" data-decision="${esc(d.id)}">${esc(d.label)}</span>${d.rejection ? `<div class="text-muted res-override">by ${esc(roleLabel(d.rejection.by))}${d.rejection.reason ? `: “${esc(d.rejection.reason)}”` : ""}</div>` : ""}</td>
+                    <td><span class="res-decision res-decision-${d.id}" data-decision="${esc(d.id)}">${esc(d.label)}</span>${d.rejection ? `<div class="text-muted res-override">by ${esc(roleLabel(d.rejection.by))}${d.rejection.reason ? (canSeePair(c) ? `: “${esc(d.rejection.reason)}”` : ` <span class="withheld small" title="Free text about people your role cannot see is withheld with them">reason withheld</span>`) : ""}</div>` : ""}</td>
                   </tr>`;
                 }).join("")}
                 ${rows.length === 0 ? `<tr><td colspan="5" class="text-muted">No candidate pairs in this seed.</td></tr>` : ""}
@@ -2336,6 +2639,7 @@
               ${signalDefs().map(s => `<tr class="${s.weight < 0 ? "neg" : ""}"><td><code>${esc(s.id)}</code></td><td class="text-mono res-w">${esc(fmtWeight(Number(s.weight) || 0))}</td><td>${esc(s.label || "")}</td><td class="text-muted">${esc(s.note || "")}</td></tr>`).join("")}
             </tbody>
           </table>
+          ${r.note || r.discussion ? `<p class="res-weights-note" data-res-note><span class="ret-discussion-kicker">Discussion</span> ${esc(r.note || r.discussion)}</p>` : ""}
         </div>
         <div class="res-right">${renderMergeExplanation(t, res)}</div>
       </div>
@@ -2370,7 +2674,7 @@
   }
 
   function unmergeControls(c, rep) {
-    const link = `<a class="link-btn" href="${esc(unmergeTarget(rep))}" target="_blank" data-action="res-unmerge-link" data-id="${esc(c.id)}">Unmerge in Investigate →</a>`;
+    const link = `<a class="link-btn" href="${esc(unmergeTarget(rep))}" target="_blank" rel="noopener" data-action="res-unmerge-link" data-id="${esc(c.id)}">Unmerge in Investigate →</a>`;
     const { type } = unmergeActionType();
     if (!type) return `<div class="res-unmerge">${link}</div>`;
     const params = Array.isArray(type.parameters) ? type.parameters : [];
@@ -2396,7 +2700,7 @@
     }
     const n = personName(id);
     if (n.withheld) {
-      return `<div class="res-explain">${head}<div class="res-explain-title">${n.html} <span class="text-muted text-mono">${esc(id)}</span></div>${whyLine(n.withheld)}</div>`;
+      return `<div class="res-explain">${head}<div class="res-explain-title">${n.html} <span class="text-muted text-mono">${esc(displayId(id, { withheld: true }))}</span></div>${whyLine(n.withheld)}</div>`;
     }
     const cluster = clusterOf(res, id);
     const rep = repFor(res, id);
@@ -2414,7 +2718,7 @@
           : `<span class="res-decision res-decision-separate">separate</span> <span class="text-muted">${esc(fmtScore(c.score))} &lt; ${esc(fmtScore(t))}; would merge at ${esc(fmtScore(c.score))} or lower</span>`;
       return `
         <div class="res-pair" data-candidate="${esc(c.id)}">
-          <div class="res-pair-head">${personButton(c.left, { hint: false })} <span class="text-muted">↔</span> ${personButton(c.right, { hint: false })} <span class="text-mono text-muted">${esc(c.id)}${c.block ? ` · block ${esc(c.block)}` : ""}</span></div>
+          <div class="res-pair-head">${personButton(c.left, { hint: false })} <span class="text-muted">↔</span> ${personButton(c.right, { hint: false })} <span class="text-mono text-muted">${esc(displayId(c.id, { withheld: !canSeePair(c) }))}${c.block && canSeePair(c) ? ` · block ${esc(c.block)}` : ""}</span></div>
           ${signalArithmetic(c)}
           <div class="res-verdict">${verdict}</div>
           ${c.explanation && canSeePair(c) ? `<div class="res-expl-text">${esc(c.explanation)}</div>` : ""}
@@ -2424,7 +2728,7 @@
     return `
       <div class="res-explain" aria-live="polite">
         ${head}
-        <div class="res-explain-title">${n.html} <span class="text-muted text-mono">${esc(id)}</span></div>
+        <div class="res-explain-title">${n.html} <span class="text-muted text-mono">${esc(displayId(id))}</span></div>
         <div class="res-explain-status">${cluster.length > 1
           ? `At ${esc(fmtScore(t))} this is one of <strong>${cluster.length}</strong> source identities merged into ${rep === id ? "this person (the cluster representative)" : personButton(rep)}.`
           : `At ${esc(fmtScore(t))} this is a separate Person.`}</div>
@@ -2443,9 +2747,48 @@
     if (host) host.innerHTML = renderResolutionResults(t);
   }
 
+  /** Fallback when neither the core nor the seed states the rule (FIXROUND §2 D). */
+  const THRESHOLD_ROLES = ["fin-analyst", "dpo"];
+
+  /** true / false for one role, from the core rule, the role object or the seed, else the fallback list. */
+  function thresholdRuleFor(roleId) {
+    for (const fn of ["canSetThreshold", "canChangeThreshold", "mayChangeThreshold", "thresholdAllowed"]) {
+      if (core("resolution", fn)) {
+        const r = safe(`resolution.${fn}`, () => window.DC.resolution[fn](roleId), null);
+        if (typeof r === "boolean") return r;
+        if (r && typeof r === "object" && typeof r.allowed === "boolean") return r.allowed;
+      }
+    }
+    const role = roleObject(roleId);
+    for (const key of ["canSetThreshold", "canChangeThreshold"]) if (role && typeof role[key] === "boolean") return role[key];
+    const g = governance();
+    const list = g && (g.thresholdRoles || (g.resolution && g.resolution.thresholdRoles));
+    if (Array.isArray(list)) return list.includes(roleId);
+    const block = resolutionBlock();
+    if (block && Array.isArray(block.thresholdRoles)) return block.thresholdRoles.includes(roleId);
+    return THRESHOLD_ROLES.includes(roleId);
+  }
+
+  function thresholdPermission() {
+    const roleId = currentRoleId();
+    if (!roleId) return { allowed: true, reason: "" };
+    const allowed = thresholdRuleFor(roleId) !== false;
+    const who = allRoles().filter(r => thresholdRuleFor(r.id) !== false).map(r => r.label);
+    return {
+      allowed,
+      reason: allowed ? "" : `Only ${who.length ? who.join(" and ") : "authorised roles"} may change the merge threshold. Your role (${roleLabel(roleId)}) can read the merges at the current value, ${fmtScore(currentThreshold())}, but not move it.`,
+    };
+  }
+
   function commitThreshold(t) {
     ui.resPreview = null;
     const before = currentThreshold();
+    if (!thresholdPermission().allowed) {
+      // The control is disabled; if a change still arrives (keyboard, devtools), refuse and log it.
+      logEvent({ kind: "resolution", verb: "resolution.setThreshold", payload: { from: before, to: roundT(t), outcome: "refused", role: currentRoleId() } });
+      render();
+      return;
+    }
     setThreshold(t);
     if (!hasResolutionCore() && roundT(before) !== roundT(t)) {
       logEvent({ kind: "resolution", verb: "resolution.threshold.local", payload: { from: before, to: roundT(t), shared: false } });
@@ -2472,13 +2815,12 @@
     } catch (error) {
       console.warn("[build] unmerge did not complete", error);
     }
-    const outcome = result && typeof result === "object" ? (result.outcome || result.status || (result.ok === false ? "failed" : "")) : "";
-    const failed = !result || result.ok === false || result.allowed === false || /refus|cancel|block|busy|invalid|fail|denied/i.test(String(outcome));
-    overridesMemo = null; // the Action may just have written the override
-    if (!failed && !rejectionOf(candidateId) && core("resolution", "reject")) {
-      const reason = Object.keys(params).filter(k => k !== "candidateId").map(k => params[k]).find(v => typeof v === "string" && v) || "Unmerged from Build";
-      safe("resolution.reject", () => window.DC.resolution.reject(candidateId, reason), null);
-    }
+    // F-19: only the Action writes the override (core/actions.js calls DC.resolution.reject with
+    // the Action instance id). Build never writes one itself, whatever the outcome.
+    const applied = Boolean(result && result.outcome === "applied");
+    if (!applied && result && result.outcome) console.info("[build] unmerge not applied:", result.outcome);
+    overridesMemo = null;
+    resolveCache.clear();
     render();
     refreshAuditStrip();
   }
@@ -2536,7 +2878,7 @@
     // "change" commits through DC.resolution.setThreshold (which logs).
     const slider = document.getElementById("res-threshold");
     if (slider) {
-      slider.addEventListener("input", function () { previewThreshold(parseFloat(this.value)); });
+      slider.addEventListener("input", function () { if (!thresholdPermission().allowed) return; previewThreshold(parseFloat(this.value)); });
       slider.addEventListener("change", function () { commitThreshold(parseFloat(this.value)); });
     }
 
@@ -2618,6 +2960,10 @@
       render();
     } else if (action === "mk-remove") {
       attemptMarkingRemoval(data.id, data.marking);
+    } else if (action === "mk-restore") {
+      attemptMarkingRestore(data.id, data.marking);
+    } else if (action === "open-investigate") {
+      window.open(`../demo/index.html#object=${encodeURIComponent(data.id)}&dataset=${encodeURIComponent(ui.datasetKey)}`, "_blank", "noopener");
     } else if (action === "select-entity") {
       ui.selectedEntityId = data.id;
       saveUiState();
@@ -2689,9 +3035,18 @@
   /** Phase 2 core modules (PHASE2_CONTRACT §6); each is optional. Called again on dataset switch. */
   function initPhase2Core() {
     const gov = seedGovernanceBlock();
+    // F-18: the active dataset's governance block, not the first one found at start-up.
+    if (seedData.governance && core("governance", "init") && core("governance", "get") && window.DC.governance.get() !== seedData.governance) {
+      safe("governance.init", () => window.DC.governance.init(seedData.governance), null);
+    }
     if (core("purposes", "init")) safe("purposes.init", () => window.DC.purposes.init(Array.isArray(gov.purposeRules) ? gov.purposeRules : []), null);
     const block = resolutionBlock();
-    if (block && core("resolution", "init")) safe("resolution.init", () => window.DC.resolution.init(block), null);
+    // Pass the watchlisted (risk-tagged) Persons, as Investigate does, so both apps name the
+    // same representative for a merged cluster: the watchlisted member's label (FIXROUND §2 D).
+    const watchlisted = getEntities().filter(e => e.type === "Person" && e.properties && e.properties.riskTag).map(e => e.id);
+    if (block && core("resolution", "init")) safe("resolution.init", () => window.DC.resolution.init(block, { watchlisted }), null);
+    // F-09: also set it explicitly, in case a core init ignores the option.
+    if (block && core("resolution", "setWatchlisted")) safe("resolution.setWatchlisted", () => window.DC.resolution.setWatchlisted(watchlisted), null);
     const onto = seedData.ontology || {};
     const types = onto.actionTypes || seedData.actionTypes;
     if (Array.isArray(types) && core("actions", "init")) {
@@ -2744,7 +3099,7 @@
     let resizeTimer = null;
     window.addEventListener("resize", () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => { if (ui.activeTab === "markings") drawMarkingEdges(); }, 80);
+      resizeTimer = setTimeout(() => { if (ui.activeTab === "markings") drawMarkingEdges(); updateScrollCues(); }, 80);
     });
 
     logEvent({ kind: "view", verb: "tab.view", payload: { tab: ui.activeTab, dataset: ui.datasetKey, initial: true } });

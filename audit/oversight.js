@@ -9,6 +9,10 @@
  * a redaction toggle (the Raffinaderij exhibit), CSV/JSON export and the instructor "Clear audit".
  * Phase 2 (audit/oversight-actions.js): Action history with before/after and writebacks, resolution
  * events, the "exception records only" Checkpoint filter, and the Raffinaderij discussion card.
+ * Fix round (audit/oversight-governance.js): marking overrides with Restore for the DPO, exceptions to
+ * review; the chain status names truncation and head removal and claims a cap drop only when the cap was
+ * reached; Clear audit shows only in Instructor mode and needs a 10-character reason (core enforces it);
+ * phone-embedded object ids are masked for roles without TELECOM.
  * Phase 3 (audit/oversight-agent.js): agent runs (tool-call events grouped by run), bulk approvals
  * (action.approveAll with its count), object-set events; an "Agent run" filter (payload.runId).
  */
@@ -20,6 +24,7 @@
   const catalog = window.ontologySeedCatalog || {};
   const seed = catalog.starter || catalog[Object.keys(catalog)[0]] || {};
   DC.governance.init(seed.governance || null);
+  if (DC.purposes && DC.purposes.registerSources) DC.purposes.registerSources(seed.sources || []);
   if (DC.purposes) DC.purposes.init((seed.governance && seed.governance.purposeRules) || []);
   if (DC.actions) DC.actions.init((seed.ontology && seed.ontology.actionTypes) || [], (seed.ontology && seed.ontology.externalSystems) || []);
   if (DC.resolution) DC.resolution.init(seed.resolution || null);
@@ -86,7 +91,7 @@
       if (f.role && event.role !== f.role) return false;
       if (f.surface && event.surface !== f.surface) return false;
       if (verb && !String(event.verb || "").toLowerCase().includes(verb)) return false;
-      if (f.objectId && !(event.objectIds || []).includes(f.objectId)) return false;
+      if (f.objectId && !(event.objectIds || []).some((id) => id === f.objectId || DC.ui.displayId(id) === f.objectId)) return false;
       if (f.runId && !runMatches(event, f.runId)) return false;
       return true;
     });
@@ -129,7 +134,7 @@
   function objectButtons(ids) {
     const list = ids || [];
     if (!list.length) return "";
-    const shown = list.slice(0, 3).map((id) => `<button type="button" class="obj-link" data-action="filter-object" data-id="${esc(id)}">${esc(id)}</button>`);
+    const shown = list.slice(0, 3).map((id) => `<button type="button" class="obj-link" data-action="filter-object" data-id="${esc(DC.ui.displayId(id))}">${esc(DC.ui.displayId(id))}</button>`);
     return shown.join(" ") + (list.length > 3 ? ` <span class="muted">+${list.length - 3}</span>` : "");
   }
 
@@ -189,9 +194,12 @@
     const chain = state.chain;
     let status = `<span class="chain chain-pending">Verifying hash chain…</span>`;
     if (chain && chain.ok) {
-      status = `<span class="chain chain-ok" data-chain="ok">Hash chain verified · ${chain.count} event${chain.count === 1 ? "" : "s"}${chain.dropped ? ` · ${chain.dropped} older events dropped (cap ${DC.audit.CAP})` : ""}</span>`;
+      const drops = [];
+      if (chain.capDropped) drops.push(`${chain.capDropped} older events dropped (cap ${DC.audit.CAP} reached)`);
+      if (chain.quotaDropped) drops.push(`${chain.quotaDropped} older events dropped (browser storage full)`);
+      status = `<span class="chain chain-ok" data-chain="ok">Hash chain verified · ${chain.count} event${chain.count === 1 ? "" : "s"}${drops.length ? ` · ${drops.join(" · ")}` : ""}</span>`;
     } else if (chain) {
-      status = `<span class="chain chain-broken" data-chain="broken">Hash chain broken at ${esc(chain.brokenAt)} — an event was changed or removed</span>`;
+      status = `<span class="chain chain-broken" data-chain="broken" data-problem="${esc(chain.problem || "")}">${esc(chain.message || `Hash chain broken at ${chain.brokenAt} — an event was changed or removed`)}</span>`;
     }
     const alg = all.length ? all[all.length - 1].alg : "";
     return `
@@ -206,14 +214,14 @@
           <button type="button" class="dc-btn" data-action="export-csv">Export CSV</button>
           <button type="button" class="dc-btn" data-action="export-json">Export JSON</button>
         </div>
-        <p class="caption">Raffinaderij: the Dutch police platform built on Palantir since 2012; documents released to de Volkskrant under the Open Government Act (Woo) came back about 99% redacted.</p>
+        <p class="caption">Raffinaderij: the Dutch police investigations platform built on Palantir software since 2012. Buro Jansen &amp; Janssen first appealed for its documents in 2019; released after a 2023 court ruling, they came back about 99% redacted, and de Volkskrant reported on them. This page models tamper evidence; it is not tamper-proof storage.</p>
       </section>
     `;
   }
 
   function renderFilters(all) {
     const f = state.filters;
-    const objectIds = [...new Set(all.flatMap((event) => event.objectIds || []))].sort();
+    const objectIds = [...new Set(all.flatMap((event) => (event.objectIds || []).map((id) => DC.ui.displayId(id))))].sort();
     return `
       <section class="panel filters" aria-label="Filters">
         <label>Kind <select data-filter="kind">${options(uniq(all, "kind"), f.kind, "All kinds")}</select></label>
@@ -323,12 +331,16 @@
   }
 
   function renderInstructor() {
+    if (!(DC.session.instructorMode && DC.session.instructorMode())) {
+      return `<section class="panel instructor" aria-label="Instructor"><p class="muted">Instructor controls (Clear audit) are hidden. Tick <strong>Instructor mode</strong> in the session strip to show them; the toggle is logged.</p></section>`;
+    }
+    const min = DC.audit.CLEAR_MIN_LENGTH || 10;
     return `
       <section class="panel instructor" aria-label="Instructor">
         <h2><span class="dc-highlight">Instructor</span></h2>
-        <p class="muted">Clearing removes every event. The clear itself becomes the first event of the new log, with your reason.</p>
+        <p class="muted">Clearing removes every event. The clear itself becomes the first event of the new log, with your reason (at least ${min} characters). Writing an old copy of the log back is detected: the log's newest sequence number is recorded.</p>
         <div class="instructor-row">
-          <label>Reason <input data-field="clear-reason" value="${esc(state.clearReason)}" placeholder="e.g. start of seminar group B"></label>
+          <label>Reason <input data-field="clear-reason" value="${esc(state.clearReason)}" placeholder="e.g. start of seminar group B" minlength="${min}"></label>
           <button type="button" class="dc-btn dc-btn-danger" data-action="clear-audit">Clear audit (instructor)</button>
         </div>
         ${state.notice ? `<p class="notice" role="status">${esc(state.notice)}</p>` : ""}
@@ -354,6 +366,8 @@
           ${DC.governance.isActive() ? "" : `<p class="notice">No governance block in the seed: the role gate is off.</p>`}
           ${renderStatus(all)}
           ${p2 ? p2.renderDiscussion() : ""}
+          ${window.DCOversightGov ? window.DCOversightGov.renderMarkings(helpers) : ""}
+          ${window.DCOversightGov ? window.DCOversightGov.renderExceptions(helpers) : ""}
           ${renderFilters(all)}
           ${renderTimeline(all, index)}
           ${renderTable(events, index)}
@@ -431,6 +445,7 @@
     const target = event.target.closest("[data-action]");
     if (!target) return;
     const action = target.dataset.action;
+    if (window.DCOversightGov && window.DCOversightGov.handleClick(target, () => verify())) return;
     if (action === "filter-object") {
       state.filters.objectId = target.dataset.id;
       render();
@@ -447,14 +462,13 @@
       exportEvents("json");
     } else if (action === "clear-audit") {
       const reason = state.clearReason.trim();
-      if (!reason) {
-        state.notice = "Write a reason first: the clear is logged with it.";
-        render();
-        return;
-      }
-      DC.audit.clear(reason).then(() => {
-        state.clearReason = "";
-        state.notice = "Audit log cleared. The clear is the first event of the new log.";
+      DC.audit.clear(reason).then((result) => {
+        if (result && result.refused) {
+          state.notice = result.message;
+        } else {
+          state.clearReason = "";
+          state.notice = "Audit log cleared. The clear is the first event of the new log.";
+        }
         verify();
       });
     }

@@ -44,7 +44,7 @@
     }
     h3 { font-size: 1.05rem; font-weight: 500; margin: 1.6rem 0 0.4rem; }
     p.lede { color: var(--dc-grey-dark); font-size: 1.02rem; margin-top: 0; }
-    a { color: var(--dc-purple); }
+    a { color: var(--dc-purple); text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
     code { font-family: var(--dc-mono); font-size: 0.85em; background: #f6f3f6; padding: 0.1em 0.35em; border-radius: 3px; }
 
     table { border-collapse: collapse; width: 100%; margin: 0.8rem 0 1.2rem; font-size: 0.9rem; }
@@ -87,6 +87,8 @@
     .def dd { margin: 0.3rem 0 0; }
     .def .dterm { font-size: 0.75rem; color: var(--dc-grey-dark); font-weight: 400; }
     .source-note { font-size: 0.82rem; color: var(--dc-grey-dark); margin-top: 0.4rem; }
+    .rule-notes { font-size: 0.82rem; color: var(--dc-grey-dark); margin: 0.3rem 0 0; padding-left: 1.2rem; }
+    .rule-notes li { margin: 0.25rem 0; }
     .note { padding: 0.75rem 1rem; background: var(--dc-purple-tint); border-left: 4px solid var(--dc-purple); border-radius: 0 4px 4px 0; }
     footer { margin-top: 3rem; font-size: 0.82rem; color: var(--dc-grey-dark); }
 
@@ -190,7 +192,7 @@
       </div>
       <div class="def" id="threshold">
         <dt>Threshold</dt>
-        <dd>The score at or above which two candidates count as the same person. The default, 0.75, is what the pipeline did. Lowering it merges more pairs; above 0.75 nothing splits, because the pipeline's own rule-based merges are fixed in this build. The threshold is shared by Build and Investigate, and each change is logged. Who sets it, and who pays for a false merge, is the discussion.</dd>
+        <dd>The score at or above which two candidates count as the same person. The default, 0.75, is what the pipeline did. Lowering it merges more pairs; above 0.75 nothing splits, because the pipeline's own rule-based merges are fixed in this build. The threshold is shared by Build and Investigate, and each change is logged. Only the financial-crime analyst and the data protection officer may move it; the other roles see the slider disabled, with the reason. Who sets it, and who pays for a false merge, is the discussion: the analyst who moves it is also the person who benefits from more merges.</dd>
       </div>
       <div class="def" id="union-find">
         <dt>Union-find merge</dt>
@@ -203,7 +205,8 @@
       <div class="def" id="karlsruhe-mode">
         <dt>Karlsruhe mode <span class="hl-chip extension">Teaching extension</span></dt>
         <dd>A switch in the session strip that enforces the purpose rules. When it is off, nothing is blocked but each expansion, rule run and Action logs the purposes involved. When it is on, an operation that breaks a rule shows a red <em>Blocked by rule R2</em> card with a <em>Request exception</em> button, and Build marks each transform that combines incompatible purposes with a red rule badge. Named after the seat of Germany's Federal Constitutional Court, whose February 2023 ruling on automated data analysis by the police is the discussion case. It does not mirror a Palantir feature.
-          <p class="source-note" id="legal-basis-note">Our abstraction of the BVerfG 2023 ruling's logic, not its text [to verify against the press release before teaching as the court's criteria].</p></dd>
+          <p class="source-note" id="legal-basis-note">Our abstraction of the ruling's logic, not its text.</p>
+          <p class="source-note" id="karlsruhe-rules"><strong>What each rule abstracts.</strong> R1 (a stated purpose on the session) is the thinnest form of purpose limitation. R2 reflects GDPR Article 9 and LED Article 10 on special categories of data more than the 2023 judgment; as an absolute ban it is stricter than EU law, which allows such processing where strictly necessary and authorised by law. R3 (a danger statement before going past the first hop) is our device: the court asked for "sufficiently specific facts", and a length check cannot test that. The court addressed the legislature: it found two state police laws unconstitutional, and its interim order for Hesse required the conditions to be confirmed "in a written explanation in each individual case". Source: <a href="https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html" target="_blank" rel="noopener">BVerfG press release 18/2023</a>.</p></dd>
       </div>
     </dl>
 
@@ -224,11 +227,11 @@
       </div>
       <div class="def" id="staged-edit">
         <dt>Staged edit <span class="dterm">demo: staged edit · Palantir: staged edits / proposals</span> <a class="hl-chip mirrors" href="#inv.actions">Mirrors Foundry</a></dt>
-        <dd>An Action the agent prepares but does not apply. A person must approve or reject each one; AIP stages an agent's edits for review by default. The demo also has an <strong>Approve all</strong> button, recorded as one audit event with the number of edits approved: the human in the loop, at the speed of one click.</dd>
+        <dd>An Action the agent prepares but does not apply. A person must approve or reject each one; AIP stages an agent's edits for review by default. Approving runs the same Checkpoint as running the Action by hand. The demo also has an <strong>Approve all</strong> button: it asks for one justification, lists every edit in the prompt, and is recorded as one Checkpoint and one audit event with the number of edits approved. The human in the loop, at the speed of one click.</dd>
       </div>
       <div class="def" id="eval">
         <dt>Eval <span class="dterm">demo: Evals panel · Palantir: AIP Evals</span> <a class="hl-chip simplified" href="#inv.agent">Simplified</a></dt>
-        <dd>A test of an agent's output. The demo runs three after you click <em>Check</em>: every claim cites an object or link that exists; no denied tool result was used; no edit was applied without approval. An eval can only catch what someone thought to test for.</dd>
+        <dd>A test of an agent's output. The demo runs four after you click <em>Check</em>: every claim cites an object or link that exists; no denied tool result was used; no edit was applied without approval; every sensitive edit passed a Checkpoint. An eval can only catch what someone thought to test for.</dd>
       </div>
       <div class="def" id="lead">
         <dt>Lead <span class="dterm">demo: lead (Leads tab, <code>leads</code> dataset) · Palantir: ELITE's leads (ICE)</span> <a class="hl-chip simplified" href="#inv.leads">Simplified</a></dt>
@@ -252,8 +255,31 @@
       </div>
     </dl>
 
+    <h2 id="fixround">Oversight, exceptions and the people in the data</h2>
+    <p>Three terms for what the tool does about its own controls, and what it leaves out.</p>
+    <dl class="defs">
+      <div class="def" id="instructor-mode">
+        <dt>Instructor mode <span class="dterm">demo term</span> <a class="hl-chip simplified" href="#session.roles">Simplified</a></dt>
+        <dd>A checkbox in the session strip, off by default. Turning it on (or off) is logged, and only then do the classroom controls appear: <em>Strict checkpoints</em>, the agent's <em>Failure mode</em> and <em>Clear audit</em>. Clearing the audit log also needs a reason of at least ten characters. The box marks these controls as the instructor's; a browser cannot check who is sitting at it. The log models tamper evidence; it is not tamper-proof.</dd>
+      </div>
+      <div class="def" id="self-certified-exception">
+        <dt>Self-certified exception <span class="dterm">demo: Request exception (Karlsruhe mode)</span> <a class="hl-chip extension" href="#inv.karlsruhe">Teaching extension</a></dt>
+        <dd>When a purpose rule blocks an operation, <em>Request exception</em> lets the analyst go ahead after a Checkpoint. The exception is self-certified: it takes effect at once, and it is recorded for review by the data protection officer, who sees it in Oversight under "Exceptions to review" and can mark it reviewed (logged). Nobody approves it beforehand. Is review after the fact oversight?</dd>
+      </div>
+      <div class="def" id="data-subject-rights">
+        <dt>Data-subject rights <span class="dterm">absent from this tool</span></dt>
+        <dd>The people in the data have rights to notice, access, rectification and erasure: GDPR Articles 15–17 (<a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj" target="_blank" rel="noopener">Regulation 2016/679</a>) and, for police processing, LED Articles 14–16 (<a href="https://eur-lex.europa.eu/eli/dir/2016/680/oj" target="_blank" rel="noopener">Directive 2016/680</a>). Nothing in this tool lets a person on the watchlist, in a lead or in a false merge find out, see the record or correct it; removing a source's risk tag is even refused, because correcting a source is not an Action here. The omission is deliberate, so that you notice it: who would notice an error, and how would they contest it?</dd>
+      </div>
+    </dl>
+
     <h2 id="markings">Markings and roles</h2>
-    <p>Markings say what a role needs in order to see a dataset, an object or a single property. A dataset derived from a marked dataset inherits the marking; only the data protection officer can remove one, and only after a Checkpoint.</p>
+    <p>Markings say what a role needs in order to see a dataset, an object or a single property. A dataset derived from a marked dataset inherits the marking; only the data protection officer can remove one, and only after a Checkpoint. The clinic data carries PII as well as HEALTH, so lifting HEALTH still keeps patients' names and addresses from roles without PII. The data protection officer can <strong>restore</strong> a removed marking on the Markings tab, after another Checkpoint; everything derived from the dataset is then withheld again, and both steps are logged.</p>
+    <dl class="defs">
+      <div class="def" id="withheld">
+        <dt>Withheld <span class="dterm">demo term</span></dt>
+        <dd>What a role sees in place of data it may not see: a hatched cell naming the marking. Sources are withheld the same way: a lead, a lineage tree or a merged person shows "1 source withheld — marking HEALTH", never the dataset's name or its row numbers, because being in the clinic data is itself health data. IDs that contain a phone number are shown with the digits masked to roles without TELECOM. Naming the marking is still a signal, and the apps say so: absence can tell you something.</dd>
+      </div>
+    </dl>
     <table>
       <thead><tr><th>Marking</th><th>Label</th><th>Meaning</th></tr></thead>
       <tbody id="markings-body"></tbody>
@@ -270,7 +296,7 @@
     <p class="source-note" id="entries-source" aria-live="polite">Loading the entries from the seed…</p>
 
     <footer>
-      Deep Culture, University of Amsterdam. Sources for the "Mirrors" entries are Palantir's public documentation; see <code>context/PALANTIR_RESEARCH_2026-11-04.md</code> for the research behind each label.
+      Deep Culture, University of Amsterdam. Each entry names its source (Palantir documentation, a court press release, a news report); the "Mirrors" entries cite Palantir's public documentation. See <code>context/PALANTIR_RESEARCH_2026-11-04.md</code> for the research behind each label.
     </footer>
   </main>
 
@@ -323,7 +349,7 @@
       const FALLBACK_ROLES = [
         { id: "patrol", label: "Patrol officer", markingsVisible: ["OPEN", "PII", "TELECOM", "LE-SENSITIVE"], purposes: ["public-order"] },
         { id: "fin-analyst", label: "Financial-crime analyst", markingsVisible: ["OPEN", "PII", "FIN", "LE-SENSITIVE"], purposes: ["financial-crime"] },
-        { id: "dpo", label: "Data protection officer", markingsVisible: ["OPEN", "PII", "FIN", "TELECOM", "HEALTH", "LE-SENSITIVE"], purposes: ["oversight"] },
+        { id: "dpo", label: "Data protection officer", markingsVisible: ["OPEN", "PII", "FIN", "TELECOM", "HEALTH", "LE-SENSITIVE"], purposes: ["oversight", "public-order"] },
         { id: "auditor", label: "Auditor", markingsVisible: ["OPEN"], purposes: ["oversight"] },
         { id: "contractor", label: "Platform contractor", markingsVisible: ["OPEN"], purposes: ["maintenance"] },
       ];
@@ -354,6 +380,27 @@
         document.getElementById("entries-body").innerHTML = sections.join("");
       }
 
+      // Source labels (FIXROUND §1): the seed's docLabel, else a label inferred from the host, so
+      // that a court press release or a news report is never called "Palantir documentation".
+      const HOST_LABELS = [
+        [/(^|\.)bundesverfassungsgericht\.de$/, "BVerfG press release"],
+        [/(^|\.)aleph\.occrp\.org$|(^|\.)occrp\.org$/, "OCCRP Aleph docs"],
+        [/^blog\.palantir\.com$/, "Palantir blog"],
+        [/(^|\.)palantir\.com$/, "Palantir documentation"],
+        [/(^|\.)eur-lex\.europa\.eu$/, "EUR-Lex"],
+      ];
+      function docLabelOf(h, url) {
+        if (h && typeof h.docLabel === "string" && h.docLabel.trim()) return h.docLabel.trim();
+        let host = "";
+        try { host = new URL(url).hostname.replace(/^www\./, ""); } catch (_) { return "Source"; }
+        const hit = HOST_LABELS.find(([re]) => re.test(host));
+        return hit ? hit[1] : "News report";
+      }
+      // The seed's legal-basis note once carried an editorial placeholder; never show it.
+      function cleanNote(text) {
+        return String(text || "").replace(/\s*\[to verify[^\]]*\]/gi, "").trim();
+      }
+
       function entry(h) {
         const kind = KIND_LABELS[h.kind] ? h.kind : "simplified";
         const url = safeUrl(h.docUrl);
@@ -365,7 +412,7 @@
             <a class="anchor" href="#${esc(h.id)}" aria-label="Link to ${esc(h.id)}">#</a>
           </header>
           <p>${esc(h.text)}</p>
-          ${url ? `<p class="doc">Palantir documentation: <a href="${esc(url)}" target="_blank" rel="noopener">${esc(url.replace(/^https:\/\/(www\.)?/, ""))}</a></p>` : ""}
+          ${url ? `<p class="doc"><span class="doc-label">${esc(docLabelOf(h, url))}</span>: <a href="${esc(url)}" target="_blank" rel="noopener">${esc(url.replace(/^https:\/\/(www\.)?/, ""))}</a></p>` : ""}
         </article>`;
       }
 
@@ -421,7 +468,13 @@
             const ids = new Set(found.g.honesty.map(h => h.id));
             const missing = FALLBACK_HONESTY.filter(h => !ids.has(h.id));
             renderEntries(found.g.honesty.concat(missing));
-            if (found.g.legalBasisNote) document.getElementById("legal-basis-note").textContent = found.g.legalBasisNote;
+            const note2 = cleanNote(found.g.legalBasisNote);
+            if (note2) document.getElementById("legal-basis-note").textContent = note2;
+            // Each purpose rule's own note (what it abstracts and what it leaves out) replaces the built-in summary.
+            const ruleNotes = (Array.isArray(found.g.purposeRules) ? found.g.purposeRules : []).filter(r => r && r.id && r.note);
+            if (ruleNotes.length) {
+              document.getElementById("karlsruhe-rules").outerHTML = `<div class="source-note" id="karlsruhe-rules"><strong>What each rule abstracts.</strong><ul class="rule-notes">${ruleNotes.map(r => `<li id="rule-${esc(r.id)}"><strong>${esc(r.id)}</strong> <q>${esc(r.text || "")}</q> ${esc(cleanNote(r.note))}</li>`).join("")}</ul>Source: <a href="https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html" target="_blank" rel="noopener">BVerfG press release 18/2023</a>.</div>`;
+            }
             if (Array.isArray(found.g.markings) && found.g.markings.length) {
               renderMarkings(found.g.markings, Array.isArray(found.g.roles) && found.g.roles.length ? found.g.roles : FALLBACK_ROLES);
             }

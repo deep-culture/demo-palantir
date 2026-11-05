@@ -23,6 +23,7 @@ import { severityClass } from "./common.js";
 import { renderExternalSystems, renderInspectorActions } from "./action-drawer.js";
 import { mergeChip, renderMergeSection } from "./resolution.js";
 import { expansionCheck, karlsruheOn } from "../purpose-gate.js";
+import { safeForRole, splitRefs, withheldRefsText } from "../disclosure.js";
 
 // Labels for the resolution note (F0.2).
 export const RESOLUTION_METHOD_LABELS = {
@@ -97,7 +98,7 @@ export function renderInspector() {
               <button class="toggle-btn ${!isInsight ? "active" : ""}" data-action="inspector-mode" data-mode="json">JSON</button>
             </div>
           </div>
-          ${isInsight ? renderInsightPanel(selection) : `<div class="selection-json"><pre>${escapeHtml(JSON.stringify(selection, null, 2))}</pre></div>`}
+          ${isInsight ? renderInsightPanel(selection) : `<div class="selection-json"><pre>${escapeHtml(JSON.stringify(safeForRole(selection), null, 2))}</pre></div>`}
         </div>
         ${renderExternalSystems()}
         ${renderDiscussionPanel()}
@@ -334,9 +335,10 @@ export function renderInsightPanel(selection) {
       `;
   }
 
-  // instances / graph fallback
-  const entity = entityById(ui.selectedEntityId || ui.selectedGraphNodeId);
-  if (!entity) return `<p class="microcopy">Select an entity to inspect it.</p>`;
+  // instances / graph fallback (the graph shows nothing until a node is picked: the default selection
+  // is just the first object and was shown as if chosen, e.g. "Athens International Airport")
+  const entity = tool === "graph" && !ui.entityPicked ? null : entityById(ui.selectedEntityId || ui.selectedGraphNodeId);
+  if (!entity) return `<p class="microcopy">Select an entity to inspect it${tool === "graph" ? ": click a node, or focus one and press Enter" : ""}.</p>`;
   const et2 = entityTypeById(entity.type);
   const summary = summarizeEntityForCopilot(entity);
   return `
@@ -408,22 +410,35 @@ export function describeResolution(resolution) {
   return `${method}${confidence}`;
 }
 
+// A person merged here (threshold below the pipeline's) is described by the merge, not by the
+// representative's pipeline record ("Matched by passport · confidence 1.00" would contradict it).
+export function describeMergedResolution(entity) {
+  const merge = entity._merge;
+  const chain = core.resolution && core.resolution.explain ? core.resolution.explain(entity.id) : [];
+  const scores = chain.map((item) => item.score.toFixed(2));
+  return `Merged at ${Number(merge.threshold).toFixed(2)} from ${merge.members.length} source identities${scores.length ? ` (score${scores.length === 1 ? "" : "s"} ${scores.join(", ")})` : ""}`;
+}
+
 export function renderResolutionSection(entity, variant = "inspector") {
   const resolution = entity && entity.resolution;
   if (!resolution || typeof resolution !== "object") return "";
   const mergedFrom = Array.isArray(resolution.mergedFrom) ? resolution.mergedFrom.filter(Boolean) : [];
+  const refs = splitRefs(mergedFrom);
+  // A ping-only person's method and note describe the pings themselves.
+  const pingHidden = resolution.method === "ping-only" && lackingMarkings(["TELECOM"]).length > 0;
   const heading = variant === "inspector"
     ? `<div class="insight-label">Resolution</div>`
     : `<h3 class="section-title">Resolution</h3>`;
+  const description = entity._merge ? describeMergedResolution(entity) : pingHidden ? "Created from a source withheld from your role (marking TELECOM)" : describeResolution(resolution);
   return `
-      <div class="${variant === "inspector" ? "insight-section" : "resolution-block"}">
+      <div class="${variant === "inspector" ? "insight-section" : "resolution-block"}" data-resolution="${entity._merge ? "merged" : escapeHtml(resolution.method || "")}">
         ${heading}
-        <div class="insight-value">${escapeHtml(describeResolution(resolution))}</div>
-        ${mergedFrom.length ? `<div class="microcopy">Merged from ${mergedFrom.length} record${mergedFrom.length === 1 ? "" : "s"}: ${escapeHtml(mergedFrom.join(", "))}</div>` : ""}
+        <div class="insight-value">${escapeHtml(description)}</div>
+        ${mergedFrom.length ? `<div class="microcopy">Merged from ${mergedFrom.length} record${mergedFrom.length === 1 ? "" : "s"}${refs.shown.length ? `: ${escapeHtml(refs.shown.join(", "))}` : ""}${refs.withheld ? `${refs.shown.length ? " · " : ": "}<span class="refs-withheld" data-refs-withheld="${refs.withheld}">${escapeHtml(withheldRefsText(refs))}</span>` : ""}</div>` : ""}
         ${resolution.splitRisk ? `
           <div class="resolution-note">
             <span class="resolution-note-label">Resolution note</span>
-            ${escapeHtml(resolution.note || "This person was created from a single weak key and may be the same individual as another record.")}
+            ${pingHidden ? "Withheld (marking TELECOM): the note describes source records your role cannot see." : escapeHtml(resolution.note || "This person was created from a single weak key and may be the same individual as another record.")}
           </div>
         ` : ""}
       </div>

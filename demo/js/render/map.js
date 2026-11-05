@@ -23,24 +23,24 @@ export function renderMapTool() {
           <div class="property-card" style="padding:0.75rem">
             <div class="map-controls-row">
               <div class="field">
-                <label>Scope</label>
-                <select data-scope="map" data-field="scope">
+                <label for="map-scope">Scope</label>
+                <select id="map-scope" data-scope="map" data-field="scope">
                   <option value="dataset" ${ui.mapScope === "dataset" ? "selected" : ""}>Whole dataset</option>
                   <option value="scenario" ${ui.mapScope === "scenario" ? "selected" : ""}>Selected scenario</option>
                   <option value="copilot" ${ui.mapScope === "copilot" ? "selected" : ""}>Agent answer</option>
                 </select>
               </div>
               <div class="field">
-                <label>Markers</label>
-                <select data-scope="map" data-field="placeFilter">
+                <label for="map-markers">Markers</label>
+                <select id="map-markers" data-scope="map" data-field="placeFilter">
                   <option value="all" ${ui.mapPlaceFilter === "all" ? "selected" : ""}>Airports + locations</option>
                   <option value="Airport" ${ui.mapPlaceFilter === "Airport" ? "selected" : ""}>Airports only</option>
                   <option value="Location" ${ui.mapPlaceFilter === "Location" ? "selected" : ""}>Locations only</option>
                 </select>
               </div>
               <div class="field">
-                <label>Search</label>
-                <input value="${escapeHtml(ui.mapSearch)}" placeholder="Search airport or address" data-scope="map" data-field="search">
+                <label for="map-search">Search</label>
+                <input id="map-search" type="search" value="${escapeHtml(ui.mapSearch)}" placeholder="Search airport or address" data-scope="map" data-field="search">
               </div>
               <div class="field map-leads-toggle">
                 <label for="map-leads">Layers</label>

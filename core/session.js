@@ -22,6 +22,12 @@
  *                                    the session strip); logged as session.setFlag {flag: "failureMode"}
  *   FAILURE_MODES                    the four values
  *
+ * Fix round (contract §2 A6):
+ *   instructorMode() / setInstructorMode(bool)   flags.instructor (off by default): the session strip
+ *                                    shows Strict checkpoints and Failure mode only while it is on, and
+ *                                    Oversight's Clear audit needs it. Logged as session.setFlag
+ *                                    {flag: "instructor"}. A convenience for the classroom, not access control.
+ *
  * The role is a client-side convenience, not security (spec §4.1): anyone can change it.
  */
 (function () {
@@ -64,7 +70,7 @@
       sessionId: session && session.sessionId ? String(session.sessionId) : newSessionId(),
       role: session && session.role ? String(session.role) : defaultRole(),
       purpose: session && session.purpose ? String(session.purpose) : null,
-      flags: { strictCheckpoints: false, karlsruhe: false, failureMode: "none", ...((session && session.flags) || {}) },
+      flags: { strictCheckpoints: false, karlsruhe: false, failureMode: "none", instructor: false, ...((session && session.flags) || {}) },
     };
     if (!FAILURE_MODES.includes(value.flags.failureMode)) value.flags.failureMode = "none";
     const governance = DC.governance;
@@ -163,6 +169,8 @@
     setFlag,
     setFailureMode,
     failureMode: () => get().flags.failureMode || "none",
+    instructorMode: () => Boolean(get().flags.instructor),
+    setInstructorMode: (value) => setFlag("instructor", Boolean(value)),
     FAILURE_MODES,
     onChange,
     setSurface(name) {

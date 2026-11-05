@@ -19,13 +19,29 @@
  *                                         logged) for roles without canRemoveMarkings
  *
  * Additions:
- *   missing(roleId, markings)             markings the role lacks
+ *   missing(roleId, markings)             markings the role lacks (markings removed at the ontology by a
+ *                                         DPO override do not count, so canSee/missing agree with
+ *                                         redactEntity and DC.leads.split everywhere — review F-02)
  *   rolesThatCanSee(markings)             role objects that hold all of them
  *   whyWithheld(markings, roleId)         one sentence for the "Why can't I see this?" line
  *   isWithheld(value)                     true for a {withheld: […]} placeholder
  *   explainDatasetMarkings(ds, byId)      [{id, origins: [datasetId], removed: bool, removedBy: override|null}]
  *   registerDatasets(byId, {transforms})  give core the Build DAG; recomputes the ontology removals
  *   overrides(), clearOverrides(reason), onChange(cb), ONTOLOGY_DATASETS
+ *
+ * Fix round (contract §2 A4, A5):
+ *   restoreMarking({datasetId, marking, checkpointRecordId, surface})  -> Promise<override|null>
+ *                                         drops the override (the marking applies again), recomputes the
+ *                                         ontology removals and logs "marking.restore" (outcome restored |
+ *                                         refused | not-found). Same role rule as removeMarking.
+ *   requestRestore({datasetId, marking, surface})  runs Checkpoint cp-marking-restore (trigger
+ *                                         "marking.restore"), then restoreMarking with the record id
+ *                                         -> withCheckpoint's {outcome, record, result}
+ *   displayId(id, roleId?)                an id shown to a role without TELECOM has any run of 9+ digits
+ *                                         (a phone number: person::c-silva-30131994523) masked as "•••••".
+ *                                         The real id stays internal (data attributes, joins, the log).
+ *   hidesPhoneIds(roleId?)                true when displayId masks for that role
+ *   hidesPersonalIds(roleId?)             true for roles without PII: person/location/device/watchlist ids become type::•••tag
  *
  * Overrides live in dc-palantir:governance {markingOverrides: [{datasetId, removed, by,
  * checkpointRecordId, ts, buildId}], ontologyRemoved: [marking…]}. ontologyRemoved is computed by
@@ -44,15 +60,32 @@
   let lineage = { byId: null, inputsOf: null };
 
   // ── state ──
+  // Parsed once per stored value: missing() / canSee() consult the removals on every call (review F-02).
+  let cache = { raw: undefined, value: null };
+  function readStored() {
+    if (!store) return memoryState;
+    let raw = null;
+    try {
+      raw = window.localStorage ? window.localStorage.getItem(GOV_KEY) : null;
+    } catch (_) {
+      raw = null;
+    }
+    if (raw !== cache.raw) cache = { raw, value: store.get(GOV_KEY, null) };
+    return cache.value;
+  }
+
   function readState() {
-    const value = store ? store.get(GOV_KEY, null) : memoryState;
+    const value = readStored();
     const state = value && typeof value === "object" ? value : {};
     return { ...state, markingOverrides: Array.isArray(state.markingOverrides) ? state.markingOverrides : [] };
   }
 
+  // Writes only the keys this module owns, re-reading the rest (review F-21).
   function writeState(state) {
-    memoryState = state;
-    if (store) store.set(GOV_KEY, state);
+    const own = { markingOverrides: state.markingOverrides, ontologyRemoved: state.ontologyRemoved };
+    if (own.ontologyRemoved === undefined) delete own.ontologyRemoved;
+    memoryState = { ...memoryState, ...own };
+    if (store) store.patch(GOV_KEY, (current) => ({ ...current, ...own }));
   }
 
   function notify(source) {
@@ -74,8 +107,9 @@
     return Array.isArray(markings) ? markings.filter(Boolean) : [];
   }
 
+  // Review F-02: markings a DPO removed at the ontology (or upstream) do not count, for every caller.
   function missing(roleId, markings) {
-    const list = asList(markings);
+    const list = effective(markings);
     if (!governanceActive() || !list.length) return [];
     const role = DC.governance.role(roleId);
     const visible = new Set((role && role.markingsVisible) || []);
@@ -277,6 +311,87 @@
     });
   }
 
+  function restoreMarking(request) {
+    const { datasetId, marking, checkpointRecordId } = request || {};
+    const session = DC.session ? DC.session.get() : { role: "unknown" };
+    const role = DC.governance && DC.governance.role(session.role);
+    const surface = (request && request.surface) || (DC.session && DC.session.surface()) || "build";
+    const log = (payload) =>
+      DC.audit
+        ? DC.audit.logEvent({ surface, kind: "marking", verb: "marking.restore", datasetId, checkpointId: checkpointRecordId || null, payload })
+        : Promise.resolve(null);
+    if (governanceActive() && !(role && role.canRemoveMarkings)) {
+      return log({ marking, outcome: "refused" }).then(() => null);
+    }
+    const state = readState();
+    const found = state.markingOverrides.find((item) => item.datasetId === String(datasetId || "") && item.removed === String(marking || ""));
+    if (!found) return log({ marking, outcome: "not-found" }).then(() => null);
+    const list = state.markingOverrides.filter((item) => item !== found);
+    // Without the Build DAG (Investigate, Oversight) the marking comes back at the ontology unless
+    // another override still removes it somewhere; with the DAG it is recomputed exactly.
+    const stillRemoved = list.some((item) => item.removed === found.removed);
+    const ontologyRemoved = asList(state.ontologyRemoved).filter((item) => item !== found.removed || stillRemoved);
+    writeState({ ...state, markingOverrides: list, ontologyRemoved });
+    recomputeOntologyRemoved();
+    return log({ marking, outcome: "restored", removedBy: found.by, removedAt: found.ts, removalRecordId: found.checkpointRecordId || null }).then(() => {
+      notify("local");
+      return found;
+    });
+  }
+
+  const RESTORE_CHECKPOINT = {
+    id: "cp-marking-restore",
+    trigger: "marking.restore",
+    prompt: "You are restoring a marking. Everything derived from this dataset will again be withheld from roles without it. State why.",
+    requiresPurpose: true,
+    allowedRoles: ["dpo"],
+    minLength: 20,
+    refusalText: "Your role cannot restore markings. This attempt has been logged.",
+  };
+
+  function requestRestore(request) {
+    const req = request || {};
+    const context = { surface: req.surface, datasetId: req.datasetId, objectIds: [], summary: `Restore ${req.marking} on ${req.datasetId}` };
+    // Seeds built before the fix round lack cp-marking-restore: use the contract's definition (§1).
+    const definition = (DC.governance && DC.governance.checkpoint("marking.restore")) || RESTORE_CHECKPOINT;
+    return DC.checkpoints.withCheckpoint(definition, context, (record) =>
+      restoreMarking({ ...req, checkpointRecordId: record ? record.recordId : null })
+    );
+  }
+
+  // ── display ids (A4): phone numbers embedded in ids ──
+  const PHONE_RUN = /\d{9,}/g;
+  function hidesPhoneIds(roleId) {
+    if (!governanceActive()) return false;
+    const role = roleId || (DC.session ? DC.session.get().role : "");
+    return !removedAtOntology().has("TELECOM") && !canSee(role, ["TELECOM"]);
+  }
+
+  // Roles without PII (auditor, contractor): ids that name a person, place, device or watchlist entry carry
+  // passport numbers, names and dates of birth (person::p8842101, person::clara-silva-1977-11-25), so the whole
+  // key is replaced by a short stable tag. The same id always maps to the same tag, so filters still work.
+  const PERSONAL_ID = /^(person|location|device|watchlistrecord)::|person[-:]/;
+  function hidesPersonalIds(roleId) {
+    if (!governanceActive()) return false;
+    const role = roleId || (DC.session ? DC.session.get().role : "");
+    return !removedAtOntology().has("PII") && !canSee(role, ["PII"]);
+  }
+  function shortTag(text) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < text.length; i += 1) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return h.toString(16).padStart(8, "0").slice(0, 4);
+  }
+  function displayId(id, roleId) {
+    const text = String(id ?? "");
+    if (PERSONAL_ID.test(text) && hidesPersonalIds(roleId)) {
+      const cut = text.indexOf("::");
+      return `${cut > 0 ? text.slice(0, cut) : "id"}::•••${shortTag(text)}`;
+    }
+    if (!PHONE_RUN.test(text)) return text;
+    PHONE_RUN.lastIndex = 0;
+    return hidesPhoneIds(roleId) ? text.replace(PHONE_RUN, "•••••") : text;
+  }
+
   function clearOverrides(reason) {
     // Keep the other governance keys (threshold, resolutionOverrides, actionLog, …).
     writeState({ ...readState(), markingOverrides: [], ontologyRemoved: [] });
@@ -305,6 +420,11 @@
     explainDatasetMarkings,
     registerDatasets,
     removeMarking,
+    restoreMarking,
+    requestRestore,
+    displayId,
+    hidesPhoneIds,
+    hidesPersonalIds,
     overrides,
     clearOverrides,
     onChange(callback) {

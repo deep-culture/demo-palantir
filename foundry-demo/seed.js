@@ -2,20 +2,20 @@ window.foundrySeedCatalog = {
   "starter": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:fd63e98044f8b3ba46a74a972a482879313adab58ca19d77a9f5d309b9e9b7d7",
+      "buildId": "sha256:68d8ab04a5614b13e1dc22fff61ca664ec68bdc5810761f01a4d1ce82d2a238e",
       "sources": {
         "bank_transactions.csv": "sha256:0a88981afca6d5f129af59d9eddd670b4fd4786b8d2cca104bbf905f06e94687",
         "clinic_registrations.csv": "sha256:68a6e5270a055ceb0bf89c3b136a110405c95408ba7e9943137a72548b57588d",
         "company_registry.csv": "sha256:61b9b813d730ad7e821efb2fe8235972cbd2bc0c7bcd7914da0cc876da623a1c",
         "flight_manifests.csv": "sha256:4c2e299db65b59c5b85a359c1303f5d656d3b28011d95c3c0cc65d949b9893b8",
-        "manifest.json": "sha256:1b5b5a5204a6e1508552fef76f1fc4c3490241e1ab4ba09eda8d3accdece7004",
+        "manifest.json": "sha256:e4cf33a99b32b463e80287b839ca55115b7d5dd92685b024b40b3e22f3abc374",
         "mobile_location_pings.jsonl": "sha256:cac9ef6d62b0f0edaff019fc012eeabc151ecb3a7622ea27b4adf36475b36be8",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_foundry_seed.py@dd0e658",
+      "builder": "build_foundry_seed.py@12fb2ec",
       "title": "Foundry Studio Demo",
       "dataset": "starter",
-      "generatedAt": "2026-11-04T18:51:31.555357Z"
+      "generatedAt": "2026-11-04T20:40:29.321568Z"
     },
     "governance": {
       "markings": [
@@ -94,7 +94,7 @@ window.foundrySeedCatalog = {
         {
           "id": "dpo",
           "label": "Data protection officer",
-          "description": "Oversees lawful use. Sees every marking, read-only, and is the only role that may remove a marking (with a stated legal basis).",
+          "description": "Oversees lawful use. Sees every marking, read-only, and is the only role that may remove a marking (with a stated legal basis) or restore it. May assume an operational purpose (public order) to test purpose rules; this is a simulation convenience, not a power a real DPO has.",
           "markingsVisible": [
             "OPEN",
             "PII",
@@ -104,7 +104,8 @@ window.foundrySeedCatalog = {
             "LE-SENSITIVE"
           ],
           "purposes": [
-            "oversight"
+            "oversight",
+            "public-order"
           ],
           "canApprove": false,
           "canRemoveMarkings": true,
@@ -261,6 +262,17 @@ window.foundrySeedCatalog = {
           "minLength": 20,
           "tag": "exception",
           "refusalText": "Your role cannot request exceptions to purpose rules. This attempt has been logged."
+        },
+        {
+          "id": "cp-marking-restore",
+          "trigger": "marking.restore",
+          "prompt": "You are restoring a marking. Everything derived from this dataset will again be withheld from roles without it. State why.",
+          "requiresPurpose": true,
+          "allowedRoles": [
+            "dpo"
+          ],
+          "minLength": 20,
+          "refusalText": "Your role cannot restore markings. This attempt has been logged."
         }
       ],
       "honesty": [
@@ -270,7 +282,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Agent (simulated AIP)",
           "text": "Scripted stand-in for an AIP agent, with no language model: it plans tool calls from your question by fixed rules, runs each call through your role, the purpose rules, Checkpoints and the audit log, cites the objects behind its claims and stages edits for review. Real AIP agents use an LLM with tools; here the failures are scripted for teaching.",
-          "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview"
+          "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.investigations",
@@ -278,7 +291,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Investigations",
           "text": "Scripted scenarios with fixed scores stand in for an analyst's own investigation. In Gotham an investigation is assembled by the analyst from searches, graphs and maps; nothing is pre-scored.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.analytics",
@@ -286,7 +300,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Analytics",
           "text": "Plausible, hand-written rules stand in for Search Around-style network expansion. Expansion like this is how people with no police contact enter what Brayne calls a 'secondary surveillance network'.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.map",
@@ -294,7 +309,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Map",
           "text": "Synthetic points on a basic map. Gotham supports analysis on maps alongside graphs and timelines; layers, imagery, tracks and geofences are not modelled here.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.object-types",
@@ -302,7 +318,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Object types",
           "text": "Object types are the nouns of the Ontology's semantic layer, as in Foundry and Gotham. Palantir's own terms are object type, object, property and link type; this demo used to say entity and relationship types.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.properties",
@@ -310,7 +327,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Properties",
           "text": "Properties are the typed attributes of an object type; the columns of the backing dataset become properties.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.link-types",
@@ -318,7 +336,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Link types",
           "text": "Link types connect two object types; in Foundry a join between backing datasets becomes a link.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.backing-datasets",
@@ -326,7 +345,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Backing datasets",
           "text": "In Foundry an object type is backed by a dataset: rows become objects, columns become properties and joins become links. This view was called 'Source mappings' before.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.objects",
@@ -334,7 +354,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Objects",
           "text": "Objects are edited directly here. In Palantir, edits go through Action types (the kinetic layer) with parameters, validation, permissions, side effects and logs, and write back to operational systems.",
-          "docUrl": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72"
+          "docUrl": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72",
+          "docLabel": "Palantir blog"
         },
         {
           "id": "inv.graph",
@@ -342,7 +363,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Graph",
           "text": "Objects and links drawn as a graph, as in Gotham's graph view. Layout, expansion and styling are simplified, and the graph is redrawn from a static seed.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "build.pipelines",
@@ -350,7 +372,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Pipelines",
           "text": "Transforms produce new datasets from existing ones, as in Foundry. Builds, branches, schedules and dataset versions are not modelled; the pipeline runs once, offline, when the seed is built.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.datasets",
@@ -358,7 +381,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Datasets",
           "text": "Each dataset is a snapshot with sample rows. Foundry datasets are versioned through transactions, and every build produces a new version.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.lineage",
@@ -366,7 +390,8 @@ window.foundrySeedCatalog = {
           "label": "Teaching extension",
           "title": "Lineage",
           "text": "Row- and field-level provenance goes beyond Foundry's dataset-level lineage.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.markings",
@@ -374,7 +399,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Markings",
           "text": "Markings carry down lineage: a dataset made from a marked dataset inherits the marking, and only a privileged user can remove it. Here the union is computed when the seed is built and overrides are kept in your browser.",
-          "docUrl": "https://palantir.com/docs/foundry/security/markings/"
+          "docUrl": "https://palantir.com/docs/foundry/security/markings/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "oversight.audit",
@@ -382,7 +408,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Audit log",
           "text": "Searches, views, exports, checkpoints and role changes are logged in a hash-chained log kept in this browser. A real platform keeps its audit log on the server; anyone with this browser can clear this one, and the clear is logged.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "session.roles",
@@ -390,7 +417,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Roles",
           "text": "Five roles stand in for the groups, projects and organisations that grant access in a real deployment, combined with mandatory markings. The role switch is a client-side convenience, not security: anyone can pick any role.",
-          "docUrl": "https://palantir.com/docs/foundry/security/markings/"
+          "docUrl": "https://palantir.com/docs/foundry/security/markings/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "session.checkpoints",
@@ -398,7 +426,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Checkpoints",
           "text": "A purpose-justification prompt before sensitive searches, exports or network expansion. The record keeps the user, the time, the prompt exactly as shown, the justification and the items involved, as in Foundry Checkpoints (Jagasia & Wee, PEPR '21). Nothing stops you typing 'routine'.",
-          "docUrl": "https://palantir.com/docs/foundry/checkpoints/overview/"
+          "docUrl": "https://palantir.com/docs/foundry/checkpoints/overview/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.actions",
@@ -406,7 +435,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Actions",
           "text": "Action types with parameters, validation, permissions, side effects, logs and writeback to operational systems: the Ontology's kinetic layer, as in Foundry. Simplified: the receiving systems are panels in this page, not real APIs.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.karlsruhe",
@@ -414,7 +444,8 @@ window.foundrySeedCatalog = {
           "label": "Teaching extension",
           "title": "Karlsruhe mode",
           "text": "Purpose rules that block combining data collected for incompatible purposes. Not a Palantir feature: our abstraction of the logic of the German Constitutional Court's 2023 ruling on automated data analysis, not its text.",
-          "docUrl": "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html"
+          "docUrl": "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html",
+          "docLabel": "BVerfG press release"
         },
         {
           "id": "build.resolution",
@@ -422,7 +453,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Entity resolution",
           "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
-          "docUrl": "https://docs.aleph.occrp.org/developers/mappings"
+          "docUrl": "https://docs.aleph.occrp.org/developers/mappings",
+          "docLabel": "OCCRP Aleph docs"
         },
         {
           "id": "inv.leads",
@@ -430,7 +462,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Leads",
           "text": "A 0–100 address confidence score from source type and age, in the style of ICE's ELITE app. Simplified: the formula is ours; ELITE's is not public. Here every weight, age and source is shown.",
-          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite"
+          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite",
+          "docLabel": "News report"
         },
         {
           "id": "inv.object-sets",
@@ -438,7 +471,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Object sets",
           "text": "Saved, shareable lists of objects whose membership changes over time, as with Foundry object sets. Here versions and sharing are kept in your browser, and sharing is simulated by role.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.retention",
@@ -446,7 +480,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Retention",
           "text": "Each dataset carries a retention period; the slider greys out rows past it and counts derived rows that still carry them. Simplified: nothing is ever deleted here, and in a real platform deletion has to reach every derived dataset, export and copy.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "deployment",
@@ -454,7 +489,8 @@ window.foundrySeedCatalog = {
           "label": "Teaching extension",
           "title": "Deployment",
           "text": "Where this classroom tool lives: static files on GitHub Pages, map tiles from OpenStreetMap, and the session, audit log and governance in your own browser's localStorage, with nothing on a server. Not a Palantir view: real deployments run in the customer's cloud or on premises, updated by Apollo.",
-          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379"
+          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379",
+          "docLabel": "Palantir blog"
         }
       ],
       "purposeRules": [
@@ -467,7 +503,8 @@ window.foundrySeedCatalog = {
             "action"
           ],
           "requires": "sessionPurpose",
-          "effect": "block"
+          "effect": "block",
+          "note": "Purpose limitation in its thinnest form: some purpose must be stated, but nothing checks that it fits the data or the case. The court asked the legislature for clear purpose-limitation rules, in law and in practice; a dropdown is not that."
         },
         {
           "id": "R2",
@@ -487,7 +524,8 @@ window.foundrySeedCatalog = {
               "financial-crime"
             ]
           },
-          "effect": "block"
+          "effect": "block",
+          "note": "Reflects EU data-protection law more than the 2023 judgment: health data is a special category under GDPR Art. 9 and LED Art. 10. As an absolute ban it is stricter than EU law. LED Art. 10 allows police processing of health data where strictly necessary, with safeguards, and authorised by law. A change of purpose is not banned outright by the court either: it applies a test of \"hypothetical recollection of the data\"."
         },
         {
           "id": "R3",
@@ -497,10 +535,11 @@ window.foundrySeedCatalog = {
           ],
           "depthOver": 1,
           "effect": "checkpoint",
-          "checkpointId": "cp-danger-statement"
+          "checkpointId": "cp-danger-statement",
+          "note": "Our device, not the court's: the court's press release says nothing about hops. For severe interferences the court requires a \"sufficiently identifiable danger\" to particularly weighty legal interests. A minimum length cannot test that: thirty characters of filler pass this Checkpoint."
         }
       ],
-      "legalBasisNote": "Our abstraction of the BVerfG 2023 ruling's logic, not its text [to verify against the press release before teaching as the court's criteria].",
+      "legalBasisNote": "Karlsruhe mode is our abstraction of the logic of the German Constitutional Court's 2023 ruling on automated data analysis (BVerfG press release 18/2023), not its text and not its criteria. The court addressed the legislature: a statute must set clear limits on the data, the methods of analysis and the purposes. Until Hesse passed new rules, its interim order allowed use only against particularly serious crimes, with a written reason for each use. Each rule's note says what it abstracts and what it leaves out.",
       "discussions": [
         {
           "id": "disc-ice-elite",
@@ -547,13 +586,14 @@ window.foundrySeedCatalog = {
           "attachedTo": [
             "oversight.audit"
           ],
-          "summary": "Dutch police have used Palantir software since 2012 inside a platform called the \"Raffinaderij\" (refinery). Its use became public through Open Government Act (Woo) requests by de Volkskrant; about 99% of the released documents were redacted (Buro Jansen & Janssen). The Ministry of Defence plans an alternative within two years.",
+          "summary": "Dutch police have used Palantir software since 2012 inside an investigations data platform called the \"Raffinaderij\" (refinery). Buro Jansen & Janssen first appealed for the documents in 2019, under the law that preceded the Open Government Act (Woo). After a 2023 court ruling they were released with about 99% blacked out, and de Volkskrant reported on them (NL Times, August 2025). Separately, on defence rather than police: Euronews reported in June 2026 that the Dutch defence state secretary told parliament a full alternative to Palantir must be available within two years.",
           "questions": [
             "What does an audit log mean if the public cannot see that the system exists?",
             "Who is the auditor here, and who audits them?"
           ],
           "sources": [
-            "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir"
+            "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir",
+            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         },
@@ -564,13 +604,14 @@ window.foundrySeedCatalog = {
             "session.roles",
             "build.markings"
           ],
-          "summary": "NHS England awarded the Federated Data Platform contract to Palantir in November 2023, worth up to £330m over seven years; 137 NHS trusts were using it by April 2026. Palantir says it is not the data controller, a claim that is contested in practice, and in February 2026 the British Medical Association urged doctors to limit their use of the platform.",
+          "summary": "NHS England's Federated Data Platform runs on Palantir software, under a contract worth up to £330m over at most seven years; it went live in March 2024. In a Westminster Hall debate on 16 April 2026 a health minister, Zubir Ahmed, said 137 NHS trusts were actively using it, and that NHS England and NHS organisations \"retain full control as data controllers\". On the government's account, then, Palantir is not the data controller. In June 2026 Euronews reported a UK parliamentary committee asking for the NHS relationship to end when the contract expires in 2027.",
           "questions": [
             "Does \"not the controller\" survive once the vendor's software decides what each role can see?",
             "Who should define the roles and markings on a health platform: the hospital, the ministry or the vendor?"
           ],
           "sources": [
-            "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform"
+            "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform",
+            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         },
@@ -581,7 +622,7 @@ window.foundrySeedCatalog = {
             "build.pipelines",
             "deployment"
           ],
-          "summary": "Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, and other European governments are re-evaluating their agreements with US defence-technology suppliers.",
+          "summary": "Danish police use POL-INTEL, which Galis and Karlsson (2025) describe as a customised version of Palantir's Gotham in their study \"Scientification through privatization\". Defence is a separate matter: Euronews (June 2026) reports a seven-year Danish deal for Maven Smart System and Foundry, and that Denmark will look for local solutions to replace Palantir software; it does not mention POL-INTEL. The same report describes other European governments re-evaluating their agreements with Palantir.",
           "questions": [
             "What is sovereignty when the platform, and its updates, are delivered by the vendor?",
             "Which decisions in a pipeline are technical, and which are policy made by whoever writes the transforms?"
@@ -605,6 +646,25 @@ window.foundrySeedCatalog = {
           ],
           "sources": [
             "https://defensescoop.com/2025/05/23/dod-palantir-maven-smart-system-contract-increase/"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-data-subjects",
+          "title": "The people in the data: notice, access, correction, erasure",
+          "attachedTo": [
+            "oversight.audit",
+            "inv.actions",
+            "session.roles"
+          ],
+          "summary": "The people in this tool are synthetic, but in a real deployment each of them has rights. Under the GDPR they must be told about the processing (Arts 13–14), and can ask for access to their data (Art. 15), have it corrected (Art. 16) and, in some cases, erased (Art. 17). The Law Enforcement Directive gives similar rights against the police: access (Art. 14) and rectification or erasure (Art. 16), which Member States may restrict where necessary and proportionate (Art. 15). This tool has none of them. Nobody is notified, a person merged or flagged by mistake cannot see the record, and correcting a source is not an Action here.",
+          "questions": [
+            "Who would notice an error in a merged person, a watchlist entry or a lead, and how?",
+            "How would the person concerned contest it, if they are never told the record exists?"
+          ],
+          "sources": [
+            "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+            "https://eur-lex.europa.eu/eli/dir/2016/680/oj"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         }
@@ -919,6 +979,8 @@ window.foundrySeedCatalog = {
       "defaultThreshold": 0.75,
       "minThreshold": 0.3,
       "fixedNote": "Merges made by the pipeline's deterministic rules are fixed in this build — see each person's resolution record.",
+      "note": "There is no passport-conflict signal. Should two different passports veto a merge? Who decides?",
+      "discussion": "There is no passport-conflict signal. Should two different passports veto a merge? Who decides?",
       "signals": [
         {
           "id": "passport-exact",
@@ -1105,7 +1167,7 @@ window.foundrySeedCatalog = {
       ]
     },
     "pipeline": {
-      "generatedAt": "2026-11-04T18:51:31.555357Z",
+      "generatedAt": "2026-11-04T20:40:29.321568Z",
       "transforms": [
         {
           "id": "normalize_sources",
@@ -1124,7 +1186,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/01_normalize_sources.py — Read and normalize all six raw source files.\n\nFor each source:\n- Strip whitespace from all string fields\n- Parse date/datetime strings to ISO format (leave as-is if already ISO)\n- Split pipe-delimited alias fields into Python lists\n- Tag each row with its original 0-based row index as ``_source_row``\n- Copy the dataset's markings, purpose, legal basis and retention from\n  ``manifest.json`` (Dataset.markings / Dataset.purpose / ...), with\n  ``markingProvenance`` pointing at the raw file\n\nReturns six Dataset objects (one per source file).  The clinic file is\noptional: a profile without it yields an empty ``norm_clinic_registrations``.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport csv\nimport json\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\n# Allow imports from the repo root when run directly\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _strip(value: Any) -> Any:\n    if isinstance(value, str):\n        return value.strip()\n    return value\n\n\ndef _clean_row(row: Dict[str, Any]) -> Dict[str, Any]:\n    return {k: _strip(v) for k, v in row.items()}\n\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\n\n\ndef source_label(path: Path) -> str:\n    \"\"\"Repo-relative POSIX path of a raw source file (absolute if outside the repo).\"\"\"\n    resolved = Path(path).resolve()\n    try:\n        return resolved.relative_to(REPO_ROOT).as_posix()\n    except ValueError:\n        return resolved.as_posix()\n\n\ndef read_csv_raw(path: Path) -> List[Dict[str, str]]:\n    with path.open(newline=\"\", encoding=\"utf-8\") as fh:\n        return list(csv.DictReader(fh))\n\n\ndef read_jsonl_raw(path: Path) -> List[Dict[str, Any]]:\n    with path.open(encoding=\"utf-8\") as fh:\n        return [json.loads(line) for line in fh if line.strip()]\n\n\n# ---------------------------------------------------------------------------\n# Per-source normalizers\n# ---------------------------------------------------------------------------\n\ndef normalize_watchlist(path: Path) -> Dataset:\n    \"\"\"watchlist.csv → cleaned rows with aliases as list.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        # Split pipe-delimited aliases\n        raw_alias = row.get(\"alias\", \"\")\n        alias_list = [a.strip() for a in raw_alias.split(\"|\") if a.strip()] if raw_alias else []\n        out.append({\n            \"_source_row\": i,\n            \"watchlist_id\": row.get(\"watchlist_id\", \"\"),\n            \"canonical_name\": row.get(\"canonical_name\", \"\"),\n            \"aliases\": alias_list,\n            \"dob\": row.get(\"dob\", \"\"),\n            \"nationality\": row.get(\"nationality\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"risk_tag\": row.get(\"risk_tag\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"watchlist_id\", \"type\": \"string\"},\n        {\"field\": \"canonical_name\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"json\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"risk_tag\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_watchlist\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_company_registry(path: Path) -> Dataset:\n    \"\"\"company_registry.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"company_id\": row.get(\"company_id\", \"\"),\n            \"company_name\": row.get(\"company_name\", \"\"),\n            \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n            \"incorporation_date\": row.get(\"incorporation_date\", \"\"),\n            \"registered_address\": row.get(\"registered_address\", \"\"),\n            \"director_name\": row.get(\"director_name\", \"\"),\n            \"director_dob\": row.get(\"director_dob\", \"\"),\n            \"beneficial_owner\": row.get(\"beneficial_owner\", \"\"),\n            \"beneficial_owner_dob\": row.get(\"beneficial_owner_dob\", \"\"),\n            \"registered_city\": row.get(\"registered_city\", \"\"),\n            \"registered_country\": row.get(\"registered_country\", \"\"),\n            \"registered_site_type\": row.get(\"registered_site_type\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"company_id\", \"type\": \"string\"},\n        {\"field\": \"company_name\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporation_date\", \"type\": \"date\"},\n        {\"field\": \"registered_address\", \"type\": \"string\"},\n        {\"field\": \"director_name\", \"type\": \"string\"},\n        {\"field\": \"director_dob\", \"type\": \"date\"},\n        {\"field\": \"beneficial_owner\", \"type\": \"string\"},\n        {\"field\": \"beneficial_owner_dob\", \"type\": \"date\"},\n        {\"field\": \"registered_city\", \"type\": \"string\"},\n        {\"field\": \"registered_country\", \"type\": \"string\"},\n        {\"field\": \"registered_site_type\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_company_registry\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_flight_manifests(path: Path) -> Dataset:\n    \"\"\"flight_manifests.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"manifest_id\": row.get(\"manifest_id\", \"\"),\n            \"flight_number\": row.get(\"flight_number\", \"\"),\n            \"departure_airport\": row.get(\"departure_airport\", \"\"),\n            \"arrival_airport\": row.get(\"arrival_airport\", \"\"),\n            \"departure_ts\": row.get(\"departure_ts\", \"\"),\n            \"booking_reference\": row.get(\"booking_reference\", \"\"),\n            \"passenger_name\": row.get(\"passenger_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"phone_number\": row.get(\"phone_number\", \"\"),\n            \"seat\": row.get(\"seat\", \"\"),\n            \"payment_card_last4\": row.get(\"payment_card_last4\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"manifest_id\", \"type\": \"string\"},\n        {\"field\": \"flight_number\", \"type\": \"string\"},\n        {\"field\": \"departure_airport\", \"type\": \"string\"},\n        {\"field\": \"arrival_airport\", \"type\": \"string\"},\n        {\"field\": \"departure_ts\", \"type\": \"date\"},\n        {\"field\": \"booking_reference\", \"type\": \"string\"},\n        {\"field\": \"passenger_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"seat\", \"type\": \"string\"},\n        {\"field\": \"payment_card_last4\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_flight_manifests\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_bank_transactions(path: Path) -> Dataset:\n    \"\"\"bank_transactions.csv → cleaned rows with numeric amount.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        amount_raw = row.get(\"amount_usd\", \"\")\n        try:\n            amount = float(amount_raw) if amount_raw else None\n        except ValueError:\n            amount = None\n        out.append({\n            \"_source_row\": i,\n            \"transaction_id\": row.get(\"transaction_id\", \"\"),\n            \"source_account_id\": row.get(\"source_account_id\", \"\"),\n            \"source_name\": row.get(\"source_name\", \"\"),\n            \"destination_account_id\": row.get(\"destination_account_id\", \"\"),\n            \"destination_name\": row.get(\"destination_name\", \"\"),\n            \"amount_usd\": amount,\n            \"txn_type\": row.get(\"txn_type\", \"\"),\n            \"merchant_or_bank\": row.get(\"merchant_or_bank\", \"\"),\n            \"txn_ts\": row.get(\"txn_ts\", \"\"),\n            \"reference\": row.get(\"reference\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"transaction_id\", \"type\": \"string\"},\n        {\"field\": \"source_account_id\", \"type\": \"string\"},\n        {\"field\": \"source_name\", \"type\": \"string\"},\n        {\"field\": \"destination_account_id\", \"type\": \"string\"},\n        {\"field\": \"destination_name\", \"type\": \"string\"},\n        {\"field\": \"amount_usd\", \"type\": \"float\"},\n        {\"field\": \"txn_type\", \"type\": \"string\"},\n        {\"field\": \"merchant_or_bank\", \"type\": \"string\"},\n        {\"field\": \"txn_ts\", \"type\": \"date\"},\n        {\"field\": \"reference\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_bank_transactions\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_mobile_pings(path: Path) -> Dataset:\n    \"\"\"mobile_location_pings.jsonl → cleaned rows with numeric lat/lon.\"\"\"\n    rows = read_jsonl_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        out.append({\n            \"_source_row\": i,\n            \"ping_id\": str(row.get(\"ping_id\", \"\")),\n            \"device_id\": str(row.get(\"device_id\", \"\")),\n            \"phone_number\": str(row.get(\"phone_number\", \"\")),\n            \"observed_name\": str(row.get(\"observed_name\", \"\")),\n            \"timestamp\": str(row.get(\"timestamp\", \"\")),\n            \"location_label\": str(row.get(\"location_label\", \"\")),\n            \"location_type\": str(row.get(\"location_type\", \"\")),\n            \"city\": str(row.get(\"city\", \"\")),\n            \"country\": str(row.get(\"country\", \"\")),\n            \"lat\": row.get(\"lat\"),\n            \"lon\": row.get(\"lon\"),\n            \"cell_tower\": str(row.get(\"cell_tower\", \"\")),\n            \"source\": str(row.get(\"source\", \"\")),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"ping_id\", \"type\": \"string\"},\n        {\"field\": \"device_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"observed_name\", \"type\": \"string\"},\n        {\"field\": \"timestamp\", \"type\": \"date\"},\n        {\"field\": \"location_label\", \"type\": \"string\"},\n        {\"field\": \"location_type\", \"type\": \"string\"},\n        {\"field\": \"city\", \"type\": \"string\"},\n        {\"field\": \"country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"cell_tower\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_mobile_pings\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef _float_or_none(value: Any) -> Any:\n    try:\n        return float(value) if value not in (None, \"\") else None\n    except ValueError:\n        return None\n\n\ndef normalize_clinic(path: Path) -> Dataset:\n    \"\"\"clinic_registrations.csv → cleaned rows with numeric lat/lon.\n\n    Health data: rows are only ever *attached* to people who already exist\n    (by name + dob, in step 02); an unmatched row stays in this dataset.\n    \"\"\"\n    rows = read_csv_raw(path) if path.exists() else []\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"registration_id\": row.get(\"registration_id\", \"\"),\n            \"patient_name\": row.get(\"patient_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"home_address\": row.get(\"home_address\", \"\"),\n            \"home_city\": row.get(\"home_city\", \"\"),\n            \"home_country\": row.get(\"home_country\", \"\"),\n            \"lat\": _float_or_none(row.get(\"lat\")),\n            \"lon\": _float_or_none(row.get(\"lon\")),\n            \"clinic_code\": row.get(\"clinic_code\", \"\"),\n            \"registered_on\": row.get(\"registered_on\", \"\"),\n            \"source\": row.get(\"source\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"registration_id\", \"type\": \"string\"},\n        {\"field\": \"patient_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"home_address\", \"type\": \"string\"},\n        {\"field\": \"home_city\", \"type\": \"string\"},\n        {\"field\": \"home_country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"clinic_code\", \"type\": \"string\"},\n        {\"field\": \"registered_on\", \"type\": \"date\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_clinic_registrations\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef apply_manifest(ds: Dataset, manifest: Dict[str, Dict[str, Any]], file_name: str) -> Dataset:\n    \"\"\"Copy markings, purpose, legal basis and retention from the manifest.\"\"\"\n    entry = governance.manifest_entry_for_file(manifest, file_name)\n    ds.set_governance(governance.raw_governance(file_name, entry))\n    ds.as_of = entry.get(\"asOf\", \"\")  # type: ignore[attr-defined]\n    ds.derived_from = [file_name]\n    return ds\n\n\n# ---------------------------------------------------------------------------\n# Public entry point\n# ---------------------------------------------------------------------------\n\nRAW_FILES = (\n    \"watchlist.csv\", \"company_registry.csv\", \"flight_manifests.csv\",\n    \"bank_transactions.csv\", \"mobile_location_pings.jsonl\", \"clinic_registrations.csv\",\n)\n\n\ndef run(dataset_dir: Path) -> Tuple[Dataset, Dataset, Dataset, Dataset, Dataset, Dataset]:\n    \"\"\"Normalize all six sources under *dataset_dir*.\n\n    Returns\n    -------\n    (norm_watchlist, norm_company_registry, norm_flight_manifests,\n     norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations)\n    \"\"\"\n    dataset_dir = Path(dataset_dir)\n    manifest = governance.load_manifest(dataset_dir)\n    wl = normalize_watchlist(dataset_dir / \"watchlist.csv\")\n    cr = normalize_company_registry(dataset_dir / \"company_registry.csv\")\n    fm = normalize_flight_manifests(dataset_dir / \"flight_manifests.csv\")\n    bt = normalize_bank_transactions(dataset_dir / \"bank_transactions.csv\")\n    mp = normalize_mobile_pings(dataset_dir / \"mobile_location_pings.jsonl\")\n    cl = normalize_clinic(dataset_dir / \"clinic_registrations.csv\")\n\n    datasets = (wl, cr, fm, bt, mp, cl)\n    for ds, file_name in zip(datasets, RAW_FILES):\n        apply_manifest(ds, manifest, file_name)\n    return datasets\n\n\nif __name__ == \"__main__\":\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    datasets = run(dataset_dir)\n    for ds in datasets:\n        print(f\"{ds.name}: {len(ds)} rows\")\n",
           "rowsIn": 0,
           "rowsOut": 175,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         },
         {
           "id": "resolve_persons",
@@ -1139,10 +1201,10 @@ window.foundrySeedCatalog = {
           ],
           "output": "resolved_persons",
           "codePath": "pipeline/02_resolve_persons.py",
-          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (HEALTH)\n  clinicCode       — latest clinic registration (HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
+          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (PII + HEALTH)\n  clinicCode       — latest clinic registration (PII + HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
           "rowsIn": 141,
           "rowsOut": 24,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         },
         {
           "id": "resolve_companies",
@@ -1156,7 +1218,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/03_resolve_companies.py — Entity resolution for Company entities.\n\nKeyed by company_id from the normalized company_registry dataset.\n\nOutput Dataset: company entities\n  id                 — company::{slug(company_id)}\n  companyName\n  jurisdiction\n  incorporationDate\n  registeredAddress\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef run(norm_company_registry: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve Company entities from the normalized company_registry dataset.\"\"\"\n    seen: Dict[str, int] = {}   # company_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for row in norm_company_registry.rows:\n        company_id = row.get(\"company_id\", \"\")\n        if not company_id:\n            continue\n\n        src_row = int(row[\"_source_row\"])\n        ds_name = norm_company_registry.name\n\n        if company_id in seen:\n            # Merge into existing — update any empty fields\n            out_idx = seen[company_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                val = row.get(src_field, \"\")\n                if val and not existing.get(out_field):\n                    existing[out_field] = val\n                    fp.setdefault(out_field, []).append(\n                        {\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"merge\"}\n                    )\n        else:\n            out_idx = len(output_rows)\n            seen[company_id] = out_idx\n            entity_id = f\"company::{slug(company_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"Company\",\n                \"companyName\": row.get(\"company_name\", \"\"),\n                \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n                \"incorporationDate\": row.get(\"incorporation_date\", \"\"),\n                \"registeredAddress\": row.get(\"registered_address\", \"\"),\n            }\n            fp: Dict[str, List[Dict[str, Any]]] = {}\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                if row.get(src_field):\n                    fp[out_field] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"\"}]\n            fp[\"id\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": \"company_id\", \"note\": \"key\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp)\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"companyName\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporationDate\", \"type\": \"date\"},\n        {\"field\": \"registeredAddress\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_companies\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_company_registry])\n    lineage = LineageRecord()\n\n    for out_idx, (out_row, fp) in enumerate(zip(output_rows, fp_per_row)):\n        # Row-level: find the original source row index\n        src_refs = fp.get(\"id\", fp.get(\"companyName\", []))\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"company\")\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, cr, _, _, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(cr)\n    print(f\"Resolved {len(ds)} companies\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"companyName\"])\n",
           "rowsIn": 10,
           "rowsOut": 10,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         },
         {
           "id": "resolve_accounts",
@@ -1170,7 +1232,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/04_resolve_accounts.py — Entity resolution for BankAccount entities.\n\nKeyed by account_id from the normalized bank_transactions dataset.\nBoth source and destination accounts are extracted.\n\nOutput Dataset: bank account entities\n  id           — bankaccount::{slug(account_id)}\n  accountId\n  ownerName\n  accountKind  — \"personal\" | \"corporate\" | \"\" (resolved downstream in step 05)\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\ndef run(norm_bank_transactions: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve BankAccount entities from the normalized bank_transactions dataset.\"\"\"\n    seen: Dict[str, int] = {}   # account_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n    ds_name = norm_bank_transactions.name\n\n    def upsert(account_id: str, owner_name: str, src_row: int, id_field: str, name_field: str) -> None:\n        if not account_id:\n            return\n        if account_id in seen:\n            out_idx = seen[account_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            if owner_name and not existing.get(\"ownerName\"):\n                existing[\"ownerName\"] = owner_name\n                fp.setdefault(\"ownerName\", []).append(\n                    {\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"merge\"}\n                )\n        else:\n            out_idx = len(output_rows)\n            seen[account_id] = out_idx\n            entity_id = f\"bankaccount::{slug(account_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"BankAccount\",\n                \"accountId\": account_id,\n                \"ownerName\": owner_name,\n                \"accountKind\": \"\",\n            }\n            fp_entry: Dict[str, List[Dict[str, Any]]] = {\n                \"id\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"key\"}],\n                \"accountId\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"\"}],\n            }\n            if owner_name:\n                fp_entry[\"ownerName\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp_entry)\n\n    for row in norm_bank_transactions.rows:\n        src_row = int(row[\"_source_row\"])\n        upsert(\n            row.get(\"source_account_id\", \"\"),\n            row.get(\"source_name\", \"\"),\n            src_row,\n            \"source_account_id\",\n            \"source_name\",\n        )\n        upsert(\n            row.get(\"destination_account_id\", \"\"),\n            row.get(\"destination_name\", \"\"),\n            src_row,\n            \"destination_account_id\",\n            \"destination_name\",\n        )\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"accountId\", \"type\": \"string\"},\n        {\"field\": \"ownerName\", \"type\": \"string\"},\n        {\"field\": \"accountKind\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_accounts\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_bank_transactions])\n    lineage = LineageRecord()\n\n    for out_idx, fp in enumerate(fp_per_row):\n        src_refs = fp.get(\"id\", [])\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"account\")\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, _, _, bt, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(bt)\n    print(f\"Resolved {len(ds)} bank accounts\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"ownerName\"])\n",
           "rowsIn": 34,
           "rowsOut": 25,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         },
         {
           "id": "build_ontology",
@@ -1192,12 +1254,12 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/05_build_ontology.py — Build the full ontology entity and edge sets.\n\nTakes all resolved entity datasets + normalized sources.  Produces:\n  - Additional entity types: Device, Flight, Airport, Location, WatchlistRecord\n  - All edges:\n      LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT,\n      OWNS_ACCOUNT, HAS_CORP_ACCOUNT, TRANSFERRED_TO,\n      BOOKED_ON, DEPARTED_FROM, ARRIVED_AT,\n      USES_DEVICE, OBSERVED_AT,\n      RESIDES_AT (Phase 1: Person → residential Location, from clinic rows)\n\nClinic rows that the shared resolver attached to a Person (name + dob) become\na residential ``Location`` (``locationType: \"residential\"``) and a\n``RESIDES_AT`` link with ``{asOf, source}``.  Unattached rows produce nothing.\n\nBoth output datasets inherit the union of their inputs' markings, and every\nentity and edge gets contract §3 markings from ``pipeline/governance.py``.\n\nPerson lookups go through the shared resolver in ``pipeline/resolution.py``\n(the same one the Gotham seed builder uses), passing every key the source row\ncarries — passport, phone, name and date of birth — so both demos attach\neach edge to the same person.\n\nReturns:\n  entities_dataset  — all entities (persons + companies + accounts + new types)\n  edges_dataset     — all edges\n  entity_lineage    — LineageRecord for entities\n  edge_lineage      — LineageRecord for edges\n\"\"\"\n\nfrom __future__ import annotations\n\nimport re\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Optional, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\nfrom pipeline.resolution import PersonResolver, attach_clinic_rows, clinic_observations, resolve_people\n\n# ---------------------------------------------------------------------------\n# Airport reference data (from build_ontology_seed.py)\n# ---------------------------------------------------------------------------\nAIRPORT_COORDS: Dict[str, Dict[str, Any]] = {\n    \"ATH\": {\"name\": \"Athens International Airport\", \"city\": \"Athens\", \"country\": \"Greece\", \"lat\": 37.9364, \"lon\": 23.9475},\n    \"BEG\": {\"name\": \"Belgrade Nikola Tesla Airport\", \"city\": \"Belgrade\", \"country\": \"Serbia\", \"lat\": 44.8184, \"lon\": 20.3091},\n    \"DXB\": {\"name\": \"Dubai International Airport\", \"city\": \"Dubai\", \"country\": \"United Arab Emirates\", \"lat\": 25.2532, \"lon\": 55.3657},\n    \"IAD\": {\"name\": \"Washington Dulles International Airport\", \"city\": \"Washington, D.C.\", \"country\": \"United States\", \"lat\": 38.9531, \"lon\": -77.4565},\n    \"IST\": {\"name\": \"Istanbul Airport\", \"city\": \"Istanbul\", \"country\": \"Turkey\", \"lat\": 41.2753, \"lon\": 28.7519},\n    \"LCA\": {\"name\": \"Larnaca International Airport\", \"city\": \"Larnaca\", \"country\": \"Cyprus\", \"lat\": 34.8751, \"lon\": 33.6249},\n    \"LHR\": {\"name\": \"Heathrow Airport\", \"city\": \"London\", \"country\": \"United Kingdom\", \"lat\": 51.4700, \"lon\": -0.4543},\n    \"SOF\": {\"name\": \"Sofia Airport\", \"city\": \"Sofia\", \"country\": \"Bulgaria\", \"lat\": 42.6950, \"lon\": 23.4062},\n    \"VIE\": {\"name\": \"Vienna International Airport\", \"city\": \"Vienna\", \"country\": \"Austria\", \"lat\": 48.1103, \"lon\": 16.5697},\n}\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _norm(value: str) -> str:\n    cleaned = re.sub(r\"[^a-z0-9]+\", \" \", value.lower()).strip()\n    return re.sub(r\"\\s+\", \" \", cleaned)\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Ontology builder\n# ---------------------------------------------------------------------------\n\nclass OntologyBuilder:\n    def __init__(\n        self,\n        resolved_persons: Dataset,\n        resolved_companies: Dataset,\n        resolved_accounts: Dataset,\n        resolver: PersonResolver,\n    ) -> None:\n        # Start with resolved entities\n        self.entities: List[Dict[str, Any]] = []\n        self.entity_index: Dict[str, int] = {}  # entity_id → index in self.entities\n        self.edges: List[Dict[str, Any]] = []\n        self.edge_index: Dict[str, int] = {}\n\n        # Entity lineage: entity_id → list of source refs\n        self.entity_src: Dict[str, List[Dict[str, Any]]] = {}\n        self.entity_field_prov: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}\n\n        # Lookup tables (persons: the shared resolver from step 02)\n        self.resolver = resolver\n        self.company_by_name: Dict[str, str] = {}\n        self.account_by_id: Dict[str, str] = {}\n        self.device_by_id: Dict[str, str] = {}\n        self.airport_by_code: Dict[str, str] = {}\n        self.location_by_label: Dict[str, str] = {}\n\n        # Ingest persons\n        for row in resolved_persons.rows:\n            self._add_entity_row(row, resolved_persons.name)\n\n        # Ingest companies\n        for row in resolved_companies.rows:\n            self._add_entity_row(row, resolved_companies.name)\n            self.company_by_name[_norm(row.get(\"companyName\", \"\"))] = row[\"id\"]\n\n        # Ingest accounts\n        for row in resolved_accounts.rows:\n            self._add_entity_row(row, resolved_accounts.name)\n            self.account_by_id[row[\"accountId\"]] = row[\"id\"]\n\n    def _add_entity_row(self, row: Dict[str, Any], source_ds: str) -> str:\n        eid = row[\"id\"]\n        if eid in self.entity_index:\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        # Build Gotham-compatible entity shape\n        props = {k: v for k, v in row.items() if k not in (\"id\", \"type\", \"resolution\") and v not in (None, \"\")}\n        entity = {\n            \"id\": eid,\n            \"type\": row[\"type\"],\n            \"label\": props.get(\"canonicalName\") or props.get(\"companyName\") or props.get(\"accountId\") or eid,\n            \"properties\": props,\n            \"sourceIds\": [source_ds],\n        }\n        if row.get(\"resolution\"):\n            entity[\"resolution\"] = row[\"resolution\"]\n        self.entities.append(entity)\n        return eid\n\n    def _add_edge(\n        self,\n        rel_type: str,\n        source_id: str,\n        target_id: str,\n        properties: Optional[Dict[str, Any]] = None,\n        dedupe_key: Optional[str] = None,\n    ) -> str:\n        base_key = dedupe_key or f\"{rel_type}:{source_id}:{target_id}\"\n        edge_id = f\"{rel_type.lower()}::{slug(base_key)}\"\n        if edge_id in self.edge_index:\n            idx = self.edge_index[edge_id]\n            if properties:\n                for k, v in properties.items():\n                    if v not in (None, \"\"):\n                        self.edges[idx][\"properties\"][k] = v\n            return edge_id\n        idx = len(self.edges)\n        self.edge_index[edge_id] = idx\n        self.edges.append({\n            \"id\": edge_id,\n            \"type\": rel_type,\n            \"source\": source_id,\n            \"target\": target_id,\n            \"label\": rel_type,\n            \"properties\": {k: v for k, v in (properties or {}).items() if v not in (None, \"\")},\n        })\n        return edge_id\n\n    def _ensure_entity(\n        self, type_id: str, external_key: str, label: str,\n        properties: Dict[str, Any], source_ds: str,\n    ) -> str:\n        eid = f\"{type_id.lower()}::{slug(external_key)}\"\n        if eid in self.entity_index:\n            # Merge\n            existing = self.entities[self.entity_index[eid]]\n            for k, v in properties.items():\n                if v not in (None, \"\") and existing[\"properties\"].get(k) in (None, \"\"):\n                    existing[\"properties\"][k] = v\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        clean_props = {k: v for k, v in properties.items() if v not in (None, \"\")}\n        self.entities.append({\n            \"id\": eid,\n            \"type\": type_id,\n            \"label\": label or external_key,\n            \"properties\": clean_props,\n            \"sourceIds\": [source_ds],\n        })\n        return eid\n\n    def ensure_airport(self, code: str) -> str:\n        if code in self.airport_by_code:\n            return self.airport_by_code[code]\n        info = AIRPORT_COORDS.get(code, {\"name\": code, \"city\": \"\", \"country\": \"\", \"lat\": None, \"lon\": None})\n        eid = self._ensure_entity(\n            \"Airport\", code, info[\"name\"],\n            {\"code\": code, \"airportName\": info[\"name\"], \"city\": info[\"city\"],\n             \"country\": info[\"country\"], \"lat\": info[\"lat\"], \"lon\": info[\"lon\"]},\n            \"norm_flight_manifests\",\n        )\n        self.airport_by_code[code] = eid\n        return eid\n\n    def ensure_location(\n        self, label: str, lat: Any = None, lon: Any = None,\n        cell_tower: str = \"\", location_type: str = \"\", city: str = \"\", country: str = \"\",\n        source_ds: str = \"norm_mobile_pings\",\n    ) -> str:\n        norm = _norm(label)\n        if norm in self.location_by_label:\n            eid = self.location_by_label[norm]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            for k, v in {\"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower,\n                         \"locationType\": location_type, \"city\": city, \"country\": country}.items():\n                if v not in (None, \"\") and props.get(k) in (None, \"\"):\n                    props[k] = v\n            return eid\n        eid = self._ensure_entity(\n            \"Location\", label, label,\n            {\"label\": label, \"locationType\": location_type, \"city\": city, \"country\": country,\n             \"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower},\n            source_ds,\n        )\n        self.location_by_label[norm] = eid\n        return eid\n\n    def ensure_device(self, device_id: str, phone: str, observed_name: str) -> str:\n        if device_id in self.device_by_id:\n            eid = self.device_by_id[device_id]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            if phone:\n                props[\"phoneNumber\"] = _merge(str(props.get(\"phoneNumber\", \"\")), phone)\n            if observed_name:\n                props[\"lastObservedName\"] = _merge(str(props.get(\"lastObservedName\", \"\")), observed_name)\n            return eid\n        eid = self._ensure_entity(\n            \"Device\", device_id, device_id,\n            {\"deviceId\": device_id, \"phoneNumber\": phone, \"lastObservedName\": observed_name},\n            \"norm_mobile_pings\",\n        )\n        self.device_by_id[device_id] = eid\n        return eid\n\n    def find_person(self, passport_id: str = \"\", phone: str = \"\", name: str = \"\", dob: str = \"\",\n                    ref: str = \"\") -> Optional[str]:\n        \"\"\"Person for a source record (``ref``) or, failing that, by key lookup.\"\"\"\n        if ref:\n            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone)\n        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone)\n\n    def link_account_owner(self, account_eid: str, owner_name: str) -> None:\n        norm = _norm(owner_name)\n        acct_props = self.entities[self.entity_index[account_eid]][\"properties\"]\n        if norm in self.company_by_name:\n            company_id = self.company_by_name[norm]\n            self._add_edge(\"HAS_CORP_ACCOUNT\", company_id, account_eid, dedupe_key=f\"{company_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"corporate\"\n            return\n        person_id = self.find_person(name=owner_name)\n        if person_id:\n            self._add_edge(\"OWNS_ACCOUNT\", person_id, account_eid, dedupe_key=f\"{person_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"personal\"\n\n\n# ---------------------------------------------------------------------------\n# Main run\n# ---------------------------------------------------------------------------\n\ndef run(\n    resolved_persons: Dataset,\n    resolved_companies: Dataset,\n    resolved_accounts: Dataset,\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_bank_transactions: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, Dataset, LineageRecord, LineageRecord]:\n\n    resolver = getattr(resolved_persons, \"resolver\", None)\n    if resolver is None:\n        # Rebuild the identical resolver state from the normalised sources.\n        resolver = resolve_people(norm_watchlist.rows, norm_company_registry.rows,\n                                  norm_flight_manifests.rows, norm_mobile_pings.rows)\n        attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts, resolver)\n\n    # --- WatchlistRecord entities + LISTED_ON edges ---\n    for row in norm_watchlist.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            name=row.get(\"canonical_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"watchlist:{row.get('watchlist_id', '')}\",\n        )\n        record_eid = builder._ensure_entity(\n            \"WatchlistRecord\",\n            row.get(\"watchlist_id\", \"\"),\n            row.get(\"watchlist_id\", \"\"),\n            {\n                \"watchlistId\": row.get(\"watchlist_id\", \"\"),\n                \"alias\": \" | \".join(row.get(\"aliases\", [])),\n                \"dob\": row.get(\"dob\", \"\"),\n                \"nationality\": row.get(\"nationality\", \"\"),\n                \"passportId\": row.get(\"passport_id\", \"\"),\n                \"riskTag\": row.get(\"risk_tag\", \"\"),\n            },\n            norm_watchlist.name,\n        )\n        if person_id:\n            builder._add_edge(\"LISTED_ON\", person_id, record_eid,\n                               dedupe_key=f\"{person_id}:{record_eid}\")\n\n    # --- Company edges: DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT ---\n    for row in norm_company_registry.rows:\n        company_eid = f\"company::{slug(row.get('company_id', ''))}\"\n        if company_eid not in builder.entity_index:\n            continue\n\n        # Director\n        director_id = builder.find_person(name=row.get(\"director_name\", \"\"),\n                                           dob=row.get(\"director_dob\", \"\"),\n                                           ref=f\"company:{row.get('company_id', '')}:director\")\n        if director_id:\n            builder._add_edge(\"DIRECTS\", director_id, company_eid,\n                               dedupe_key=f\"{director_id}:{company_eid}\")\n\n        # Beneficial owner\n        owner_id = builder.find_person(name=row.get(\"beneficial_owner\", \"\"),\n                                        dob=row.get(\"beneficial_owner_dob\", \"\"),\n                                        ref=f\"company:{row.get('company_id', '')}:owner\")\n        if owner_id:\n            builder._add_edge(\"BENEFICIALLY_OWNS\", owner_id, company_eid,\n                               dedupe_key=f\"{owner_id}:{company_eid}\")\n\n        # Registered address → Location\n        address = row.get(\"registered_address\", \"\")\n        if address:\n            loc_eid = builder.ensure_location(\n                address, location_type=row.get(\"registered_site_type\", \"\"),\n                city=row.get(\"registered_city\", \"\"),\n                country=row.get(\"registered_country\", \"\"),\n                source_ds=norm_company_registry.name,\n            )\n            builder._add_edge(\"REGISTERED_AT\", company_eid, loc_eid,\n                               dedupe_key=f\"{company_eid}:{loc_eid}\")\n\n    # --- Flight entities + BOOKED_ON, DEPARTED_FROM, ARRIVED_AT ---\n    for row in norm_flight_manifests.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            phone=row.get(\"phone_number\", \"\"),\n            name=row.get(\"passenger_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"flight:{row.get('manifest_id', '')}\",\n        )\n        flight_eid = builder._ensure_entity(\n            \"Flight\",\n            row.get(\"manifest_id\", \"\"),\n            f\"{row.get('flight_number', '')} · {row.get('passenger_name', '')}\",\n            {\n                \"manifestId\": row.get(\"manifest_id\", \"\"),\n                \"flightNumber\": row.get(\"flight_number\", \"\"),\n                \"departureTs\": row.get(\"departure_ts\", \"\"),\n                \"bookingReference\": row.get(\"booking_reference\", \"\"),\n                \"seat\": row.get(\"seat\", \"\"),\n                \"paymentCardLast4\": row.get(\"payment_card_last4\", \"\"),\n            },\n            norm_flight_manifests.name,\n        )\n        dep_eid = builder.ensure_airport(row.get(\"departure_airport\", \"\"))\n        arr_eid = builder.ensure_airport(row.get(\"arrival_airport\", \"\"))\n        if person_id:\n            builder._add_edge(\"BOOKED_ON\", person_id, flight_eid,\n                               dedupe_key=f\"{person_id}:{flight_eid}\")\n        builder._add_edge(\"DEPARTED_FROM\", flight_eid, dep_eid,\n                           dedupe_key=f\"{flight_eid}:{dep_eid}\")\n        builder._add_edge(\"ARRIVED_AT\", flight_eid, arr_eid,\n                           dedupe_key=f\"{flight_eid}:{arr_eid}\")\n\n    # --- Bank account ownership + TRANSFERRED_TO ---\n    for row in norm_bank_transactions.rows:\n        src_acc = row.get(\"source_account_id\", \"\")\n        dst_acc = row.get(\"destination_account_id\", \"\")\n        src_eid = builder.account_by_id.get(src_acc, \"\")\n        dst_eid = builder.account_by_id.get(dst_acc, \"\")\n\n        if src_eid:\n            builder.link_account_owner(src_eid, row.get(\"source_name\", \"\"))\n        if dst_eid:\n            builder.link_account_owner(dst_eid, row.get(\"destination_name\", \"\"))\n\n        if src_eid and dst_eid and row.get(\"txn_type\") == \"transfer\":\n            dedupe = f\"{src_eid}:{dst_eid}\"\n            edge_id = f\"transferred_to::{slug(dedupe)}\"\n            if edge_id in builder.edge_index:\n                idx = builder.edge_index[edge_id]\n                existing = builder.edges[idx]\n                count = int(existing[\"properties\"].get(\"count\", \"1\")) + 1\n                total = float(existing[\"properties\"].get(\"totalAmountUsd\", \"0\")) + float(row.get(\"amount_usd\") or 0)\n                existing[\"properties\"][\"count\"] = str(count)\n                existing[\"properties\"][\"totalAmountUsd\"] = f\"{total:.2f}\"\n                existing[\"properties\"][\"lastTxnTs\"] = row.get(\"txn_ts\", \"\")\n            else:\n                builder._add_edge(\n                    \"TRANSFERRED_TO\", src_eid, dst_eid,\n                    properties={\n                        \"count\": \"1\",\n                        \"totalAmountUsd\": str(row.get(\"amount_usd\", \"\") or \"\"),\n                        \"lastTxnTs\": row.get(\"txn_ts\", \"\"),\n                        \"sampleReference\": row.get(\"reference\", \"\"),\n                    },\n                    dedupe_key=dedupe,\n                )\n\n    # --- Device entities + USES_DEVICE + OBSERVED_AT ---\n    for row in norm_mobile_pings.rows:\n        device_id_str = row.get(\"device_id\", \"\")\n        phone = row.get(\"phone_number\", \"\")\n        observed = row.get(\"observed_name\", \"\")\n\n        device_eid = builder.ensure_device(device_id_str, phone, observed)\n\n        # Ping-only persons were already created by step 02's resolver.\n        person_id = builder.find_person(phone=phone, name=observed,\n                                        ref=f\"ping:{row.get('ping_id', '')}\")\n        if person_id:\n            builder._add_edge(\"USES_DEVICE\", person_id, device_eid,\n                               dedupe_key=f\"{person_id}:{device_eid}\")\n\n        loc_eid = builder.ensure_location(\n            row.get(\"location_label\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            cell_tower=row.get(\"cell_tower\", \"\"),\n            location_type=row.get(\"location_type\", \"\"),\n            city=row.get(\"city\", \"\"),\n            country=row.get(\"country\", \"\"),\n        )\n\n        dedupe = f\"{device_eid}:{loc_eid}\"\n        edge_id = f\"observed_at::{slug(dedupe)}\"\n        if edge_id in builder.edge_index:\n            idx = builder.edge_index[edge_id]\n            existing = builder.edges[idx]\n            count = int(existing[\"properties\"].get(\"sightingCount\", \"1\")) + 1\n            existing[\"properties\"][\"sightingCount\"] = str(count)\n            existing[\"properties\"][\"lastSeen\"] = row.get(\"timestamp\", \"\")\n        else:\n            builder._add_edge(\n                \"OBSERVED_AT\", device_eid, loc_eid,\n                properties={\n                    \"sightingCount\": \"1\",\n                    \"firstSeen\": row.get(\"timestamp\", \"\"),\n                    \"lastSeen\": row.get(\"timestamp\", \"\"),\n                    \"source\": row.get(\"source\", \"\"),\n                },\n                dedupe_key=dedupe,\n            )\n\n    # --- Residential Locations + RESIDES_AT (clinic rows, Phase 1) ---\n    for obs in clinic_observations(norm_clinic_registrations.rows):\n        person_id = resolver.clinic_by_ref.get(obs.ref)\n        if not person_id:\n            continue  # unattached clinic rows create no objects\n        row = obs.row\n        loc_eid = builder.ensure_location(\n            row.get(\"home_address\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            location_type=\"residential\",\n            city=row.get(\"home_city\", \"\"),\n            country=row.get(\"home_country\", \"\"),\n            source_ds=norm_clinic_registrations.name,\n        )\n        dedupe = f\"{person_id}:{loc_eid}\"\n        edge_id = f\"resides_at::{slug(dedupe)}\"\n        as_of = row.get(\"registered_on\", \"\")\n        if edge_id in builder.edge_index:\n            existing = builder.edges[builder.edge_index[edge_id]]\n            if as_of > str(existing[\"properties\"].get(\"asOf\", \"\")):\n                existing[\"properties\"][\"asOf\"] = as_of\n        else:\n            builder._add_edge(\"RESIDES_AT\", person_id, loc_eid,\n                               properties={\"asOf\": as_of, \"source\": row.get(\"source\", \"\")},\n                               dedupe_key=dedupe)\n\n    # --- Markings on every object and link (contract §3) ---\n    raw_inputs = [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                  norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations]\n    file_markings = {ds.derived_from[0]: ds.markings for ds in raw_inputs if ds.derived_from}\n    governance.annotate_objects(builder.entities, builder.edges, file_markings)\n\n    # --- Assemble output datasets ---\n    entities_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"sourceIds\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n        {\"field\": \"propertyMarkings\", \"type\": \"json\"},\n        {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n    ]\n    edges_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n        {\"field\": \"target\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n    ]\n\n    entities_ds = Dataset(\n        name=\"ontology_entities\",\n        rows=sorted(builder.entities, key=lambda e: (str(e[\"type\"]), str(e[\"label\"]))),\n        schema=entities_schema,\n    )\n    edges_ds = Dataset(\n        name=\"ontology_edges\",\n        rows=sorted(builder.edges, key=lambda e: (str(e[\"type\"]), str(e[\"source\"]), str(e[\"target\"]))),\n        schema=edges_schema,\n    )\n\n    ontology_inputs = [resolved_persons, resolved_companies, resolved_accounts] + raw_inputs\n    inherit_markings(entities_ds, ontology_inputs)\n    inherit_markings(edges_ds, ontology_inputs)\n\n    # Trivial lineage: each entity/edge row came from its sourceIds\n    entity_lineage = LineageRecord()\n    for out_idx, entity in enumerate(entities_ds.rows):\n        for src in entity.get(\"sourceIds\", []):\n            entity_lineage.add_source(out_idx, src, 0, note=entity[\"type\"])\n\n    edge_lineage = LineageRecord()\n    for out_idx, edge in enumerate(edges_ds.rows):\n        edge_lineage.add_source(out_idx, edge[\"type\"], 0, note=\"edge\")\n\n    return entities_ds, edges_ds, entity_lineage, edge_lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline import p01_normalize_sources as n01\n    from pipeline import p02_resolve_persons as n02\n    from pipeline import p03_resolve_companies as n03\n    from pipeline import p04_resolve_accounts as n04\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = n01.run(dataset_dir)\n    persons, _ = n02.run(wl, cr, fm, mp, cl)\n    companies, _ = n03.run(cr)\n    accounts, _ = n04.run(bt)\n    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp, cl)\n    print(f\"Entities: {len(entities_ds)}, Edges: {len(edges_ds)}\")\n",
           "rowsIn": 234,
           "rowsOut": 401,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         },
         {
           "id": "build_leads",
           "name": "06 Build Leads",
-          "description": "Score each person's best address from three sources: clinic registrations (HEALTH, weight 0.5), mobile location pings (TELECOM, 0.4) and the company registry (OPEN, 0.3), each decayed by age: score = 100 · min(1, Σ weight · exp(−ageDays / 365)). One lead per person with an address source; the output inherits every input's markings.",
+          "description": "Score each person's best address from three sources: clinic registrations (PII and HEALTH, weight 0.5), mobile location pings (TELECOM, 0.4) and the company registry (OPEN, 0.3), each decayed by age: score = 100 · min(1, Σ weight · exp(−ageDays / 365)). One lead per person with an address source; the output inherits every input's markings.",
           "inputs": [
             "resolved_persons",
             "norm_clinic_registrations",
@@ -1206,10 +1268,10 @@ window.foundrySeedCatalog = {
           ],
           "output": "leads",
           "codePath": "pipeline/06_build_leads.py",
-          "code": "\"\"\"\npipeline/06_build_leads.py — Build address-confidence leads (F8, PHASE3_CONTRACT.md §1).\n\nOne lead per Person with at least one address source.  The scorer lives in\n``pipeline/leads.py`` (shared with the Investigate seed builder, so both apps\nshow the same leads); this step wraps it as a Transform with row- and\nfield-level lineage, like steps 02–05.\n\nInputs\n  resolved_persons            — who each source record belongs to (the shared resolver)\n  norm_clinic_registrations   — HEALTH,  weight 0.5, home_address, registered_on\n  norm_mobile_pings           — TELECOM, weight 0.4, location label, latest ping timestamp\n  norm_company_registry       — OPEN,    weight 0.3, registered_address, incorporation_date\n\n    score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))\n\n``ageDays`` counts from ``asOf``, the latest date in the inputs.  The best\naddress is the component with the largest contribution.  The output inherits\nthe union of its inputs' markings (HEALTH, TELECOM and OPEN from the sources,\nPII and LE-SENSITIVE through resolved_persons), so the dataset is HEALTH-marked\neven for leads with no clinic component: markings work per dataset, not per row.\n\nOutput Dataset ``leads``:\n  id             — lead::<personId>\n  personId\n  address        — best address (largest contribution)\n  lat, lon       — coordinates of the best address\n  score          — 0–100, 1 decimal\n  status         — \"open\" (the Close lead Action changes it in the browser)\n  components     — [{source, marking, weight, ageDays, decay, contribution, address, ...}]\n  formula, asOf\n  addressSource  — dataset of the best address's component\n  sourceMarkings — markings of the contributing sources\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.leads import compute_leads\nfrom pipeline.lib import Dataset, LineageRecord, Transform\n\nTRANSFORM_ID = \"build_leads\"\nOUTPUT_NAME = \"leads\"\n\nSCHEMA = [\n    {\"field\": \"id\", \"type\": \"string\"},\n    {\"field\": \"personId\", \"type\": \"string\"},\n    {\"field\": \"address\", \"type\": \"string\"},\n    {\"field\": \"lat\", \"type\": \"float\"},\n    {\"field\": \"lon\", \"type\": \"float\"},\n    {\"field\": \"score\", \"type\": \"float\"},\n    {\"field\": \"status\", \"type\": \"string\"},\n    {\"field\": \"components\", \"type\": \"json\"},\n    {\"field\": \"formula\", \"type\": \"string\"},\n    {\"field\": \"asOf\", \"type\": \"date\"},\n    {\"field\": \"addressSource\", \"type\": \"string\"},\n    {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n]\n\n\ndef _build(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[List[Dict[str, Any]], List[Dict[str, List[Dict[str, Any]]]]]:\n    resolver = resolved_persons.resolver  # type: ignore[attr-defined]\n    rows, provenance, _as_of = compute_leads(\n        resolver, norm_clinic_registrations.rows, norm_mobile_pings.rows, norm_company_registry.rows,\n    )\n    person_row = {row[\"id\"]: i for i, row in enumerate(resolved_persons.rows)}\n    for lead, fp in zip(rows, provenance):\n        ref = {\"dataset\": resolved_persons.name, \"row\": person_row.get(lead[\"personId\"], -1),\n               \"field\": \"id\", \"note\": \"person\"}\n        fp[\"personId\"] = [ref] + fp[\"personId\"]\n        fp[\"id\"] = [ref]\n    return rows, provenance\n\n\ndef run(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    transform = Transform(\n        TRANSFORM_ID,\n        \"Score each person's best address from clinic, ping and registry records.\",\n        [resolved_persons, norm_clinic_registrations, norm_mobile_pings, norm_company_registry],\n        _build,\n    )\n    leads_ds, lineage = transform.run()\n    leads_ds.name = OUTPUT_NAME\n    leads_ds.schema = [dict(f) for f in SCHEMA]\n    leads_ds.as_of = leads_ds.rows[0][\"asOf\"] if leads_ds.rows else \"\"  # type: ignore[attr-defined]\n    return leads_ds, lineage\n\n\nif __name__ == \"__main__\":\n    import importlib.util\n\n    def _load(stem: str):\n        path = Path(__file__).resolve().parent / f\"{stem}.py\"\n        spec = importlib.util.spec_from_file_location(stem, path)\n        module = importlib.util.module_from_spec(spec)\n        spec.loader.exec_module(module)\n        return module\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = _load(\"01_normalize_sources\").run(dataset_dir)\n    persons, _ = _load(\"02_resolve_persons\").run(wl, cr, fm, mp, cl)\n    leads_ds, _ = run(persons, cl, mp, cr)\n    print(f\"Leads: {len(leads_ds)} (asOf {leads_ds.as_of})\")\n    for lead in leads_ds.rows[:5]:\n        print(f\"  {lead['score']:5.1f}  {lead['personId']}  {lead['address']}\")\n",
+          "code": "\"\"\"\npipeline/06_build_leads.py — Build address-confidence leads (F8, PHASE3_CONTRACT.md §1).\n\nOne lead per Person with at least one address source.  The scorer lives in\n``pipeline/leads.py`` (shared with the Investigate seed builder, so both apps\nshow the same leads); this step wraps it as a Transform with row- and\nfield-level lineage, like steps 02–05.\n\nInputs\n  resolved_persons            — who each source record belongs to (the shared resolver)\n  norm_clinic_registrations   — PII + HEALTH, weight 0.5, home_address, registered_on\n  norm_mobile_pings           — TELECOM, weight 0.4, location label, latest ping timestamp\n  norm_company_registry       — OPEN,    weight 0.3, registered_address, incorporation_date\n\n    score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))\n\n``ageDays`` counts from ``asOf``, the latest date in the inputs.  The best\naddress is the component with the largest contribution.  The output inherits\nthe union of its inputs' markings (PII, HEALTH, TELECOM and OPEN from the sources,\nPII and LE-SENSITIVE through resolved_persons), so the dataset is HEALTH-marked\neven for leads with no clinic component: markings work per dataset, not per row.\n\nOutput Dataset ``leads``:\n  id             — lead::<personId>\n  personId\n  address        — best address (largest contribution)\n  lat, lon       — coordinates of the best address\n  score          — 0–100, 1 decimal\n  status         — \"open\" (the Close lead Action changes it in the browser)\n  components     — [{source, marking, weight, ageDays, decay, contribution, address, ...}]\n  formula, asOf\n  addressSource  — dataset of the best address's component\n  sourceMarkings — markings of the contributing sources\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.leads import compute_leads\nfrom pipeline.lib import Dataset, LineageRecord, Transform\n\nTRANSFORM_ID = \"build_leads\"\nOUTPUT_NAME = \"leads\"\n\nSCHEMA = [\n    {\"field\": \"id\", \"type\": \"string\"},\n    {\"field\": \"personId\", \"type\": \"string\"},\n    {\"field\": \"address\", \"type\": \"string\"},\n    {\"field\": \"lat\", \"type\": \"float\"},\n    {\"field\": \"lon\", \"type\": \"float\"},\n    {\"field\": \"score\", \"type\": \"float\"},\n    {\"field\": \"status\", \"type\": \"string\"},\n    {\"field\": \"components\", \"type\": \"json\"},\n    {\"field\": \"formula\", \"type\": \"string\"},\n    {\"field\": \"asOf\", \"type\": \"date\"},\n    {\"field\": \"addressSource\", \"type\": \"string\"},\n    {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n]\n\n\ndef _build(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[List[Dict[str, Any]], List[Dict[str, List[Dict[str, Any]]]]]:\n    resolver = resolved_persons.resolver  # type: ignore[attr-defined]\n    rows, provenance, _as_of = compute_leads(\n        resolver, norm_clinic_registrations.rows, norm_mobile_pings.rows, norm_company_registry.rows,\n    )\n    person_row = {row[\"id\"]: i for i, row in enumerate(resolved_persons.rows)}\n    for lead, fp in zip(rows, provenance):\n        ref = {\"dataset\": resolved_persons.name, \"row\": person_row.get(lead[\"personId\"], -1),\n               \"field\": \"id\", \"note\": \"person\"}\n        fp[\"personId\"] = [ref] + fp[\"personId\"]\n        fp[\"id\"] = [ref]\n    return rows, provenance\n\n\ndef run(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    transform = Transform(\n        TRANSFORM_ID,\n        \"Score each person's best address from clinic, ping and registry records.\",\n        [resolved_persons, norm_clinic_registrations, norm_mobile_pings, norm_company_registry],\n        _build,\n    )\n    leads_ds, lineage = transform.run()\n    leads_ds.name = OUTPUT_NAME\n    leads_ds.schema = [dict(f) for f in SCHEMA]\n    leads_ds.as_of = leads_ds.rows[0][\"asOf\"] if leads_ds.rows else \"\"  # type: ignore[attr-defined]\n    return leads_ds, lineage\n\n\nif __name__ == \"__main__\":\n    import importlib.util\n\n    def _load(stem: str):\n        path = Path(__file__).resolve().parent / f\"{stem}.py\"\n        spec = importlib.util.spec_from_file_location(stem, path)\n        module = importlib.util.module_from_spec(spec)\n        spec.loader.exec_module(module)\n        return module\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = _load(\"01_normalize_sources\").run(dataset_dir)\n    persons, _ = _load(\"02_resolve_persons\").run(wl, cr, fm, mp, cl)\n    leads_ds, _ = run(persons, cl, mp, cr)\n    print(f\"Leads: {len(leads_ds)} (asOf {leads_ds.as_of})\")\n    for lead in leads_ds.rows[:5]:\n        print(f\"  {lead['score']:5.1f}  {lead['personId']}  {lead['address']}\")\n",
           "rowsIn": 136,
           "rowsOut": 24,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         }
       ]
     },
@@ -1552,11 +1614,20 @@ window.foundrySeedCatalog = {
           ]
         },
         "purpose": "public-record",
-        "legalBasis": "Public company register, open by law; illustrative",
+        "legalBasis": "Public company register; illustrative. In WM and Sovim (C-37/20 and C-601/20, 22 November 2022) the CJEU invalidated the AML Directive's rule giving the general public access to beneficial-ownership information, as a serious interference with Charter Arts 7 and 8. The beneficial-owner fields are therefore marked PII.",
         "retentionDays": 3650,
         "inputPurposes": [
           "public-record"
         ],
+        "fieldMarkings": {
+          "beneficial_owner": [
+            "PII"
+          ],
+          "beneficial_owner_dob": [
+            "PII"
+          ]
+        },
+        "fieldNote": "beneficial_owner and beneficial_owner_dob are personal data (PII): since WM and Sovim (CJEU, 22 November 2022) they may not be open to the general public. The rest of the register stays OPEN.",
         "asOf": "2026-04-01"
       },
       {
@@ -1934,7 +2005,7 @@ window.foundrySeedCatalog = {
           ]
         },
         "purpose": "border-security",
-        "legalBasis": "PNR Directive (EU) 2016/681, five-year retention; illustrative",
+        "legalBasis": "PNR Directive (EU) 2016/681, Art. 12 (five years); illustrative. In Ligue des droits humains (C-817/19, 21 June 2022) the CJEU held that keeping every passenger's data beyond the first six months is not strictly necessary without objective evidence of a risk. This dataset still keeps every row for five years.",
         "retentionDays": 1825,
         "inputPurposes": [
           "border-security"
@@ -2884,9 +2955,13 @@ window.foundrySeedCatalog = {
         ],
         "derivedFrom": [],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "markingProvenance": {
+          "PII": [
+            "clinic_registrations.csv"
+          ],
           "HEALTH": [
             "clinic_registrations.csv"
           ]
@@ -3245,11 +3320,20 @@ window.foundrySeedCatalog = {
           ]
         },
         "purpose": "public-record",
-        "legalBasis": "Public company register, open by law; illustrative",
+        "legalBasis": "Public company register; illustrative. In WM and Sovim (C-37/20 and C-601/20, 22 November 2022) the CJEU invalidated the AML Directive's rule giving the general public access to beneficial-ownership information, as a serious interference with Charter Arts 7 and 8. The beneficial-owner fields are therefore marked PII.",
         "retentionDays": 3650,
         "inputPurposes": [
           "public-record"
         ],
+        "fieldMarkings": {
+          "beneficial_owner": [
+            "PII"
+          ],
+          "beneficial_owner_dob": [
+            "PII"
+          ]
+        },
+        "fieldNote": "beneficial_owner and beneficial_owner_dob are personal data (PII): since WM and Sovim (CJEU, 22 November 2022) they may not be open to the general public. The rest of the register stays OPEN.",
         "asOf": "2026-04-01"
       },
       {
@@ -3630,7 +3714,7 @@ window.foundrySeedCatalog = {
           ]
         },
         "purpose": "border-security",
-        "legalBasis": "PNR Directive (EU) 2016/681, five-year retention; illustrative",
+        "legalBasis": "PNR Directive (EU) 2016/681, Art. 12 (five years); illustrative. In Ligue des droits humains (C-817/19, 21 June 2022) the CJEU held that keeping every passenger's data beyond the first six months is not strictly necessary without objective evidence of a risk. This dataset still keeps every row for five years.",
         "retentionDays": 1825,
         "inputPurposes": [
           "border-security"
@@ -4591,9 +4675,13 @@ window.foundrySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "markingProvenance": {
+          "PII": [
+            "clinic_registrations.csv"
+          ],
           "HEALTH": [
             "clinic_registrations.csv"
           ]
@@ -5230,6 +5318,7 @@ window.foundrySeedCatalog = {
             "company_registry.csv"
           ],
           "PII": [
+            "clinic_registrations.csv",
             "flight_manifests.csv"
           ],
           "TELECOM": [
@@ -6054,6 +6143,7 @@ window.foundrySeedCatalog = {
             "company_registry.csv"
           ],
           "PII": [
+            "clinic_registrations.csv",
             "flight_manifests.csv"
           ],
           "FIN": [
@@ -6324,6 +6414,7 @@ window.foundrySeedCatalog = {
             "company_registry.csv"
           ],
           "PII": [
+            "clinic_registrations.csv",
             "flight_manifests.csv"
           ],
           "FIN": [
@@ -6419,6 +6510,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 31,
                 "decay": 0.9186,
@@ -6435,6 +6530,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -6454,6 +6552,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -6470,6 +6569,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 351,
                 "decay": 0.3823,
@@ -6486,6 +6589,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 10,
                 "decay": 0.973,
@@ -6503,6 +6609,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 202,
                 "decay": 0.575,
@@ -6524,6 +6633,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -6540,6 +6650,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 282,
                 "decay": 0.4618,
@@ -6556,6 +6670,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -6573,6 +6690,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 1155,
                 "decay": 0.0422,
@@ -6594,6 +6715,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -6610,6 +6732,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 425,
                 "decay": 0.3121,
@@ -6626,6 +6752,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 5,
                 "decay": 0.9864,
@@ -6645,6 +6774,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -6661,6 +6791,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -6678,6 +6811,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 331,
                 "decay": 0.4038,
@@ -6714,6 +6850,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 8,
                 "decay": 0.9783,
@@ -6731,6 +6870,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 331,
                 "decay": 0.4038,
@@ -6752,6 +6895,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM"
             ]
           },
@@ -6767,6 +6911,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 0,
                 "decay": 1.0,
@@ -6784,6 +6931,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 443,
                 "decay": 0.2971,
@@ -6820,6 +6970,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 923,
                 "decay": 0.0798,
@@ -6836,6 +6990,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 5,
                 "decay": 0.9864,
@@ -6853,6 +7010,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 1825,
                 "decay": 0.0067,
@@ -6874,6 +7034,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -6890,6 +7051,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -6924,6 +7088,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 3,
                 "decay": 0.9918,
@@ -6958,6 +7125,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 5,
                 "decay": 0.9864,
@@ -6992,6 +7162,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 5,
                 "decay": 0.9864,
@@ -7009,6 +7182,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 2104,
                 "decay": 0.0031,
@@ -7045,6 +7221,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 6,
                 "decay": 0.9837,
@@ -7062,6 +7241,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 1850,
                 "decay": 0.0063,
@@ -7083,6 +7266,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM"
             ]
           },
@@ -7098,6 +7282,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 6,
                 "decay": 0.9837,
@@ -7132,6 +7319,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 7,
                 "decay": 0.981,
@@ -7166,6 +7356,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 7,
                 "decay": 0.981,
@@ -7200,6 +7393,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 9,
                 "decay": 0.9756,
@@ -7234,6 +7430,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 9,
                 "decay": 0.9756,
@@ -7268,6 +7467,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 1095,
                 "decay": 0.0498,
@@ -7284,6 +7487,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 202,
                 "decay": 0.575,
@@ -7305,6 +7512,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_company_registry",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "HEALTH"
             ]
           },
@@ -7320,6 +7528,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 453,
                 "decay": 0.2891,
@@ -7338,6 +7550,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
+              "PII",
               "HEALTH"
             ]
           },
@@ -7353,6 +7566,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 523,
                 "decay": 0.2386,
@@ -7369,6 +7586,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 2351,
                 "decay": 0.0016,
@@ -7390,6 +7610,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "HEALTH"
             ]
           },
@@ -7405,6 +7626,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 1068,
                 "decay": 0.0536,
@@ -7421,6 +7646,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 443,
                 "decay": 0.2971,
@@ -7442,6 +7671,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_company_registry",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "HEALTH"
             ]
           },
@@ -7457,6 +7687,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 1549,
                 "decay": 0.0144,
@@ -7473,6 +7707,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 1359,
                 "decay": 0.0242,
@@ -7494,6 +7731,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "HEALTH"
             ]
           },
@@ -7509,6 +7747,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 1155,
                 "decay": 0.0422,
@@ -7553,6 +7794,7 @@ window.foundrySeedCatalog = {
             "company_registry.csv"
           ],
           "PII": [
+            "clinic_registrations.csv",
             "flight_manifests.csv"
           ],
           "TELECOM": [
@@ -7584,6 +7826,10 @@ window.foundrySeedCatalog = {
             "rawSource": "clinic_registrations.csv",
             "label": "Clinic registration",
             "marking": "HEALTH",
+            "markings": [
+              "PII",
+              "HEALTH"
+            ],
             "weight": 0.5,
             "addressField": "home_address",
             "dateField": "registered_on"
@@ -7593,6 +7839,9 @@ window.foundrySeedCatalog = {
             "rawSource": "mobile_location_pings.jsonl",
             "label": "Mobile location pings",
             "marking": "TELECOM",
+            "markings": [
+              "TELECOM"
+            ],
             "weight": 0.4,
             "addressField": "location_label",
             "dateField": "timestamp"
@@ -7602,6 +7851,9 @@ window.foundrySeedCatalog = {
             "rawSource": "company_registry.csv",
             "label": "Company registry",
             "marking": "OPEN",
+            "markings": [
+              "OPEN"
+            ],
             "weight": 0.3,
             "addressField": "registered_address",
             "dateField": "incorporation_date"
@@ -18556,10 +18808,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -18579,10 +18833,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -18644,10 +18900,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -18702,10 +18960,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -18763,10 +19023,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -18786,10 +19048,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -18851,10 +19115,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -18874,10 +19140,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -19186,9 +19454,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19244,9 +19514,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19293,9 +19565,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19342,9 +19616,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19386,9 +19662,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19441,9 +19719,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19491,14 +19771,17 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -19546,9 +19829,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19599,9 +19884,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19645,14 +19932,17 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -19701,9 +19991,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19770,9 +20062,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19835,9 +20129,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19889,9 +20185,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -19936,14 +20234,17 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -19992,9 +20293,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -20042,9 +20345,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -20090,14 +20395,17 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -20139,9 +20447,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -20198,9 +20508,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -20253,9 +20565,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -20310,9 +20624,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -20361,9 +20677,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -20416,9 +20734,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -23100,6 +23420,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -23114,6 +23435,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -23128,6 +23450,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -23142,6 +23465,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -23156,6 +23480,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -23170,6 +23495,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -23184,6 +23510,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -23198,6 +23525,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -23212,6 +23540,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -23226,6 +23555,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -23699,20 +24029,20 @@ window.foundrySeedCatalog = {
   "simulator": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:bf0e2ad2a997c4328aa97af43c678ea92b28fe27afc097d16df3fb12e457dcd9",
+      "buildId": "sha256:5ef9606d13c79b46d8a169595f77e0e3786eedba0d76951e387cb13f4ebbc55b",
       "sources": {
         "bank_transactions.csv": "sha256:1b192ef6c107359560bc3df631a4fd42e665aa4e26403630a82bbe9b47a44596",
         "clinic_registrations.csv": "sha256:3b651e31a0bff7bfc2fcf324c827b515d21f43a5c9ff688242cad73c4d453453",
         "company_registry.csv": "sha256:06aca2351b875fb3f9d443d5eb907d495bc51a698b60381623501c188ead956a",
         "flight_manifests.csv": "sha256:b418d4cc4ab3868de48bfd86d5097b53a2499eec2e1c2bd6b5dd6573bbc023a7",
-        "manifest.json": "sha256:0f369eabdc4b097a6e78a75736086d1676821d656b65f514eaf46be022ea037d",
+        "manifest.json": "sha256:318618cd27068f09ceeb7978033bc57ec764c3af6dade85bd1cd714bcc4f577c",
         "mobile_location_pings.jsonl": "sha256:b208310e84c3c8a26d57efb64735d2002767743656d1e496df35ea1c460a94ff",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_foundry_seed.py@dd0e658",
+      "builder": "build_foundry_seed.py@12fb2ec",
       "title": "Foundry Studio Demo",
       "dataset": "simulator",
-      "generatedAt": "2026-11-04T18:51:31.555357Z"
+      "generatedAt": "2026-11-04T20:40:29.321568Z"
     },
     "governance": {
       "markings": [
@@ -23791,7 +24121,7 @@ window.foundrySeedCatalog = {
         {
           "id": "dpo",
           "label": "Data protection officer",
-          "description": "Oversees lawful use. Sees every marking, read-only, and is the only role that may remove a marking (with a stated legal basis).",
+          "description": "Oversees lawful use. Sees every marking, read-only, and is the only role that may remove a marking (with a stated legal basis) or restore it. May assume an operational purpose (public order) to test purpose rules; this is a simulation convenience, not a power a real DPO has.",
           "markingsVisible": [
             "OPEN",
             "PII",
@@ -23801,7 +24131,8 @@ window.foundrySeedCatalog = {
             "LE-SENSITIVE"
           ],
           "purposes": [
-            "oversight"
+            "oversight",
+            "public-order"
           ],
           "canApprove": false,
           "canRemoveMarkings": true,
@@ -23958,6 +24289,17 @@ window.foundrySeedCatalog = {
           "minLength": 20,
           "tag": "exception",
           "refusalText": "Your role cannot request exceptions to purpose rules. This attempt has been logged."
+        },
+        {
+          "id": "cp-marking-restore",
+          "trigger": "marking.restore",
+          "prompt": "You are restoring a marking. Everything derived from this dataset will again be withheld from roles without it. State why.",
+          "requiresPurpose": true,
+          "allowedRoles": [
+            "dpo"
+          ],
+          "minLength": 20,
+          "refusalText": "Your role cannot restore markings. This attempt has been logged."
         }
       ],
       "honesty": [
@@ -23967,7 +24309,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Agent (simulated AIP)",
           "text": "Scripted stand-in for an AIP agent, with no language model: it plans tool calls from your question by fixed rules, runs each call through your role, the purpose rules, Checkpoints and the audit log, cites the objects behind its claims and stages edits for review. Real AIP agents use an LLM with tools; here the failures are scripted for teaching.",
-          "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview"
+          "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.investigations",
@@ -23975,7 +24318,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Investigations",
           "text": "Scripted scenarios with fixed scores stand in for an analyst's own investigation. In Gotham an investigation is assembled by the analyst from searches, graphs and maps; nothing is pre-scored.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.analytics",
@@ -23983,7 +24327,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Analytics",
           "text": "Plausible, hand-written rules stand in for Search Around-style network expansion. Expansion like this is how people with no police contact enter what Brayne calls a 'secondary surveillance network'.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.map",
@@ -23991,7 +24336,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Map",
           "text": "Synthetic points on a basic map. Gotham supports analysis on maps alongside graphs and timelines; layers, imagery, tracks and geofences are not modelled here.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.object-types",
@@ -23999,7 +24345,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Object types",
           "text": "Object types are the nouns of the Ontology's semantic layer, as in Foundry and Gotham. Palantir's own terms are object type, object, property and link type; this demo used to say entity and relationship types.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.properties",
@@ -24007,7 +24354,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Properties",
           "text": "Properties are the typed attributes of an object type; the columns of the backing dataset become properties.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.link-types",
@@ -24015,7 +24363,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Link types",
           "text": "Link types connect two object types; in Foundry a join between backing datasets becomes a link.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.backing-datasets",
@@ -24023,7 +24372,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Backing datasets",
           "text": "In Foundry an object type is backed by a dataset: rows become objects, columns become properties and joins become links. This view was called 'Source mappings' before.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.objects",
@@ -24031,7 +24381,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Objects",
           "text": "Objects are edited directly here. In Palantir, edits go through Action types (the kinetic layer) with parameters, validation, permissions, side effects and logs, and write back to operational systems.",
-          "docUrl": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72"
+          "docUrl": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72",
+          "docLabel": "Palantir blog"
         },
         {
           "id": "inv.graph",
@@ -24039,7 +24390,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Graph",
           "text": "Objects and links drawn as a graph, as in Gotham's graph view. Layout, expansion and styling are simplified, and the graph is redrawn from a static seed.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "build.pipelines",
@@ -24047,7 +24399,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Pipelines",
           "text": "Transforms produce new datasets from existing ones, as in Foundry. Builds, branches, schedules and dataset versions are not modelled; the pipeline runs once, offline, when the seed is built.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.datasets",
@@ -24055,7 +24408,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Datasets",
           "text": "Each dataset is a snapshot with sample rows. Foundry datasets are versioned through transactions, and every build produces a new version.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.lineage",
@@ -24063,7 +24417,8 @@ window.foundrySeedCatalog = {
           "label": "Teaching extension",
           "title": "Lineage",
           "text": "Row- and field-level provenance goes beyond Foundry's dataset-level lineage.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.markings",
@@ -24071,7 +24426,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Markings",
           "text": "Markings carry down lineage: a dataset made from a marked dataset inherits the marking, and only a privileged user can remove it. Here the union is computed when the seed is built and overrides are kept in your browser.",
-          "docUrl": "https://palantir.com/docs/foundry/security/markings/"
+          "docUrl": "https://palantir.com/docs/foundry/security/markings/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "oversight.audit",
@@ -24079,7 +24435,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Audit log",
           "text": "Searches, views, exports, checkpoints and role changes are logged in a hash-chained log kept in this browser. A real platform keeps its audit log on the server; anyone with this browser can clear this one, and the clear is logged.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "session.roles",
@@ -24087,7 +24444,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Roles",
           "text": "Five roles stand in for the groups, projects and organisations that grant access in a real deployment, combined with mandatory markings. The role switch is a client-side convenience, not security: anyone can pick any role.",
-          "docUrl": "https://palantir.com/docs/foundry/security/markings/"
+          "docUrl": "https://palantir.com/docs/foundry/security/markings/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "session.checkpoints",
@@ -24095,7 +24453,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Checkpoints",
           "text": "A purpose-justification prompt before sensitive searches, exports or network expansion. The record keeps the user, the time, the prompt exactly as shown, the justification and the items involved, as in Foundry Checkpoints (Jagasia & Wee, PEPR '21). Nothing stops you typing 'routine'.",
-          "docUrl": "https://palantir.com/docs/foundry/checkpoints/overview/"
+          "docUrl": "https://palantir.com/docs/foundry/checkpoints/overview/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.actions",
@@ -24103,7 +24462,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Actions",
           "text": "Action types with parameters, validation, permissions, side effects, logs and writeback to operational systems: the Ontology's kinetic layer, as in Foundry. Simplified: the receiving systems are panels in this page, not real APIs.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.karlsruhe",
@@ -24111,7 +24471,8 @@ window.foundrySeedCatalog = {
           "label": "Teaching extension",
           "title": "Karlsruhe mode",
           "text": "Purpose rules that block combining data collected for incompatible purposes. Not a Palantir feature: our abstraction of the logic of the German Constitutional Court's 2023 ruling on automated data analysis, not its text.",
-          "docUrl": "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html"
+          "docUrl": "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html",
+          "docLabel": "BVerfG press release"
         },
         {
           "id": "build.resolution",
@@ -24119,7 +24480,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Entity resolution",
           "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
-          "docUrl": "https://docs.aleph.occrp.org/developers/mappings"
+          "docUrl": "https://docs.aleph.occrp.org/developers/mappings",
+          "docLabel": "OCCRP Aleph docs"
         },
         {
           "id": "inv.leads",
@@ -24127,7 +24489,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Leads",
           "text": "A 0–100 address confidence score from source type and age, in the style of ICE's ELITE app. Simplified: the formula is ours; ELITE's is not public. Here every weight, age and source is shown.",
-          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite"
+          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite",
+          "docLabel": "News report"
         },
         {
           "id": "inv.object-sets",
@@ -24135,7 +24498,8 @@ window.foundrySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Object sets",
           "text": "Saved, shareable lists of objects whose membership changes over time, as with Foundry object sets. Here versions and sharing are kept in your browser, and sharing is simulated by role.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.retention",
@@ -24143,7 +24507,8 @@ window.foundrySeedCatalog = {
           "label": "Simplified",
           "title": "Retention",
           "text": "Each dataset carries a retention period; the slider greys out rows past it and counts derived rows that still carry them. Simplified: nothing is ever deleted here, and in a real platform deletion has to reach every derived dataset, export and copy.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "deployment",
@@ -24151,7 +24516,8 @@ window.foundrySeedCatalog = {
           "label": "Teaching extension",
           "title": "Deployment",
           "text": "Where this classroom tool lives: static files on GitHub Pages, map tiles from OpenStreetMap, and the session, audit log and governance in your own browser's localStorage, with nothing on a server. Not a Palantir view: real deployments run in the customer's cloud or on premises, updated by Apollo.",
-          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379"
+          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379",
+          "docLabel": "Palantir blog"
         }
       ],
       "purposeRules": [
@@ -24164,7 +24530,8 @@ window.foundrySeedCatalog = {
             "action"
           ],
           "requires": "sessionPurpose",
-          "effect": "block"
+          "effect": "block",
+          "note": "Purpose limitation in its thinnest form: some purpose must be stated, but nothing checks that it fits the data or the case. The court asked the legislature for clear purpose-limitation rules, in law and in practice; a dropdown is not that."
         },
         {
           "id": "R2",
@@ -24184,7 +24551,8 @@ window.foundrySeedCatalog = {
               "financial-crime"
             ]
           },
-          "effect": "block"
+          "effect": "block",
+          "note": "Reflects EU data-protection law more than the 2023 judgment: health data is a special category under GDPR Art. 9 and LED Art. 10. As an absolute ban it is stricter than EU law. LED Art. 10 allows police processing of health data where strictly necessary, with safeguards, and authorised by law. A change of purpose is not banned outright by the court either: it applies a test of \"hypothetical recollection of the data\"."
         },
         {
           "id": "R3",
@@ -24194,10 +24562,11 @@ window.foundrySeedCatalog = {
           ],
           "depthOver": 1,
           "effect": "checkpoint",
-          "checkpointId": "cp-danger-statement"
+          "checkpointId": "cp-danger-statement",
+          "note": "Our device, not the court's: the court's press release says nothing about hops. For severe interferences the court requires a \"sufficiently identifiable danger\" to particularly weighty legal interests. A minimum length cannot test that: thirty characters of filler pass this Checkpoint."
         }
       ],
-      "legalBasisNote": "Our abstraction of the BVerfG 2023 ruling's logic, not its text [to verify against the press release before teaching as the court's criteria].",
+      "legalBasisNote": "Karlsruhe mode is our abstraction of the logic of the German Constitutional Court's 2023 ruling on automated data analysis (BVerfG press release 18/2023), not its text and not its criteria. The court addressed the legislature: a statute must set clear limits on the data, the methods of analysis and the purposes. Until Hesse passed new rules, its interim order allowed use only against particularly serious crimes, with a written reason for each use. Each rule's note says what it abstracts and what it leaves out.",
       "discussions": [
         {
           "id": "disc-ice-elite",
@@ -24244,13 +24613,14 @@ window.foundrySeedCatalog = {
           "attachedTo": [
             "oversight.audit"
           ],
-          "summary": "Dutch police have used Palantir software since 2012 inside a platform called the \"Raffinaderij\" (refinery). Its use became public through Open Government Act (Woo) requests by de Volkskrant; about 99% of the released documents were redacted (Buro Jansen & Janssen). The Ministry of Defence plans an alternative within two years.",
+          "summary": "Dutch police have used Palantir software since 2012 inside an investigations data platform called the \"Raffinaderij\" (refinery). Buro Jansen & Janssen first appealed for the documents in 2019, under the law that preceded the Open Government Act (Woo). After a 2023 court ruling they were released with about 99% blacked out, and de Volkskrant reported on them (NL Times, August 2025). Separately, on defence rather than police: Euronews reported in June 2026 that the Dutch defence state secretary told parliament a full alternative to Palantir must be available within two years.",
           "questions": [
             "What does an audit log mean if the public cannot see that the system exists?",
             "Who is the auditor here, and who audits them?"
           ],
           "sources": [
-            "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir"
+            "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir",
+            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         },
@@ -24261,13 +24631,14 @@ window.foundrySeedCatalog = {
             "session.roles",
             "build.markings"
           ],
-          "summary": "NHS England awarded the Federated Data Platform contract to Palantir in November 2023, worth up to £330m over seven years; 137 NHS trusts were using it by April 2026. Palantir says it is not the data controller, a claim that is contested in practice, and in February 2026 the British Medical Association urged doctors to limit their use of the platform.",
+          "summary": "NHS England's Federated Data Platform runs on Palantir software, under a contract worth up to £330m over at most seven years; it went live in March 2024. In a Westminster Hall debate on 16 April 2026 a health minister, Zubir Ahmed, said 137 NHS trusts were actively using it, and that NHS England and NHS organisations \"retain full control as data controllers\". On the government's account, then, Palantir is not the data controller. In June 2026 Euronews reported a UK parliamentary committee asking for the NHS relationship to end when the contract expires in 2027.",
           "questions": [
             "Does \"not the controller\" survive once the vendor's software decides what each role can see?",
             "Who should define the roles and markings on a health platform: the hospital, the ministry or the vendor?"
           ],
           "sources": [
-            "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform"
+            "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform",
+            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         },
@@ -24278,7 +24649,7 @@ window.foundrySeedCatalog = {
             "build.pipelines",
             "deployment"
           ],
-          "summary": "Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, and other European governments are re-evaluating their agreements with US defence-technology suppliers.",
+          "summary": "Danish police use POL-INTEL, which Galis and Karlsson (2025) describe as a customised version of Palantir's Gotham in their study \"Scientification through privatization\". Defence is a separate matter: Euronews (June 2026) reports a seven-year Danish deal for Maven Smart System and Foundry, and that Denmark will look for local solutions to replace Palantir software; it does not mention POL-INTEL. The same report describes other European governments re-evaluating their agreements with Palantir.",
           "questions": [
             "What is sovereignty when the platform, and its updates, are delivered by the vendor?",
             "Which decisions in a pipeline are technical, and which are policy made by whoever writes the transforms?"
@@ -24302,6 +24673,25 @@ window.foundrySeedCatalog = {
           ],
           "sources": [
             "https://defensescoop.com/2025/05/23/dod-palantir-maven-smart-system-contract-increase/"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-data-subjects",
+          "title": "The people in the data: notice, access, correction, erasure",
+          "attachedTo": [
+            "oversight.audit",
+            "inv.actions",
+            "session.roles"
+          ],
+          "summary": "The people in this tool are synthetic, but in a real deployment each of them has rights. Under the GDPR they must be told about the processing (Arts 13–14), and can ask for access to their data (Art. 15), have it corrected (Art. 16) and, in some cases, erased (Art. 17). The Law Enforcement Directive gives similar rights against the police: access (Art. 14) and rectification or erasure (Art. 16), which Member States may restrict where necessary and proportionate (Art. 15). This tool has none of them. Nobody is notified, a person merged or flagged by mistake cannot see the record, and correcting a source is not an Action here.",
+          "questions": [
+            "Who would notice an error in a merged person, a watchlist entry or a lead, and how?",
+            "How would the person concerned contest it, if they are never told the record exists?"
+          ],
+          "sources": [
+            "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+            "https://eur-lex.europa.eu/eli/dir/2016/680/oj"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         }
@@ -24616,6 +25006,8 @@ window.foundrySeedCatalog = {
       "defaultThreshold": 0.75,
       "minThreshold": 0.3,
       "fixedNote": "Merges made by the pipeline's deterministic rules are fixed in this build — see each person's resolution record.",
+      "note": "There is no passport-conflict signal. Should two different passports veto a merge? Who decides?",
+      "discussion": "There is no passport-conflict signal. Should two different passports veto a merge? Who decides?",
       "signals": [
         {
           "id": "passport-exact",
@@ -25370,7 +25762,7 @@ window.foundrySeedCatalog = {
       ]
     },
     "pipeline": {
-      "generatedAt": "2026-11-04T18:51:31.555357Z",
+      "generatedAt": "2026-11-04T20:40:29.321568Z",
       "transforms": [
         {
           "id": "normalize_sources",
@@ -25389,7 +25781,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/01_normalize_sources.py — Read and normalize all six raw source files.\n\nFor each source:\n- Strip whitespace from all string fields\n- Parse date/datetime strings to ISO format (leave as-is if already ISO)\n- Split pipe-delimited alias fields into Python lists\n- Tag each row with its original 0-based row index as ``_source_row``\n- Copy the dataset's markings, purpose, legal basis and retention from\n  ``manifest.json`` (Dataset.markings / Dataset.purpose / ...), with\n  ``markingProvenance`` pointing at the raw file\n\nReturns six Dataset objects (one per source file).  The clinic file is\noptional: a profile without it yields an empty ``norm_clinic_registrations``.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport csv\nimport json\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\n# Allow imports from the repo root when run directly\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _strip(value: Any) -> Any:\n    if isinstance(value, str):\n        return value.strip()\n    return value\n\n\ndef _clean_row(row: Dict[str, Any]) -> Dict[str, Any]:\n    return {k: _strip(v) for k, v in row.items()}\n\n\nREPO_ROOT = Path(__file__).resolve().parent.parent\n\n\ndef source_label(path: Path) -> str:\n    \"\"\"Repo-relative POSIX path of a raw source file (absolute if outside the repo).\"\"\"\n    resolved = Path(path).resolve()\n    try:\n        return resolved.relative_to(REPO_ROOT).as_posix()\n    except ValueError:\n        return resolved.as_posix()\n\n\ndef read_csv_raw(path: Path) -> List[Dict[str, str]]:\n    with path.open(newline=\"\", encoding=\"utf-8\") as fh:\n        return list(csv.DictReader(fh))\n\n\ndef read_jsonl_raw(path: Path) -> List[Dict[str, Any]]:\n    with path.open(encoding=\"utf-8\") as fh:\n        return [json.loads(line) for line in fh if line.strip()]\n\n\n# ---------------------------------------------------------------------------\n# Per-source normalizers\n# ---------------------------------------------------------------------------\n\ndef normalize_watchlist(path: Path) -> Dataset:\n    \"\"\"watchlist.csv → cleaned rows with aliases as list.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        # Split pipe-delimited aliases\n        raw_alias = row.get(\"alias\", \"\")\n        alias_list = [a.strip() for a in raw_alias.split(\"|\") if a.strip()] if raw_alias else []\n        out.append({\n            \"_source_row\": i,\n            \"watchlist_id\": row.get(\"watchlist_id\", \"\"),\n            \"canonical_name\": row.get(\"canonical_name\", \"\"),\n            \"aliases\": alias_list,\n            \"dob\": row.get(\"dob\", \"\"),\n            \"nationality\": row.get(\"nationality\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"risk_tag\": row.get(\"risk_tag\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"watchlist_id\", \"type\": \"string\"},\n        {\"field\": \"canonical_name\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"json\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"risk_tag\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_watchlist\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_company_registry(path: Path) -> Dataset:\n    \"\"\"company_registry.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"company_id\": row.get(\"company_id\", \"\"),\n            \"company_name\": row.get(\"company_name\", \"\"),\n            \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n            \"incorporation_date\": row.get(\"incorporation_date\", \"\"),\n            \"registered_address\": row.get(\"registered_address\", \"\"),\n            \"director_name\": row.get(\"director_name\", \"\"),\n            \"director_dob\": row.get(\"director_dob\", \"\"),\n            \"beneficial_owner\": row.get(\"beneficial_owner\", \"\"),\n            \"beneficial_owner_dob\": row.get(\"beneficial_owner_dob\", \"\"),\n            \"registered_city\": row.get(\"registered_city\", \"\"),\n            \"registered_country\": row.get(\"registered_country\", \"\"),\n            \"registered_site_type\": row.get(\"registered_site_type\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"company_id\", \"type\": \"string\"},\n        {\"field\": \"company_name\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporation_date\", \"type\": \"date\"},\n        {\"field\": \"registered_address\", \"type\": \"string\"},\n        {\"field\": \"director_name\", \"type\": \"string\"},\n        {\"field\": \"director_dob\", \"type\": \"date\"},\n        {\"field\": \"beneficial_owner\", \"type\": \"string\"},\n        {\"field\": \"beneficial_owner_dob\", \"type\": \"date\"},\n        {\"field\": \"registered_city\", \"type\": \"string\"},\n        {\"field\": \"registered_country\", \"type\": \"string\"},\n        {\"field\": \"registered_site_type\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_company_registry\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_flight_manifests(path: Path) -> Dataset:\n    \"\"\"flight_manifests.csv → cleaned rows.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"manifest_id\": row.get(\"manifest_id\", \"\"),\n            \"flight_number\": row.get(\"flight_number\", \"\"),\n            \"departure_airport\": row.get(\"departure_airport\", \"\"),\n            \"arrival_airport\": row.get(\"arrival_airport\", \"\"),\n            \"departure_ts\": row.get(\"departure_ts\", \"\"),\n            \"booking_reference\": row.get(\"booking_reference\", \"\"),\n            \"passenger_name\": row.get(\"passenger_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"passport_id\": row.get(\"passport_id\", \"\"),\n            \"phone_number\": row.get(\"phone_number\", \"\"),\n            \"seat\": row.get(\"seat\", \"\"),\n            \"payment_card_last4\": row.get(\"payment_card_last4\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"manifest_id\", \"type\": \"string\"},\n        {\"field\": \"flight_number\", \"type\": \"string\"},\n        {\"field\": \"departure_airport\", \"type\": \"string\"},\n        {\"field\": \"arrival_airport\", \"type\": \"string\"},\n        {\"field\": \"departure_ts\", \"type\": \"date\"},\n        {\"field\": \"booking_reference\", \"type\": \"string\"},\n        {\"field\": \"passenger_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"passport_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"seat\", \"type\": \"string\"},\n        {\"field\": \"payment_card_last4\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_flight_manifests\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_bank_transactions(path: Path) -> Dataset:\n    \"\"\"bank_transactions.csv → cleaned rows with numeric amount.\"\"\"\n    rows = read_csv_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        amount_raw = row.get(\"amount_usd\", \"\")\n        try:\n            amount = float(amount_raw) if amount_raw else None\n        except ValueError:\n            amount = None\n        out.append({\n            \"_source_row\": i,\n            \"transaction_id\": row.get(\"transaction_id\", \"\"),\n            \"source_account_id\": row.get(\"source_account_id\", \"\"),\n            \"source_name\": row.get(\"source_name\", \"\"),\n            \"destination_account_id\": row.get(\"destination_account_id\", \"\"),\n            \"destination_name\": row.get(\"destination_name\", \"\"),\n            \"amount_usd\": amount,\n            \"txn_type\": row.get(\"txn_type\", \"\"),\n            \"merchant_or_bank\": row.get(\"merchant_or_bank\", \"\"),\n            \"txn_ts\": row.get(\"txn_ts\", \"\"),\n            \"reference\": row.get(\"reference\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"transaction_id\", \"type\": \"string\"},\n        {\"field\": \"source_account_id\", \"type\": \"string\"},\n        {\"field\": \"source_name\", \"type\": \"string\"},\n        {\"field\": \"destination_account_id\", \"type\": \"string\"},\n        {\"field\": \"destination_name\", \"type\": \"string\"},\n        {\"field\": \"amount_usd\", \"type\": \"float\"},\n        {\"field\": \"txn_type\", \"type\": \"string\"},\n        {\"field\": \"merchant_or_bank\", \"type\": \"string\"},\n        {\"field\": \"txn_ts\", \"type\": \"date\"},\n        {\"field\": \"reference\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_bank_transactions\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef normalize_mobile_pings(path: Path) -> Dataset:\n    \"\"\"mobile_location_pings.jsonl → cleaned rows with numeric lat/lon.\"\"\"\n    rows = read_jsonl_raw(path)\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        out.append({\n            \"_source_row\": i,\n            \"ping_id\": str(row.get(\"ping_id\", \"\")),\n            \"device_id\": str(row.get(\"device_id\", \"\")),\n            \"phone_number\": str(row.get(\"phone_number\", \"\")),\n            \"observed_name\": str(row.get(\"observed_name\", \"\")),\n            \"timestamp\": str(row.get(\"timestamp\", \"\")),\n            \"location_label\": str(row.get(\"location_label\", \"\")),\n            \"location_type\": str(row.get(\"location_type\", \"\")),\n            \"city\": str(row.get(\"city\", \"\")),\n            \"country\": str(row.get(\"country\", \"\")),\n            \"lat\": row.get(\"lat\"),\n            \"lon\": row.get(\"lon\"),\n            \"cell_tower\": str(row.get(\"cell_tower\", \"\")),\n            \"source\": str(row.get(\"source\", \"\")),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"ping_id\", \"type\": \"string\"},\n        {\"field\": \"device_id\", \"type\": \"string\"},\n        {\"field\": \"phone_number\", \"type\": \"string\"},\n        {\"field\": \"observed_name\", \"type\": \"string\"},\n        {\"field\": \"timestamp\", \"type\": \"date\"},\n        {\"field\": \"location_label\", \"type\": \"string\"},\n        {\"field\": \"location_type\", \"type\": \"string\"},\n        {\"field\": \"city\", \"type\": \"string\"},\n        {\"field\": \"country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"cell_tower\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_mobile_pings\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef _float_or_none(value: Any) -> Any:\n    try:\n        return float(value) if value not in (None, \"\") else None\n    except ValueError:\n        return None\n\n\ndef normalize_clinic(path: Path) -> Dataset:\n    \"\"\"clinic_registrations.csv → cleaned rows with numeric lat/lon.\n\n    Health data: rows are only ever *attached* to people who already exist\n    (by name + dob, in step 02); an unmatched row stays in this dataset.\n    \"\"\"\n    rows = read_csv_raw(path) if path.exists() else []\n    out: List[Dict[str, Any]] = []\n    for i, row in enumerate(rows):\n        row = _clean_row(row)\n        out.append({\n            \"_source_row\": i,\n            \"registration_id\": row.get(\"registration_id\", \"\"),\n            \"patient_name\": row.get(\"patient_name\", \"\"),\n            \"dob\": row.get(\"dob\", \"\"),\n            \"home_address\": row.get(\"home_address\", \"\"),\n            \"home_city\": row.get(\"home_city\", \"\"),\n            \"home_country\": row.get(\"home_country\", \"\"),\n            \"lat\": _float_or_none(row.get(\"lat\")),\n            \"lon\": _float_or_none(row.get(\"lon\")),\n            \"clinic_code\": row.get(\"clinic_code\", \"\"),\n            \"registered_on\": row.get(\"registered_on\", \"\"),\n            \"source\": row.get(\"source\", \"\"),\n        })\n    schema = [\n        {\"field\": \"_source_row\", \"type\": \"integer\"},\n        {\"field\": \"registration_id\", \"type\": \"string\"},\n        {\"field\": \"patient_name\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"home_address\", \"type\": \"string\"},\n        {\"field\": \"home_city\", \"type\": \"string\"},\n        {\"field\": \"home_country\", \"type\": \"string\"},\n        {\"field\": \"lat\", \"type\": \"float\"},\n        {\"field\": \"lon\", \"type\": \"float\"},\n        {\"field\": \"clinic_code\", \"type\": \"string\"},\n        {\"field\": \"registered_on\", \"type\": \"date\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n    ]\n    return Dataset(\n        name=\"norm_clinic_registrations\",\n        rows=out,\n        source_file=source_label(path),\n        schema=schema,\n    )\n\n\ndef apply_manifest(ds: Dataset, manifest: Dict[str, Dict[str, Any]], file_name: str) -> Dataset:\n    \"\"\"Copy markings, purpose, legal basis and retention from the manifest.\"\"\"\n    entry = governance.manifest_entry_for_file(manifest, file_name)\n    ds.set_governance(governance.raw_governance(file_name, entry))\n    ds.as_of = entry.get(\"asOf\", \"\")  # type: ignore[attr-defined]\n    ds.derived_from = [file_name]\n    return ds\n\n\n# ---------------------------------------------------------------------------\n# Public entry point\n# ---------------------------------------------------------------------------\n\nRAW_FILES = (\n    \"watchlist.csv\", \"company_registry.csv\", \"flight_manifests.csv\",\n    \"bank_transactions.csv\", \"mobile_location_pings.jsonl\", \"clinic_registrations.csv\",\n)\n\n\ndef run(dataset_dir: Path) -> Tuple[Dataset, Dataset, Dataset, Dataset, Dataset, Dataset]:\n    \"\"\"Normalize all six sources under *dataset_dir*.\n\n    Returns\n    -------\n    (norm_watchlist, norm_company_registry, norm_flight_manifests,\n     norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations)\n    \"\"\"\n    dataset_dir = Path(dataset_dir)\n    manifest = governance.load_manifest(dataset_dir)\n    wl = normalize_watchlist(dataset_dir / \"watchlist.csv\")\n    cr = normalize_company_registry(dataset_dir / \"company_registry.csv\")\n    fm = normalize_flight_manifests(dataset_dir / \"flight_manifests.csv\")\n    bt = normalize_bank_transactions(dataset_dir / \"bank_transactions.csv\")\n    mp = normalize_mobile_pings(dataset_dir / \"mobile_location_pings.jsonl\")\n    cl = normalize_clinic(dataset_dir / \"clinic_registrations.csv\")\n\n    datasets = (wl, cr, fm, bt, mp, cl)\n    for ds, file_name in zip(datasets, RAW_FILES):\n        apply_manifest(ds, manifest, file_name)\n    return datasets\n\n\nif __name__ == \"__main__\":\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    datasets = run(dataset_dir)\n    for ds in datasets:\n        print(f\"{ds.name}: {len(ds)} rows\")\n",
           "rowsIn": 0,
           "rowsOut": 9210,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         },
         {
           "id": "resolve_persons",
@@ -25404,10 +25796,10 @@ window.foundrySeedCatalog = {
           ],
           "output": "resolved_persons",
           "codePath": "pipeline/02_resolve_persons.py",
-          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (HEALTH)\n  clinicCode       — latest clinic registration (HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
+          "code": "\"\"\"\npipeline/02_resolve_persons.py — Entity resolution for Person entities.\n\nIdentity decisions are made by the shared resolver in\n``pipeline/resolution.py`` (also used by the Gotham seed builder), with\npriority:\n  1. passport_id (strong cross-source identifier)\n  2. phone_number\n  3. normalized canonical_name + dob\n  4. alias lookup (never onto a watchlisted person with a different passport,\n     and a watchlisted person's names are never re-pointed to someone else)\n\nThis step adds what Foundry needs on top: for each resolved person, all\ncontributing source rows from the source datasets are recorded in the\nLineageRecord along with per-field provenance.\n\nClinic registrations (Phase 1) are attached after the greedy pass by name +\ndob only (``resolution.attach_clinic_rows``); they never create a Person.  The\nlatest registration supplies ``homeAddress`` and ``clinicCode`` (both marked\nHEALTH).  Bank transactions are not an input: no bank field reaches a Person\nrow, so the output does not inherit FIN.\n\nOutput Dataset: person entities\n  id               — person::{slug(passport_id or name-dob)}\n  canonicalName    — longest name from a watchlist/registry/flight record;\n                     for ping-only persons, the most frequent observed name\n  aliases          — pipe-joined string of additional names\n  dob\n  nationality\n  passportId\n  phoneNumber\n  riskTag\n  homeAddress      — latest clinic registration (PII + HEALTH)\n  clinicCode       — latest clinic registration (PII + HEALTH)\n  resolution       — {method, confidence, mergedFrom, splitRisk, note}\n\nThe resolver itself is attached to the output dataset as\n``dataset.resolver`` so step 05 links edges with the same lookups, and the\nseed builder scores cross-person candidate pairs from it\n(``pipeline/candidates.py``; the browser's Resolution tab merges them above a\nthreshold).\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings\nfrom pipeline.resolution import (\n    PersonRecord, PersonResolver, attach_clinic_rows, latest_clinic_rows, person_observations,\n)\n\n\n# ---------------------------------------------------------------------------\n# Internal helpers\n# ---------------------------------------------------------------------------\n\ndef _merge(a: str, b: str) -> str:\n    \"\"\"Prefer the longer non-empty string.\"\"\"\n    if not b:\n        return a\n    if not a:\n        return b\n    if a == b:\n        return a\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Person accumulator\n# ---------------------------------------------------------------------------\n\nclass _PersonAccum:\n    def __init__(self, entity_id: str) -> None:\n        self.entity_id = entity_id\n        self.canonical_name: str = \"\"\n        self.aliases: Set[str] = set()\n        self.dob: str = \"\"\n        self.nationality: str = \"\"\n        self.passport_id: str = \"\"\n        self.phone_number: str = \"\"\n        self.risk_tag: str = \"\"\n        self.home_address: str = \"\"\n        self.clinic_code: str = \"\"\n        # list of (dataset_name, source_row_idx, field, note)\n        self.source_refs: List[Tuple[str, int, str, str]] = []\n        # output_field → list of (dataset_name, source_row_idx, source_field, note)\n        self.field_refs: Dict[str, List[Tuple[str, int, str, str]]] = {}\n        # (dataset_name, source_row_idx, observed_name) for every named ping\n        self.ping_names: List[Tuple[str, int, str]] = []\n\n    def _add_field_ref(self, output_field: str, ds_name: str, row_idx: int, src_field: str, note: str = \"\") -> None:\n        self.field_refs.setdefault(output_field, []).append((ds_name, row_idx, src_field, note))\n\n    def absorb_watchlist(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"watchlist\"))\n        if row.get(\"canonical_name\"):\n            if _merge(self.canonical_name, row[\"canonical_name\"]) != self.canonical_name:\n                self.canonical_name = _merge(self.canonical_name, row[\"canonical_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"canonical_name\")\n        for alias in row.get(\"aliases\", []):\n            self.aliases.add(alias)\n        if row.get(\"aliases\"):\n            self._add_field_ref(\"aliases\", ds_name, ri, \"alias\", \"pipe-split\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"nationality\"):\n            self.nationality = _merge(self.nationality, row[\"nationality\"])\n            self._add_field_ref(\"nationality\", ds_name, ri, \"nationality\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"risk_tag\"):\n            self.risk_tag = _merge(self.risk_tag, row[\"risk_tag\"])\n            self._add_field_ref(\"riskTag\", ds_name, ri, \"risk_tag\")\n\n    def absorb_company(self, row: Dict[str, Any], ds_name: str, role: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", role))\n        name_field = \"director_name\" if role == \"director\" else \"beneficial_owner\"\n        dob_field = \"director_dob\" if role == \"director\" else \"beneficial_owner_dob\"\n        if row.get(name_field):\n            self.canonical_name = _merge(self.canonical_name, row[name_field])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, name_field)\n        if row.get(dob_field):\n            self.dob = _merge(self.dob, row[dob_field])\n            self._add_field_ref(\"dob\", ds_name, ri, dob_field)\n\n    def absorb_flight(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"flight-passenger\"))\n        if row.get(\"passenger_name\"):\n            self.canonical_name = _merge(self.canonical_name, row[\"passenger_name\"])\n            self._add_field_ref(\"canonicalName\", ds_name, ri, \"passenger_name\")\n        if row.get(\"dob\"):\n            self.dob = _merge(self.dob, row[\"dob\"])\n            self._add_field_ref(\"dob\", ds_name, ri, \"dob\")\n        if row.get(\"passport_id\"):\n            self.passport_id = row[\"passport_id\"]\n            self._add_field_ref(\"passportId\", ds_name, ri, \"passport_id\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_ping(self, row: Dict[str, Any], ds_name: str) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"device-ping\"))\n        if row.get(\"observed_name\"):\n            self.aliases.add(row[\"observed_name\"])\n            self.ping_names.append((ds_name, ri, row[\"observed_name\"]))\n            self._add_field_ref(\"aliases\", ds_name, ri, \"observed_name\", \"ping alias\")\n        if row.get(\"phone_number\"):\n            self.phone_number = _merge(self.phone_number, row[\"phone_number\"])\n            self._add_field_ref(\"phoneNumber\", ds_name, ri, \"phone_number\")\n\n    def absorb_clinic(self, row: Dict[str, Any], ds_name: str, latest: bool) -> None:\n        ri = int(row[\"_source_row\"])\n        self.source_refs.append((ds_name, ri, \"\", \"clinic-registration\"))\n        if not latest:\n            return\n        if row.get(\"home_address\"):\n            self.home_address = row[\"home_address\"]\n            self._add_field_ref(\"homeAddress\", ds_name, ri, \"home_address\", \"latest registration\")\n        if row.get(\"clinic_code\"):\n            self.clinic_code = row[\"clinic_code\"]\n            self._add_field_ref(\"clinicCode\", ds_name, ri, \"clinic_code\", \"latest registration\")\n\n    def to_row(self, record: PersonRecord, resolution: Dict[str, Any]) -> Dict[str, Any]:\n        canonical = record.display_name or self.canonical_name\n        if record.name_is_weak and canonical:\n            # No watchlist/registry/flight name: fall back to the most frequent\n            # ping observed_name and say so in the field provenance (F0.3).\n            self.field_refs[\"canonicalName\"] = [\n                (ds, row, \"observed_name\", \"from ping observed_name (weak)\")\n                for ds, row, name in self.ping_names if name == canonical\n            ]\n        clean_aliases = sorted(a for a in self.aliases if a and a != canonical)\n        return {\n            \"id\": self.entity_id,\n            \"type\": \"Person\",\n            \"canonicalName\": canonical,\n            \"aliases\": \" | \".join(clean_aliases),\n            \"dob\": self.dob,\n            \"nationality\": self.nationality,\n            \"passportId\": self.passport_id,\n            \"phoneNumber\": self.phone_number,\n            \"riskTag\": self.risk_tag,\n            \"homeAddress\": self.home_address,\n            \"clinicCode\": self.clinic_code,\n            \"resolution\": resolution,\n        }\n\n    def to_field_provenance(self) -> Dict[str, List[Dict[str, Any]]]:\n        result: Dict[str, List[Dict[str, Any]]] = {}\n        for field, refs in self.field_refs.items():\n            result[field] = [\n                {\"dataset\": ds, \"row\": row, \"field\": src_f, \"note\": note}\n                for ds, row, src_f, note in refs\n            ]\n        return result\n\n\n# ---------------------------------------------------------------------------\n# Main run function\n# ---------------------------------------------------------------------------\n\ndef run(\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    resolver = PersonResolver()\n    accums: Dict[str, _PersonAccum] = {}\n\n    # One greedy pass in canonical order: watchlist, registry directors and\n    # owners, flight passengers, mobile pings (see pipeline/resolution.py).\n    observations = person_observations(\n        norm_watchlist.rows, norm_company_registry.rows,\n        norm_flight_manifests.rows, norm_mobile_pings.rows,\n    )\n    for obs in observations:\n        record = resolver.observe(obs)\n        if record is None:\n            continue\n        accum = accums.setdefault(record.id, _PersonAccum(record.id))\n        if obs.kind == \"watchlist\":\n            accum.absorb_watchlist(obs.row, norm_watchlist.name)\n        elif obs.kind == \"director\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"director\")\n        elif obs.kind == \"owner\":\n            accum.absorb_company(obs.row, norm_company_registry.name, \"beneficial_owner\")\n        elif obs.kind == \"flight\":\n            accum.absorb_flight(obs.row, norm_flight_manifests.name)\n        else:\n            accum.absorb_ping(obs.row, norm_mobile_pings.name)\n\n    # Clinic rows: attach by name + dob only, after every other record.\n    attached = attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    latest = latest_clinic_rows(attached)\n    for obs, pid in attached:\n        if pid is None:\n            continue  # never create a Person from a clinic row alone\n        accums[pid].absorb_clinic(obs.row, norm_clinic_registrations.name, latest[pid] is obs)\n\n    # Build output dataset\n    resolutions = resolver.resolutions()\n    all_accums = [accums[pid] for pid in resolver.records]\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for accum in all_accums:\n        output_rows.append(accum.to_row(resolver.records[accum.entity_id], resolutions[accum.entity_id]))\n        fp_per_row.append(accum.to_field_provenance())\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"canonicalName\", \"type\": \"string\"},\n        {\"field\": \"aliases\", \"type\": \"string\"},\n        {\"field\": \"dob\", \"type\": \"date\"},\n        {\"field\": \"nationality\", \"type\": \"string\"},\n        {\"field\": \"passportId\", \"type\": \"string\"},\n        {\"field\": \"phoneNumber\", \"type\": \"string\"},\n        {\"field\": \"riskTag\", \"type\": \"string\"},\n        {\"field\": \"homeAddress\", \"type\": \"string\"},\n        {\"field\": \"clinicCode\", \"type\": \"string\"},\n        {\"field\": \"resolution\", \"type\": \"json\"},\n    ]\n\n    ds = Dataset(name=\"resolved_persons\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                          norm_mobile_pings, norm_clinic_registrations])\n    ds.resolver = resolver  # type: ignore[attr-defined]  # read by step 05\n    lineage = LineageRecord()\n\n    for out_idx, (accum, fp) in enumerate(zip(all_accums, fp_per_row)):\n        # Row-level sources\n        seen: Set[Tuple[str, int]] = set()\n        for ds_name, row_idx, _field, note in accum.source_refs:\n            key = (ds_name, row_idx)\n            if key not in seen:\n                seen.add(key)\n                lineage.add_source(out_idx, ds_name, row_idx, note=note)\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = norm_run(dataset_dir)\n    ds, lineage = run(wl, cr, fm, mp, cl)\n    print(f\"Resolved {len(ds)} persons\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"canonicalName\"])\n",
           "rowsIn": 7000,
           "rowsOut": 191,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         },
         {
           "id": "resolve_companies",
@@ -25421,7 +25813,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/03_resolve_companies.py — Entity resolution for Company entities.\n\nKeyed by company_id from the normalized company_registry dataset.\n\nOutput Dataset: company entities\n  id                 — company::{slug(company_id)}\n  companyName\n  jurisdiction\n  incorporationDate\n  registeredAddress\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef run(norm_company_registry: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve Company entities from the normalized company_registry dataset.\"\"\"\n    seen: Dict[str, int] = {}   # company_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n\n    for row in norm_company_registry.rows:\n        company_id = row.get(\"company_id\", \"\")\n        if not company_id:\n            continue\n\n        src_row = int(row[\"_source_row\"])\n        ds_name = norm_company_registry.name\n\n        if company_id in seen:\n            # Merge into existing — update any empty fields\n            out_idx = seen[company_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                val = row.get(src_field, \"\")\n                if val and not existing.get(out_field):\n                    existing[out_field] = val\n                    fp.setdefault(out_field, []).append(\n                        {\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"merge\"}\n                    )\n        else:\n            out_idx = len(output_rows)\n            seen[company_id] = out_idx\n            entity_id = f\"company::{slug(company_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"Company\",\n                \"companyName\": row.get(\"company_name\", \"\"),\n                \"jurisdiction\": row.get(\"jurisdiction\", \"\"),\n                \"incorporationDate\": row.get(\"incorporation_date\", \"\"),\n                \"registeredAddress\": row.get(\"registered_address\", \"\"),\n            }\n            fp: Dict[str, List[Dict[str, Any]]] = {}\n            for out_field, src_field in [\n                (\"companyName\", \"company_name\"),\n                (\"jurisdiction\", \"jurisdiction\"),\n                (\"incorporationDate\", \"incorporation_date\"),\n                (\"registeredAddress\", \"registered_address\"),\n            ]:\n                if row.get(src_field):\n                    fp[out_field] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": src_field, \"note\": \"\"}]\n            fp[\"id\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": \"company_id\", \"note\": \"key\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp)\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"companyName\", \"type\": \"string\"},\n        {\"field\": \"jurisdiction\", \"type\": \"string\"},\n        {\"field\": \"incorporationDate\", \"type\": \"date\"},\n        {\"field\": \"registeredAddress\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_companies\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_company_registry])\n    lineage = LineageRecord()\n\n    for out_idx, (out_row, fp) in enumerate(zip(output_rows, fp_per_row)):\n        # Row-level: find the original source row index\n        src_refs = fp.get(\"id\", fp.get(\"companyName\", []))\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"company\")\n        # Field-level provenance\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, cr, _, _, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(cr)\n    print(f\"Resolved {len(ds)} companies\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"companyName\"])\n",
           "rowsIn": 98,
           "rowsOut": 98,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         },
         {
           "id": "resolve_accounts",
@@ -25435,7 +25827,7 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/04_resolve_accounts.py — Entity resolution for BankAccount entities.\n\nKeyed by account_id from the normalized bank_transactions dataset.\nBoth source and destination accounts are extracted.\n\nOutput Dataset: bank account entities\n  id           — bankaccount::{slug(account_id)}\n  accountId\n  ownerName\n  accountKind  — \"personal\" | \"corporate\" | \"\" (resolved downstream in step 05)\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\ndef run(norm_bank_transactions: Dataset) -> Tuple[Dataset, LineageRecord]:\n    \"\"\"Resolve BankAccount entities from the normalized bank_transactions dataset.\"\"\"\n    seen: Dict[str, int] = {}   # account_id → output_row_index\n    output_rows: List[Dict[str, Any]] = []\n    fp_per_row: List[Dict[str, List[Dict[str, Any]]]] = []\n    ds_name = norm_bank_transactions.name\n\n    def upsert(account_id: str, owner_name: str, src_row: int, id_field: str, name_field: str) -> None:\n        if not account_id:\n            return\n        if account_id in seen:\n            out_idx = seen[account_id]\n            existing = output_rows[out_idx]\n            fp = fp_per_row[out_idx]\n            if owner_name and not existing.get(\"ownerName\"):\n                existing[\"ownerName\"] = owner_name\n                fp.setdefault(\"ownerName\", []).append(\n                    {\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"merge\"}\n                )\n        else:\n            out_idx = len(output_rows)\n            seen[account_id] = out_idx\n            entity_id = f\"bankaccount::{slug(account_id)}\"\n            out_row: Dict[str, Any] = {\n                \"id\": entity_id,\n                \"type\": \"BankAccount\",\n                \"accountId\": account_id,\n                \"ownerName\": owner_name,\n                \"accountKind\": \"\",\n            }\n            fp_entry: Dict[str, List[Dict[str, Any]]] = {\n                \"id\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"key\"}],\n                \"accountId\": [{\"dataset\": ds_name, \"row\": src_row, \"field\": id_field, \"note\": \"\"}],\n            }\n            if owner_name:\n                fp_entry[\"ownerName\"] = [{\"dataset\": ds_name, \"row\": src_row, \"field\": name_field, \"note\": \"\"}]\n            output_rows.append(out_row)\n            fp_per_row.append(fp_entry)\n\n    for row in norm_bank_transactions.rows:\n        src_row = int(row[\"_source_row\"])\n        upsert(\n            row.get(\"source_account_id\", \"\"),\n            row.get(\"source_name\", \"\"),\n            src_row,\n            \"source_account_id\",\n            \"source_name\",\n        )\n        upsert(\n            row.get(\"destination_account_id\", \"\"),\n            row.get(\"destination_name\", \"\"),\n            src_row,\n            \"destination_account_id\",\n            \"destination_name\",\n        )\n\n    schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"accountId\", \"type\": \"string\"},\n        {\"field\": \"ownerName\", \"type\": \"string\"},\n        {\"field\": \"accountKind\", \"type\": \"string\"},\n    ]\n\n    ds = Dataset(name=\"resolved_accounts\", rows=output_rows, schema=schema)\n    inherit_markings(ds, [norm_bank_transactions])\n    lineage = LineageRecord()\n\n    for out_idx, fp in enumerate(fp_per_row):\n        src_refs = fp.get(\"id\", [])\n        for ref in src_refs:\n            lineage.add_source(out_idx, ref[\"dataset\"], ref[\"row\"], note=\"account\")\n        for output_field, refs in fp.items():\n            lineage.field_provenance.setdefault(out_idx, {})[output_field] = refs\n\n    return ds, lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline.p01_normalize_sources import run as norm_run\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    _, _, _, bt, _, _ = norm_run(dataset_dir)\n    ds, lineage = run(bt)\n    print(f\"Resolved {len(ds)} bank accounts\")\n    for row in ds.rows[:5]:\n        print(\" \", row[\"id\"], \"—\", row[\"ownerName\"])\n",
           "rowsIn": 2210,
           "rowsOut": 282,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         },
         {
           "id": "build_ontology",
@@ -25457,12 +25849,12 @@ window.foundrySeedCatalog = {
           "code": "\"\"\"\npipeline/05_build_ontology.py — Build the full ontology entity and edge sets.\n\nTakes all resolved entity datasets + normalized sources.  Produces:\n  - Additional entity types: Device, Flight, Airport, Location, WatchlistRecord\n  - All edges:\n      LISTED_ON, DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT,\n      OWNS_ACCOUNT, HAS_CORP_ACCOUNT, TRANSFERRED_TO,\n      BOOKED_ON, DEPARTED_FROM, ARRIVED_AT,\n      USES_DEVICE, OBSERVED_AT,\n      RESIDES_AT (Phase 1: Person → residential Location, from clinic rows)\n\nClinic rows that the shared resolver attached to a Person (name + dob) become\na residential ``Location`` (``locationType: \"residential\"``) and a\n``RESIDES_AT`` link with ``{asOf, source}``.  Unattached rows produce nothing.\n\nBoth output datasets inherit the union of their inputs' markings, and every\nentity and edge gets contract §3 markings from ``pipeline/governance.py``.\n\nPerson lookups go through the shared resolver in ``pipeline/resolution.py``\n(the same one the Gotham seed builder uses), passing every key the source row\ncarries — passport, phone, name and date of birth — so both demos attach\neach edge to the same person.\n\nReturns:\n  entities_dataset  — all entities (persons + companies + accounts + new types)\n  edges_dataset     — all edges\n  entity_lineage    — LineageRecord for entities\n  edge_lineage      — LineageRecord for edges\n\"\"\"\n\nfrom __future__ import annotations\n\nimport re\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Optional, Set, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline import governance\nfrom pipeline.lib import Dataset, LineageRecord, inherit_markings, slug\nfrom pipeline.resolution import PersonResolver, attach_clinic_rows, clinic_observations, resolve_people\n\n# ---------------------------------------------------------------------------\n# Airport reference data (from build_ontology_seed.py)\n# ---------------------------------------------------------------------------\nAIRPORT_COORDS: Dict[str, Dict[str, Any]] = {\n    \"ATH\": {\"name\": \"Athens International Airport\", \"city\": \"Athens\", \"country\": \"Greece\", \"lat\": 37.9364, \"lon\": 23.9475},\n    \"BEG\": {\"name\": \"Belgrade Nikola Tesla Airport\", \"city\": \"Belgrade\", \"country\": \"Serbia\", \"lat\": 44.8184, \"lon\": 20.3091},\n    \"DXB\": {\"name\": \"Dubai International Airport\", \"city\": \"Dubai\", \"country\": \"United Arab Emirates\", \"lat\": 25.2532, \"lon\": 55.3657},\n    \"IAD\": {\"name\": \"Washington Dulles International Airport\", \"city\": \"Washington, D.C.\", \"country\": \"United States\", \"lat\": 38.9531, \"lon\": -77.4565},\n    \"IST\": {\"name\": \"Istanbul Airport\", \"city\": \"Istanbul\", \"country\": \"Turkey\", \"lat\": 41.2753, \"lon\": 28.7519},\n    \"LCA\": {\"name\": \"Larnaca International Airport\", \"city\": \"Larnaca\", \"country\": \"Cyprus\", \"lat\": 34.8751, \"lon\": 33.6249},\n    \"LHR\": {\"name\": \"Heathrow Airport\", \"city\": \"London\", \"country\": \"United Kingdom\", \"lat\": 51.4700, \"lon\": -0.4543},\n    \"SOF\": {\"name\": \"Sofia Airport\", \"city\": \"Sofia\", \"country\": \"Bulgaria\", \"lat\": 42.6950, \"lon\": 23.4062},\n    \"VIE\": {\"name\": \"Vienna International Airport\", \"city\": \"Vienna\", \"country\": \"Austria\", \"lat\": 48.1103, \"lon\": 16.5697},\n}\n\n\n# ---------------------------------------------------------------------------\n# Helpers\n# ---------------------------------------------------------------------------\n\ndef _norm(value: str) -> str:\n    cleaned = re.sub(r\"[^a-z0-9]+\", \" \", value.lower()).strip()\n    return re.sub(r\"\\s+\", \" \", cleaned)\n\n\ndef _merge(a: str, b: str) -> str:\n    if not b:\n        return a\n    if not a:\n        return b\n    return b if len(b) > len(a) else a\n\n\n# ---------------------------------------------------------------------------\n# Ontology builder\n# ---------------------------------------------------------------------------\n\nclass OntologyBuilder:\n    def __init__(\n        self,\n        resolved_persons: Dataset,\n        resolved_companies: Dataset,\n        resolved_accounts: Dataset,\n        resolver: PersonResolver,\n    ) -> None:\n        # Start with resolved entities\n        self.entities: List[Dict[str, Any]] = []\n        self.entity_index: Dict[str, int] = {}  # entity_id → index in self.entities\n        self.edges: List[Dict[str, Any]] = []\n        self.edge_index: Dict[str, int] = {}\n\n        # Entity lineage: entity_id → list of source refs\n        self.entity_src: Dict[str, List[Dict[str, Any]]] = {}\n        self.entity_field_prov: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}\n\n        # Lookup tables (persons: the shared resolver from step 02)\n        self.resolver = resolver\n        self.company_by_name: Dict[str, str] = {}\n        self.account_by_id: Dict[str, str] = {}\n        self.device_by_id: Dict[str, str] = {}\n        self.airport_by_code: Dict[str, str] = {}\n        self.location_by_label: Dict[str, str] = {}\n\n        # Ingest persons\n        for row in resolved_persons.rows:\n            self._add_entity_row(row, resolved_persons.name)\n\n        # Ingest companies\n        for row in resolved_companies.rows:\n            self._add_entity_row(row, resolved_companies.name)\n            self.company_by_name[_norm(row.get(\"companyName\", \"\"))] = row[\"id\"]\n\n        # Ingest accounts\n        for row in resolved_accounts.rows:\n            self._add_entity_row(row, resolved_accounts.name)\n            self.account_by_id[row[\"accountId\"]] = row[\"id\"]\n\n    def _add_entity_row(self, row: Dict[str, Any], source_ds: str) -> str:\n        eid = row[\"id\"]\n        if eid in self.entity_index:\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        # Build Gotham-compatible entity shape\n        props = {k: v for k, v in row.items() if k not in (\"id\", \"type\", \"resolution\") and v not in (None, \"\")}\n        entity = {\n            \"id\": eid,\n            \"type\": row[\"type\"],\n            \"label\": props.get(\"canonicalName\") or props.get(\"companyName\") or props.get(\"accountId\") or eid,\n            \"properties\": props,\n            \"sourceIds\": [source_ds],\n        }\n        if row.get(\"resolution\"):\n            entity[\"resolution\"] = row[\"resolution\"]\n        self.entities.append(entity)\n        return eid\n\n    def _add_edge(\n        self,\n        rel_type: str,\n        source_id: str,\n        target_id: str,\n        properties: Optional[Dict[str, Any]] = None,\n        dedupe_key: Optional[str] = None,\n    ) -> str:\n        base_key = dedupe_key or f\"{rel_type}:{source_id}:{target_id}\"\n        edge_id = f\"{rel_type.lower()}::{slug(base_key)}\"\n        if edge_id in self.edge_index:\n            idx = self.edge_index[edge_id]\n            if properties:\n                for k, v in properties.items():\n                    if v not in (None, \"\"):\n                        self.edges[idx][\"properties\"][k] = v\n            return edge_id\n        idx = len(self.edges)\n        self.edge_index[edge_id] = idx\n        self.edges.append({\n            \"id\": edge_id,\n            \"type\": rel_type,\n            \"source\": source_id,\n            \"target\": target_id,\n            \"label\": rel_type,\n            \"properties\": {k: v for k, v in (properties or {}).items() if v not in (None, \"\")},\n        })\n        return edge_id\n\n    def _ensure_entity(\n        self, type_id: str, external_key: str, label: str,\n        properties: Dict[str, Any], source_ds: str,\n    ) -> str:\n        eid = f\"{type_id.lower()}::{slug(external_key)}\"\n        if eid in self.entity_index:\n            # Merge\n            existing = self.entities[self.entity_index[eid]]\n            for k, v in properties.items():\n                if v not in (None, \"\") and existing[\"properties\"].get(k) in (None, \"\"):\n                    existing[\"properties\"][k] = v\n            return eid\n        idx = len(self.entities)\n        self.entity_index[eid] = idx\n        clean_props = {k: v for k, v in properties.items() if v not in (None, \"\")}\n        self.entities.append({\n            \"id\": eid,\n            \"type\": type_id,\n            \"label\": label or external_key,\n            \"properties\": clean_props,\n            \"sourceIds\": [source_ds],\n        })\n        return eid\n\n    def ensure_airport(self, code: str) -> str:\n        if code in self.airport_by_code:\n            return self.airport_by_code[code]\n        info = AIRPORT_COORDS.get(code, {\"name\": code, \"city\": \"\", \"country\": \"\", \"lat\": None, \"lon\": None})\n        eid = self._ensure_entity(\n            \"Airport\", code, info[\"name\"],\n            {\"code\": code, \"airportName\": info[\"name\"], \"city\": info[\"city\"],\n             \"country\": info[\"country\"], \"lat\": info[\"lat\"], \"lon\": info[\"lon\"]},\n            \"norm_flight_manifests\",\n        )\n        self.airport_by_code[code] = eid\n        return eid\n\n    def ensure_location(\n        self, label: str, lat: Any = None, lon: Any = None,\n        cell_tower: str = \"\", location_type: str = \"\", city: str = \"\", country: str = \"\",\n        source_ds: str = \"norm_mobile_pings\",\n    ) -> str:\n        norm = _norm(label)\n        if norm in self.location_by_label:\n            eid = self.location_by_label[norm]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            for k, v in {\"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower,\n                         \"locationType\": location_type, \"city\": city, \"country\": country}.items():\n                if v not in (None, \"\") and props.get(k) in (None, \"\"):\n                    props[k] = v\n            return eid\n        eid = self._ensure_entity(\n            \"Location\", label, label,\n            {\"label\": label, \"locationType\": location_type, \"city\": city, \"country\": country,\n             \"lat\": lat, \"lon\": lon, \"cellTower\": cell_tower},\n            source_ds,\n        )\n        self.location_by_label[norm] = eid\n        return eid\n\n    def ensure_device(self, device_id: str, phone: str, observed_name: str) -> str:\n        if device_id in self.device_by_id:\n            eid = self.device_by_id[device_id]\n            props = self.entities[self.entity_index[eid]][\"properties\"]\n            if phone:\n                props[\"phoneNumber\"] = _merge(str(props.get(\"phoneNumber\", \"\")), phone)\n            if observed_name:\n                props[\"lastObservedName\"] = _merge(str(props.get(\"lastObservedName\", \"\")), observed_name)\n            return eid\n        eid = self._ensure_entity(\n            \"Device\", device_id, device_id,\n            {\"deviceId\": device_id, \"phoneNumber\": phone, \"lastObservedName\": observed_name},\n            \"norm_mobile_pings\",\n        )\n        self.device_by_id[device_id] = eid\n        return eid\n\n    def find_person(self, passport_id: str = \"\", phone: str = \"\", name: str = \"\", dob: str = \"\",\n                    ref: str = \"\") -> Optional[str]:\n        \"\"\"Person for a source record (``ref``) or, failing that, by key lookup.\"\"\"\n        if ref:\n            return self.resolver.person_for(ref, name=name, dob=dob, passport=passport_id, phone=phone)\n        return self.resolver.find(name=name, dob=dob, passport=passport_id, phone=phone)\n\n    def link_account_owner(self, account_eid: str, owner_name: str) -> None:\n        norm = _norm(owner_name)\n        acct_props = self.entities[self.entity_index[account_eid]][\"properties\"]\n        if norm in self.company_by_name:\n            company_id = self.company_by_name[norm]\n            self._add_edge(\"HAS_CORP_ACCOUNT\", company_id, account_eid, dedupe_key=f\"{company_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"corporate\"\n            return\n        person_id = self.find_person(name=owner_name)\n        if person_id:\n            self._add_edge(\"OWNS_ACCOUNT\", person_id, account_eid, dedupe_key=f\"{person_id}:{account_eid}\")\n            acct_props[\"accountKind\"] = \"personal\"\n\n\n# ---------------------------------------------------------------------------\n# Main run\n# ---------------------------------------------------------------------------\n\ndef run(\n    resolved_persons: Dataset,\n    resolved_companies: Dataset,\n    resolved_accounts: Dataset,\n    norm_watchlist: Dataset,\n    norm_company_registry: Dataset,\n    norm_flight_manifests: Dataset,\n    norm_bank_transactions: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_clinic_registrations: Dataset,\n) -> Tuple[Dataset, Dataset, LineageRecord, LineageRecord]:\n\n    resolver = getattr(resolved_persons, \"resolver\", None)\n    if resolver is None:\n        # Rebuild the identical resolver state from the normalised sources.\n        resolver = resolve_people(norm_watchlist.rows, norm_company_registry.rows,\n                                  norm_flight_manifests.rows, norm_mobile_pings.rows)\n        attach_clinic_rows(resolver, norm_clinic_registrations.rows)\n    builder = OntologyBuilder(resolved_persons, resolved_companies, resolved_accounts, resolver)\n\n    # --- WatchlistRecord entities + LISTED_ON edges ---\n    for row in norm_watchlist.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            name=row.get(\"canonical_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"watchlist:{row.get('watchlist_id', '')}\",\n        )\n        record_eid = builder._ensure_entity(\n            \"WatchlistRecord\",\n            row.get(\"watchlist_id\", \"\"),\n            row.get(\"watchlist_id\", \"\"),\n            {\n                \"watchlistId\": row.get(\"watchlist_id\", \"\"),\n                \"alias\": \" | \".join(row.get(\"aliases\", [])),\n                \"dob\": row.get(\"dob\", \"\"),\n                \"nationality\": row.get(\"nationality\", \"\"),\n                \"passportId\": row.get(\"passport_id\", \"\"),\n                \"riskTag\": row.get(\"risk_tag\", \"\"),\n            },\n            norm_watchlist.name,\n        )\n        if person_id:\n            builder._add_edge(\"LISTED_ON\", person_id, record_eid,\n                               dedupe_key=f\"{person_id}:{record_eid}\")\n\n    # --- Company edges: DIRECTS, BENEFICIALLY_OWNS, REGISTERED_AT ---\n    for row in norm_company_registry.rows:\n        company_eid = f\"company::{slug(row.get('company_id', ''))}\"\n        if company_eid not in builder.entity_index:\n            continue\n\n        # Director\n        director_id = builder.find_person(name=row.get(\"director_name\", \"\"),\n                                           dob=row.get(\"director_dob\", \"\"),\n                                           ref=f\"company:{row.get('company_id', '')}:director\")\n        if director_id:\n            builder._add_edge(\"DIRECTS\", director_id, company_eid,\n                               dedupe_key=f\"{director_id}:{company_eid}\")\n\n        # Beneficial owner\n        owner_id = builder.find_person(name=row.get(\"beneficial_owner\", \"\"),\n                                        dob=row.get(\"beneficial_owner_dob\", \"\"),\n                                        ref=f\"company:{row.get('company_id', '')}:owner\")\n        if owner_id:\n            builder._add_edge(\"BENEFICIALLY_OWNS\", owner_id, company_eid,\n                               dedupe_key=f\"{owner_id}:{company_eid}\")\n\n        # Registered address → Location\n        address = row.get(\"registered_address\", \"\")\n        if address:\n            loc_eid = builder.ensure_location(\n                address, location_type=row.get(\"registered_site_type\", \"\"),\n                city=row.get(\"registered_city\", \"\"),\n                country=row.get(\"registered_country\", \"\"),\n                source_ds=norm_company_registry.name,\n            )\n            builder._add_edge(\"REGISTERED_AT\", company_eid, loc_eid,\n                               dedupe_key=f\"{company_eid}:{loc_eid}\")\n\n    # --- Flight entities + BOOKED_ON, DEPARTED_FROM, ARRIVED_AT ---\n    for row in norm_flight_manifests.rows:\n        person_id = builder.find_person(\n            passport_id=row.get(\"passport_id\", \"\"),\n            phone=row.get(\"phone_number\", \"\"),\n            name=row.get(\"passenger_name\", \"\"),\n            dob=row.get(\"dob\", \"\"),\n            ref=f\"flight:{row.get('manifest_id', '')}\",\n        )\n        flight_eid = builder._ensure_entity(\n            \"Flight\",\n            row.get(\"manifest_id\", \"\"),\n            f\"{row.get('flight_number', '')} · {row.get('passenger_name', '')}\",\n            {\n                \"manifestId\": row.get(\"manifest_id\", \"\"),\n                \"flightNumber\": row.get(\"flight_number\", \"\"),\n                \"departureTs\": row.get(\"departure_ts\", \"\"),\n                \"bookingReference\": row.get(\"booking_reference\", \"\"),\n                \"seat\": row.get(\"seat\", \"\"),\n                \"paymentCardLast4\": row.get(\"payment_card_last4\", \"\"),\n            },\n            norm_flight_manifests.name,\n        )\n        dep_eid = builder.ensure_airport(row.get(\"departure_airport\", \"\"))\n        arr_eid = builder.ensure_airport(row.get(\"arrival_airport\", \"\"))\n        if person_id:\n            builder._add_edge(\"BOOKED_ON\", person_id, flight_eid,\n                               dedupe_key=f\"{person_id}:{flight_eid}\")\n        builder._add_edge(\"DEPARTED_FROM\", flight_eid, dep_eid,\n                           dedupe_key=f\"{flight_eid}:{dep_eid}\")\n        builder._add_edge(\"ARRIVED_AT\", flight_eid, arr_eid,\n                           dedupe_key=f\"{flight_eid}:{arr_eid}\")\n\n    # --- Bank account ownership + TRANSFERRED_TO ---\n    for row in norm_bank_transactions.rows:\n        src_acc = row.get(\"source_account_id\", \"\")\n        dst_acc = row.get(\"destination_account_id\", \"\")\n        src_eid = builder.account_by_id.get(src_acc, \"\")\n        dst_eid = builder.account_by_id.get(dst_acc, \"\")\n\n        if src_eid:\n            builder.link_account_owner(src_eid, row.get(\"source_name\", \"\"))\n        if dst_eid:\n            builder.link_account_owner(dst_eid, row.get(\"destination_name\", \"\"))\n\n        if src_eid and dst_eid and row.get(\"txn_type\") == \"transfer\":\n            dedupe = f\"{src_eid}:{dst_eid}\"\n            edge_id = f\"transferred_to::{slug(dedupe)}\"\n            if edge_id in builder.edge_index:\n                idx = builder.edge_index[edge_id]\n                existing = builder.edges[idx]\n                count = int(existing[\"properties\"].get(\"count\", \"1\")) + 1\n                total = float(existing[\"properties\"].get(\"totalAmountUsd\", \"0\")) + float(row.get(\"amount_usd\") or 0)\n                existing[\"properties\"][\"count\"] = str(count)\n                existing[\"properties\"][\"totalAmountUsd\"] = f\"{total:.2f}\"\n                existing[\"properties\"][\"lastTxnTs\"] = row.get(\"txn_ts\", \"\")\n            else:\n                builder._add_edge(\n                    \"TRANSFERRED_TO\", src_eid, dst_eid,\n                    properties={\n                        \"count\": \"1\",\n                        \"totalAmountUsd\": str(row.get(\"amount_usd\", \"\") or \"\"),\n                        \"lastTxnTs\": row.get(\"txn_ts\", \"\"),\n                        \"sampleReference\": row.get(\"reference\", \"\"),\n                    },\n                    dedupe_key=dedupe,\n                )\n\n    # --- Device entities + USES_DEVICE + OBSERVED_AT ---\n    for row in norm_mobile_pings.rows:\n        device_id_str = row.get(\"device_id\", \"\")\n        phone = row.get(\"phone_number\", \"\")\n        observed = row.get(\"observed_name\", \"\")\n\n        device_eid = builder.ensure_device(device_id_str, phone, observed)\n\n        # Ping-only persons were already created by step 02's resolver.\n        person_id = builder.find_person(phone=phone, name=observed,\n                                        ref=f\"ping:{row.get('ping_id', '')}\")\n        if person_id:\n            builder._add_edge(\"USES_DEVICE\", person_id, device_eid,\n                               dedupe_key=f\"{person_id}:{device_eid}\")\n\n        loc_eid = builder.ensure_location(\n            row.get(\"location_label\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            cell_tower=row.get(\"cell_tower\", \"\"),\n            location_type=row.get(\"location_type\", \"\"),\n            city=row.get(\"city\", \"\"),\n            country=row.get(\"country\", \"\"),\n        )\n\n        dedupe = f\"{device_eid}:{loc_eid}\"\n        edge_id = f\"observed_at::{slug(dedupe)}\"\n        if edge_id in builder.edge_index:\n            idx = builder.edge_index[edge_id]\n            existing = builder.edges[idx]\n            count = int(existing[\"properties\"].get(\"sightingCount\", \"1\")) + 1\n            existing[\"properties\"][\"sightingCount\"] = str(count)\n            existing[\"properties\"][\"lastSeen\"] = row.get(\"timestamp\", \"\")\n        else:\n            builder._add_edge(\n                \"OBSERVED_AT\", device_eid, loc_eid,\n                properties={\n                    \"sightingCount\": \"1\",\n                    \"firstSeen\": row.get(\"timestamp\", \"\"),\n                    \"lastSeen\": row.get(\"timestamp\", \"\"),\n                    \"source\": row.get(\"source\", \"\"),\n                },\n                dedupe_key=dedupe,\n            )\n\n    # --- Residential Locations + RESIDES_AT (clinic rows, Phase 1) ---\n    for obs in clinic_observations(norm_clinic_registrations.rows):\n        person_id = resolver.clinic_by_ref.get(obs.ref)\n        if not person_id:\n            continue  # unattached clinic rows create no objects\n        row = obs.row\n        loc_eid = builder.ensure_location(\n            row.get(\"home_address\", \"\"),\n            lat=row.get(\"lat\"),\n            lon=row.get(\"lon\"),\n            location_type=\"residential\",\n            city=row.get(\"home_city\", \"\"),\n            country=row.get(\"home_country\", \"\"),\n            source_ds=norm_clinic_registrations.name,\n        )\n        dedupe = f\"{person_id}:{loc_eid}\"\n        edge_id = f\"resides_at::{slug(dedupe)}\"\n        as_of = row.get(\"registered_on\", \"\")\n        if edge_id in builder.edge_index:\n            existing = builder.edges[builder.edge_index[edge_id]]\n            if as_of > str(existing[\"properties\"].get(\"asOf\", \"\")):\n                existing[\"properties\"][\"asOf\"] = as_of\n        else:\n            builder._add_edge(\"RESIDES_AT\", person_id, loc_eid,\n                               properties={\"asOf\": as_of, \"source\": row.get(\"source\", \"\")},\n                               dedupe_key=dedupe)\n\n    # --- Markings on every object and link (contract §3) ---\n    raw_inputs = [norm_watchlist, norm_company_registry, norm_flight_manifests,\n                  norm_bank_transactions, norm_mobile_pings, norm_clinic_registrations]\n    file_markings = {ds.derived_from[0]: ds.markings for ds in raw_inputs if ds.derived_from}\n    governance.annotate_objects(builder.entities, builder.edges, file_markings)\n\n    # --- Assemble output datasets ---\n    entities_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"sourceIds\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n        {\"field\": \"propertyMarkings\", \"type\": \"json\"},\n        {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n    ]\n    edges_schema = [\n        {\"field\": \"id\", \"type\": \"string\"},\n        {\"field\": \"type\", \"type\": \"string\"},\n        {\"field\": \"source\", \"type\": \"string\"},\n        {\"field\": \"target\", \"type\": \"string\"},\n        {\"field\": \"label\", \"type\": \"string\"},\n        {\"field\": \"properties\", \"type\": \"json\"},\n        {\"field\": \"markings\", \"type\": \"json\"},\n    ]\n\n    entities_ds = Dataset(\n        name=\"ontology_entities\",\n        rows=sorted(builder.entities, key=lambda e: (str(e[\"type\"]), str(e[\"label\"]))),\n        schema=entities_schema,\n    )\n    edges_ds = Dataset(\n        name=\"ontology_edges\",\n        rows=sorted(builder.edges, key=lambda e: (str(e[\"type\"]), str(e[\"source\"]), str(e[\"target\"]))),\n        schema=edges_schema,\n    )\n\n    ontology_inputs = [resolved_persons, resolved_companies, resolved_accounts] + raw_inputs\n    inherit_markings(entities_ds, ontology_inputs)\n    inherit_markings(edges_ds, ontology_inputs)\n\n    # Trivial lineage: each entity/edge row came from its sourceIds\n    entity_lineage = LineageRecord()\n    for out_idx, entity in enumerate(entities_ds.rows):\n        for src in entity.get(\"sourceIds\", []):\n            entity_lineage.add_source(out_idx, src, 0, note=entity[\"type\"])\n\n    edge_lineage = LineageRecord()\n    for out_idx, edge in enumerate(edges_ds.rows):\n        edge_lineage.add_source(out_idx, edge[\"type\"], 0, note=\"edge\")\n\n    return entities_ds, edges_ds, entity_lineage, edge_lineage\n\n\nif __name__ == \"__main__\":\n    from pipeline import p01_normalize_sources as n01\n    from pipeline import p02_resolve_persons as n02\n    from pipeline import p03_resolve_companies as n03\n    from pipeline import p04_resolve_accounts as n04\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = n01.run(dataset_dir)\n    persons, _ = n02.run(wl, cr, fm, mp, cl)\n    companies, _ = n03.run(cr)\n    accounts, _ = n04.run(bt)\n    entities_ds, edges_ds, _, _ = run(persons, companies, accounts, wl, cr, fm, bt, mp, cl)\n    print(f\"Entities: {len(entities_ds)}, Edges: {len(edges_ds)}\")\n",
           "rowsIn": 9781,
           "rowsOut": 7750,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         },
         {
           "id": "build_leads",
           "name": "06 Build Leads",
-          "description": "Score each person's best address from three sources: clinic registrations (HEALTH, weight 0.5), mobile location pings (TELECOM, 0.4) and the company registry (OPEN, 0.3), each decayed by age: score = 100 · min(1, Σ weight · exp(−ageDays / 365)). One lead per person with an address source; the output inherits every input's markings.",
+          "description": "Score each person's best address from three sources: clinic registrations (PII and HEALTH, weight 0.5), mobile location pings (TELECOM, 0.4) and the company registry (OPEN, 0.3), each decayed by age: score = 100 · min(1, Σ weight · exp(−ageDays / 365)). One lead per person with an address source; the output inherits every input's markings.",
           "inputs": [
             "resolved_persons",
             "norm_clinic_registrations",
@@ -25471,10 +25863,10 @@ window.foundrySeedCatalog = {
           ],
           "output": "leads",
           "codePath": "pipeline/06_build_leads.py",
-          "code": "\"\"\"\npipeline/06_build_leads.py — Build address-confidence leads (F8, PHASE3_CONTRACT.md §1).\n\nOne lead per Person with at least one address source.  The scorer lives in\n``pipeline/leads.py`` (shared with the Investigate seed builder, so both apps\nshow the same leads); this step wraps it as a Transform with row- and\nfield-level lineage, like steps 02–05.\n\nInputs\n  resolved_persons            — who each source record belongs to (the shared resolver)\n  norm_clinic_registrations   — HEALTH,  weight 0.5, home_address, registered_on\n  norm_mobile_pings           — TELECOM, weight 0.4, location label, latest ping timestamp\n  norm_company_registry       — OPEN,    weight 0.3, registered_address, incorporation_date\n\n    score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))\n\n``ageDays`` counts from ``asOf``, the latest date in the inputs.  The best\naddress is the component with the largest contribution.  The output inherits\nthe union of its inputs' markings (HEALTH, TELECOM and OPEN from the sources,\nPII and LE-SENSITIVE through resolved_persons), so the dataset is HEALTH-marked\neven for leads with no clinic component: markings work per dataset, not per row.\n\nOutput Dataset ``leads``:\n  id             — lead::<personId>\n  personId\n  address        — best address (largest contribution)\n  lat, lon       — coordinates of the best address\n  score          — 0–100, 1 decimal\n  status         — \"open\" (the Close lead Action changes it in the browser)\n  components     — [{source, marking, weight, ageDays, decay, contribution, address, ...}]\n  formula, asOf\n  addressSource  — dataset of the best address's component\n  sourceMarkings — markings of the contributing sources\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.leads import compute_leads\nfrom pipeline.lib import Dataset, LineageRecord, Transform\n\nTRANSFORM_ID = \"build_leads\"\nOUTPUT_NAME = \"leads\"\n\nSCHEMA = [\n    {\"field\": \"id\", \"type\": \"string\"},\n    {\"field\": \"personId\", \"type\": \"string\"},\n    {\"field\": \"address\", \"type\": \"string\"},\n    {\"field\": \"lat\", \"type\": \"float\"},\n    {\"field\": \"lon\", \"type\": \"float\"},\n    {\"field\": \"score\", \"type\": \"float\"},\n    {\"field\": \"status\", \"type\": \"string\"},\n    {\"field\": \"components\", \"type\": \"json\"},\n    {\"field\": \"formula\", \"type\": \"string\"},\n    {\"field\": \"asOf\", \"type\": \"date\"},\n    {\"field\": \"addressSource\", \"type\": \"string\"},\n    {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n]\n\n\ndef _build(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[List[Dict[str, Any]], List[Dict[str, List[Dict[str, Any]]]]]:\n    resolver = resolved_persons.resolver  # type: ignore[attr-defined]\n    rows, provenance, _as_of = compute_leads(\n        resolver, norm_clinic_registrations.rows, norm_mobile_pings.rows, norm_company_registry.rows,\n    )\n    person_row = {row[\"id\"]: i for i, row in enumerate(resolved_persons.rows)}\n    for lead, fp in zip(rows, provenance):\n        ref = {\"dataset\": resolved_persons.name, \"row\": person_row.get(lead[\"personId\"], -1),\n               \"field\": \"id\", \"note\": \"person\"}\n        fp[\"personId\"] = [ref] + fp[\"personId\"]\n        fp[\"id\"] = [ref]\n    return rows, provenance\n\n\ndef run(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    transform = Transform(\n        TRANSFORM_ID,\n        \"Score each person's best address from clinic, ping and registry records.\",\n        [resolved_persons, norm_clinic_registrations, norm_mobile_pings, norm_company_registry],\n        _build,\n    )\n    leads_ds, lineage = transform.run()\n    leads_ds.name = OUTPUT_NAME\n    leads_ds.schema = [dict(f) for f in SCHEMA]\n    leads_ds.as_of = leads_ds.rows[0][\"asOf\"] if leads_ds.rows else \"\"  # type: ignore[attr-defined]\n    return leads_ds, lineage\n\n\nif __name__ == \"__main__\":\n    import importlib.util\n\n    def _load(stem: str):\n        path = Path(__file__).resolve().parent / f\"{stem}.py\"\n        spec = importlib.util.spec_from_file_location(stem, path)\n        module = importlib.util.module_from_spec(spec)\n        spec.loader.exec_module(module)\n        return module\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = _load(\"01_normalize_sources\").run(dataset_dir)\n    persons, _ = _load(\"02_resolve_persons\").run(wl, cr, fm, mp, cl)\n    leads_ds, _ = run(persons, cl, mp, cr)\n    print(f\"Leads: {len(leads_ds)} (asOf {leads_ds.as_of})\")\n    for lead in leads_ds.rows[:5]:\n        print(f\"  {lead['score']:5.1f}  {lead['personId']}  {lead['address']}\")\n",
+          "code": "\"\"\"\npipeline/06_build_leads.py — Build address-confidence leads (F8, PHASE3_CONTRACT.md §1).\n\nOne lead per Person with at least one address source.  The scorer lives in\n``pipeline/leads.py`` (shared with the Investigate seed builder, so both apps\nshow the same leads); this step wraps it as a Transform with row- and\nfield-level lineage, like steps 02–05.\n\nInputs\n  resolved_persons            — who each source record belongs to (the shared resolver)\n  norm_clinic_registrations   — PII + HEALTH, weight 0.5, home_address, registered_on\n  norm_mobile_pings           — TELECOM, weight 0.4, location label, latest ping timestamp\n  norm_company_registry       — OPEN,    weight 0.3, registered_address, incorporation_date\n\n    score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))\n\n``ageDays`` counts from ``asOf``, the latest date in the inputs.  The best\naddress is the component with the largest contribution.  The output inherits\nthe union of its inputs' markings (PII, HEALTH, TELECOM and OPEN from the sources,\nPII and LE-SENSITIVE through resolved_persons), so the dataset is HEALTH-marked\neven for leads with no clinic component: markings work per dataset, not per row.\n\nOutput Dataset ``leads``:\n  id             — lead::<personId>\n  personId\n  address        — best address (largest contribution)\n  lat, lon       — coordinates of the best address\n  score          — 0–100, 1 decimal\n  status         — \"open\" (the Close lead Action changes it in the browser)\n  components     — [{source, marking, weight, ageDays, decay, contribution, address, ...}]\n  formula, asOf\n  addressSource  — dataset of the best address's component\n  sourceMarkings — markings of the contributing sources\n\"\"\"\n\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict, List, Tuple\n\nsys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n\nfrom pipeline.leads import compute_leads\nfrom pipeline.lib import Dataset, LineageRecord, Transform\n\nTRANSFORM_ID = \"build_leads\"\nOUTPUT_NAME = \"leads\"\n\nSCHEMA = [\n    {\"field\": \"id\", \"type\": \"string\"},\n    {\"field\": \"personId\", \"type\": \"string\"},\n    {\"field\": \"address\", \"type\": \"string\"},\n    {\"field\": \"lat\", \"type\": \"float\"},\n    {\"field\": \"lon\", \"type\": \"float\"},\n    {\"field\": \"score\", \"type\": \"float\"},\n    {\"field\": \"status\", \"type\": \"string\"},\n    {\"field\": \"components\", \"type\": \"json\"},\n    {\"field\": \"formula\", \"type\": \"string\"},\n    {\"field\": \"asOf\", \"type\": \"date\"},\n    {\"field\": \"addressSource\", \"type\": \"string\"},\n    {\"field\": \"sourceMarkings\", \"type\": \"json\"},\n]\n\n\ndef _build(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[List[Dict[str, Any]], List[Dict[str, List[Dict[str, Any]]]]]:\n    resolver = resolved_persons.resolver  # type: ignore[attr-defined]\n    rows, provenance, _as_of = compute_leads(\n        resolver, norm_clinic_registrations.rows, norm_mobile_pings.rows, norm_company_registry.rows,\n    )\n    person_row = {row[\"id\"]: i for i, row in enumerate(resolved_persons.rows)}\n    for lead, fp in zip(rows, provenance):\n        ref = {\"dataset\": resolved_persons.name, \"row\": person_row.get(lead[\"personId\"], -1),\n               \"field\": \"id\", \"note\": \"person\"}\n        fp[\"personId\"] = [ref] + fp[\"personId\"]\n        fp[\"id\"] = [ref]\n    return rows, provenance\n\n\ndef run(\n    resolved_persons: Dataset,\n    norm_clinic_registrations: Dataset,\n    norm_mobile_pings: Dataset,\n    norm_company_registry: Dataset,\n) -> Tuple[Dataset, LineageRecord]:\n    transform = Transform(\n        TRANSFORM_ID,\n        \"Score each person's best address from clinic, ping and registry records.\",\n        [resolved_persons, norm_clinic_registrations, norm_mobile_pings, norm_company_registry],\n        _build,\n    )\n    leads_ds, lineage = transform.run()\n    leads_ds.name = OUTPUT_NAME\n    leads_ds.schema = [dict(f) for f in SCHEMA]\n    leads_ds.as_of = leads_ds.rows[0][\"asOf\"] if leads_ds.rows else \"\"  # type: ignore[attr-defined]\n    return leads_ds, lineage\n\n\nif __name__ == \"__main__\":\n    import importlib.util\n\n    def _load(stem: str):\n        path = Path(__file__).resolve().parent / f\"{stem}.py\"\n        spec = importlib.util.spec_from_file_location(stem, path)\n        module = importlib.util.module_from_spec(spec)\n        spec.loader.exec_module(module)\n        return module\n\n    dataset_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(\"synthetic_data/starter\")\n    wl, cr, fm, bt, mp, cl = _load(\"01_normalize_sources\").run(dataset_dir)\n    persons, _ = _load(\"02_resolve_persons\").run(wl, cr, fm, mp, cl)\n    leads_ds, _ = run(persons, cl, mp, cr)\n    print(f\"Leads: {len(leads_ds)} (asOf {leads_ds.as_of})\")\n    for lead in leads_ds.rows[:5]:\n        print(f\"  {lead['score']:5.1f}  {lead['personId']}  {lead['address']}\")\n",
           "rowsIn": 6424,
           "rowsOut": 191,
-          "builtAt": "2026-11-04T18:51:31.555357Z"
+          "builtAt": "2026-11-04T20:40:29.321568Z"
         }
       ]
     },
@@ -25967,11 +26359,20 @@ window.foundrySeedCatalog = {
           ]
         },
         "purpose": "public-record",
-        "legalBasis": "Public company register, open by law; illustrative",
+        "legalBasis": "Public company register; illustrative. In WM and Sovim (C-37/20 and C-601/20, 22 November 2022) the CJEU invalidated the AML Directive's rule giving the general public access to beneficial-ownership information, as a serious interference with Charter Arts 7 and 8. The beneficial-owner fields are therefore marked PII.",
         "retentionDays": 3650,
         "inputPurposes": [
           "public-record"
         ],
+        "fieldMarkings": {
+          "beneficial_owner": [
+            "PII"
+          ],
+          "beneficial_owner_dob": [
+            "PII"
+          ]
+        },
+        "fieldNote": "beneficial_owner and beneficial_owner_dob are personal data (PII): since WM and Sovim (CJEU, 22 November 2022) they may not be open to the general public. The rest of the register stays OPEN.",
         "asOf": "2026-04-01"
       },
       {
@@ -26349,7 +26750,7 @@ window.foundrySeedCatalog = {
           ]
         },
         "purpose": "border-security",
-        "legalBasis": "PNR Directive (EU) 2016/681, five-year retention; illustrative",
+        "legalBasis": "PNR Directive (EU) 2016/681, Art. 12 (five years); illustrative. In Ligue des droits humains (C-817/19, 21 June 2022) the CJEU held that keeping every passenger's data beyond the first six months is not strictly necessary without objective evidence of a risk. This dataset still keeps every row for five years.",
         "retentionDays": 1825,
         "inputPurposes": [
           "border-security"
@@ -27439,9 +27840,13 @@ window.foundrySeedCatalog = {
         ],
         "derivedFrom": [],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "markingProvenance": {
+          "PII": [
+            "clinic_registrations.csv"
+          ],
           "HEALTH": [
             "clinic_registrations.csv"
           ]
@@ -27950,11 +28355,20 @@ window.foundrySeedCatalog = {
           ]
         },
         "purpose": "public-record",
-        "legalBasis": "Public company register, open by law; illustrative",
+        "legalBasis": "Public company register; illustrative. In WM and Sovim (C-37/20 and C-601/20, 22 November 2022) the CJEU invalidated the AML Directive's rule giving the general public access to beneficial-ownership information, as a serious interference with Charter Arts 7 and 8. The beneficial-owner fields are therefore marked PII.",
         "retentionDays": 3650,
         "inputPurposes": [
           "public-record"
         ],
+        "fieldMarkings": {
+          "beneficial_owner": [
+            "PII"
+          ],
+          "beneficial_owner_dob": [
+            "PII"
+          ]
+        },
+        "fieldNote": "beneficial_owner and beneficial_owner_dob are personal data (PII): since WM and Sovim (CJEU, 22 November 2022) they may not be open to the general public. The rest of the register stays OPEN.",
         "asOf": "2026-04-01"
       },
       {
@@ -28335,7 +28749,7 @@ window.foundrySeedCatalog = {
           ]
         },
         "purpose": "border-security",
-        "legalBasis": "PNR Directive (EU) 2016/681, five-year retention; illustrative",
+        "legalBasis": "PNR Directive (EU) 2016/681, Art. 12 (five years); illustrative. In Ligue des droits humains (C-817/19, 21 June 2022) the CJEU held that keeping every passenger's data beyond the first six months is not strictly necessary without objective evidence of a risk. This dataset still keeps every row for five years.",
         "retentionDays": 1825,
         "inputPurposes": [
           "border-security"
@@ -29436,9 +29850,13 @@ window.foundrySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "markingProvenance": {
+          "PII": [
+            "clinic_registrations.csv"
+          ],
           "HEALTH": [
             "clinic_registrations.csv"
           ]
@@ -30494,6 +30912,7 @@ window.foundrySeedCatalog = {
             "company_registry.csv"
           ],
           "PII": [
+            "clinic_registrations.csv",
             "flight_manifests.csv"
           ],
           "TELECOM": [
@@ -31398,6 +31817,7 @@ window.foundrySeedCatalog = {
             "company_registry.csv"
           ],
           "PII": [
+            "clinic_registrations.csv",
             "flight_manifests.csv"
           ],
           "FIN": [
@@ -31668,6 +32088,7 @@ window.foundrySeedCatalog = {
             "company_registry.csv"
           ],
           "PII": [
+            "clinic_registrations.csv",
             "flight_manifests.csv"
           ],
           "FIN": [
@@ -31763,6 +32184,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 80,
                 "decay": 0.8032,
@@ -31779,6 +32204,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -31796,6 +32224,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 285,
                 "decay": 0.458,
@@ -31817,6 +32248,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -31833,6 +32265,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 80,
                 "decay": 0.8032,
@@ -31849,6 +32285,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -31866,6 +32305,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 542,
                 "decay": 0.2265,
@@ -31887,6 +32330,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -31903,6 +32347,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 93,
                 "decay": 0.7751,
@@ -31919,6 +32367,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -31936,6 +32387,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 485,
                 "decay": 0.2648,
@@ -31957,6 +32411,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -31973,6 +32428,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 26,
                 "decay": 0.9312,
@@ -31989,6 +32448,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -32008,6 +32470,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32024,6 +32487,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 31,
                 "decay": 0.9186,
@@ -32040,6 +32507,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -32059,6 +32529,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32075,6 +32546,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 30,
                 "decay": 0.9211,
@@ -32091,6 +32566,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -32110,6 +32588,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32126,6 +32605,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 41,
                 "decay": 0.8938,
@@ -32142,6 +32625,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 0,
                 "decay": 1.0,
@@ -32161,6 +32647,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32177,6 +32664,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 47,
                 "decay": 0.8792,
@@ -32193,6 +32684,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -32212,6 +32706,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32228,6 +32723,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 55,
                 "decay": 0.8601,
@@ -32244,6 +32743,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 9,
                 "decay": 0.9756,
@@ -32263,6 +32765,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32279,6 +32782,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 78,
                 "decay": 0.8076,
@@ -32295,6 +32802,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -32314,6 +32824,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_clinic_registrations",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32330,6 +32841,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 99,
                 "decay": 0.7624,
@@ -32346,6 +32861,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -32365,6 +32883,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32381,6 +32900,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 271,
                 "decay": 0.4759,
@@ -32397,6 +32920,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -32414,6 +32940,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 285,
                 "decay": 0.458,
@@ -32435,6 +32965,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32451,6 +32982,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 123,
                 "decay": 0.7139,
@@ -32467,6 +33002,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -32486,6 +33024,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32502,6 +33041,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 144,
                 "decay": 0.674,
@@ -32518,6 +33061,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -32535,6 +33081,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 989,
                 "decay": 0.0666,
@@ -32556,6 +33106,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32572,6 +33123,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 423,
                 "decay": 0.3138,
@@ -32588,6 +33143,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -32605,6 +33163,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 156,
                 "decay": 0.6522,
@@ -32626,6 +33188,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32642,6 +33205,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 130,
                 "decay": 0.7004,
@@ -32658,6 +33225,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 0,
                 "decay": 1.0,
@@ -32677,6 +33247,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32693,6 +33264,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 257,
                 "decay": 0.4945,
@@ -32709,6 +33284,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -32726,6 +33304,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 446,
                 "decay": 0.2947,
@@ -32747,6 +33329,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32763,6 +33346,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 148,
                 "decay": 0.6667,
@@ -32779,6 +33366,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -32798,6 +33388,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32814,6 +33405,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 162,
                 "decay": 0.6416,
@@ -32830,6 +33425,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -32847,6 +33445,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 1502,
                 "decay": 0.0163,
@@ -32868,6 +33470,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32884,6 +33487,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 270,
                 "decay": 0.4772,
@@ -32900,6 +33507,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -32917,6 +33527,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 599,
                 "decay": 0.1938,
@@ -32938,6 +33552,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -32954,6 +33569,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 203,
                 "decay": 0.5734,
@@ -32970,6 +33589,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -32989,6 +33611,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33005,6 +33628,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 280,
                 "decay": 0.4643,
@@ -33021,6 +33648,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -33038,6 +33668,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 749,
                 "decay": 0.1285,
@@ -33059,6 +33692,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33075,6 +33709,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 222,
                 "decay": 0.5443,
@@ -33091,6 +33729,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 3,
                 "decay": 0.9918,
@@ -33110,6 +33751,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33126,6 +33768,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 234,
                 "decay": 0.5267,
@@ -33142,6 +33788,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 3,
                 "decay": 0.9918,
@@ -33161,6 +33810,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33177,6 +33827,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 269,
                 "decay": 0.4786,
@@ -33193,6 +33847,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -33210,6 +33867,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 1338,
                 "decay": 0.0256,
@@ -33231,6 +33891,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33247,6 +33908,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 270,
                 "decay": 0.4772,
@@ -33263,6 +33928,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -33282,6 +33950,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33298,6 +33967,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 307,
                 "decay": 0.4312,
@@ -33314,6 +33987,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 3,
                 "decay": 0.9918,
@@ -33331,6 +34007,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 990,
                 "decay": 0.0664,
@@ -33352,6 +34031,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33368,6 +34048,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 353,
                 "decay": 0.3802,
@@ -33384,6 +34068,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -33401,6 +34088,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 715,
                 "decay": 0.141,
@@ -33422,6 +34112,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33438,6 +34129,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 868,
                 "decay": 0.0927,
@@ -33454,6 +34149,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -33471,6 +34169,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 176,
                 "decay": 0.6174,
@@ -33492,6 +34194,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33508,6 +34211,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 1043,
                 "decay": 0.0574,
@@ -33524,6 +34231,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -33541,6 +34251,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 156,
                 "decay": 0.6522,
@@ -33562,6 +34275,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33578,6 +34292,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 298,
                 "decay": 0.442,
@@ -33594,6 +34312,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 0,
                 "decay": 1.0,
@@ -33611,6 +34332,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 2149,
                 "decay": 0.0028,
@@ -33632,6 +34356,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33648,6 +34373,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 920,
                 "decay": 0.0804,
@@ -33664,6 +34393,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 0,
                 "decay": 1.0,
@@ -33681,6 +34413,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 189,
                 "decay": 0.5958,
@@ -33702,6 +34438,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33718,6 +34455,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 502,
                 "decay": 0.2528,
@@ -33734,6 +34475,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -33751,6 +34495,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 446,
                 "decay": 0.2947,
@@ -33772,6 +34519,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33788,6 +34536,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 320,
                 "decay": 0.4161,
@@ -33804,6 +34556,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 5,
                 "decay": 0.9864,
@@ -33823,6 +34578,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33839,6 +34595,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 338,
                 "decay": 0.3961,
@@ -33855,6 +34615,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 0,
                 "decay": 1.0,
@@ -33874,6 +34637,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33890,6 +34654,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 1043,
                 "decay": 0.0574,
@@ -33906,6 +34674,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 3,
                 "decay": 0.9918,
@@ -33923,6 +34694,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 205,
                 "decay": 0.5703,
@@ -33944,6 +34719,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -33960,6 +34736,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 341,
                 "decay": 0.3929,
@@ -33976,6 +34756,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 0,
                 "decay": 1.0,
@@ -33995,6 +34778,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34011,6 +34795,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 3,
                 "decay": 0.9918,
@@ -34028,6 +34815,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 176,
                 "decay": 0.6174,
@@ -34064,6 +34854,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 1370,
                 "decay": 0.0234,
@@ -34080,6 +34874,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 3,
                 "decay": 0.9918,
@@ -34097,6 +34894,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 205,
                 "decay": 0.5703,
@@ -34118,6 +34918,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34134,6 +34935,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 397,
                 "decay": 0.337,
@@ -34150,6 +34955,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 4,
                 "decay": 0.9891,
@@ -34169,6 +34977,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34185,6 +34994,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 433,
                 "decay": 0.3053,
@@ -34201,6 +35014,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 0,
                 "decay": 1.0,
@@ -34220,6 +35036,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34236,6 +35053,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 426,
                 "decay": 0.3113,
@@ -34252,6 +35073,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 3,
                 "decay": 0.9918,
@@ -34271,6 +35095,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34287,6 +35112,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 456,
                 "decay": 0.2867,
@@ -34303,6 +35132,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -34322,6 +35154,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34338,6 +35171,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 968,
                 "decay": 0.0705,
@@ -34354,6 +35191,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -34371,6 +35211,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN"
+                ],
                 "weight": 0.3,
                 "ageDays": 383,
                 "decay": 0.3502,
@@ -34392,6 +35235,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34408,6 +35252,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 469,
                 "decay": 0.2767,
@@ -34424,6 +35272,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 3,
                 "decay": 0.9918,
@@ -34443,6 +35294,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34459,6 +35311,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 1042,
                 "decay": 0.0576,
@@ -34475,6 +35331,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -34492,6 +35351,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 383,
                 "decay": 0.3502,
@@ -34513,6 +35376,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34529,6 +35393,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -34546,6 +35413,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 316,
                 "decay": 0.4207,
@@ -34567,6 +35438,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM"
             ]
           },
@@ -34582,6 +35454,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 509,
                 "decay": 0.248,
@@ -34598,6 +35474,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 3,
                 "decay": 0.9918,
@@ -34617,6 +35496,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34633,6 +35513,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 523,
                 "decay": 0.2386,
@@ -34649,6 +35533,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 1,
                 "decay": 0.9973,
@@ -34668,6 +35555,7 @@ window.foundrySeedCatalog = {
             "asOf": "2026-04-12",
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34684,6 +35572,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_clinic_registrations",
                 "marking": "HEALTH",
+                "markings": [
+                  "PII",
+                  "HEALTH"
+                ],
                 "weight": 0.5,
                 "ageDays": 942,
                 "decay": 0.0757,
@@ -34700,6 +35592,9 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_mobile_pings",
                 "marking": "TELECOM",
+                "markings": [
+                  "TELECOM"
+                ],
                 "weight": 0.4,
                 "ageDays": 2,
                 "decay": 0.9945,
@@ -34717,6 +35612,10 @@ window.foundrySeedCatalog = {
               {
                 "source": "norm_company_registry",
                 "marking": "OPEN",
+                "markings": [
+                  "OPEN",
+                  "PII"
+                ],
                 "weight": 0.3,
                 "ageDays": 485,
                 "decay": 0.2648,
@@ -34738,6 +35637,7 @@ window.foundrySeedCatalog = {
             "addressSource": "norm_mobile_pings",
             "sourceMarkings": [
               "OPEN",
+              "PII",
               "TELECOM",
               "HEALTH"
             ]
@@ -34763,6 +35663,7 @@ window.foundrySeedCatalog = {
             "company_registry.csv"
           ],
           "PII": [
+            "clinic_registrations.csv",
             "flight_manifests.csv"
           ],
           "TELECOM": [
@@ -34794,6 +35695,10 @@ window.foundrySeedCatalog = {
             "rawSource": "clinic_registrations.csv",
             "label": "Clinic registration",
             "marking": "HEALTH",
+            "markings": [
+              "PII",
+              "HEALTH"
+            ],
             "weight": 0.5,
             "addressField": "home_address",
             "dateField": "registered_on"
@@ -34803,6 +35708,9 @@ window.foundrySeedCatalog = {
             "rawSource": "mobile_location_pings.jsonl",
             "label": "Mobile location pings",
             "marking": "TELECOM",
+            "markings": [
+              "TELECOM"
+            ],
             "weight": 0.4,
             "addressField": "location_label",
             "dateField": "timestamp"
@@ -34812,6 +35720,9 @@ window.foundrySeedCatalog = {
             "rawSource": "company_registry.csv",
             "label": "Company registry",
             "marking": "OPEN",
+            "markings": [
+              "OPEN"
+            ],
             "weight": 0.3,
             "addressField": "registered_address",
             "dateField": "incorporation_date"
@@ -236979,10 +237890,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237002,10 +237915,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237025,10 +237940,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237048,10 +237965,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237071,10 +237990,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237094,10 +238015,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237117,10 +238040,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237159,10 +238084,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237182,10 +238109,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237205,10 +238134,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237228,10 +238159,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237251,10 +238184,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237274,10 +238209,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237320,10 +238257,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237343,10 +238282,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237366,10 +238307,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237389,10 +238332,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237412,10 +238357,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237435,10 +238382,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237458,10 +238407,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237500,10 +238451,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237523,10 +238476,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237546,10 +238501,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237604,10 +238561,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237627,10 +238586,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237650,10 +238611,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237673,10 +238636,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237696,10 +238661,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237719,10 +238686,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237742,10 +238711,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237803,10 +238774,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237826,10 +238799,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237849,10 +238824,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237872,10 +238849,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237895,10 +238874,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237937,10 +238918,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237960,10 +238943,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -237983,10 +238968,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -238006,10 +238993,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -238071,10 +239060,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -238094,10 +239085,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -238117,10 +239110,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -238140,10 +239135,12 @@ window.foundrySeedCatalog = {
           "norm_clinic_registrations"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -238480,9 +239477,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -238562,9 +239561,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -238642,9 +239643,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -238727,9 +239730,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -238776,9 +239781,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -238854,9 +239861,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -238933,9 +239942,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239005,9 +240016,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239098,9 +240111,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239193,9 +240208,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239278,9 +240295,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239366,9 +240385,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239489,9 +240510,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239615,9 +240638,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239661,9 +240686,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239746,9 +240773,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239837,9 +240866,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239920,9 +240951,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -239966,9 +240999,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240033,9 +241068,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240078,9 +241115,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240169,9 +241208,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240214,9 +241255,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240304,9 +241347,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240396,9 +241441,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240486,9 +241533,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240568,9 +241617,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240659,9 +241710,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240748,9 +241801,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240822,9 +241877,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -240912,9 +241969,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241003,9 +242062,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241090,9 +242151,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241168,9 +242231,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241254,9 +242319,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241375,9 +242442,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241496,9 +242565,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241582,9 +242653,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241627,9 +242700,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241759,9 +242834,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241854,9 +242931,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241902,9 +242981,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -241990,9 +243071,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242103,9 +243186,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242152,9 +243237,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242238,9 +243325,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242318,9 +243407,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242448,9 +243539,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242493,9 +243586,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242573,9 +243668,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242622,14 +243719,17 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -242667,9 +243767,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242744,9 +243846,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242836,9 +243940,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242930,9 +244036,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -242977,9 +244085,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -243055,9 +244165,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -243148,9 +244260,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -243228,9 +244342,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -243344,9 +244460,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -243391,9 +244509,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -243523,9 +244643,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -243604,9 +244726,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -243695,9 +244819,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -243774,9 +244900,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -243861,9 +244989,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -243984,9 +245114,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244070,9 +245202,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244115,9 +245249,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244191,9 +245327,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244275,9 +245413,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244392,9 +245532,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244493,9 +245635,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244573,9 +245717,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244661,9 +245807,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244735,9 +245883,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244821,9 +245971,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244870,14 +246022,17 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -244917,9 +246072,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -244991,9 +246148,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245078,9 +246237,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245127,9 +246288,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245209,9 +246372,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245302,9 +246467,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245383,9 +246550,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245482,9 +246651,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245529,9 +246700,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245613,9 +246786,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245696,9 +246871,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245779,9 +246956,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245863,9 +247042,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -245941,9 +247122,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246026,9 +247209,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246111,9 +247296,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246204,9 +247391,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246336,9 +247525,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246412,9 +247603,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246544,9 +247737,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246591,9 +247786,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246684,9 +247881,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246735,9 +247934,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246785,9 +247986,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246888,9 +248091,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -246976,9 +248181,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -247055,9 +248262,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -247217,9 +248426,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -247296,9 +248507,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -247390,9 +248603,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -247513,9 +248728,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -247561,9 +248778,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -247647,9 +248866,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -247727,9 +248948,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -247817,9 +249040,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -247896,9 +249121,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -247984,9 +249211,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248067,9 +249296,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248159,9 +249390,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248206,9 +249439,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248283,9 +249518,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248333,9 +249570,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248382,9 +249621,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248427,9 +249668,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248554,9 +249797,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248641,9 +249886,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248730,9 +249977,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248827,9 +250076,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248875,9 +250126,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -248962,9 +250215,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249058,9 +250313,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249153,9 +250410,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249235,9 +250494,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249318,9 +250579,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249404,9 +250667,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249496,9 +250761,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249551,9 +250818,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249643,9 +250912,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249733,9 +251004,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249855,9 +251128,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249903,9 +251178,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -249985,9 +251262,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -250074,9 +251353,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -250155,9 +251436,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -250236,9 +251519,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -250323,9 +251608,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -250414,9 +251701,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -250497,9 +251786,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -250572,9 +251863,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -250724,9 +252017,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -250807,9 +252102,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -250893,9 +252190,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -250981,9 +252280,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -251099,9 +252400,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -251145,9 +252448,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -251240,9 +252545,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -251317,9 +252624,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -251395,9 +252704,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -251478,9 +252789,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -251594,9 +252907,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -251684,9 +252999,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -251779,9 +253096,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -251903,9 +253222,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -251984,9 +253305,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -252074,9 +253397,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -252168,9 +253493,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -252216,9 +253543,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -252299,9 +253628,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -252385,9 +253716,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -252470,9 +253803,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -252551,9 +253886,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -252638,9 +253975,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -252718,9 +254057,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -252813,9 +254154,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -252985,9 +254328,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -253035,14 +254380,17 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -253163,9 +254511,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -253256,9 +254606,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -253336,9 +254688,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -253384,9 +254738,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -253470,9 +254826,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -253558,9 +254916,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -253643,9 +255003,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -253688,9 +255050,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -253771,9 +255135,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -253868,9 +255234,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -253953,9 +255321,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -254082,9 +255452,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -254161,9 +255533,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -254256,9 +255630,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -254382,9 +255758,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -254515,9 +255893,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -254598,9 +255978,11 @@ window.foundrySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -318127,6 +319509,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318141,6 +319524,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318155,6 +319539,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318169,6 +319554,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318183,6 +319569,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318197,6 +319584,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318211,6 +319599,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318225,6 +319614,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318239,6 +319629,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318253,6 +319644,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318267,6 +319659,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318281,6 +319674,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318295,6 +319689,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318309,6 +319704,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318323,6 +319719,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318337,6 +319734,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318351,6 +319749,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318365,6 +319764,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318379,6 +319779,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318393,6 +319794,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318407,6 +319809,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318421,6 +319824,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318435,6 +319839,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318449,6 +319854,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318463,6 +319869,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318477,6 +319884,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318491,6 +319899,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318505,6 +319914,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318519,6 +319929,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318533,6 +319944,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318547,6 +319959,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318561,6 +319974,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318575,6 +319989,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318589,6 +320004,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318603,6 +320019,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318617,6 +320034,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318631,6 +320049,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318645,6 +320064,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318659,6 +320079,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318673,6 +320094,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318687,6 +320109,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318701,6 +320124,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318715,6 +320139,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318729,6 +320154,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318743,6 +320169,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318757,6 +320184,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318771,6 +320199,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318785,6 +320214,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318799,6 +320229,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318813,6 +320244,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318827,6 +320259,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318841,6 +320274,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318855,6 +320289,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318869,6 +320304,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318883,6 +320319,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318897,6 +320334,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318911,6 +320349,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318925,6 +320364,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318939,6 +320379,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318953,6 +320394,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318967,6 +320409,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318981,6 +320424,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -318995,6 +320439,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319009,6 +320454,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319023,6 +320469,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319037,6 +320484,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319051,6 +320499,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319065,6 +320514,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319079,6 +320529,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319093,6 +320544,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319107,6 +320559,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319121,6 +320574,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319135,6 +320589,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319149,6 +320604,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319163,6 +320619,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319177,6 +320634,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319191,6 +320649,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319205,6 +320664,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319219,6 +320679,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319233,6 +320694,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319247,6 +320709,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319261,6 +320724,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319275,6 +320739,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319289,6 +320754,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319303,6 +320769,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319317,6 +320784,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319331,6 +320799,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319345,6 +320814,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319359,6 +320829,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319373,6 +320844,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319387,6 +320859,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319401,6 +320874,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319415,6 +320889,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319429,6 +320904,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319443,6 +320919,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319457,6 +320934,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319471,6 +320949,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319485,6 +320964,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319499,6 +320979,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319513,6 +320994,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319527,6 +321009,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319541,6 +321024,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319555,6 +321039,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319569,6 +321054,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319583,6 +321069,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319597,6 +321084,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319611,6 +321099,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319625,6 +321114,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319639,6 +321129,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319653,6 +321144,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319667,6 +321159,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319681,6 +321174,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319695,6 +321189,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319709,6 +321204,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319723,6 +321219,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319737,6 +321234,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -319751,6 +321249,7 @@ window.foundrySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },

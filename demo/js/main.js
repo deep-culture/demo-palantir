@@ -15,8 +15,9 @@ import {
 import { logEvent, logView } from "./governance.js";
 import { entityById } from "./derive.js";
 import { render } from "./render/index.js";
-import { handleChange, handleClick, handleInput, handleKeydown } from "./events.js";
+import { handleChange, handleClick, handleFocusOut, handleInput, handleKeydown } from "./events.js";
 import { applyEffects } from "./actions-ui.js";
+import { forgetRoleState } from "./state.js";
 
 // ── Deep links (F0.5): #object=<entityId>[&dataset=<key>] ──
 export function parseDeepLink(hash) {
@@ -57,6 +58,7 @@ export function applyDeepLink(hash) {
   ui.graphSearch = "";
   ui.selectedEntityTypeId = entity.type;
   ui.selectedEntityId = entity.id;
+  ui.entityPicked = true;
   ui.selectedGraphNodeId = entity.id;
   ui.inspectorMode = "insight";
   return true;
@@ -95,6 +97,7 @@ root.addEventListener("click", handleClick);
 root.addEventListener("change", handleChange);
 root.addEventListener("input", handleInput);
 root.addEventListener("keydown", handleKeydown);
+root.addEventListener("focusout", handleFocusOut);
 
 // 4. Apply a deep link (may switch dataset and select an object), then the first render.
 const openedFromLink = applyDeepLink(window.location.hash);
@@ -115,9 +118,16 @@ function scheduleRender() {
     render();
   }, 0);
 }
+// Review F-03 / F-10: a role change (here or in another tab) drops what the previous role saw or was
+// granted: the agent run (answer, graph, trace) and the telecom / phone-search Checkpoint caches.
+let lastRole = core.session ? core.session.get().role : "";
 if (core.session) {
-  core.session.onChange(() => {
+  core.session.onChange((session) => {
     setLastViewedId("");
+    if (session && session.role !== lastRole) {
+      lastRole = session.role;
+      forgetRoleState();
+    }
     render();
   });
 }

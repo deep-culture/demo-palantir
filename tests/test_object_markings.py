@@ -1,5 +1,10 @@
 """PHASE1_CONTRACT.md §3: markings on every object, property and link, in both seeds.
 
+Fix round (FIXROUND_CONTRACT.md §1): everything derived from clinic rows is
+PII as well as HEALTH (residential Locations, RESIDES_AT links, the Person
+properties homeAddress and clinicCode), so removing HEALTH alone does not
+open it to roles without PII.
+
 The rule table is copied from the contract by hand.  Also checks the clinic
 attachment rules (§4): clinic rows never create a Person and never change an
 existing person's identity.
@@ -22,18 +27,19 @@ OBJECT = {
 }
 PROPERTY = {
     "Person": {"phoneNumber": ["TELECOM"], "riskTag": ["LE-SENSITIVE"], "passportId": ["PII"],
-               "homeAddress": ["HEALTH"], "clinicCode": ["HEALTH"]},
+               "homeAddress": ["PII", "HEALTH"], "clinicCode": ["PII", "HEALTH"]},
     "Flight": {"paymentCardLast4": ["FIN"]},
 }
 LINK = {
     "OWNS_ACCOUNT": ["FIN"], "HAS_CORP_ACCOUNT": ["FIN"], "TRANSFERRED_TO": ["FIN"],
     "USES_DEVICE": ["TELECOM"], "OBSERVED_AT": ["TELECOM"], "LISTED_ON": ["LE-SENSITIVE"],
-    "BOOKED_ON": ["PII"], "RESIDES_AT": ["HEALTH"],
+    "BOOKED_ON": ["PII"], "RESIDES_AT": ["PII", "HEALTH"],
 }
 REF_MARKING = {"watchlist": "LE-SENSITIVE", "company": "OPEN", "flight": "PII", "ping": "TELECOM"}
 TYPE_SOURCE = {"Company": ["OPEN"], "BankAccount": ["FIN"], "Device": ["TELECOM"], "Flight": ["PII"],
                "Airport": ["PII"], "WatchlistRecord": ["LE-SENSITIVE"]}
-LOCATION_EDGE = {"REGISTERED_AT": "OPEN", "OBSERVED_AT": "TELECOM", "RESIDES_AT": "HEALTH"}
+LOCATION_EDGE = {"REGISTERED_AT": ["OPEN"], "OBSERVED_AT": ["TELECOM"], "RESIDES_AT": ["PII", "HEALTH"]}
+CLINIC_DERIVED = ["PII", "HEALTH"]
 ORDER = ["OPEN", "PII", "FIN", "TELECOM", "HEALTH", "LE-SENSITIVE"]
 
 
@@ -47,11 +53,11 @@ def expected_source_markings(entity, edges):
     if etype == "Person":
         ms = {REF_MARKING[r.split(":", 1)[0]] for r in entity["resolution"]["mergedFrom"]}
         if any(e["type"] == "RESIDES_AT" and e["source"] == entity["id"] for e in edges):
-            ms.add("HEALTH")
+            ms.update(CLINIC_DERIVED)
         return ordered(ms)
     if etype == "Location":
-        return ordered(LOCATION_EDGE[e["type"]] for e in edges
-                       if e["target"] == entity["id"] and e["type"] in LOCATION_EDGE)
+        return ordered(m for e in edges if e["target"] == entity["id"] and e["type"] in LOCATION_EDGE
+                       for m in LOCATION_EDGE[e["type"]])
     return TYPE_SOURCE[etype]
 
 
@@ -66,7 +72,7 @@ def test_object_and_property_markings(request, which, dataset):
         edges_by_entity.setdefault(e["target"], []).append(e)
     for entity in entry["entities"]:
         etype = entity["type"]
-        expected = ["HEALTH"] if entity["id"] in residential else OBJECT[etype]
+        expected = CLINIC_DERIVED if entity["id"] in residential else OBJECT[etype]
         assert entity["markings"] == expected, entity["id"]
         assert entity["propertyMarkings"] == PROPERTY.get(etype, {}), entity["id"]
         assert entity["sourceMarkings"] == expected_source_markings(entity, edges_by_entity.get(entity["id"], [])), entity["id"]
@@ -154,13 +160,13 @@ def without_clinic(tmp_path_factory):
 
 @pytest.mark.parametrize("dataset", DATASETS)
 def test_clinic_rows_change_no_identity(gotham, without_clinic, dataset):
-    """Clinic data adds residential Locations, RESIDES_AT links and two HEALTH
+    """Clinic data adds residential Locations, RESIDES_AT links and two PII+HEALTH
     properties, and nothing else: the same people with the same resolution."""
     with_c = {e["id"]: e for e in gotham[dataset]["entities"]}
     base = {e["id"]: e for e in without_clinic[dataset]["entities"]}
     assert set(base) <= set(with_c)
     added = set(with_c) - set(base)
-    assert added and all(with_c[i]["type"] == "Location" and with_c[i]["markings"] == ["HEALTH"] for i in added)
+    assert added and all(with_c[i]["type"] == "Location" and with_c[i]["markings"] == CLINIC_DERIVED for i in added)
     for pid, person in base.items():
         if person["type"] != "Person":
             continue
@@ -192,3 +198,46 @@ def test_unmatched_clinic_rows_create_nothing(gotham):
     for row in unmatched:
         if row["home_address"] not in residences_of_matched:
             assert row["home_address"] not in labels
+
+
+ROLE_VISIBLE = {
+    "patrol": {"OPEN", "PII", "TELECOM", "LE-SENSITIVE"},
+    "fin-analyst": {"OPEN", "PII", "FIN", "LE-SENSITIVE"},
+    "dpo": {"OPEN", "PII", "FIN", "TELECOM", "HEALTH", "LE-SENSITIVE"},
+    "auditor": {"OPEN"},
+    "contractor": {"OPEN"},
+}
+
+
+@pytest.mark.parametrize("dataset", DATASETS)
+def test_clinic_derived_stays_withheld_after_health_removal(gotham, foundry, dataset):
+    """FIXROUND_CONTRACT.md §1: after the DPO removes HEALTH, roles without PII
+    (auditor, contractor) still cannot see any clinic-derived object, link or
+    property, nor any clinic lead component."""
+    for entry in (gotham[dataset], foundry[dataset]):
+        residential = {e["target"] for e in entry["edges"] if e["type"] == "RESIDES_AT"}
+        clinic_items = [e["markings"] for e in entry["entities"] if e["id"] in residential]
+        clinic_items += [e["markings"] for e in entry["edges"] if e["type"] == "RESIDES_AT"]
+        for p in persons(entry):
+            clinic_items += [p["propertyMarkings"]["homeAddress"], p["propertyMarkings"]["clinicCode"]]
+        assert clinic_items
+        for role in ("auditor", "contractor"):
+            visible_after_removal = ROLE_VISIBLE[role] | {"HEALTH"}
+            for ms in clinic_items:
+                assert not set(ms) <= visible_after_removal, (role, ms)
+        # Roles with PII but without HEALTH still see none of it before removal.
+        for role in ("patrol", "fin-analyst"):
+            for ms in clinic_items:
+                assert not set(ms) <= ROLE_VISIBLE[role], (role, ms)
+
+
+@pytest.mark.parametrize("dataset", DATASETS)
+def test_clinic_dataset_is_pii_and_health(foundry, dataset):
+    by_id = {d["id"]: d for d in foundry[dataset]["datasets"]}
+    for did in ("clinic_registrations.csv", "norm_clinic_registrations"):
+        ds = by_id[did]
+        assert ds["markings"] == ["PII", "HEALTH"], did
+        assert ds["markingProvenance"] == {"PII": ["clinic_registrations.csv"],
+                                           "HEALTH": ["clinic_registrations.csv"]}, did
+    # Downstream, PII now also traces back to the clinic file.
+    assert "clinic_registrations.csv" in by_id["resolved_persons"]["markingProvenance"]["PII"]

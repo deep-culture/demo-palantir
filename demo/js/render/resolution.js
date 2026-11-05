@@ -2,19 +2,26 @@
 // identities" chip, the merge explanation (DC.resolution.explain) with signals and conflicting values,
 // the Unmerge person Action, and the header's threshold chip.
 import { escapeHtml } from "../util.js";
-import { core, roleView } from "../state.js";
+import { core, data, roleView } from "../state.js";
 import { mergeChipText, resolutionActive } from "../resolution-view.js";
 import { actionsActive, canRun } from "../actions-ui.js";
+import { displayId } from "../disclosure.js";
 
 export function mergeChip(entity) {
   if (!entity || !entity._merge) return "";
-  return `<span class="merge-chip" data-merged="${escapeHtml(entity.id)}" title="${escapeHtml(entity._merge.members.map((member) => `${member.label} (${member.id})`).join(" + "))}">${escapeHtml(mergeChipText(entity._merge))}</span>`;
+  return `<span class="merge-chip" data-merged="${escapeHtml(entity.id)}" title="${escapeHtml(entity._merge.members.map((member) => `${member.label} (${displayId(member.id)})`).join(" + "))}">${escapeHtml(mergeChipText(entity._merge))}</span>`;
 }
 
 function signalText(signal) {
   const weight = Number(signal.weight || 0);
   const sign = weight < 0 ? "−" : "+";
   return `<li class="${weight < 0 ? "signal-negative" : ""}" title="${escapeHtml(signal.note || "")}"><code>${escapeHtml(signal.id)}</code> ${escapeHtml(signal.label && signal.label !== signal.id ? signal.label : "")} <strong>${sign}${Math.abs(weight).toFixed(2)}</strong></li>`;
+}
+
+// The seed's resolution note (fix round: "There is no passport-conflict signal. …").
+function resolutionNote() {
+  const resolution = (data && data.resolution) || {};
+  return resolution.note || resolution.discussion || "";
 }
 
 export function renderMergeSection(entity) {
@@ -27,7 +34,7 @@ export function renderMergeSection(entity) {
     <div class="insight-section merge-section">
       <div class="insight-label">Merged person</div>
       ${mergeChip(entity)}
-      <div class="microcopy">Source identities: ${merge.members.map((member) => `${escapeHtml(member.label)} <code>${escapeHtml(member.id)}</code>${member.riskTag ? ` <span class="muted">(riskTag ${escapeHtml(member.riskTag)})</span>` : ""}`).join(" + ")}.</div>
+      <div class="microcopy">Source identities: ${merge.members.map((member) => `${escapeHtml(member.label)} <code>${escapeHtml(displayId(member.id))}</code>${member.riskTag ? ` <span class="muted">(riskTag ${escapeHtml(member.riskTag)})</span>` : ""}`).join(" + ")}.</div>
       <div class="merge-explain">
         <div class="insight-label">Merge explanation</div>
         ${chain
@@ -45,7 +52,9 @@ export function renderMergeSection(entity) {
             .map(([key, values]) => `<div><code>${escapeHtml(key)}</code>: ${values.map((value) => escapeHtml(value)).join(" | ")}</div>`)
             .join("")}</div>`
         : ""}
-      <div class="microcopy">The watchlisted member's risk tag wins; links of every member now point to <code>${escapeHtml(entity.id)}</code>.</div>
+      ${(merge.conflictsWithheld || []).length ? `<div class="merge-conflicts microcopy" data-conflicts-withheld="${merge.conflictsWithheld.length}">${escapeHtml(`${merge.conflictsWithheld.length} conflicting value${merge.conflictsWithheld.length === 1 ? "" : "s"} withheld (marking ${[...new Set(merge.conflictsWithheld.flatMap((item) => item.markings))].join(", ")})`)}</div>` : ""}
+      <div class="microcopy">The merged person is named after the representative, ${escapeHtml(entity.label)}: the watchlisted member when there is one (Build uses the same name). Its risk tag wins; links of every member now point to <code>${escapeHtml(displayId(entity.id))}</code>.</div>
+      ${resolutionNote() ? `<div class="merge-discussion" role="note"><strong>Discussion:</strong> ${escapeHtml(resolutionNote())}</div>` : ""}
       ${unmerge
         ? `<div class="inline-actions"><button class="button-secondary" data-action="open-action-drawer" data-id="${escapeHtml(entity.id)}" data-type-id="act-unmerge-person" ${canRun(unmerge) ? "" : `title="Not for your role"`}>Unmerge person…</button></div>`
         : ""}

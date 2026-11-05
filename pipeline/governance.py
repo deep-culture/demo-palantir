@@ -83,9 +83,11 @@ ROLES: List[Dict[str, Any]] = [
     {
         "id": "dpo",
         "label": "Data protection officer",
-        "description": "Oversees lawful use. Sees every marking, read-only, and is the only role that may remove a marking (with a stated legal basis).",
+        "description": ("Oversees lawful use. Sees every marking, read-only, and is the only role that may remove a marking "
+                        "(with a stated legal basis) or restore it. May assume an operational purpose (public order) to test "
+                        "purpose rules; this is a simulation convenience, not a power a real DPO has."),
         "markingsVisible": list(MARKING_IDS),
-        "purposes": ["oversight"],
+        "purposes": ["oversight", "public-order"],
         "canApprove": False,
         "canRemoveMarkings": True,
         "canOpenOversight": True,
@@ -191,23 +193,52 @@ CHECKPOINTS: List[Dict[str, Any]] = [
         "tag": "exception",
         "refusalText": "Your role cannot request exceptions to purpose rules. This attempt has been logged.",
     },
+    # Fix round (FIXROUND_CONTRACT.md §1): undoing a marking removal.
+    {
+        "id": "cp-marking-restore",
+        "trigger": "marking.restore",
+        "prompt": "You are restoring a marking. Everything derived from this dataset will again be withheld from roles without it. State why.",
+        "requiresPurpose": True,
+        "allowedRoles": ["dpo"],
+        "minLength": 20,
+        "refusalText": "Your role cannot restore markings. This attempt has been logged.",
+    },
 ]
 
 # ---------------------------------------------------------------------------
 # Purpose rules ("Karlsruhe mode", PHASE2_CONTRACT.md §4)
 # ---------------------------------------------------------------------------
 
+# Each rule's ``note`` says what the rule abstracts and what it leaves out
+# (FIXROUND_CONTRACT.md §1).  Checked on 4 November 2026 against the BVerfG
+# press release 18/2023 (DOC_BVERFG below), and for R2 against GDPR Art. 9
+# and LED Art. 10 (DOC_GDPR, DOC_LED).  Quotes are under 15 words.
 PURPOSE_RULES: List[Dict[str, Any]] = [
     {"id": "R1", "text": "Automated cross-dataset analysis needs a stated purpose on the session.",
-     "operations": ["expand", "rule", "action"], "requires": "sessionPurpose", "effect": "block"},
+     "operations": ["expand", "rule", "action"], "requires": "sessionPurpose", "effect": "block",
+     "note": ("Purpose limitation in its thinnest form: some purpose must be stated, but nothing checks that it fits "
+              "the data or the case. The court asked the legislature for clear purpose-limitation rules, in law and "
+              "in practice; a dropdown is not that.")},
     {"id": "R2", "text": "Data collected for healthcare may not be combined with law-enforcement purposes.",
      "operations": ["expand", "rule", "action", "view"],
-     "incompatible": {"data": ["healthcare"], "session": ["public-order", "financial-crime"]}, "effect": "block"},
+     "incompatible": {"data": ["healthcare"], "session": ["public-order", "financial-crime"]}, "effect": "block",
+     "note": ("Reflects EU data-protection law more than the 2023 judgment: health data is a special category under "
+              "GDPR Art. 9 and LED Art. 10. As an absolute ban it is stricter than EU law. LED Art. 10 allows police "
+              "processing of health data where strictly necessary, with safeguards, and authorised by law. A change of "
+              "purpose is not banned outright by the court either: it applies a test of \"hypothetical recollection of "
+              "the data\".")},
     {"id": "R3", "text": "Expansion beyond the first hop requires a concrete, logged danger statement.",
-     "operations": ["expand"], "depthOver": 1, "effect": "checkpoint", "checkpointId": "cp-danger-statement"},
+     "operations": ["expand"], "depthOver": 1, "effect": "checkpoint", "checkpointId": "cp-danger-statement",
+     "note": ("Our device, not the court's: the court's press release says nothing about hops. For severe interferences the court "
+              "requires a \"sufficiently identifiable danger\" to particularly weighty legal interests. A minimum "
+              "length cannot test that: thirty characters of filler pass this Checkpoint.")},
 ]
-LEGAL_BASIS_NOTE = ("Our abstraction of the BVerfG 2023 ruling's logic, not its text "
-                    "[to verify against the press release before teaching as the court's criteria].")
+LEGAL_BASIS_NOTE = ("Karlsruhe mode is our abstraction of the logic of the German Constitutional Court's 2023 ruling "
+                    "on automated data analysis (BVerfG press release 18/2023), not its text and not its criteria. The "
+                    "court addressed the legislature: a statute must set clear limits on the data, the methods of "
+                    "analysis and the purposes. Until Hesse passed new rules, its interim order allowed use only "
+                    "against particularly serious crimes, with a written reason for each use. Each rule's note says "
+                    "what it abstracts and what it leaves out.")
 
 # Marking -> purpose of the data it marks (contract §4: HEALTH => healthcare).
 MARKING_PURPOSE: Dict[str, str] = {"HEALTH": "healthcare"}
@@ -229,6 +260,45 @@ DOC_ALEPH = "https://docs.aleph.occrp.org/developers/mappings"
 DOC_ELITE = "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite"
 DOC_APOLLO = "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379"
 DOC_MAVEN = "https://defensescoop.com/2025/05/23/dod-palantir-maven-smart-system-contract-increase/"
+DOC_EURONEWS_EXITS = "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
+
+# Sources added in the fix round (FIXROUND_CONTRACT.md §1), beyond the
+# research report's list (§G).  EUR-Lex itself could not be fetched from the
+# build environment on 4 November 2026; the article numbers and contents were
+# checked against the as-adopted texts on legislation.gov.uk
+# (eur/2016/679 chapter III and article 9; eudr/2016/680 chapter III and
+# article 10).  The cards cite the official EUR-Lex texts.
+DOC_GDPR = "https://eur-lex.europa.eu/eli/reg/2016/679/oj"
+DOC_LED = "https://eur-lex.europa.eu/eli/dir/2016/680/oj"
+EXTRA_SOURCES: List[str] = [DOC_GDPR, DOC_LED]
+
+# docLabel: what kind of source a docUrl is (the UI shows this label, not a
+# blanket "Palantir documentation").
+DOC_LABELS: Dict[str, str] = {
+    DOC_CORE_CONCEPTS: "Palantir documentation",
+    DOC_PLATFORM_SUMMARY: "Palantir documentation",
+    DOC_MARKINGS: "Palantir documentation",
+    DOC_CHECKPOINTS: "Palantir documentation",
+    DOC_CHECKPOINTS_CONCEPTS: "Palantir documentation",
+    DOC_AGENT_STUDIO: "Palantir documentation",
+    DOC_ONTOLOGY_BLOG: "Palantir blog",
+    DOC_APOLLO: "Palantir blog",
+    DOC_PEPR: "Conference paper (PEPR '21)",
+    DOC_BVERFG: "BVerfG press release",
+    DOC_ALEPH: "OCCRP Aleph docs",
+    DOC_ELITE: "News report",
+    DOC_MAVEN: "News report",
+    DOC_EURONEWS_EXITS: "News report",
+    DOC_GDPR: "EUR-Lex (GDPR)",
+    DOC_LED: "EUR-Lex (Law Enforcement Directive)",
+}
+
+
+def doc_label(url: Optional[str]) -> Optional[str]:
+    """Label for a ``docUrl``; ``None`` when there is no URL."""
+    if url is None:
+        return None
+    return DOC_LABELS[url]
 
 HONESTY_LABELS = {
     "mirrors": "Mirrors Foundry",
@@ -370,6 +440,7 @@ HONESTY: List[Dict[str, Any]] = [
 ]
 for _entry in HONESTY:
     _entry["label"] = HONESTY_LABELS[_entry["kind"]]
+    _entry["docLabel"] = doc_label(_entry["docUrl"])
 
 HONESTY_IDS: List[str] = [h["id"] for h in HONESTY]
 
@@ -424,48 +495,57 @@ DISCUSSIONS: List[Dict[str, Any]] = [
         "id": "disc-raffinaderij",
         "title": "Dutch police: the \"Raffinaderij\" platform",
         "attachedTo": ["oversight.audit"],
-        "summary": ("Dutch police have used Palantir software since 2012 inside a platform called the \"Raffinaderij\" "
-                    "(refinery). Its use became public through Open Government Act (Woo) requests by de Volkskrant; about 99% "
-                    "of the released documents were redacted (Buro Jansen & Janssen). The Ministry of Defence plans an "
-                    "alternative within two years."),
+        "summary": ("Dutch police have used Palantir software since 2012 inside an investigations data platform called the "
+                    "\"Raffinaderij\" (refinery). Buro Jansen & Janssen first appealed for the documents in 2019, under the "
+                    "law that preceded the Open Government Act (Woo). After a 2023 court ruling they were released with about "
+                    "99% blacked out, and de Volkskrant reported on them (NL Times, August 2025). "
+                    "Separately, on defence rather than police: Euronews reported in June 2026 that the Dutch defence state "
+                    "secretary told parliament a full alternative to Palantir must be available within two years."),
         "questions": [
             "What does an audit log mean if the public cannot see that the system exists?",
             "Who is the auditor here, and who audits them?",
         ],
         "sources": [
             "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir",
+            DOC_EURONEWS_EXITS,
         ],
     },
     {
         "id": "disc-nhs-fdp",
         "title": "NHS England: the Federated Data Platform",
         "attachedTo": ["session.roles", "build.markings"],
-        "summary": ("NHS England awarded the Federated Data Platform contract to Palantir in November 2023, worth up "
-                    "to \u00a3330m over seven years; 137 NHS trusts were using it by April 2026. Palantir says it is not the "
-                    "data controller, a claim that is contested in practice, and in February 2026 the British Medical "
-                    "Association urged doctors to limit their use of the platform."),
+        "summary": ("NHS England's Federated Data Platform runs on Palantir software, under a contract worth up to "
+                    "\u00a3330m over at most seven years; it went live in March 2024. In a Westminster Hall debate on "
+                    "16 April 2026 a health minister, Zubir Ahmed, said 137 NHS trusts were actively using it, and that NHS England "
+                    "and NHS organisations \"retain full control as data controllers\". On the government's account, "
+                    "then, Palantir is not the data controller. In June 2026 Euronews reported a UK parliamentary "
+                    "committee asking for the NHS relationship to end when the contract expires in 2027."),
         "questions": [
             "Does \"not the controller\" survive once the vendor's software decides what each role can see?",
             "Who should define the roles and markings on a health platform: the hospital, the ministry or the vendor?",
         ],
         "sources": [
             "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform",
+            DOC_EURONEWS_EXITS,
         ],
     },
     {
         "id": "disc-pol-intel",
         "title": "Denmark: POL-INTEL and European exits",
         "attachedTo": ["build.pipelines", "deployment"],
-        "summary": ("Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under "
-                    "the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, "
-                    "and other European governments are re-evaluating their agreements with US defence-technology suppliers."),
+        "summary": ("Danish police use POL-INTEL, which Galis and Karlsson (2025) describe as a customised version of "
+                    "Palantir's Gotham in their study \"Scientification through privatization\". Defence is a separate "
+                    "matter: Euronews (June 2026) reports a seven-year Danish deal for Maven Smart System and Foundry, and "
+                    "that Denmark will look for local solutions to replace Palantir software; it does not mention "
+                    "POL-INTEL. The same report describes other European governments re-evaluating their agreements "
+                    "with Palantir."),
         "questions": [
             "What is sovereignty when the platform, and its updates, are delivered by the vendor?",
             "Which decisions in a pipeline are technical, and which are policy made by whoever writes the transforms?",
         ],
         "sources": [
             "https://researcher.itu.dk/p/en/research-outputs/scientification-through-privatization-pol-intel-in-denmark",
-            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor",
+            DOC_EURONEWS_EXITS,
         ],
     },
     # Phase 3 (PHASE3_CONTRACT.md §1; spec §5.4; research §A, §C.7)
@@ -484,6 +564,24 @@ DISCUSSIONS: List[Dict[str, Any]] = [
         ],
         "sources": [DOC_MAVEN],
     },
+    # Fix round (FIXROUND_CONTRACT.md §1; Lena's issue 29)
+    {
+        "id": "disc-data-subjects",
+        "title": "The people in the data: notice, access, correction, erasure",
+        "attachedTo": ["oversight.audit", "inv.actions", "session.roles"],
+        "summary": ("The people in this tool are synthetic, but in a real deployment each of them has rights. Under the "
+                    "GDPR they must be told about the processing (Arts 13\u201314), and can ask for access to their data "
+                    "(Art. 15), have it corrected (Art. 16) and, in some cases, erased (Art. 17). The Law Enforcement "
+                    "Directive gives similar rights against the police: access (Art. 14) and rectification or erasure "
+                    "(Art. 16), which Member States may restrict where necessary and proportionate (Art. 15). This tool "
+                    "has none of them. Nobody is notified, a person merged or flagged by mistake cannot see the record, "
+                    "and correcting a source is not an Action here."),
+        "questions": [
+            "Who would notice an error in a merged person, a watchlist entry or a lead, and how?",
+            "How would the person concerned contest it, if they are never told the record exists?",
+        ],
+        "sources": [DOC_GDPR, DOC_LED],
+    },
 ]
 for _card in DISCUSSIONS:
     _card["disclaimer"] = DISCUSSION_DISCLAIMER
@@ -493,7 +591,7 @@ def governance_block() -> Dict[str, Any]:
     """The ``governance`` object for one dataset key (a fresh deep copy)."""
     honesty = [
         {"id": h["id"], "kind": h["kind"], "label": h["label"], "title": h["title"],
-         "text": h["text"], "docUrl": h["docUrl"]}
+         "text": h["text"], "docUrl": h["docUrl"], "docLabel": h["docLabel"]}
         for h in HONESTY
     ]
     return copy.deepcopy({
@@ -526,14 +624,27 @@ SOURCE_DATASETS: Dict[str, Dict[str, Any]] = {
         "file": "company_registry.csv",
         "markings": ["OPEN"],
         "purpose": "public-record",
-        "legalBasis": "Public company register, open by law; illustrative",
+        "legalBasis": ("Public company register; illustrative. In WM and Sovim (C-37/20 and C-601/20, 22 November 2022) "
+                       "the CJEU invalidated the AML Directive's rule giving the general public access to beneficial-ownership "
+                       "information, as a serious interference with Charter Arts 7 and 8. The beneficial-owner fields are "
+                       "therefore marked PII."),
         "retentionDays": 3650,
+        # Field-level markings (FIXROUND_CONTRACT.md §1).  The dataset stays
+        # OPEN; these two columns are personal data.  They never surface as
+        # Company properties (beneficial owners become BENEFICIALLY_OWNS links
+        # from PII-marked Persons), so there is no Company propertyMarking.
+        "fieldMarkings": {"beneficial_owner": ["PII"], "beneficial_owner_dob": ["PII"]},
+        "fieldNote": ("beneficial_owner and beneficial_owner_dob are personal data (PII): since WM and Sovim (CJEU, "
+                      "22 November 2022) they may not be open to the general public. The rest of the register stays OPEN."),
     },
     "flight_manifests": {
         "file": "flight_manifests.csv",
         "markings": ["PII"],
         "purpose": "border-security",
-        "legalBasis": "PNR Directive (EU) 2016/681, five-year retention; illustrative",
+        "legalBasis": ("PNR Directive (EU) 2016/681, Art. 12 (five years); illustrative. In Ligue des droits humains "
+                       "(C-817/19, 21 June 2022) the CJEU held that keeping every passenger's data beyond the first six "
+                       "months is not strictly necessary without objective evidence of a risk. This dataset still keeps "
+                       "every row for five years."),
         "retentionDays": 1825,
     },
     "bank_transactions": {
@@ -552,7 +663,7 @@ SOURCE_DATASETS: Dict[str, Dict[str, Any]] = {
     },
     "clinic_registrations": {
         "file": "clinic_registrations.csv",
-        "markings": ["HEALTH"],
+        "markings": ["PII", "HEALTH"],
         "purpose": "healthcare",
         "legalBasis": "GDPR Art. 9(2)(h), provision of health care; medical-record retention as under the Dutch WGBO (20 years); illustrative",
         "retentionDays": 7300,
@@ -589,6 +700,9 @@ def manifest_for(as_of: Mapping[str, str]) -> Dict[str, Dict[str, Any]]:
             "retentionDays": spec["retentionDays"],
             "asOf": as_of[key],
         }
+        for optional in ("fieldMarkings", "fieldNote"):
+            if optional in spec:
+                out[key][optional] = copy.deepcopy(spec[optional])
     return out
 
 
@@ -647,6 +761,8 @@ def raw_governance(raw_id: str, entry: Mapping[str, Any]) -> Dict[str, Any]:
         "legalBasis": entry.get("legalBasis", ""),
         "retentionDays": entry.get("retentionDays"),
         "inputPurposes": [entry.get("purpose", "")] if entry.get("purpose") else [],
+        **({"fieldMarkings": {f: sort_markings(ms) for f, ms in entry["fieldMarkings"].items()},
+            "fieldNote": entry.get("fieldNote", "")} if entry.get("fieldMarkings") else {}),
     }
 
 
@@ -686,15 +802,19 @@ OBJECT_MARKINGS: Dict[str, List[str]] = {
     "Location": [],
     "WatchlistRecord": ["LE-SENSITIVE"],
 }
-RESIDENTIAL_LOCATION_MARKINGS: List[str] = ["HEALTH"]
+# Clinic-derived data is personal data as well as health data
+# (FIXROUND_CONTRACT.md §1): removing HEALTH must not open it to roles
+# without PII.
+CLINIC_DERIVED_MARKINGS: List[str] = ["PII", "HEALTH"]
+RESIDENTIAL_LOCATION_MARKINGS: List[str] = list(CLINIC_DERIVED_MARKINGS)
 
 PROPERTY_MARKINGS: Dict[str, Dict[str, List[str]]] = {
     "Person": {
         "phoneNumber": ["TELECOM"],
         "riskTag": ["LE-SENSITIVE"],
         "passportId": ["PII"],
-        "homeAddress": ["HEALTH"],
-        "clinicCode": ["HEALTH"],
+        "homeAddress": list(CLINIC_DERIVED_MARKINGS),
+        "clinicCode": list(CLINIC_DERIVED_MARKINGS),
     },
     "Flight": {"paymentCardLast4": ["FIN"]},
 }
@@ -707,7 +827,7 @@ LINK_MARKINGS: Dict[str, List[str]] = {
     "OBSERVED_AT": ["TELECOM"],
     "LISTED_ON": ["LE-SENSITIVE"],
     "BOOKED_ON": ["PII"],
-    "RESIDES_AT": ["HEALTH"],
+    "RESIDES_AT": list(CLINIC_DERIVED_MARKINGS),
 }
 
 # Raw dataset each object type is made from (Person and Location are computed).

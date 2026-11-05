@@ -1,7 +1,7 @@
 // demo/js/analytics.js — Rule-based analytics and the investigation scenarios built from them.
 import { currencyFormatter, slugify } from "./util.js";
 import { derived } from "./state.js";
-import { withheldAround } from "./governance.js";
+import { lackingMarkings, withheldAround } from "./governance.js";
 import {
   buildPathSummaries,
   buildPlaces,
@@ -28,6 +28,23 @@ export function scenarioSeverity(score) {
   return "Low";
 }
 
+// A count the role cannot know reads "withheld", not 0 (fix round: "0 accounts, $0" read as a fact).
+function finWithheld() {
+  return lackingMarkings(["FIN"]).length > 0;
+}
+
+function telecomWithheld() {
+  return lackingMarkings(["TELECOM"]).length > 0;
+}
+
+function accountsText(accounts, transferValue, suffix) {
+  return finWithheld() ? "accounts and transfers withheld (marking FIN)" : `${accounts.length} accounts, ${currencyFormatter.format(transferValue)} ${suffix}`;
+}
+
+function devicesText(devices) {
+  return telecomWithheld() ? "devices withheld (marking TELECOM)" : `${devices.length} ${devices.length === 1 ? "device" : "devices"}`;
+}
+
 export function buildAnalytics() {
   const analytics = [];
   const people = entitiesForType("Person");
@@ -47,7 +64,7 @@ export function buildAnalytics() {
         label: person.label,
         focusEntityIds: [person.id],
         score,
-        detail: `${companies.length} companies, ${accounts.length} accounts, ${devices.length} devices, ${currencyFormatter.format(transferValue)} linked transfers`,
+        detail: `${companies.length} companies, ${devicesText(devices)}, ${accountsText(accounts, transferValue, "linked transfers")}`,
       };
     })
     .sort((left, right) => right.score - left.score);
@@ -71,7 +88,7 @@ export function buildAnalytics() {
         label: location.label,
         focusEntityIds: [location.id],
         score,
-        detail: `${registeredCompanies.length} registered companies, ${observedPeople.length} people via devices, ${observedDevices.length} observed devices`,
+        detail: telecomWithheld() ? `${registeredCompanies.length} registered companies, device observations withheld (marking TELECOM)` : `${registeredCompanies.length} registered companies, ${observedPeople.length} people via devices, ${observedDevices.length} observed devices`,
       };
     })
     .filter((hit) => hit.score >= 4)
@@ -97,7 +114,7 @@ export function buildAnalytics() {
         label: person.label,
         focusEntityIds: [person.id],
         score,
-        detail: `${flightsForPerson.length} flights, ${accounts.length} linked accounts, ${currencyFormatter.format(transferValue)} in transfers`,
+        detail: `${flightsForPerson.length} flights, ${finWithheld() ? "linked accounts and transfers withheld (marking FIN)" : `${accounts.length} linked accounts, ${currencyFormatter.format(transferValue)} in transfers`}`,
       };
     })
     .filter((hit) => hit.score >= 4)
@@ -156,22 +173,43 @@ export function buildAnalytics() {
 
 export function createScenario(id, title, summary, focusEntityIds, score, facts, actions) {
   const graph = buildSubgraph(focusEntityIds, 2, 24);
+  // The scenario graph does not follow telecom links before the Checkpoint: a score built from them is
+  // not rated High on a graph that shows one node (fix round small bug).
+  const gated = graph.edges.length === 0;
+  const allFacts = gated
+    ? [...facts, "The score counts links the scenario graph does not show yet (telecom links need the expansion Checkpoint, other links may be withheld). Severity is not rated until the evidence is on screen."]
+    : facts;
   return {
     id,
     title,
     summary,
-    severity: scenarioSeverity(score),
+    severity: gated ? "Unrated" : scenarioSeverity(score),
     score,
-    facts,
+    facts: allFacts,
     actions: actions || [],
     focusEntityIds,
     graph,
     paths: buildPathSummaries(focusEntityIds, graph),
     timeline: buildTimeline(graph),
     places: buildPlaces(graph),
-    transfers: buildTransfers(graph),
+    transfers: buildScenarioTransfers(focusEntityIds, graph),
     withheld: withheldAround(graph.nodes.map((node) => node.id)),
   };
+}
+
+// The transfers the key facts count (every transfer touching the focus people's accounts), plus any in
+// the graph: "$23,460 linked transfers" and "No transfer edges" can no longer appear side by side.
+function buildScenarioTransfers(focusEntityIds, graph) {
+  const accountIds = new Set(focusEntityIds.flatMap((id) => personAccounts(id).map((account) => account.id)));
+  const edges = new Map(graph.edges.filter((edge) => edge.type === "TRANSFERRED_TO").map((edge) => [edge.id, edge]));
+  accountIds.forEach((accountId) => {
+    [...relatedTransferEdges(accountId)].forEach((edge) => edges.set(edge.id, edge));
+  });
+  return buildTransfers({ edges: [...edges.values()] });
+}
+
+function relatedTransferEdges(accountId) {
+  return (derived.edgesBySource.get(accountId) || []).concat(derived.edgesByTarget.get(accountId) || []).filter((edge) => edge.type === "TRANSFERRED_TO");
 }
 
 export function scenarioActions(scenarioId, focusEntityIds) {

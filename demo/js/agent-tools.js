@@ -66,6 +66,10 @@ function searchObjects(args) {
   if (args.objectSetId) {
     const set = core.objectSets && core.objectSets.get(args.objectSetId);
     if (!set) return denied(`no object set ${args.objectSetId}`);
+    // Review F-04: sharing is by role; a set the role cannot open is denied, not read.
+    if (core.objectSets.canSee && core.governance?.isActive() && !core.objectSets.canSee(set, currentRoleId())) {
+      return denied(`object set ${set.id} is not shared with role ${currentRoleId()}`);
+    }
     const repOf = roleView.resolution?.repOf || new Map();
     const visible = [];
     let withheld = 0;
@@ -139,7 +143,11 @@ async function expand(args, ctx) {
   if (reason) return denied(reason);
   const first = purposeGate([], depth);
   if (first.blocked) return blockedByRule(first);
-  const telecom = linkTypes.some((type) => linkTypeMarkings(type).includes("TELECOM") && !roleView.removed.has("TELECOM"));
+  // Review F-13: with no link types named, any telecom link touching the objects counts, and the loop
+  // below follows a telecom link only when telecomEdgeAllowed (i.e. after the Checkpoint).
+  const telecom = linkTypes.length
+    ? linkTypes.some((type) => linkTypeMarkings(type).includes("TELECOM") && !roleView.removed.has("TELECOM"))
+    : ids.some((id) => edgesForEntity(id).some((edge) => (edge.markings || []).includes("TELECOM") && !roleView.removed.has("TELECOM")));
   const needsTelecom = telecom && telecomGateActive() && !ids.every((id) => ui.telecomExpanded.has(id));
   const danger = first.checkpoint && first.checkpoint.checkpointId && checkpointDefined(first.checkpoint.checkpointId);
   let recordId = null;
@@ -177,6 +185,7 @@ async function expand(args, ctx) {
     frontier.forEach((id) =>
       edgesForEntity(id).forEach((edge) => {
         if (types.size && !types.has(edge.type)) return;
+        if (!telecomEdgeAllowed(edge)) return;
         edges.set(edge.id, edge);
         const other = edge.source === id ? edge.target : edge.source;
         if (!nodes.has(other) && nodes.size < EXPAND_NODE_CAP) {

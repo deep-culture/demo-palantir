@@ -1,6 +1,7 @@
 // demo/js/render/action-drawer.js — The Action drawer (form → role check → Checkpoint → purpose rules →
 // before/after diff → writeback preview), the scenario "Action drawer" card, the inspector's Actions
 // section, the External systems panel and the "Watchlist operators" footnote (spec §4.5, F5).
+import { displayId } from "../disclosure.js";
 import { escapeHtml } from "../util.js";
 import { core, ui } from "../state.js";
 import { currentRole, isWithheldValue } from "../governance.js";
@@ -157,7 +158,7 @@ export function renderActionDrawer() {
         ${planned.problems.map((text) => `<div class="action-problem" role="note">${escapeHtml(text)}</div>`).join("")}
         ${planned.notes.map((text) => `<div class="microcopy action-note">${escapeHtml(text)}</div>`).join("")}
         <div class="inline-actions">
-          <button class="button-primary" data-action="run-action" ${allowed && !blocked ? "" : "disabled"}>Run action</button>
+          <button class="button-primary" data-action="run-action" ${allowed && !blocked && !planned.problems.length ? "" : "disabled"}${planned.problems.length ? ` title="This Action does not apply here (see above)"` : ""}>Run action</button>
           <button class="button-secondary" data-action="close-action-drawer">Close</button>
         </div>
         ${renderResult(drawer.result)}
@@ -169,7 +170,7 @@ export function renderActionDrawer() {
       <header class="action-drawer-head dc-on-dark">
         <div class="action-drawer-kicker">Action drawer ${core.ui.honestyChip("inv.actions", { onDark: true })}</div>
         <h2 id="action-drawer-title"><span class="dc-highlight">${escapeHtml(entity.label || entity.id)}</span></h2>
-        <div class="action-drawer-sub">${escapeHtml(entity.type)} · <code>${escapeHtml(entity.id)}</code>${merge ? ` · <span class="merge-chip">${escapeHtml(`merged at ${Number(merge.threshold).toFixed(2)} — ${merge.members.length} source identities`)}</span>` : ""}</div>
+        <div class="action-drawer-sub">${escapeHtml(entity.type)} · <code>${escapeHtml(displayId(entity.id))}</code>${merge ? ` · <span class="merge-chip">${escapeHtml(`merged at ${Number(merge.threshold).toFixed(2)} — ${merge.members.length} source identities`)}</span>` : ""}</div>
         <button class="action-drawer-close" data-action="close-action-drawer" aria-label="Close the Action drawer">×</button>
       </header>
       <div class="action-drawer-body">

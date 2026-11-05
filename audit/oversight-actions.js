@@ -16,17 +16,52 @@
     return String(value);
   }
 
+  // Review F-11: values the log copied from the data (an Action's before/after, the writeback message)
+  // are shown through the viewer's markings, as the apps show them. The property → markings map comes
+  // from the seed's objects; a writeback names the person (PII) and quotes their properties.
+  const catalog = window.ontologySeedCatalog || {};
+  const seedData = catalog.starter || catalog[Object.keys(catalog)[0]] || {};
+  const propertyMarkings = {};
+  const typeMarkings = {};
+  (seedData.entities || []).forEach((entity) => {
+    Object.entries(entity.propertyMarkings || {}).forEach(([key, list]) => {
+      propertyMarkings[`${entity.type}.${key}`] = [...new Set([...(propertyMarkings[`${entity.type}.${key}`] || []), ...(list || [])])];
+    });
+    if (!typeMarkings[entity.type]) typeMarkings[entity.type] = new Set();
+    (entity.markings || []).forEach((marking) => typeMarkings[entity.type].add(marking));
+  });
+
+  function lacking(markings) {
+    if (!DC.markings || !DC.governance || !DC.governance.isActive()) return [];
+    return DC.markings.missing(DC.session.get().role, markings || []);
+  }
+
+  function withheldText(markings) {
+    return `<span class="dc-withheld">withheld — marking ${markings.join(", ")}</span>`;
+  }
+
   function diffHtml(instance, h) {
     const keys = [...new Set([...Object.keys(instance.before || {}), ...Object.keys(instance.after || {})])];
     if (!keys.length) return `<span class="muted">no ontology change</span>`;
     return keys
-      .map((key) => `<div class="diff-row"><code>${h.esc(key)}</code> <span class="diff-from">${h.esc(valueText((instance.before || {})[key]))}</span> → <span class="diff-to">${h.esc(valueText((instance.after || {})[key]))}</span></div>`)
+      .map((key) => {
+        const hidden = lacking(propertyMarkings[`${instance.objectType}.${key}`]);
+        if (hidden.length) return `<div class="diff-row"><code>${h.esc(key)}</code> ${withheldText(hidden)}</div>`;
+        return `<div class="diff-row"><code>${h.esc(key)}</code> <span class="diff-from">${h.esc(valueText((instance.before || {})[key]))}</span> → <span class="diff-to">${h.esc(valueText((instance.after || {})[key]))}</span></div>`;
+      })
       .join("");
   }
 
   function writebacksHtml(instance, h) {
     const list = instance.writebacks || [];
     if (!list.length) return `<span class="muted">—</span>`;
+    const hidden = lacking([...(typeMarkings[instance.objectType] || []), "PII"]); // every writeback names a person
+    if (hidden.length) {
+      return list.map((item) => {
+        const system = DC.actions && DC.actions.system(item.system);
+        return `<div class="wb"><span class="wb-system">${h.esc(system ? system.label : item.system)}</span> ${withheldText([...new Set(hidden)])}</div>`;
+      }).join("");
+    }
     return list
       .map((item) => {
         const system = DC.actions && DC.actions.system(item.system);
@@ -65,7 +100,7 @@
       .map((event) => {
         const payload = event.payload || {};
         const k = `${event.id}:actno`;
-        return `<li>${h.cellInline(`${h.esc(h.formatTime(event.ts))} <strong>${h.esc(h.roleLabel(event.role))}</strong> ${h.esc(payload.label || payload.actionTypeId || "")} on ${h.esc((event.objectIds || [])[0] || "")} — <span class="outcome outcome-${h.esc(payload.outcome || "")}">${h.esc(payload.outcome || "")}</span>${payload.rule ? ` rule ${h.esc(payload.rule)}` : ""}${payload.message ? ` · ${h.esc(payload.message)}` : ""}`, k)}</li>`;
+        return `<li>${h.cellInline(`${h.esc(h.formatTime(event.ts))} <strong>${h.esc(h.roleLabel(event.role))}</strong> ${h.esc(payload.label || payload.actionTypeId || "")} on ${h.esc(DC.ui.displayId((event.objectIds || [])[0] || ""))} — <span class="outcome outcome-${h.esc(payload.outcome || "")}">${h.esc(payload.outcome || "")}</span>${payload.rule ? ` rule ${h.esc(payload.rule)}` : ""}${payload.message ? ` · ${h.esc(payload.message)}` : ""}`, k)}</li>`;
       })
       .join("");
     return `
@@ -124,9 +159,12 @@
       </section>`;
   }
 
+  // Review F-11: say on screen what this page is: a record about people, readable by the oversight roles.
   function renderDiscussion() {
     const cards = DC.ui.discussionCardsFor ? DC.ui.discussionCardsFor("oversight.audit") : "";
-    return cards ? `<section class="panel discussion-panel" aria-label="Discussion">${cards}</section>` : "";
+    const subjects = DC.governance && DC.governance.discussion && DC.governance.discussion("disc-data-subjects");
+    const note = `<p class="log-personal-note" role="note" data-note="log-personal-data"><strong>This log is itself personal data.</strong> It records who was looked at, by whom and why. Values the log copied from the data (an Action's before and after, writeback messages) are shown through your role's markings; free-text justifications are shown as written, and may name people. The people in it are not told and cannot see, correct or contest it${subjects ? ": see the discussion card “" + DC.ui.escapeHtml(subjects.title || "data subjects") + "” below" : ""}.</p>`;
+    return `<section class="panel discussion-panel" aria-label="Discussion">${note}${cards}</section>`;
   }
 
   window.DCOversight = { renderActionHistory, renderResolution, renderDiscussion };

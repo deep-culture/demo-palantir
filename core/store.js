@@ -80,6 +80,17 @@
     }
   }
 
+  // Review F-21: read-modify-write in one step. fn(current) returns the next value (or undefined to
+  // write nothing); the key is re-read right before the write, so a write from another tab in between
+  // is not lost. Every governance writer (markings, actions, resolution, object sets) goes through it.
+  function patch(storageKey, fn, fallback = {}) {
+    const current = get(storageKey, fallback);
+    const next = fn(current && typeof current === "object" ? current : fallback);
+    if (next === undefined) return current;
+    set(storageKey, next);
+    return next;
+  }
+
   function remove(storageKey) {
     const ls = storage();
     if (!ls) return;
@@ -233,6 +244,7 @@
     key,
     get,
     set,
+    patch,
     remove,
     seedVersion,
     loadVersioned,

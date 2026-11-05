@@ -30,21 +30,26 @@ import {
   logEvent,
   logRuleOpen,
   logScenarioOpen,
+  cancelPhoneCheckpoint,
   logSearch,
   logView,
   phoneSearchHeld,
   requestPhoneSearch,
+  flushSearchLog,
+  schedulePhoneCheckpoint,
+  scheduleSearchLog,
 } from "./governance.js";
 import { entitiesForType, entityById, entityTypeById, mappingById, relationshipById } from "./derive.js";
 import { buildMapData } from "./map.js";
 import { runCopilotQuery } from "./agent.js";
-import { render } from "./render/index.js";
+import { isRendering, render } from "./render/index.js";
 import { WALKTHROUGH_STEPS } from "./render/walkthrough.js";
 import { buildInstanceGraph } from "./render/graph.js";
 import { ACTION_CHANGES, ACTION_CLICKS, ACTION_INPUTS } from "./actions-ui.js";
 import { AGENT_CLICKS } from "./agent-run.js";
 import { LEAD_CHANGES, LEAD_CLICKS, LEAD_INPUTS } from "./leads.js";
 import { SET_CHANGES, SET_CLICKS } from "./object-sets.js";
+import { EDITOR_CHANGES, EDITOR_CLICKS, EDITOR_INPUTS } from "./editor.js";
 import {
   addEntity,
   createEdge,
@@ -62,6 +67,7 @@ import {
 export const CLICK_ACTIONS = {
   // Action drawer, purpose-rule exceptions (actions-ui.js); agent run (agent-run.js); leads; object sets.
   ...ACTION_CLICKS,
+  ...EDITOR_CLICKS,
   ...AGENT_CLICKS,
   ...LEAD_CLICKS,
   ...SET_CLICKS,
@@ -123,8 +129,12 @@ export const CLICK_ACTIONS = {
     runCopilotQuery(copilotState.query);
   },
 
+  // Clicking an example fills the question box; "Ask the agent" runs it (it used to run on click, so
+  // pressing Ask afterwards ran it twice).
   "copilot-example"(actionTarget) {
-    runCopilotQuery(actionTarget.dataset.query || "");
+    copilotState.query = actionTarget.dataset.query || "";
+    render();
+    requestAnimationFrame(() => document.getElementById("agent-query")?.focus());
   },
 
   "copilot-jump-entity"(actionTarget) {
@@ -132,6 +142,7 @@ export const CLICK_ACTIONS = {
     ui.graphMode = "instance";
     ui.selectedGraphNodeId = actionTarget.dataset.id;
     ui.selectedEntityId = actionTarget.dataset.id;
+    ui.entityPicked = true;
     logView(actionTarget.dataset.id, "agent");
     render();
   },
@@ -176,6 +187,8 @@ export const CLICK_ACTIONS = {
     ui.activeTool = "graph";
     ui.graphMode = "instance";
     ui.selectedGraphNodeId = actionTarget.dataset.id;
+    ui.selectedEntityId = actionTarget.dataset.id;
+    ui.entityPicked = true;
     logView(actionTarget.dataset.id, "map");
     render();
   },
@@ -209,65 +222,9 @@ export const CLICK_ACTIONS = {
     persistAndRender();
   },
 
-  "add-entity-type"(actionTarget) {
-    const name = `New Type ${data.ontology.entityTypes.length + 1}`;
-    const newType = {
-      id: slugify(name),
-      name,
-      description: "Describe what this entity type represents.",
-      color: randomColor(data.ontology.entityTypes.length),
-      properties: [{ id: "name", label: "Name", type: "string", required: true, description: "Primary display label." }],
-    };
-    data.ontology.entityTypes.push(newType);
-    ui.selectedEntityTypeId = newType.id;
-    persistAndRender();
-  },
-
-  "delete-entity-type"(actionTarget) {
-    deleteEntityType(actionTarget.dataset.id);
-    persistAndRender();
-  },
-
-  "add-property"(actionTarget) {
-    const type = entityTypeById(actionTarget.dataset.typeId);
-    if (!type) return;
-    const propertyId = `property${type.properties.length + 1}`;
-    type.properties.push({ id: propertyId, label: `Property ${type.properties.length + 1}`, type: "string", required: false, description: "" });
-    (fullData.entities || []).filter((entity) => entity.type === type.id).forEach((entity) => {
-      entity.properties[propertyId] = "";
-    });
-    persistAndRender();
-  },
-
-  "delete-property"(actionTarget) {
-    deleteProperty(actionTarget.dataset.typeId, actionTarget.dataset.propertyId);
-    persistAndRender();
-  },
-
   "select-relationship"(actionTarget) {
     ui.selectedRelationshipId = actionTarget.dataset.id;
     render();
-  },
-
-  "add-relationship"(actionTarget) {
-    const sourceType = data.ontology.entityTypes[0]?.id || "";
-    const targetType = data.ontology.entityTypes[1]?.id || sourceType;
-    const relationship = {
-      id: `REL_${data.ontology.relationshipTypes.length + 1}`,
-      label: `NEW_RELATIONSHIP_${data.ontology.relationshipTypes.length + 1}`,
-      sourceType,
-      targetType,
-      description: "Describe what this edge means.",
-      color: randomColor(data.ontology.relationshipTypes.length + 4),
-    };
-    data.ontology.relationshipTypes.push(relationship);
-    ui.selectedRelationshipId = relationship.id;
-    persistAndRender();
-  },
-
-  "delete-relationship"(actionTarget) {
-    deleteRelationship(actionTarget.dataset.id);
-    persistAndRender();
   },
 
   "select-mapping"(actionTarget) {
@@ -275,57 +232,20 @@ export const CLICK_ACTIONS = {
     render();
   },
 
-  "add-mapping"(actionTarget) {
-    const mapping = {
-      id: `mapping-${data.mappings.length + 1}`,
-      sourceId: "new_source.csv",
-      sourceFields: "field_a, field_b",
-      targetType: "Person",
-      targetProperty: "canonicalName",
-      relationType: "",
-      rule: "Describe how this source becomes ontology data.",
-    };
-    fullData.mappings.push(mapping);
-    ui.selectedMappingId = mapping.id;
-    persistAndRender();
-  },
-
-  "delete-mapping"(actionTarget) {
-    fullData.mappings = fullData.mappings.filter((mapping) => mapping.id !== actionTarget.dataset.id);
-    persistAndRender();
-  },
-
   "select-entity"(actionTarget) {
     ui.selectedEntityId = actionTarget.dataset.id;
+    ui.entityPicked = true;
+    ui.editorNotice = null;
     ui.selectedGraphNodeId = actionTarget.dataset.id;
     logView(actionTarget.dataset.id, "objects");
     render();
-  },
-
-  "add-entity"(actionTarget) {
-    addEntity(actionTarget.dataset.typeId);
-    persistAndRender();
-  },
-
-  "delete-entity"(actionTarget) {
-    deleteEntity(actionTarget.dataset.id);
-    persistAndRender();
-  },
-
-  "create-edge"(actionTarget) {
-    createEdge(actionTarget.dataset.sourceId);
-    persistAndRender();
-  },
-
-  "delete-edge"(actionTarget) {
-    fullData.edges = fullData.edges.filter((edge) => edge.id !== actionTarget.dataset.id);
-    persistAndRender();
   },
 
   "select-graph-node"(actionTarget) {
     ui.selectedGraphNodeId = actionTarget.dataset.nodeId;
     if (entityById(actionTarget.dataset.nodeId)) {
       ui.selectedEntityId = actionTarget.dataset.nodeId;
+      ui.entityPicked = true;
       logView(actionTarget.dataset.nodeId, ui.activeTool);
     } else if (entityTypeById(actionTarget.dataset.nodeId)) {
       ui.selectedEntityTypeId = actionTarget.dataset.nodeId;
@@ -339,16 +259,6 @@ export const CLICK_ACTIONS = {
 
   "dismiss-store-notice"(actionTarget) {
     dismissStoreNotice();
-  },
-
-  "reset-state"(actionTarget) {
-    if (store) {
-      store.remove(storageKey(ui.datasetKey));
-    }
-    setFullData(clone(datasetCatalog[ui.datasetKey]));
-    setSeedData(clone(datasetCatalog[ui.datasetKey]));
-    resetCopilotState();
-    render();
   },
 
   "export-json"(actionTarget) {
@@ -385,18 +295,12 @@ export function handleClick(event) {
 // Change handlers keyed by the data-scope of the changed control.
 export const CHANGE_SCOPES = {
   ...ACTION_CHANGES,
+  ...EDITOR_CHANGES,
   ...LEAD_CHANGES,
   ...SET_CHANGES,
 
   "dataset"(target) {
     switchDataset(target.value);
-  },
-
-  "entity-type"(target) {
-    const entityType = entityTypeById(ui.selectedEntityTypeId);
-    if (!entityType) return;
-    entityType[target.dataset.field] = target.value;
-    persistAndRender();
   },
 
   "properties"(target) {
@@ -405,36 +309,10 @@ export const CHANGE_SCOPES = {
     render();
   },
 
-  "property"(target) {
-    updateProperty(target.dataset.propertyId, target.dataset.field, target.value);
-    persistAndRender();
-  },
-
-  "relationship"(target) {
-    const relationship = relationshipById(ui.selectedRelationshipId);
-    if (!relationship) return;
-    relationship[target.dataset.field] = target.value;
-    persistAndRender();
-  },
-
-  "mapping"(target) {
-    const mapping = mappingById(ui.selectedMappingId);
-    if (!mapping) return;
-    mapping[target.dataset.field] = target.value;
-    persistAndRender();
-  },
-
   "instances"(target) {
     ui.selectedEntityTypeId = target.value;
     ui.selectedEntityId = entitiesForType(ui.selectedEntityTypeId)[0]?.id || ui.selectedEntityId;
     render();
-  },
-
-  "entity"(target) {
-    const entity = storedEntityById(target.dataset.entityId || ui.selectedEntityId);
-    if (!entity) return;
-    entity[target.dataset.field] = target.value;
-    persistAndRender();
   },
 
   "graph"(target) {
@@ -446,6 +324,8 @@ export const CHANGE_SCOPES = {
       ui.graphTypeFilter = target.value;
     }
     if (target.dataset.field === "search") {
+      // A change event also fires when a re-render detaches the field: only a real Enter/blur logs now.
+      if (!target.isConnected) return;
       ui.graphSearch = target.value;
       render();
       logSearch("graph", ui.graphSearch, buildInstanceGraph().totalNodes);
@@ -474,6 +354,7 @@ export const CHANGE_SCOPES = {
       ui.mapViewCenter = [...DEFAULT_MAP_VIEW.center];
       ui.mapViewZoom = DEFAULT_MAP_VIEW.zoom;
       ui.mapViewDirty = false;
+      if (!target.isConnected) return;
       render();
       logSearch("map", ui.mapSearch, buildMapData().places.length);
       return;
@@ -483,6 +364,7 @@ export const CHANGE_SCOPES = {
 };
 
 export function handleChange(event) {
+  if (isRendering()) return;
   const target = event.target;
   const scope = target.dataset.scope;
   if (!scope) {
@@ -496,17 +378,8 @@ export function handleChange(event) {
 // Input handlers keyed by the data-scope of the edited control.
 export const INPUT_SCOPES = {
   ...ACTION_INPUTS,
+  ...EDITOR_INPUTS,
   ...LEAD_INPUTS,
-
-  "entity-property"(target) {
-    const entity = storedEntityById(target.dataset.entityId);
-    if (!entity) return;
-    entity.properties[target.dataset.field] = target.value;
-    if (["canonicalName", "companyName", "label", "name"].includes(target.dataset.field)) {
-      entity.label = target.value || entity.label;
-    }
-    persist();
-  },
 
   "copilot"(target) {
     copilotState.query = target.value;
@@ -517,12 +390,17 @@ export const INPUT_SCOPES = {
     if (target.dataset.field === "search") {
       ui.mapSearch = target.value;
       render();
+      schedulePhoneCheckpoint("map", () => ui.mapSearch, () => buildMapData().places.length);
+      scheduleSearchLog("map", () => ui.mapSearch, () => buildMapData().places.length);
     }
   },
 
   "graph"(target) {
+    if (target.dataset.field !== "search") return;
     ui.graphSearch = target.value;
     render();
+    schedulePhoneCheckpoint("graph", () => ui.graphSearch, () => buildInstanceGraph().totalNodes);
+    scheduleSearchLog("graph", () => ui.graphSearch, () => buildInstanceGraph().totalNodes);
   },
 };
 
@@ -537,14 +415,22 @@ export function handleInput(event) {
   }
 }
 
-// Enter in a search box holding a phone number opens the phone-search Checkpoint.
+// Enter in a search box holding a phone number opens the phone-search Checkpoint at once. Enter or Space on
+// an SVG graph node (role="button", tabindex="0") selects it, like a click.
 export function handleKeydown(event) {
-  if (event.key !== "Enter") return;
   const target = event.target;
+  if ((event.key === "Enter" || event.key === " ") && target.matches && target.matches('[role="button"][data-action]:not(button)')) {
+    event.preventDefault();
+    handleClick({ target });
+    return;
+  }
+  if (event.key !== "Enter") return;
   if (!target.matches || !target.matches('input[data-field="search"]')) return;
   const scope = target.dataset.scope;
+  if (!phoneSearchHeld(target.value)) flushSearchLog(scope);
   if ((scope === "graph" || scope === "map") && phoneSearchHeld(target.value)) {
     event.preventDefault();
+    cancelPhoneCheckpoint(scope);
     if (scope === "graph") {
       ui.graphSearch = target.value;
       requestPhoneSearch("graph", ui.graphSearch, () => buildInstanceGraph().totalNodes);
@@ -553,4 +439,11 @@ export function handleKeydown(event) {
       requestPhoneSearch("map", ui.mapSearch, () => buildMapData().places.length);
     }
   }
+}
+
+// Leaving a search field logs its query at once (not when a re-render moves focus to the new field).
+export function handleFocusOut(event) {
+  if (isRendering()) return;
+  const target = event.target;
+  if (target && target.matches && target.matches('input[data-field="search"]') && ["graph", "map"].includes(target.dataset.scope)) flushSearchLog(target.dataset.scope);
 }

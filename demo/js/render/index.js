@@ -54,6 +54,13 @@ export function ensureUiSelection() {
   }
 }
 
+// True while the shell is replaced: removing a focused, edited field fires a "change" event that is not
+// the user's (it made every search keystroke an audit event). events.js ignores changes during a render.
+let rendering = false;
+export function isRendering() {
+  return rendering;
+}
+
 export function render() {
   refreshView();
   // Purpose rules (F9) run per rule; a blocked rule keeps no ranking, so no scenario is built from it.
@@ -66,6 +73,8 @@ export function render() {
   const focusInfo = captureFocus();
 
   destroyLeafletMap();
+  rendering = true;
+  try {
   root.innerHTML = `
       <div class="shell">
         ${renderHeader()}
@@ -81,6 +90,9 @@ export function render() {
         <div id="dc-audit-slot"></div>
       </div>
     `;
+  } finally {
+    rendering = false;
+  }
 
   if (core.ui) {
     core.ui.renderSessionStrip(document.getElementById("dc-session-slot"), { surface: "investigate" });
@@ -103,7 +115,9 @@ export function captureFocus() {
   const active = document.activeElement;
   if (!active || active === document.body) return null;
   let selector = null;
-  if (active.id) {
+  if (active.dataset && active.dataset.nodeId) {
+    selector = `[data-action="${CSS.escape(active.dataset.action || "")}"][data-node-id="${CSS.escape(active.dataset.nodeId)}"]`;
+  } else if (active.id) {
     selector = "#" + CSS.escape(active.id);
   } else if (active.dataset && active.dataset.scope && active.dataset.field) {
     selector = `${active.tagName.toLowerCase()}[data-scope="${CSS.escape(active.dataset.scope)}"][data-field="${CSS.escape(active.dataset.field)}"]`;

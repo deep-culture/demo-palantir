@@ -150,3 +150,18 @@ def test_committed_seed_is_current(rel, var, which):
         assert committed[dataset].get("metadata", {}).get("buildId") == fresh["buildId"], (
             f"{rel} is stale for {dataset}: run python3 {BUILDERS[which].relative_to(REPO_ROOT)} --output {rel}"
         )
+
+
+PLACEHOLDER = "[to verify"
+
+
+@pytest.mark.parametrize("which", ["gotham", "foundry"])
+def test_no_placeholder_in_built_seed(request, which):
+    """FIXROUND_CONTRACT.md §1: no editorial "[to verify …]" text reaches students."""
+    text = request.getfixturevalue(f"{which}_path").read_text(encoding="utf-8")
+    assert PLACEHOLDER not in text
+
+
+@pytest.mark.parametrize("rel", ["demo/seed.js", "foundry-demo/seed.js"])
+def test_no_placeholder_in_committed_seed(rel):
+    assert PLACEHOLDER not in (REPO_ROOT / rel).read_text(encoding="utf-8")

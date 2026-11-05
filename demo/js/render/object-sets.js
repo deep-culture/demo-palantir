@@ -39,8 +39,8 @@ function renderVersions(set) {
         .join("")}
     </tbody></table>
     <div class="set-diff" data-set-diff="${from}-${to}">
-      <label>Compare <select data-scope="set-diff" data-field="from">${options(from)}</select></label>
-      <label>with <select data-scope="set-diff" data-field="to">${options(to)}</select></label>
+      <label>Compare <select aria-label="Compare version" data-scope="set-diff" data-field="from">${options(from)}</select></label>
+      <label>with <select aria-label="with version" data-scope="set-diff" data-field="to">${options(to)}</select></label>
       <div class="set-diff-row set-diff-added"><strong>+ ${diff.added.length} added</strong> ${idsLine(diff.added)}</div>
       <div class="set-diff-row set-diff-removed"><strong>− ${diff.removed.length} removed</strong> ${idsLine(diff.removed)}</div>
     </div>`;
@@ -48,7 +48,7 @@ function renderVersions(set) {
 
 function renderSharing(set) {
   const roles = core.governance?.get().roles || [];
-  const owner = set.createdBy === currentRoleId();
+  const owner = core.objectSets.canEdit ? core.objectSets.canEdit(set, currentRoleId()) : set.createdBy === currentRoleId();
   return `
     <h4>Shared with roles <span class="muted">(simulated)</span></h4>
     <div class="set-share">
@@ -59,7 +59,7 @@ function renderSharing(set) {
         )
         .join("")}
     </div>
-    <p class="microcopy">${owner ? "Each role sees only the members its markings allow; the rest are counted as withheld." : `Only the creating role (${escapeHtml(roleLabel(set.createdBy))}) changes the sharing.`}</p>`;
+    <p class="microcopy">${owner ? "Each role sees only the members its markings allow; the rest are counted as withheld." : `Only the creating role (${escapeHtml(roleLabel(set.createdBy))}) and the data protection officer change the sharing.`}</p>`;
 }
 
 function renderDetail(set) {
@@ -67,7 +67,8 @@ function renderDetail(set) {
     return `<div class="property-card"><div class="empty-state">No object set yet. Save one from the Graph explorer (current view or search), from a rule in Analytics, or from an agent answer.</div></div>`;
   }
   const split = splitMembers(set.memberIds);
-  const selected = entityById(ui.selectedEntityId);
+  const selected = ui.entityPicked ? entityById(ui.selectedEntityId) : null;
+  const editable = core.objectSets.canEdit ? core.objectSets.canEdit(set, currentRoleId()) : true;
   return `
     <div class="property-card set-detail" data-set="${escapeHtml(set.id)}">
       <div class="list-item-title"><h3>${escapeHtml(set.name)}</h3><span class="muted">${escapeHtml(set.id)}</span></div>
@@ -77,12 +78,13 @@ function renderDetail(set) {
         ${split.merged.length ? `<span class="chip">${escapeHtml(`${split.merged.length} merged into another person at this threshold`)}</span>` : ""}
         ${split.withheld ? `<span class="chip chip-withheld" data-set-withheld="${split.withheld}">${escapeHtml(`${split.withheld} withheld`)}</span>` : ""}
       </div>
-      <div class="set-members">${split.visible.map((id) => memberChip(id, set, true)).join("") || `<span class="muted">No member is visible to your role.</span>`}</div>
+      ${editable ? "" : `<p class="set-viewonly" role="note" data-set-viewonly="true">View only: ${escapeHtml(roleLabel(set.createdBy))} shared this set with your role. Only the creating role and the data protection officer can change or delete it. Its membership may have been chosen from data your role cannot see (source: ${escapeHtml(set.source)}).</p>`}
+      <div class="set-members">${split.visible.map((id) => memberChip(id, set, editable)).join("") || `<span class="muted">No member is visible to your role.</span>`}</div>
       <div class="inline-actions">
-        <button class="button-secondary" data-action="set-add-selected" data-id="${escapeHtml(set.id)}" ${selected ? "" : "disabled"}>${escapeHtml(selected ? `Add selected: ${selected.label}` : "Add selected object")}</button>
-        <button class="button-secondary" data-action="set-add-rule" data-id="${escapeHtml(set.id)}">Add hits of the selected rule</button>
+        ${editable ? `<button class="button-secondary" data-action="set-add-selected" data-id="${escapeHtml(set.id)}" ${selected ? "" : "disabled"}>${escapeHtml(selected ? `Add selected: ${selected.label}` : "Add selected object (select one first)")}</button>
+        <button class="button-secondary" data-action="set-add-rule" data-id="${escapeHtml(set.id)}">Add hits of the selected rule</button>` : ""}
         <button class="button-primary" data-action="set-summarise" data-id="${escapeHtml(set.id)}">Summarise this set (agent)</button>
-        <button class="ghost-button" data-action="set-delete" data-id="${escapeHtml(set.id)}">Delete set</button>
+        ${editable ? `<button class="ghost-button" data-action="set-delete" data-id="${escapeHtml(set.id)}">Delete set</button>` : ""}
       </div>
       ${renderVersions(set)}
       ${renderSharing(set)}

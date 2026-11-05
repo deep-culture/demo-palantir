@@ -24,15 +24,15 @@ export function renderGraphTool() {
         <div class="graph-shell">
           <div class="graph-controls">
             <div class="field">
-              <label>Graph mode</label>
-              <select data-scope="graph" data-field="mode">
+              <label for="graph-mode">Graph mode</label>
+              <select id="graph-mode" data-scope="graph" data-field="mode">
                 <option value="instance" ${ui.graphMode === "instance" ? "selected" : ""}>Instance graph</option>
                 <option value="schema" ${ui.graphMode === "schema" ? "selected" : ""}>Schema graph</option>
               </select>
             </div>
             <div class="field">
-              <label>Type filter</label>
-              <select data-scope="graph" data-field="typeFilter" ${ui.graphMode === "schema" ? "disabled" : ""}>
+              <label for="graph-type-filter">Type filter</label>
+              <select id="graph-type-filter" data-scope="graph" data-field="typeFilter" ${ui.graphMode === "schema" ? "disabled" : ""}>
                 <option value="all" ${ui.graphTypeFilter === "all" ? "selected" : ""}>All types</option>
                 ${(data.ontology?.entityTypes || [])
                 .map(
@@ -46,8 +46,8 @@ export function renderGraphTool() {
               </select>
             </div>
             <div class="field">
-              <label>Search</label>
-              <input value="${escapeHtml(ui.graphSearch)}" placeholder="Filter labels or properties" data-scope="graph" data-field="search">
+              <label for="graph-search">Search</label>
+              <input id="graph-search" type="search" value="${escapeHtml(ui.graphSearch)}" placeholder="Filter labels or properties" data-scope="graph" data-field="search">
             </div>
           </div>
           ${renderPhoneHold("graph", ui.graphSearch)}
@@ -100,7 +100,7 @@ export function buildSchemaGraph() {
         ${nodes
         .map(
           (node) => `
-              <g class="graph-node ${ui.selectedGraphNodeId === node.id ? "selected" : ""}" data-action="select-graph-node" data-node-id="${escapeHtml(node.id)}" transform="translate(${node.x}, ${node.y})">
+              <g class="graph-node ${ui.selectedGraphNodeId === node.id ? "selected" : ""}" data-action="select-graph-node" data-node-id="${escapeHtml(node.id)}" tabindex="0" role="button" aria-pressed="${ui.selectedGraphNodeId === node.id}" aria-label="${escapeHtml(`Object type ${node.name}, ${entityCount(node.id)} instances`)}" transform="translate(${node.x}, ${node.y})">
                 <rect rx="18" ry="18" width="${node.width}" height="${node.height}" fill="${escapeHtml(node.color)}"></rect>
                 <text x="16" y="26">${escapeHtml(node.name)}</text>
                 <text x="16" y="44">${escapeHtml(`${entityCount(node.id)} instances`)}</text>
@@ -177,7 +177,8 @@ export function buildEntityGraph(nodes, edges, focusEntityIds, selectedNodeId, o
           const isSelected = selectedNodeId === node.id || focusSet.has(node.id);
           const lit = highlight && (highlight === node.id || edges.some((edge) => edge.id === highlight && (edge.source === node.id || edge.target === node.id)));
           return `
-              <g class="graph-node ${isSelected ? "selected" : ""}${lit ? " is-highlighted" : ""}" data-action="select-graph-node" data-node-id="${escapeHtml(node.id)}" transform="translate(${position.x}, ${position.y})">
+              <g class="graph-node ${isSelected ? "selected" : ""}${lit ? " is-highlighted" : ""}" data-action="select-graph-node" data-node-id="${escapeHtml(node.id)}" tabindex="0" role="button" aria-pressed="${selectedNodeId === node.id}" aria-label="${escapeHtml(`${node.type}: ${node.label}`)}" transform="translate(${position.x}, ${position.y})">
+                <title>${escapeHtml(`${node.type}: ${node.label}`)}</title>
                 <rect rx="14" ry="14" width="${position.width}" height="${position.height}" fill="${escapeHtml(position.color)}"></rect>
                 <text x="12" y="22">${escapeHtml(truncate(node.label, 20))}</text>
               </g>

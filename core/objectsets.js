@@ -23,6 +23,11 @@
  *   DC.objectSets.canSee(set, roleId)
  *   DC.objectSets.onChange(cb)       also fires for writes from another tab
  *
+ * Fix round (contract §2 D): a set shared with a role is view-only for that role.
+ *   DC.objectSets.canEdit(set, roleId)  the creating role, or the DPO (role id "dpo" or a role with
+ *                                    canEditObjectSets), may update, share and delete; any other role's
+ *                                    attempt changes nothing and is logged with outcome "refused".
+ *
  * Sharing is simulated: the role is a client-side convenience (spec §4.1). The audit events carry the
  * set id in payload.setId and the member ids in objectIds (capped at 40).
  */
@@ -49,9 +54,8 @@
   }
 
   function writeSets(list) {
-    const next = { ...readState(), objectSets: list };
-    memory = next;
-    if (store) store.set(GOV_KEY, next);
+    memory = { ...memory, objectSets: list };
+    if (store) store.patch(GOV_KEY, (current) => ({ ...current, objectSets: list })); // review F-21
     lastSeen = JSON.stringify(list);
   }
 
@@ -101,6 +105,18 @@
     return sets().find((set) => set.id === id) || null;
   }
 
+  function canEdit(set, roleId) {
+    if (!set) return false;
+    const who = roleId || role();
+    if (!(DC.governance && DC.governance.isActive())) return true;
+    const governanceRole = DC.governance.role(who);
+    return set.createdBy === who || who === "dpo" || Boolean(governanceRole && governanceRole.canEditObjectSets);
+  }
+
+  function refuse(verb, set) {
+    return log(verb, set, { outcome: "refused", objectIds: [] }).then(() => null);
+  }
+
   function canSee(set, roleId) {
     return Boolean(set) && (set.createdBy === roleId || (set.sharedWith || []).includes(roleId));
   }
@@ -130,6 +146,7 @@
     const all = sets();
     const index = all.findIndex((set) => set.id === id);
     if (index < 0) return null;
+    if (!canEdit(all[index])) return refuse("objectSet.update", all[index]);
     const set = { ...all[index] };
     const current = new Set(set.memberIds);
     const added = uniq(change && change.add).filter((item) => !current.has(item));
@@ -149,6 +166,7 @@
     const all = sets();
     const index = all.findIndex((set) => set.id === id);
     if (index < 0) return null;
+    if (!canEdit(all[index])) return refuse("objectSet.share", all[index]);
     const previous = all[index].sharedWith || [];
     const set = { ...all[index], sharedWith: uniq(roles).filter((item) => item !== all[index].createdBy) };
     all[index] = set;
@@ -161,6 +179,7 @@
   async function remove(id) {
     const set = get(id);
     if (!set) return false;
+    if (!canEdit(set)) return refuse("objectSet.delete", set).then(() => false);
     writeSets(sets().filter((item) => item.id !== id));
     await log("objectSet.delete", set, { objectIds: [] });
     notify("local");
@@ -208,6 +227,7 @@
     membersAt,
     diff,
     canSee,
+    canEdit,
     onChange(callback) {
       if (typeof callback === "function") listeners.push(callback);
     },

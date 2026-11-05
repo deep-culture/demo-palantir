@@ -65,6 +65,10 @@ export const ui = {
   selectedRelationshipId: "",
   selectedMappingId: "",
   selectedEntityId: "",
+  // True once the user picked an object (list, graph, citation, deep link); until then selectedEntityId
+  // is only a default (the first object) and is not offered as "the selection".
+  entityPicked: false,
+  editorNotice: null,
   selectedGraphNodeId: "",
   selectedScenarioId: "",
   selectedAnalyticsRuleId: "",
@@ -138,6 +142,20 @@ export function setSeedData(value) {
 
 export function resetCopilotState() {
   copilotState = emptyAgentState();
+}
+
+// What one role saw or was granted must not carry over to the next (review F-03, F-10). The question
+// stays in the box; the run made under the previous role is dropped (the agent tab offers to ask again).
+export function forgetRoleState() {
+  ui.telecomExpanded = new Set();
+  ui.telecomRecords = {};
+  ui.approvedPhoneQueries = new Set();
+  ui.purposeExceptions = new Map();
+  if (copilotState.run) {
+    const previous = copilotState.run;
+    copilotState = { ...emptyAgentState(), query: previous.query, droppedRun: { role: previous.role, id: previous.id } };
+  }
+  if (ui.actionDrawer && ui.actionDrawer.open) ui.actionDrawer = { ...ui.actionDrawer, result: null, exceptRules: [], exceptionRecordId: null };
 }
 
 export function setLastViewedId(value) {
@@ -244,6 +262,8 @@ export function switchDataset(datasetKey, options = {}) {
   ui.selectedRelationshipId = "";
   ui.selectedMappingId = "";
   ui.selectedEntityId = "";
+  ui.entityPicked = false;
+  ui.editorNotice = null;
   ui.selectedMapNodeId = "";
   ui.mapScope = "dataset";
   ui.mapPlaceFilter = "all";
@@ -308,11 +328,18 @@ export function rebuildRoleView() {
       return;
     }
     visibleIds.add(entity.id);
-    if (redacted && redacted._withheldProps) {
+    let shown = redacted && redacted._withheldProps ? redacted : entity;
+    if (shown && shown._merge) {
+      // Review F-01: the merge's conflicting values are values of the members' properties, so they are
+      // withheld exactly like the properties (propertyMarkings, ignoring markings removed at the ontology).
+      const merge = redactMerge(shown, roleId, view.removed);
+      if (merge !== shown._merge) shown = { ...shown, _merge: merge };
+    }
+    if (shown && shown._withheldProps) {
       view.redactedCount += 1;
-      entities.push(redacted);
+      entities.push(shown);
     } else {
-      entities.push(entity); // same object: edits in the Objects tab write straight through
+      entities.push(shown); // same object unless redacted: edits in the Objects tab write straight through
     }
   });
   const edges = [];
@@ -325,6 +352,22 @@ export function rebuildRoleView() {
   });
   data = { ...base, entities, edges };
   roleView = view;
+}
+
+function redactMerge(entity, roleId, removed) {
+  const merge = entity._merge;
+  const lacking = (markings) => core.markings.missing(roleId, (markings || []).filter((marking) => !removed.has(marking)));
+  const conflicts = {};
+  const withheld = [];
+  Object.entries(merge.conflicts || {}).forEach(([key, values]) => {
+    const hidden = lacking((entity.propertyMarkings || {})[key]);
+    if (hidden.length) withheld.push({ property: key, markings: hidden });
+    else conflicts[key] = values;
+  });
+  const riskHidden = lacking((entity.propertyMarkings || {}).riskTag).length > 0;
+  const members = riskHidden ? merge.members.map((member) => ({ ...member, riskTag: member.riskTag ? "[withheld]" : "" })) : merge.members;
+  if (!withheld.length && !riskHidden) return merge;
+  return { ...merge, conflicts, conflictsWithheld: withheld, members };
 }
 
 export function refreshView() {

@@ -47,7 +47,7 @@ export function renderRelationshipsTool() {
               </div>
               <div class="field">
                 <label>Description</label>
-                <textarea data-scope="relationship" data-field="description">${escapeHtml(selected.description || "")}</textarea>
+                <textarea aria-label="Description" data-scope="relationship" data-field="description">${escapeHtml(selected.description || "")}</textarea>
               </div>
               <div class="inline-actions">
                 <button class="button-danger" data-action="delete-relationship" data-id="${escapeHtml(selected.id)}">Delete link type</button>

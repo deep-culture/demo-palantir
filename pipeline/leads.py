@@ -15,10 +15,16 @@ at most one component, its most recent usable record:
 =========================  ==========  ======  ======================  =======================
 source dataset             marking     weight  address used            date used
 =========================  ==========  ======  ======================  =======================
-clinic registrations       HEALTH      0.5     ``home_address``        ``registered_on``
+clinic registrations       HEALTH (*)  0.5     ``home_address``        ``registered_on``
 mobile location pings      TELECOM     0.4     location label          latest ping ``timestamp``
 company registry           OPEN        0.3     ``registered_address``  ``incorporation_date``
 =========================  ==========  ======  ======================  =======================
+
+(*) Each component carries ``marking`` (the table's single id) and
+``markings`` (everything a role needs to see it).  Clinic components are
+``["PII", "HEALTH"]``; a registry component read from the beneficial-owner
+columns is ``["OPEN", "PII"]``; otherwise ``[marking]``.  ``sourceMarkings``
+on the lead is the union of its components' ``markings``.
 
     score = 100 · min(1, Σ weight_i · exp(−ageDays_i / 365))
 
@@ -60,13 +66,13 @@ DECAY_DAYS = 365
 # component is read from; ``rawSource`` the raw file (Investigate's source id).
 SOURCES: List[Dict[str, Any]] = [
     {"source": "norm_clinic_registrations", "rawSource": "clinic_registrations.csv",
-     "label": "Clinic registration", "marking": "HEALTH", "weight": 0.5,
+     "label": "Clinic registration", "marking": "HEALTH", "markings": ["PII", "HEALTH"], "weight": 0.5,
      "addressField": "home_address", "dateField": "registered_on"},
     {"source": "norm_mobile_pings", "rawSource": "mobile_location_pings.jsonl",
-     "label": "Mobile location pings", "marking": "TELECOM", "weight": 0.4,
+     "label": "Mobile location pings", "marking": "TELECOM", "markings": ["TELECOM"], "weight": 0.4,
      "addressField": "location_label", "dateField": "timestamp"},
     {"source": "norm_company_registry", "rawSource": "company_registry.csv",
-     "label": "Company registry", "marking": "OPEN", "weight": 0.3,
+     "label": "Company registry", "marking": "OPEN", "markings": ["OPEN"], "weight": 0.3,
      "addressField": "registered_address", "dateField": "incorporation_date"},
 ]
 # The company registry carries no coordinates.  A registered address takes the
@@ -343,6 +349,21 @@ def _known_coordinates(
 # Leads
 # ---------------------------------------------------------------------------
 
+def _component_markings(cand: _Candidate) -> List[str]:
+    """Every marking a role needs to see this component.
+
+    ``marking`` (one id) is the contract's weight-table marking; ``markings``
+    is the full list.  Clinic components are PII as well as HEALTH
+    (FIXROUND_CONTRACT.md §1).  A registry component read through the
+    beneficial-owner columns adds PII: those fields are marked PII in the
+    manifest since *WM and Sovim*.
+    """
+    ms = list(SOURCE_BY_ID[cand.source]["markings"])
+    if cand.source == "norm_company_registry" and cand.extra.get("role") == "owner":
+        ms.append("PII")
+    return governance.sort_markings(ms)
+
+
 def _component(cand: _Candidate, as_of: date) -> Dict[str, Any]:
     spec = SOURCE_BY_ID[cand.source]
     age = max(0, (as_of - cand.day).days)
@@ -350,6 +371,7 @@ def _component(cand: _Candidate, as_of: date) -> Dict[str, Any]:
     comp = {
         "source": cand.source,
         "marking": spec["marking"],
+        "markings": _component_markings(cand),
         "weight": spec["weight"],
         "ageDays": age,
         "decay": round(d, 4),
@@ -409,7 +431,7 @@ def compute_leads(
             "formula": FORMULA,
             "asOf": as_of_str,
             "addressSource": best["source"],
-            "sourceMarkings": governance.sort_markings(c["marking"] for c in components),
+            "sourceMarkings": governance.union_markings(c["markings"] for c in components),
         }
         fp: Dict[str, List[Dict[str, Any]]] = {
             "personId": [ref for c in cands for ref in c.refs],
@@ -429,7 +451,7 @@ def compute_leads(
 def leads_weights() -> List[Dict[str, Any]]:
     """The contract's weight table, as stored in both seeds."""
     return [{"source": s["source"], "rawSource": s["rawSource"], "label": s["label"],
-             "marking": s["marking"], "weight": s["weight"],
+             "marking": s["marking"], "markings": list(s["markings"]), "weight": s["weight"],
              "addressField": s["addressField"], "dateField": s["dateField"]} for s in SOURCES]
 
 

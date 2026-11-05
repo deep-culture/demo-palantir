@@ -21,8 +21,11 @@ MANIFEST_MARKINGS = {
     "flight_manifests.csv": ["PII"],
     "bank_transactions.csv": ["FIN"],
     "mobile_location_pings.jsonl": ["TELECOM"],
-    CLINIC: ["HEALTH"],
+    CLINIC: ["PII", "HEALTH"],   # fix round: clinic rows are personal data as well as health data
 }
+MANIFEST_KEYS = {"file", "markings", "purpose", "legalBasis", "retentionDays", "asOf"}
+# Optional field-level markings (fix round: WM and Sovim, beneficial owners).
+FIELD_MARKINGS = {"company_registry.csv": {"beneficial_owner": ["PII"], "beneficial_owner_dob": ["PII"]}}
 GOV_FIELDS = {"markings", "markingProvenance", "purpose", "legalBasis", "retentionDays", "derivedFrom"}
 
 
@@ -52,7 +55,11 @@ def test_manifest_lists_six_datasets(dataset):
     manifest = json.loads((REPO_ROOT / "synthetic_data" / dataset / "manifest.json").read_text())
     assert {v["file"]: v["markings"] for v in manifest.values()} == MANIFEST_MARKINGS
     for entry in manifest.values():
-        assert set(entry) == {"file", "markings", "purpose", "legalBasis", "retentionDays", "asOf"}
+        extra = {"fieldMarkings", "fieldNote"} if entry["file"] in FIELD_MARKINGS else set()
+        assert set(entry) == MANIFEST_KEYS | extra
+        if extra:
+            assert entry["fieldMarkings"] == FIELD_MARKINGS[entry["file"]]
+            assert "WM and Sovim" in entry["fieldNote"]
         assert (REPO_ROOT / "synthetic_data" / dataset / entry["file"]).exists()
         assert isinstance(entry["retentionDays"], int) and entry["retentionDays"] > 0
         assert entry["purpose"] and entry["legalBasis"] and entry["asOf"]
@@ -142,6 +149,32 @@ def test_gotham_and_foundry_raw_governance_agree(gotham, foundry):
         for sid in g:
             for key in ("markings", "markingProvenance", "purpose", "legalBasis", "retentionDays", "asOf"):
                 assert g[sid][key] == f[sid][key], (sid, key)
+            assert g[sid].get("fieldMarkings") == f[sid].get("fieldMarkings") == FIELD_MARKINGS.get(sid), sid
+
+
+@pytest.mark.parametrize("dataset", DATASETS)
+def test_illustrative_legal_bases_name_the_cjeu_cases(dataset):
+    """FIXROUND_CONTRACT.md §1: the PNR and company-register legal bases name
+    the CJEU judgments that limit them."""
+    manifest = json.loads((REPO_ROOT / "synthetic_data" / dataset / "manifest.json").read_text())
+    pnr = manifest["flight_manifests"]["legalBasis"]
+    for phrase in ("Ligue des droits humains", "C-817/19", "21 June 2022", "six months"):
+        assert phrase in pnr, phrase
+    reg = manifest["company_registry"]["legalBasis"]
+    for phrase in ("WM and Sovim", "C-37/20", "22 November 2022", "PII"):
+        assert phrase in reg, phrase
+    assert "open by law" not in reg
+
+
+@pytest.mark.parametrize("dataset", DATASETS)
+def test_beneficial_owner_fields_marked_in_build(foundry, dataset):
+    by_id = {d["id"]: d for d in foundry[dataset]["datasets"]}
+    for did in ("company_registry.csv", "norm_company_registry"):
+        assert by_id[did]["markings"] == ["OPEN"], did
+        assert by_id[did]["fieldMarkings"] == FIELD_MARKINGS["company_registry.csv"], did
+        assert by_id[did]["fieldNote"], did
+        fields = {f["field"] if isinstance(f, dict) else f for f in by_id[did]["schema"]}
+        assert set(by_id[did]["fieldMarkings"]) <= fields, did
 
 
 def _raw(name, markings):

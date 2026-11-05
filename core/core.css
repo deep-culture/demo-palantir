@@ -428,3 +428,12 @@
 .dc-lead-asof { margin: 0.25rem 0 0; font-size: 0.75rem; opacity: 0.75; }
 .dc-on-dark .dc-lead-table th, .dc-strip-dark .dc-lead-table th { color: var(--dc-green); }
 .dc-lead-formula { overflow-x: auto; }
+
+/* ── Fix round ── */
+.dc-modal-list { margin: 0.4rem 0 0; padding-left: 1.3rem; max-height: 11rem; overflow: auto; font-size: 0.84rem; }
+.dc-modal-list li { margin: 0.15rem 0; }
+.dc-modal-callout { border-left: 3px solid var(--dc-purple); padding: 0.35rem 0.6rem; background: #f6eff4; color: #3a1530; font-weight: 600; }
+.dc-blocked-selfcert { margin: 0.35rem 0 0; font-size: 0.8rem; font-weight: 600; }
+.dc-blocked-abstracts { font-size: 0.84rem; }
+.dc-lead-signal { font-size: 0.8rem; margin: 0.3rem 0 0; color: #3a363a; font-style: italic; }
+.dc-strip-instructor.is-on label { font-weight: 700; }

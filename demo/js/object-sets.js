@@ -83,7 +83,7 @@ export const SET_CLICKS = {
   },
   async "set-add-selected"(target) {
     const set = core.objectSets.get(target.dataset.id);
-    if (!set || !ui.selectedEntityId) return;
+    if (!set || !ui.selectedEntityId || !ui.entityPicked) return;
     await core.objectSets.update(set.id, { add: [ui.selectedEntityId] });
     const updated = core.objectSets.get(set.id);
     ui.setDiff = { from: updated.versions.length - 1, to: updated.versions.length };

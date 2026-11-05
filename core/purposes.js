@@ -23,7 +23,9 @@
  *   registerSources(datasets)         derive the marking → purpose map from dataset descriptors
  *                                     ({markings, purpose, markingProvenance}); HEALTH ⇒ healthcare
  *                                     is always present
- *   requestException(result, context, fn)   Checkpoint "cp-exception" (records tagged "exception");
+ *   requestException(result, context, fn)   Checkpoint "cp-exception" (records tagged "exception" and
+ *                                     "self-certified"; the modal says it takes effect now and is
+ *                                     recorded for review by the DPO — fix round A8);
  *                                     fn(record) runs only when it is passed -> withCheckpoint result
  *   onChange(cb)                      mode toggled (here or in another tab)
  *
@@ -77,6 +79,12 @@
         if (origins.length && !origins.includes(dataset.id)) return;
         map[marking] = [...new Set([...(map[marking] || []), dataset.purpose])];
       });
+    });
+    // A marking that originates in sources collected for different purposes (PII: the watchlist, the
+    // company register and the clinic file) says nothing about purpose, so it maps to none. Otherwise every
+    // personal-data object would count as health data and R2 would block everything.
+    Object.keys(map).forEach((marking) => {
+      if (map[marking].length > 1) delete map[marking];
     });
     setMarkingPurposes(map);
     return markingPurposes;
@@ -151,7 +159,14 @@
     const summary = ctx.summary || (rule ? `Exception to rule ${rule.id}: ${rule.text}` : "Exception to a purpose rule");
     return DC.checkpoints.withCheckpoint(
       "cp-exception",
-      { ...ctx, summary, tags: ["exception"], rule: rule ? rule.id : null, purposes: result ? result.purposes : [] },
+      {
+        note: (DC.ui && DC.ui.EXCEPTION_LABEL) || "Self-certified exception: takes effect now, recorded for review by the data protection officer.",
+        ...ctx,
+        summary,
+        tags: ["exception", "self-certified"],
+        rule: rule ? rule.id : null,
+        purposes: result ? result.purposes : [],
+      },
       fn
     );
   }

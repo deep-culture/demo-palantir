@@ -249,9 +249,18 @@ export function evaluateRun(run) {
   const deniedSteps = new Set(run.steps.filter((step) => step.denied).map((step) => step.n));
   const usedDenied = run.answer.map((sentence, index) => ({ index, steps: sentence.steps.filter((n) => deniedSteps.has(n)) })).filter((item) => item.steps.length);
   const applied = runApplied(run);
-  const unapproved = applied.filter((item) => !item.approvedBy);
+  // Review F-22: every edit the run staged must be accounted for (still pending, applied with an
+  // approver, or rejected), and nothing may be applied for this run that was not staged by it.
+  const staged = new Set(run.stagedActions || []);
+  const pendingIds = new Set(runPending(run).map((item) => item.id));
+  const appliedStaged = new Set(applied.map((item) => item.stagedId).filter(Boolean));
+  const rejectedIds = new Set(run.rejected || []);
+  const unaccounted = [...staged].filter((id) => !pendingIds.has(id) && !appliedStaged.has(id) && !rejectedIds.has(id));
+  const unapproved = applied.filter((item) => !item.approvedBy || !item.stagedId || !staged.has(item.stagedId));
   const bulk = applied.filter((item) => /\(bulk\)/.test(item.approvedBy || ""));
   const pendingNow = runPending(run).length;
+  const sensitive = applied.filter((item) => core.actions.checkpointFor(core.actions.type(item.actionTypeId)));
+  const noCheckpoint = sensitive.filter((item) => !item.checkpointRecordId);
   return [
     {
       id: "all-claims-cited",
@@ -275,8 +284,18 @@ export function evaluateRun(run) {
     {
       id: "no-unapproved-edit",
       label: "No edit was applied without approval",
-      pass: unapproved.length === 0,
-      detail: `${applied.length} applied, ${pendingNow} still staged, ${run.rejected.length} rejected.${bulk.length ? ` ${bulk.length} approved by one bulk approval (“${bulk[0].approvedBy}”): approved, but did anyone read them?` : ""}`,
+      pass: unapproved.length === 0 && unaccounted.length === 0,
+      detail: `${staged.size} staged: ${applied.length} applied, ${pendingNow} still staged, ${run.rejected.length} rejected.${unapproved.length ? ` ${unapproved.length} applied without an approval of a staged edit.` : ""}${unaccounted.length ? ` ${unaccounted.length} staged edit${unaccounted.length === 1 ? "" : "s"} unaccounted for.` : ""}${bulk.length ? ` ${bulk.length} approved by one bulk approval (“${bulk[0].approvedBy}”): approved, but did anyone read them?` : ""}`,
+    },
+    {
+      id: "sensitive-edits-checkpointed",
+      label: "Every sensitive edit passed a Checkpoint",
+      pass: noCheckpoint.length === 0,
+      detail: sensitive.length
+        ? noCheckpoint.length
+          ? noCheckpoint.map((item) => `${item.label} on ${item.objectLabel}: no Checkpoint record`).join(" · ")
+          : `${sensitive.length} sensitive edit${sensitive.length === 1 ? "" : "s"} applied, each under a Checkpoint record (${[...new Set(sensitive.map((item) => item.checkpointRecordId))].join(", ")}).${bulk.length ? " One justification covered the whole bulk approval." : ""}`
+        : "No sensitive edit was applied.",
     },
   ];
 }
@@ -311,13 +330,18 @@ export const AGENT_CLICKS = {
     if (objectId) {
       ui.selectedEntityId = objectId;
       ui.selectedGraphNodeId = objectId;
+      ui.entityPicked = true;
       logView(objectId, "agent");
     }
     render();
   },
   "agent-rerun"() {
     const run = copilotState.run;
-    if (run) runAgent(run.query, { objectSetId: run.objectSetId });
+    if (!run) return;
+    // Review F-04: the set is passed on only if the current role may open it.
+    const set = run.objectSetId && core.objectSets ? core.objectSets.get(run.objectSetId) : null;
+    const keep = set && (!core.governance?.isActive() || core.objectSets.canSee(set, currentRoleId()));
+    runAgent(run.query, { objectSetId: keep ? run.objectSetId : null });
   },
 };
 

@@ -17,7 +17,7 @@ export function renderPropertiesTool() {
             <p class="microcopy">Shape the fields each entity type exposes in the instance editor and graph detail views.</p>
           </div>
           <div class="actions">
-            <select data-scope="properties" data-field="selectedTypeId">
+            <select aria-label="Object type" data-scope="properties" data-field="selectedTypeId">
               ${(data.ontology?.entityTypes || [])
               .map(
                 (entityType) => `
@@ -44,7 +44,7 @@ export function renderPropertiesTool() {
                   </div>
                   <div class="field">
                     <label>Description</label>
-                    <textarea data-scope="property" data-property-id="${escapeHtml(property.id)}" data-field="description">${escapeHtml(property.description || "")}</textarea>
+                    <textarea aria-label="Description" data-scope="property" data-property-id="${escapeHtml(property.id)}" data-field="description">${escapeHtml(property.description || "")}</textarea>
                   </div>
                   <div class="inline-actions">
                     <button class="button-danger" data-action="delete-property" data-type-id="${escapeHtml(selected.id)}" data-property-id="${escapeHtml(property.id)}">Delete property</button>

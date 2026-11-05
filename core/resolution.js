@@ -30,6 +30,16 @@
  *   override; logged "resolution.restore"), clearOverrides(reason), onChange(cb) (threshold or overrides
  *   changed, here or in another tab), FIXED_NOTE, MAX_THRESHOLD (0.95).
  *   setThreshold(t, {log: false}) skips the audit event (e.g. while a slider is dragged; log on release).
+ *
+ * Fix round (contract §2 D): only some roles may move the shared threshold.
+ *   canSetThreshold(roleId?) -> {allowed, reason}   roles with canSetThreshold: true in the seed, or else
+ *                                   THRESHOLD_ROLES (fin-analyst, dpo). Without governance: allowed.
+ *   setThreshold(t) by any other role changes nothing, logs "resolution.setThreshold" with outcome
+ *   "refused" (and the value attempted) and resolves to {refused: true, reason}.
+ *   reject / restore by a role outside act-unmerge-person's allowedRoles (fallback fin-analyst, dpo) are
+ *   refused and logged (outcome "refused"); canUnmerge(roleId?) (review F-19).
+ *   representative(ids) -> id      the representative the clusters use (lowest watchlisted, else lowest id);
+ *                                   apps name a merged person after it (Investigate and Build agree).
  */
 (function () {
   "use strict";
@@ -38,6 +48,7 @@
   const store = DC.store;
   const GOV_KEY = "dc-palantir:governance";
   const MAX_THRESHOLD = 0.95;
+  const THRESHOLD_ROLES = ["fin-analyst", "dpo"];
   const FIXED_NOTE =
     "Merges made by the pipeline's deterministic rules are fixed in this build — see each person's resolution record.";
   const listeners = [];
@@ -54,9 +65,8 @@
   }
 
   function writeState(patch) {
-    const next = { ...readState(), ...patch };
-    memoryState = next;
-    if (store) store.set(GOV_KEY, next);
+    memoryState = { ...memoryState, ...patch };
+    if (store) store.patch(GOV_KEY, (current) => ({ ...current, ...patch })); // review F-21
     lastSeen = fingerprint();
   }
 
@@ -135,9 +145,29 @@
     return DC.audit.logEvent({ kind: "resolution", verb, objectIds: objectIds || [], payload: payload || {} });
   }
 
+  function canSetThreshold(roleId) {
+    const governance = DC.governance;
+    if (!governance || !governance.isActive()) return { allowed: true, reason: "" };
+    const id = roleId || (DC.session ? DC.session.get().role : "");
+    const roles = governance.get().roles;
+    const flagged = roles.filter((role) => role.canSetThreshold === true).map((role) => role.id);
+    const allowedIds = flagged.length ? flagged : THRESHOLD_ROLES.filter((roleIdItem) => governance.role(roleIdItem));
+    if (allowedIds.includes(id)) return { allowed: true, reason: "" };
+    const role = governance.role(id);
+    const labels = allowedIds.map((item) => (governance.role(item) ? governance.role(item).label : item));
+    return {
+      allowed: false,
+      reason: `Your role (${role ? role.label : id}) cannot change the shared resolution threshold: it decides who becomes one person for every role. Roles allowed: ${labels.join(", ")}. Trying is logged.`,
+    };
+  }
+
   function setThreshold(value, options) {
     const previous = threshold();
     const next = clamp(value);
+    const permission = canSetThreshold();
+    if (!permission.allowed) {
+      return log("resolution.setThreshold", { from: previous, to: previous, attempted: next, outcome: "refused" }).then(() => ({ refused: true, reason: permission.reason }));
+    }
     if (next === previous) {
       if (typeof readState().threshold !== "number") writeState({ threshold: next });
       return Promise.resolve(null);
@@ -212,6 +242,12 @@
     return value;
   }
 
+  function representative(ids) {
+    const list = [...new Set(Array.isArray(ids) ? ids : [])].sort();
+    const listed = list.filter((id) => watchlisted.has(id));
+    return listed.length ? listed[0] : list[0] || null;
+  }
+
   function signalsOf(candidate) {
     const byId = new Map(((seed && seed.signals) || []).map((item) => [item.id, item]));
     return (candidate.signals || []).map((id) => byId.get(id) || { id, weight: 0, label: id, note: "" });
@@ -246,9 +282,22 @@
     return (seed && seed.candidates.find((item) => item.id === id)) || null;
   }
 
+  // Review F-19: an unmerge is the act-unmerge-person Action's decision; only its allowed roles may write
+  // a resolution override (any other role's attempt is logged and changes nothing).
+  function canUnmerge(roleId) {
+    const governance = DC.governance;
+    if (!governance || !governance.isActive()) return true;
+    const type = DC.actions && DC.actions.type ? DC.actions.type("act-unmerge-person") : null;
+    const allowed = type && Array.isArray(type.allowedRoles) ? type.allowedRoles : THRESHOLD_ROLES;
+    return allowed.includes(roleId || (DC.session ? DC.session.get().role : ""));
+  }
+
   function reject(candidateId, reason, options) {
     const found = candidate(candidateId);
     const session = DC.session ? DC.session.get() : { role: "unknown" };
+    if (!canUnmerge(session.role)) {
+      return log("resolution.unmerge", { candidateId: String(candidateId), reason: String(reason || ""), outcome: "refused" }, found ? [found.left, found.right] : []).then(() => null);
+    }
     const override = {
       candidateId: String(candidateId),
       decision: "reject",
@@ -269,6 +318,7 @@
 
   function restore(candidateId, reason) {
     const found = candidate(candidateId);
+    if (!canUnmerge()) return log("resolution.restore", { candidateId, reason: String(reason || ""), outcome: "refused" }, found ? [found.left, found.right] : []).then(() => null);
     const list = overrides();
     const next = list.filter((item) => item.candidateId !== candidateId);
     if (next.length === list.length) return Promise.resolve(null);
@@ -300,6 +350,10 @@
     config: () => seed,
     threshold,
     setThreshold,
+    canSetThreshold,
+    canUnmerge,
+    THRESHOLD_ROLES,
+    representative,
     resolveAt,
     overrides,
     reject,

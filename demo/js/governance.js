@@ -151,11 +151,15 @@ export function expandTelecom(entityId) {
 }
 
 // ── Phone-number search (cp-search-phone) ──
+// Fix round A7: a query of 4 or more digits, or one starting with "+", is treated as a phone number
+// (so "+971" or a 6-digit tail cannot avoid the Checkpoint). Dates (1984-03-22) are not.
+export const PHONE_MIN_DIGITS = 4;
 export function looksLikePhone(text) {
   const value = String(text || "").trim();
   if (!/^\+?[\d\s\-().]+$/.test(value)) return false;
-  if (/^\d{4}-\d{2}-\d{2}/.test(value)) return false; // a date, not a number
-  return value.replace(/\D/g, "").length >= 7;
+  if (/^\d{4}-\d{2}(-\d{2})?$/.test(value)) return false; // a date, not a number
+  const digits = value.replace(/\D/g, "").length;
+  return digits >= PHONE_MIN_DIGITS || (value.startsWith("+") && digits >= 1);
 }
 
 export function phoneKey(text) {
@@ -163,7 +167,7 @@ export function phoneKey(text) {
 }
 
 export function phoneNumbersIn(text) {
-  return (String(text || "").match(/\+?\d[\d\s\-().]{5,}\d/g) || []).filter(looksLikePhone);
+  return (String(text || "").match(/\+\d[\d\s\-().]*\d|\+\d|\d[\d\s\-().]*\d/g) || []).map((item) => item.trim()).filter(looksLikePhone);
 }
 
 // A phone query is held (not applied) until the Checkpoint has been passed for that number.
@@ -243,8 +247,47 @@ function scenarioPurposes(scenario) {
   return { purposes: purposesOfIds(scenario.graph.nodes.map((node) => node.id)), karlsruhe: core.purposes.enabled() };
 }
 
+// Search logging (fix round A7): one event per settled query. Typing schedules a log after a pause;
+// Enter / leaving the field logs at once; the same query is not logged twice in a row per scope.
+const SEARCH_SETTLE_MS = 900;
+const searchTimers = {};
+const lastLogged = {};
 export function logSearch(scope, query, resultCount) {
+  clearTimeout(searchTimers[scope]);
   const text = String(query || "").trim();
   if (!text || phoneSearchHeld(text)) return;
+  if (lastLogged[scope] === text) return;
+  lastLogged[scope] = text;
   logEvent({ kind: "search", verb: `${scope}.search`, payload: { query: text, resultCount } });
+}
+
+// Leaving the field or pressing Enter logs the pending query at once.
+const pendingSearch = {};
+export function flushSearchLog(scope) {
+  const pending = pendingSearch[scope];
+  if (!pending) return;
+  delete pendingSearch[scope];
+  logSearch(scope, pending.readQuery(), typeof pending.readCount === "function" ? pending.readCount() : undefined);
+}
+
+export function scheduleSearchLog(scope, readQuery, readCount) {
+  pendingSearch[scope] = { readQuery, readCount };
+  clearTimeout(searchTimers[scope]);
+  searchTimers[scope] = setTimeout(() => flushSearchLog(scope), SEARCH_SETTLE_MS);
+}
+
+// A phone-like query opens its Checkpoint by itself once typing pauses (not only on Enter).
+const PHONE_SETTLE_MS = 700;
+const phoneTimers = {};
+export function schedulePhoneCheckpoint(scope, readQuery, readCount) {
+  clearTimeout(phoneTimers[scope]);
+  phoneTimers[scope] = setTimeout(() => {
+    const query = readQuery();
+    if (!phoneSearchHeld(query) || (core.checkpoints && core.checkpoints.isOpen())) return;
+    requestPhoneSearch(scope, query, readCount);
+  }, PHONE_SETTLE_MS);
+}
+
+export function cancelPhoneCheckpoint(scope) {
+  clearTimeout(phoneTimers[scope]);
 }

@@ -49,8 +49,8 @@ export function renderHeader() {
         <div class="actions">
           <a class="header-back-link" href="../index.html" title="Back to all demos and docs">← All demos</a>
           <div class="field header-field">
-            <label>Dataset</label>
-            <select data-scope="dataset" data-field="datasetKey">
+            <label for="dataset-select">Dataset</label>
+            <select id="dataset-select" data-scope="dataset" data-field="datasetKey">
               ${datasetLabels
               .map(
                 (dataset) => `
@@ -84,7 +84,7 @@ export function renderTabs() {
     )
     .join("");
   return `
-      <nav class="tool-tabs">
+      <nav class="tool-tabs" aria-label="Tools">
         <span class="tab-group-label">Analyst</span>
         <div class="tab-group">${analystButtons}</div>
         <div class="tab-divider"></div>

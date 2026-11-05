@@ -74,6 +74,21 @@ def test_block_shape_and_identical_in_both_seeds(gotham, foundry, dataset):
         assert set(cand) >= {"id", "left", "right", "score", "signals", "block", "explanation"}
 
 
+WEIGHTS_NOTE = "There is no passport-conflict signal. Should two different passports veto a merge? Who decides?"
+
+
+@pytest.mark.parametrize("dataset", DATASETS)
+def test_weights_table_note(gotham, foundry, dataset):
+    """FIXROUND_CONTRACT.md §1: the weights table asks about the missing
+    passport-conflict signal, and the signal itself is not added."""
+    for entry in (gotham[dataset], foundry[dataset]):
+        res = block(entry)
+        assert res["note"] == WEIGHTS_NOTE
+        assert res["discussion"] == WEIGHTS_NOTE
+        ids = {s["id"] for s in res["signals"]}
+        assert not any("passport" in sid and sid != "passport-exact" for sid in ids)
+
+
 def test_signal_weights_are_the_documented_ones(gotham):
     weights = {s["id"]: s["weight"] for s in block(gotham["starter"])["signals"]}
     assert weights == C.WEIGHTS

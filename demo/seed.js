@@ -2,20 +2,20 @@ window.ontologySeedCatalog = {
   "starter": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:463284d864f3b1353d1597582a9cd8e9370a3a3118b0dfc5926f144fcc1fb785",
+      "buildId": "sha256:ca57f36d94726795ce87d1a3a01703c6e3f14e0b91c60268931179c89bd41b6e",
       "sources": {
         "bank_transactions.csv": "sha256:0a88981afca6d5f129af59d9eddd670b4fd4786b8d2cca104bbf905f06e94687",
         "clinic_registrations.csv": "sha256:68a6e5270a055ceb0bf89c3b136a110405c95408ba7e9943137a72548b57588d",
         "company_registry.csv": "sha256:61b9b813d730ad7e821efb2fe8235972cbd2bc0c7bcd7914da0cc876da623a1c",
         "flight_manifests.csv": "sha256:4c2e299db65b59c5b85a359c1303f5d656d3b28011d95c3c0cc65d949b9893b8",
-        "manifest.json": "sha256:1b5b5a5204a6e1508552fef76f1fc4c3490241e1ab4ba09eda8d3accdece7004",
+        "manifest.json": "sha256:e4cf33a99b32b463e80287b839ca55115b7d5dd92685b024b40b3e22f3abc374",
         "mobile_location_pings.jsonl": "sha256:cac9ef6d62b0f0edaff019fc012eeabc151ecb3a7622ea27b4adf36475b36be8",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_ontology_seed.py@dd0e658",
+      "builder": "build_ontology_seed.py@12fb2ec",
       "title": "Ontology Studio Demo",
       "dataset": "starter",
-      "generatedAt": "2026-11-04T18:51:31.051807Z",
+      "generatedAt": "2026-11-04T20:40:28.803635Z",
       "description": "Editable ontology seed built from the starter synthetic Palantir-style data sources.",
       "teachingPrompts": [
         "Follow Kareem Haddad across aliases, travel, companies, and banking links.",
@@ -101,7 +101,7 @@ window.ontologySeedCatalog = {
         {
           "id": "dpo",
           "label": "Data protection officer",
-          "description": "Oversees lawful use. Sees every marking, read-only, and is the only role that may remove a marking (with a stated legal basis).",
+          "description": "Oversees lawful use. Sees every marking, read-only, and is the only role that may remove a marking (with a stated legal basis) or restore it. May assume an operational purpose (public order) to test purpose rules; this is a simulation convenience, not a power a real DPO has.",
           "markingsVisible": [
             "OPEN",
             "PII",
@@ -111,7 +111,8 @@ window.ontologySeedCatalog = {
             "LE-SENSITIVE"
           ],
           "purposes": [
-            "oversight"
+            "oversight",
+            "public-order"
           ],
           "canApprove": false,
           "canRemoveMarkings": true,
@@ -268,6 +269,17 @@ window.ontologySeedCatalog = {
           "minLength": 20,
           "tag": "exception",
           "refusalText": "Your role cannot request exceptions to purpose rules. This attempt has been logged."
+        },
+        {
+          "id": "cp-marking-restore",
+          "trigger": "marking.restore",
+          "prompt": "You are restoring a marking. Everything derived from this dataset will again be withheld from roles without it. State why.",
+          "requiresPurpose": true,
+          "allowedRoles": [
+            "dpo"
+          ],
+          "minLength": 20,
+          "refusalText": "Your role cannot restore markings. This attempt has been logged."
         }
       ],
       "honesty": [
@@ -277,7 +289,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Agent (simulated AIP)",
           "text": "Scripted stand-in for an AIP agent, with no language model: it plans tool calls from your question by fixed rules, runs each call through your role, the purpose rules, Checkpoints and the audit log, cites the objects behind its claims and stages edits for review. Real AIP agents use an LLM with tools; here the failures are scripted for teaching.",
-          "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview"
+          "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.investigations",
@@ -285,7 +298,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Investigations",
           "text": "Scripted scenarios with fixed scores stand in for an analyst's own investigation. In Gotham an investigation is assembled by the analyst from searches, graphs and maps; nothing is pre-scored.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.analytics",
@@ -293,7 +307,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Analytics",
           "text": "Plausible, hand-written rules stand in for Search Around-style network expansion. Expansion like this is how people with no police contact enter what Brayne calls a 'secondary surveillance network'.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.map",
@@ -301,7 +316,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Map",
           "text": "Synthetic points on a basic map. Gotham supports analysis on maps alongside graphs and timelines; layers, imagery, tracks and geofences are not modelled here.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.object-types",
@@ -309,7 +325,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Object types",
           "text": "Object types are the nouns of the Ontology's semantic layer, as in Foundry and Gotham. Palantir's own terms are object type, object, property and link type; this demo used to say entity and relationship types.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.properties",
@@ -317,7 +334,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Properties",
           "text": "Properties are the typed attributes of an object type; the columns of the backing dataset become properties.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.link-types",
@@ -325,7 +343,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Link types",
           "text": "Link types connect two object types; in Foundry a join between backing datasets becomes a link.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.backing-datasets",
@@ -333,7 +352,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Backing datasets",
           "text": "In Foundry an object type is backed by a dataset: rows become objects, columns become properties and joins become links. This view was called 'Source mappings' before.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.objects",
@@ -341,7 +361,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Objects",
           "text": "Objects are edited directly here. In Palantir, edits go through Action types (the kinetic layer) with parameters, validation, permissions, side effects and logs, and write back to operational systems.",
-          "docUrl": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72"
+          "docUrl": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72",
+          "docLabel": "Palantir blog"
         },
         {
           "id": "inv.graph",
@@ -349,7 +370,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Graph",
           "text": "Objects and links drawn as a graph, as in Gotham's graph view. Layout, expansion and styling are simplified, and the graph is redrawn from a static seed.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "build.pipelines",
@@ -357,7 +379,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Pipelines",
           "text": "Transforms produce new datasets from existing ones, as in Foundry. Builds, branches, schedules and dataset versions are not modelled; the pipeline runs once, offline, when the seed is built.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.datasets",
@@ -365,7 +388,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Datasets",
           "text": "Each dataset is a snapshot with sample rows. Foundry datasets are versioned through transactions, and every build produces a new version.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.lineage",
@@ -373,7 +397,8 @@ window.ontologySeedCatalog = {
           "label": "Teaching extension",
           "title": "Lineage",
           "text": "Row- and field-level provenance goes beyond Foundry's dataset-level lineage.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.markings",
@@ -381,7 +406,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Markings",
           "text": "Markings carry down lineage: a dataset made from a marked dataset inherits the marking, and only a privileged user can remove it. Here the union is computed when the seed is built and overrides are kept in your browser.",
-          "docUrl": "https://palantir.com/docs/foundry/security/markings/"
+          "docUrl": "https://palantir.com/docs/foundry/security/markings/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "oversight.audit",
@@ -389,7 +415,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Audit log",
           "text": "Searches, views, exports, checkpoints and role changes are logged in a hash-chained log kept in this browser. A real platform keeps its audit log on the server; anyone with this browser can clear this one, and the clear is logged.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "session.roles",
@@ -397,7 +424,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Roles",
           "text": "Five roles stand in for the groups, projects and organisations that grant access in a real deployment, combined with mandatory markings. The role switch is a client-side convenience, not security: anyone can pick any role.",
-          "docUrl": "https://palantir.com/docs/foundry/security/markings/"
+          "docUrl": "https://palantir.com/docs/foundry/security/markings/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "session.checkpoints",
@@ -405,7 +433,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Checkpoints",
           "text": "A purpose-justification prompt before sensitive searches, exports or network expansion. The record keeps the user, the time, the prompt exactly as shown, the justification and the items involved, as in Foundry Checkpoints (Jagasia & Wee, PEPR '21). Nothing stops you typing 'routine'.",
-          "docUrl": "https://palantir.com/docs/foundry/checkpoints/overview/"
+          "docUrl": "https://palantir.com/docs/foundry/checkpoints/overview/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.actions",
@@ -413,7 +442,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Actions",
           "text": "Action types with parameters, validation, permissions, side effects, logs and writeback to operational systems: the Ontology's kinetic layer, as in Foundry. Simplified: the receiving systems are panels in this page, not real APIs.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.karlsruhe",
@@ -421,7 +451,8 @@ window.ontologySeedCatalog = {
           "label": "Teaching extension",
           "title": "Karlsruhe mode",
           "text": "Purpose rules that block combining data collected for incompatible purposes. Not a Palantir feature: our abstraction of the logic of the German Constitutional Court's 2023 ruling on automated data analysis, not its text.",
-          "docUrl": "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html"
+          "docUrl": "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html",
+          "docLabel": "BVerfG press release"
         },
         {
           "id": "build.resolution",
@@ -429,7 +460,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Entity resolution",
           "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
-          "docUrl": "https://docs.aleph.occrp.org/developers/mappings"
+          "docUrl": "https://docs.aleph.occrp.org/developers/mappings",
+          "docLabel": "OCCRP Aleph docs"
         },
         {
           "id": "inv.leads",
@@ -437,7 +469,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Leads",
           "text": "A 0\u2013100 address confidence score from source type and age, in the style of ICE's ELITE app. Simplified: the formula is ours; ELITE's is not public. Here every weight, age and source is shown.",
-          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite"
+          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite",
+          "docLabel": "News report"
         },
         {
           "id": "inv.object-sets",
@@ -445,7 +478,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Object sets",
           "text": "Saved, shareable lists of objects whose membership changes over time, as with Foundry object sets. Here versions and sharing are kept in your browser, and sharing is simulated by role.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.retention",
@@ -453,7 +487,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Retention",
           "text": "Each dataset carries a retention period; the slider greys out rows past it and counts derived rows that still carry them. Simplified: nothing is ever deleted here, and in a real platform deletion has to reach every derived dataset, export and copy.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "deployment",
@@ -461,7 +496,8 @@ window.ontologySeedCatalog = {
           "label": "Teaching extension",
           "title": "Deployment",
           "text": "Where this classroom tool lives: static files on GitHub Pages, map tiles from OpenStreetMap, and the session, audit log and governance in your own browser's localStorage, with nothing on a server. Not a Palantir view: real deployments run in the customer's cloud or on premises, updated by Apollo.",
-          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379"
+          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379",
+          "docLabel": "Palantir blog"
         }
       ],
       "purposeRules": [
@@ -474,7 +510,8 @@ window.ontologySeedCatalog = {
             "action"
           ],
           "requires": "sessionPurpose",
-          "effect": "block"
+          "effect": "block",
+          "note": "Purpose limitation in its thinnest form: some purpose must be stated, but nothing checks that it fits the data or the case. The court asked the legislature for clear purpose-limitation rules, in law and in practice; a dropdown is not that."
         },
         {
           "id": "R2",
@@ -494,7 +531,8 @@ window.ontologySeedCatalog = {
               "financial-crime"
             ]
           },
-          "effect": "block"
+          "effect": "block",
+          "note": "Reflects EU data-protection law more than the 2023 judgment: health data is a special category under GDPR Art. 9 and LED Art. 10. As an absolute ban it is stricter than EU law. LED Art. 10 allows police processing of health data where strictly necessary, with safeguards, and authorised by law. A change of purpose is not banned outright by the court either: it applies a test of \"hypothetical recollection of the data\"."
         },
         {
           "id": "R3",
@@ -504,10 +542,11 @@ window.ontologySeedCatalog = {
           ],
           "depthOver": 1,
           "effect": "checkpoint",
-          "checkpointId": "cp-danger-statement"
+          "checkpointId": "cp-danger-statement",
+          "note": "Our device, not the court's: the court's press release says nothing about hops. For severe interferences the court requires a \"sufficiently identifiable danger\" to particularly weighty legal interests. A minimum length cannot test that: thirty characters of filler pass this Checkpoint."
         }
       ],
-      "legalBasisNote": "Our abstraction of the BVerfG 2023 ruling's logic, not its text [to verify against the press release before teaching as the court's criteria].",
+      "legalBasisNote": "Karlsruhe mode is our abstraction of the logic of the German Constitutional Court's 2023 ruling on automated data analysis (BVerfG press release 18/2023), not its text and not its criteria. The court addressed the legislature: a statute must set clear limits on the data, the methods of analysis and the purposes. Until Hesse passed new rules, its interim order allowed use only against particularly serious crimes, with a written reason for each use. Each rule's note says what it abstracts and what it leaves out.",
       "discussions": [
         {
           "id": "disc-ice-elite",
@@ -554,13 +593,14 @@ window.ontologySeedCatalog = {
           "attachedTo": [
             "oversight.audit"
           ],
-          "summary": "Dutch police have used Palantir software since 2012 inside a platform called the \"Raffinaderij\" (refinery). Its use became public through Open Government Act (Woo) requests by de Volkskrant; about 99% of the released documents were redacted (Buro Jansen & Janssen). The Ministry of Defence plans an alternative within two years.",
+          "summary": "Dutch police have used Palantir software since 2012 inside an investigations data platform called the \"Raffinaderij\" (refinery). Buro Jansen & Janssen first appealed for the documents in 2019, under the law that preceded the Open Government Act (Woo). After a 2023 court ruling they were released with about 99% blacked out, and de Volkskrant reported on them (NL Times, August 2025). Separately, on defence rather than police: Euronews reported in June 2026 that the Dutch defence state secretary told parliament a full alternative to Palantir must be available within two years.",
           "questions": [
             "What does an audit log mean if the public cannot see that the system exists?",
             "Who is the auditor here, and who audits them?"
           ],
           "sources": [
-            "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir"
+            "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir",
+            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         },
@@ -571,13 +611,14 @@ window.ontologySeedCatalog = {
             "session.roles",
             "build.markings"
           ],
-          "summary": "NHS England awarded the Federated Data Platform contract to Palantir in November 2023, worth up to \u00a3330m over seven years; 137 NHS trusts were using it by April 2026. Palantir says it is not the data controller, a claim that is contested in practice, and in February 2026 the British Medical Association urged doctors to limit their use of the platform.",
+          "summary": "NHS England's Federated Data Platform runs on Palantir software, under a contract worth up to \u00a3330m over at most seven years; it went live in March 2024. In a Westminster Hall debate on 16 April 2026 a health minister, Zubir Ahmed, said 137 NHS trusts were actively using it, and that NHS England and NHS organisations \"retain full control as data controllers\". On the government's account, then, Palantir is not the data controller. In June 2026 Euronews reported a UK parliamentary committee asking for the NHS relationship to end when the contract expires in 2027.",
           "questions": [
             "Does \"not the controller\" survive once the vendor's software decides what each role can see?",
             "Who should define the roles and markings on a health platform: the hospital, the ministry or the vendor?"
           ],
           "sources": [
-            "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform"
+            "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform",
+            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         },
@@ -588,7 +629,7 @@ window.ontologySeedCatalog = {
             "build.pipelines",
             "deployment"
           ],
-          "summary": "Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, and other European governments are re-evaluating their agreements with US defence-technology suppliers.",
+          "summary": "Danish police use POL-INTEL, which Galis and Karlsson (2025) describe as a customised version of Palantir's Gotham in their study \"Scientification through privatization\". Defence is a separate matter: Euronews (June 2026) reports a seven-year Danish deal for Maven Smart System and Foundry, and that Denmark will look for local solutions to replace Palantir software; it does not mention POL-INTEL. The same report describes other European governments re-evaluating their agreements with Palantir.",
           "questions": [
             "What is sovereignty when the platform, and its updates, are delivered by the vendor?",
             "Which decisions in a pipeline are technical, and which are policy made by whoever writes the transforms?"
@@ -612,6 +653,25 @@ window.ontologySeedCatalog = {
           ],
           "sources": [
             "https://defensescoop.com/2025/05/23/dod-palantir-maven-smart-system-contract-increase/"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-data-subjects",
+          "title": "The people in the data: notice, access, correction, erasure",
+          "attachedTo": [
+            "oversight.audit",
+            "inv.actions",
+            "session.roles"
+          ],
+          "summary": "The people in this tool are synthetic, but in a real deployment each of them has rights. Under the GDPR they must be told about the processing (Arts 13\u201314), and can ask for access to their data (Art. 15), have it corrected (Art. 16) and, in some cases, erased (Art. 17). The Law Enforcement Directive gives similar rights against the police: access (Art. 14) and rectification or erasure (Art. 16), which Member States may restrict where necessary and proportionate (Art. 15). This tool has none of them. Nobody is notified, a person merged or flagged by mistake cannot see the record, and correcting a source is not an Action here.",
+          "questions": [
+            "Who would notice an error in a merged person, a watchlist entry or a lead, and how?",
+            "How would the person concerned contest it, if they are never told the record exists?"
+          ],
+          "sources": [
+            "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+            "https://eur-lex.europa.eu/eli/dir/2016/680/oj"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         }
@@ -678,11 +738,20 @@ window.ontologySeedCatalog = {
           ]
         },
         "purpose": "public-record",
-        "legalBasis": "Public company register, open by law; illustrative",
+        "legalBasis": "Public company register; illustrative. In WM and Sovim (C-37/20 and C-601/20, 22 November 2022) the CJEU invalidated the AML Directive's rule giving the general public access to beneficial-ownership information, as a serious interference with Charter Arts 7 and 8. The beneficial-owner fields are therefore marked PII.",
         "retentionDays": 3650,
         "inputPurposes": [
           "public-record"
         ],
+        "fieldMarkings": {
+          "beneficial_owner": [
+            "PII"
+          ],
+          "beneficial_owner_dob": [
+            "PII"
+          ]
+        },
+        "fieldNote": "beneficial_owner and beneficial_owner_dob are personal data (PII): since WM and Sovim (CJEU, 22 November 2022) they may not be open to the general public. The rest of the register stays OPEN.",
         "asOf": "2026-04-01"
       },
       {
@@ -714,7 +783,7 @@ window.ontologySeedCatalog = {
           ]
         },
         "purpose": "border-security",
-        "legalBasis": "PNR Directive (EU) 2016/681, five-year retention; illustrative",
+        "legalBasis": "PNR Directive (EU) 2016/681, Art. 12 (five years); illustrative. In Ligue des droits humains (C-817/19, 21 June 2022) the CJEU held that keeping every passenger's data beyond the first six months is not strictly necessary without objective evidence of a risk. This dataset still keeps every row for five years.",
         "retentionDays": 1825,
         "inputPurposes": [
           "border-security"
@@ -812,9 +881,13 @@ window.ontologySeedCatalog = {
           "source"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "markingProvenance": {
+          "PII": [
+            "clinic_registrations.csv"
+          ],
           "HEALTH": [
             "clinic_registrations.csv"
           ]
@@ -1652,6 +1725,8 @@ window.ontologySeedCatalog = {
       "defaultThreshold": 0.75,
       "minThreshold": 0.3,
       "fixedNote": "Merges made by the pipeline's deterministic rules are fixed in this build \u2014 see each person's resolution record.",
+      "note": "There is no passport-conflict signal. Should two different passports veto a merge? Who decides?",
+      "discussion": "There is no passport-conflict signal. Should two different passports veto a merge? Who decides?",
       "signals": [
         {
           "id": "passport-exact",
@@ -1920,6 +1995,10 @@ window.ontologySeedCatalog = {
           "rawSource": "clinic_registrations.csv",
           "label": "Clinic registration",
           "marking": "HEALTH",
+          "markings": [
+            "PII",
+            "HEALTH"
+          ],
           "weight": 0.5,
           "addressField": "home_address",
           "dateField": "registered_on"
@@ -1929,6 +2008,9 @@ window.ontologySeedCatalog = {
           "rawSource": "mobile_location_pings.jsonl",
           "label": "Mobile location pings",
           "marking": "TELECOM",
+          "markings": [
+            "TELECOM"
+          ],
           "weight": 0.4,
           "addressField": "location_label",
           "dateField": "timestamp"
@@ -1938,6 +2020,9 @@ window.ontologySeedCatalog = {
           "rawSource": "company_registry.csv",
           "label": "Company registry",
           "marking": "OPEN",
+          "markings": [
+            "OPEN"
+          ],
           "weight": 0.3,
           "addressField": "registered_address",
           "dateField": "incorporation_date"
@@ -1956,6 +2041,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 31,
               "decay": 0.9186,
@@ -1972,6 +2061,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -1991,6 +2083,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -2007,6 +2100,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 351,
               "decay": 0.3823,
@@ -2023,6 +2120,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 10,
               "decay": 0.973,
@@ -2040,6 +2140,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 202,
               "decay": 0.575,
@@ -2061,6 +2164,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -2077,6 +2181,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 282,
               "decay": 0.4618,
@@ -2093,6 +2201,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -2110,6 +2221,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1155,
               "decay": 0.0422,
@@ -2131,6 +2246,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -2147,6 +2263,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 425,
               "decay": 0.3121,
@@ -2163,6 +2283,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 5,
               "decay": 0.9864,
@@ -2182,6 +2305,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -2198,6 +2322,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -2215,6 +2342,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 331,
               "decay": 0.4038,
@@ -2251,6 +2381,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 8,
               "decay": 0.9783,
@@ -2268,6 +2401,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 331,
               "decay": 0.4038,
@@ -2289,6 +2426,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -2304,6 +2442,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -2321,6 +2462,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 443,
               "decay": 0.2971,
@@ -2357,6 +2501,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 923,
               "decay": 0.0798,
@@ -2373,6 +2521,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 5,
               "decay": 0.9864,
@@ -2390,6 +2541,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1825,
               "decay": 0.0067,
@@ -2411,6 +2565,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -2427,6 +2582,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -2461,6 +2619,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -2495,6 +2656,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 5,
               "decay": 0.9864,
@@ -2529,6 +2693,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 5,
               "decay": 0.9864,
@@ -2546,6 +2713,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 2104,
               "decay": 0.0031,
@@ -2582,6 +2752,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 6,
               "decay": 0.9837,
@@ -2599,6 +2772,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1850,
               "decay": 0.0063,
@@ -2620,6 +2797,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -2635,6 +2813,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 6,
               "decay": 0.9837,
@@ -2669,6 +2850,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 7,
               "decay": 0.981,
@@ -2703,6 +2887,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 7,
               "decay": 0.981,
@@ -2737,6 +2924,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 9,
               "decay": 0.9756,
@@ -2771,6 +2961,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 9,
               "decay": 0.9756,
@@ -2805,6 +2998,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1095,
               "decay": 0.0498,
@@ -2821,6 +3018,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 202,
               "decay": 0.575,
@@ -2842,6 +3043,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "HEALTH"
           ]
         },
@@ -2857,6 +3059,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 453,
               "decay": 0.2891,
@@ -2875,6 +3081,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -2890,6 +3097,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 523,
               "decay": 0.2386,
@@ -2906,6 +3117,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 2351,
               "decay": 0.0016,
@@ -2927,6 +3141,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "HEALTH"
           ]
         },
@@ -2942,6 +3157,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1068,
               "decay": 0.0536,
@@ -2958,6 +3177,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 443,
               "decay": 0.2971,
@@ -2979,6 +3202,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "HEALTH"
           ]
         },
@@ -2994,6 +3218,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1549,
               "decay": 0.0144,
@@ -3010,6 +3238,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1359,
               "decay": 0.0242,
@@ -3031,6 +3262,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "HEALTH"
           ]
         },
@@ -3046,6 +3278,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1155,
               "decay": 0.0422,
@@ -3178,7 +3413,7 @@ window.ontologySeedCatalog = {
         "targetType": "Person",
         "targetProperty": "homeAddress, clinicCode",
         "relationType": "",
-        "rule": "Attach to an existing Person by exact name + date of birth only; an unmatched row creates nothing. The latest registration supplies homeAddress and clinicCode (marked HEALTH)."
+        "rule": "Attach to an existing Person by exact name + date of birth only; an unmatched row creates nothing. The latest registration supplies homeAddress and clinicCode (marked PII and HEALTH)."
       },
       {
         "id": "map-clinic-residence",
@@ -3187,7 +3422,7 @@ window.ontologySeedCatalog = {
         "targetType": "Location",
         "targetProperty": "label, locationType (residential), city, country, lat, lon",
         "relationType": "RESIDES_AT",
-        "rule": "Each attached row yields a residential Location (marked HEALTH) and a RESIDES_AT link with asOf = registered_on and source."
+        "rule": "Each attached row yields a residential Location and a RESIDES_AT link (both marked PII and HEALTH) with asOf = registered_on and source."
       },
       {
         "id": "map-source-header-reference",
@@ -5149,10 +5384,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -5172,10 +5409,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -5239,10 +5478,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -5299,10 +5540,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -5362,10 +5605,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -5385,10 +5630,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -5452,10 +5699,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -5475,10 +5724,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -5799,9 +6050,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -5857,9 +6110,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -5906,9 +6161,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -5955,9 +6212,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -5999,9 +6258,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6054,9 +6315,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6104,14 +6367,17 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -6159,9 +6425,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6212,9 +6480,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6258,14 +6528,17 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -6314,9 +6587,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6383,9 +6658,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6448,9 +6725,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6502,9 +6781,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6549,14 +6830,17 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -6605,9 +6889,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6655,9 +6941,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6703,14 +6991,17 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -6752,9 +7043,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6811,9 +7104,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6867,9 +7162,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6924,9 +7221,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -6975,9 +7274,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -7030,9 +7331,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -9714,6 +10017,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -9728,6 +10032,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -9742,6 +10047,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -9756,6 +10062,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -9770,6 +10077,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -9784,6 +10092,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -9798,6 +10107,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -9812,6 +10122,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -9826,6 +10137,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -9840,6 +10152,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -10313,20 +10626,20 @@ window.ontologySeedCatalog = {
   "simulator": {
     "metadata": {
       "schemaVersion": 3,
-      "buildId": "sha256:fbeaeedb7ba42e449b7b1c366f01332aa75753bba058df7b1dfeac1e294e5b6f",
+      "buildId": "sha256:28bd17c17b0e9f017f3f38ab31918dc0f0dd6e43de7ba262338fc8e3e1de85e2",
       "sources": {
         "bank_transactions.csv": "sha256:1b192ef6c107359560bc3df631a4fd42e665aa4e26403630a82bbe9b47a44596",
         "clinic_registrations.csv": "sha256:3b651e31a0bff7bfc2fcf324c827b515d21f43a5c9ff688242cad73c4d453453",
         "company_registry.csv": "sha256:06aca2351b875fb3f9d443d5eb907d495bc51a698b60381623501c188ead956a",
         "flight_manifests.csv": "sha256:b418d4cc4ab3868de48bfd86d5097b53a2499eec2e1c2bd6b5dd6573bbc023a7",
-        "manifest.json": "sha256:0f369eabdc4b097a6e78a75736086d1676821d656b65f514eaf46be022ea037d",
+        "manifest.json": "sha256:318618cd27068f09ceeb7978033bc57ec764c3af6dade85bd1cd714bcc4f577c",
         "mobile_location_pings.jsonl": "sha256:b208310e84c3c8a26d57efb64735d2002767743656d1e496df35ea1c460a94ff",
         "watchlist.csv": "sha256:7032f4a2eb3295c85e763034469becec7ba9e13d1f7f2ad9680cff3b15a81733"
       },
-      "builder": "build_ontology_seed.py@dd0e658",
+      "builder": "build_ontology_seed.py@12fb2ec",
       "title": "Ontology Studio Demo",
       "dataset": "simulator",
-      "generatedAt": "2026-11-04T18:51:31.370063Z",
+      "generatedAt": "2026-11-04T20:40:29.156244Z",
       "description": "Editable ontology seed built from the starter synthetic Palantir-style data sources.",
       "teachingPrompts": [
         "Follow Kareem Haddad across aliases, travel, companies, and banking links.",
@@ -10412,7 +10725,7 @@ window.ontologySeedCatalog = {
         {
           "id": "dpo",
           "label": "Data protection officer",
-          "description": "Oversees lawful use. Sees every marking, read-only, and is the only role that may remove a marking (with a stated legal basis).",
+          "description": "Oversees lawful use. Sees every marking, read-only, and is the only role that may remove a marking (with a stated legal basis) or restore it. May assume an operational purpose (public order) to test purpose rules; this is a simulation convenience, not a power a real DPO has.",
           "markingsVisible": [
             "OPEN",
             "PII",
@@ -10422,7 +10735,8 @@ window.ontologySeedCatalog = {
             "LE-SENSITIVE"
           ],
           "purposes": [
-            "oversight"
+            "oversight",
+            "public-order"
           ],
           "canApprove": false,
           "canRemoveMarkings": true,
@@ -10579,6 +10893,17 @@ window.ontologySeedCatalog = {
           "minLength": 20,
           "tag": "exception",
           "refusalText": "Your role cannot request exceptions to purpose rules. This attempt has been logged."
+        },
+        {
+          "id": "cp-marking-restore",
+          "trigger": "marking.restore",
+          "prompt": "You are restoring a marking. Everything derived from this dataset will again be withheld from roles without it. State why.",
+          "requiresPurpose": true,
+          "allowedRoles": [
+            "dpo"
+          ],
+          "minLength": 20,
+          "refusalText": "Your role cannot restore markings. This attempt has been logged."
         }
       ],
       "honesty": [
@@ -10588,7 +10913,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Agent (simulated AIP)",
           "text": "Scripted stand-in for an AIP agent, with no language model: it plans tool calls from your question by fixed rules, runs each call through your role, the purpose rules, Checkpoints and the audit log, cites the objects behind its claims and stages edits for review. Real AIP agents use an LLM with tools; here the failures are scripted for teaching.",
-          "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview"
+          "docUrl": "https://www.palantir.com/docs/foundry/agent-studio/overview",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.investigations",
@@ -10596,7 +10922,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Investigations",
           "text": "Scripted scenarios with fixed scores stand in for an analyst's own investigation. In Gotham an investigation is assembled by the analyst from searches, graphs and maps; nothing is pre-scored.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.analytics",
@@ -10604,7 +10931,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Analytics",
           "text": "Plausible, hand-written rules stand in for Search Around-style network expansion. Expansion like this is how people with no police contact enter what Brayne calls a 'secondary surveillance network'.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.map",
@@ -10612,7 +10940,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Map",
           "text": "Synthetic points on a basic map. Gotham supports analysis on maps alongside graphs and timelines; layers, imagery, tracks and geofences are not modelled here.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "inv.object-types",
@@ -10620,7 +10949,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Object types",
           "text": "Object types are the nouns of the Ontology's semantic layer, as in Foundry and Gotham. Palantir's own terms are object type, object, property and link type; this demo used to say entity and relationship types.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.properties",
@@ -10628,7 +10958,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Properties",
           "text": "Properties are the typed attributes of an object type; the columns of the backing dataset become properties.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.link-types",
@@ -10636,7 +10967,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Link types",
           "text": "Link types connect two object types; in Foundry a join between backing datasets becomes a link.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.backing-datasets",
@@ -10644,7 +10976,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Backing datasets",
           "text": "In Foundry an object type is backed by a dataset: rows become objects, columns become properties and joins become links. This view was called 'Source mappings' before.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.objects",
@@ -10652,7 +10985,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Objects",
           "text": "Objects are edited directly here. In Palantir, edits go through Action types (the kinetic layer) with parameters, validation, permissions, side effects and logs, and write back to operational systems.",
-          "docUrl": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72"
+          "docUrl": "https://blog.palantir.com/connecting-ai-to-decisions-with-the-palantir-ontology-c73f7b0a1a72",
+          "docLabel": "Palantir blog"
         },
         {
           "id": "inv.graph",
@@ -10660,7 +10994,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Graph",
           "text": "Objects and links drawn as a graph, as in Gotham's graph view. Layout, expansion and styling are simplified, and the graph is redrawn from a static seed.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "build.pipelines",
@@ -10668,7 +11003,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Pipelines",
           "text": "Transforms produce new datasets from existing ones, as in Foundry. Builds, branches, schedules and dataset versions are not modelled; the pipeline runs once, offline, when the seed is built.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.datasets",
@@ -10676,7 +11012,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Datasets",
           "text": "Each dataset is a snapshot with sample rows. Foundry datasets are versioned through transactions, and every build produces a new version.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.lineage",
@@ -10684,7 +11021,8 @@ window.ontologySeedCatalog = {
           "label": "Teaching extension",
           "title": "Lineage",
           "text": "Row- and field-level provenance goes beyond Foundry's dataset-level lineage.",
-          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/"
+          "docUrl": "https://www.palantir.com/docs/foundry/getting-started/foundry-platform-summary-llm/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.markings",
@@ -10692,7 +11030,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Markings",
           "text": "Markings carry down lineage: a dataset made from a marked dataset inherits the marking, and only a privileged user can remove it. Here the union is computed when the seed is built and overrides are kept in your browser.",
-          "docUrl": "https://palantir.com/docs/foundry/security/markings/"
+          "docUrl": "https://palantir.com/docs/foundry/security/markings/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "oversight.audit",
@@ -10700,7 +11039,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Audit log",
           "text": "Searches, views, exports, checkpoints and role changes are logged in a hash-chained log kept in this browser. A real platform keeps its audit log on the server; anyone with this browser can clear this one, and the clear is logged.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "session.roles",
@@ -10708,7 +11048,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Roles",
           "text": "Five roles stand in for the groups, projects and organisations that grant access in a real deployment, combined with mandatory markings. The role switch is a client-side convenience, not security: anyone can pick any role.",
-          "docUrl": "https://palantir.com/docs/foundry/security/markings/"
+          "docUrl": "https://palantir.com/docs/foundry/security/markings/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "session.checkpoints",
@@ -10716,7 +11057,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Checkpoints",
           "text": "A purpose-justification prompt before sensitive searches, exports or network expansion. The record keeps the user, the time, the prompt exactly as shown, the justification and the items involved, as in Foundry Checkpoints (Jagasia & Wee, PEPR '21). Nothing stops you typing 'routine'.",
-          "docUrl": "https://palantir.com/docs/foundry/checkpoints/overview/"
+          "docUrl": "https://palantir.com/docs/foundry/checkpoints/overview/",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.actions",
@@ -10724,7 +11066,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Actions",
           "text": "Action types with parameters, validation, permissions, side effects, logs and writeback to operational systems: the Ontology's kinetic layer, as in Foundry. Simplified: the receiving systems are panels in this page, not real APIs.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "inv.karlsruhe",
@@ -10732,7 +11075,8 @@ window.ontologySeedCatalog = {
           "label": "Teaching extension",
           "title": "Karlsruhe mode",
           "text": "Purpose rules that block combining data collected for incompatible purposes. Not a Palantir feature: our abstraction of the logic of the German Constitutional Court's 2023 ruling on automated data analysis, not its text.",
-          "docUrl": "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html"
+          "docUrl": "https://bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2023/bvg23-018.html",
+          "docLabel": "BVerfG press release"
         },
         {
           "id": "build.resolution",
@@ -10740,7 +11084,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Entity resolution",
           "text": "Real entity resolution scores candidate matches and merges above a threshold; false merges are a known risk. Simplified: our scorer is a transparent weighted sum of a few signals, and the pipeline's own deterministic merges are fixed.",
-          "docUrl": "https://docs.aleph.occrp.org/developers/mappings"
+          "docUrl": "https://docs.aleph.occrp.org/developers/mappings",
+          "docLabel": "OCCRP Aleph docs"
         },
         {
           "id": "inv.leads",
@@ -10748,7 +11093,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Leads",
           "text": "A 0\u2013100 address confidence score from source type and age, in the style of ICE's ELITE app. Simplified: the formula is ours; ELITE's is not public. Here every weight, age and source is shown.",
-          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite"
+          "docUrl": "https://gigazine.net/gsc_news/en/20260116-us-ice-palantir-elite",
+          "docLabel": "News report"
         },
         {
           "id": "inv.object-sets",
@@ -10756,7 +11102,8 @@ window.ontologySeedCatalog = {
           "label": "Mirrors Foundry",
           "title": "Object sets",
           "text": "Saved, shareable lists of objects whose membership changes over time, as with Foundry object sets. Here versions and sharing are kept in your browser, and sharing is simulated by role.",
-          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts"
+          "docUrl": "https://www.palantir.com/docs/foundry/ontology/core-concepts",
+          "docLabel": "Palantir documentation"
         },
         {
           "id": "build.retention",
@@ -10764,7 +11111,8 @@ window.ontologySeedCatalog = {
           "label": "Simplified",
           "title": "Retention",
           "text": "Each dataset carries a retention period; the slider greys out rows past it and counts derived rows that still carry them. Simplified: nothing is ever deleted here, and in a real platform deletion has to reach every derived dataset, export and copy.",
-          "docUrl": null
+          "docUrl": null,
+          "docLabel": null
         },
         {
           "id": "deployment",
@@ -10772,7 +11120,8 @@ window.ontologySeedCatalog = {
           "label": "Teaching extension",
           "title": "Deployment",
           "text": "Where this classroom tool lives: static files on GitHub Pages, map tiles from OpenStreetMap, and the session, audit log and governance in your own browser's localStorage, with nothing on a server. Not a Palantir view: real deployments run in the customer's cloud or on premises, updated by Apollo.",
-          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379"
+          "docUrl": "https://blog.palantir.com/palantir-apollo-powering-saas-where-no-saas-has-gone-before-7be3e565c379",
+          "docLabel": "Palantir blog"
         }
       ],
       "purposeRules": [
@@ -10785,7 +11134,8 @@ window.ontologySeedCatalog = {
             "action"
           ],
           "requires": "sessionPurpose",
-          "effect": "block"
+          "effect": "block",
+          "note": "Purpose limitation in its thinnest form: some purpose must be stated, but nothing checks that it fits the data or the case. The court asked the legislature for clear purpose-limitation rules, in law and in practice; a dropdown is not that."
         },
         {
           "id": "R2",
@@ -10805,7 +11155,8 @@ window.ontologySeedCatalog = {
               "financial-crime"
             ]
           },
-          "effect": "block"
+          "effect": "block",
+          "note": "Reflects EU data-protection law more than the 2023 judgment: health data is a special category under GDPR Art. 9 and LED Art. 10. As an absolute ban it is stricter than EU law. LED Art. 10 allows police processing of health data where strictly necessary, with safeguards, and authorised by law. A change of purpose is not banned outright by the court either: it applies a test of \"hypothetical recollection of the data\"."
         },
         {
           "id": "R3",
@@ -10815,10 +11166,11 @@ window.ontologySeedCatalog = {
           ],
           "depthOver": 1,
           "effect": "checkpoint",
-          "checkpointId": "cp-danger-statement"
+          "checkpointId": "cp-danger-statement",
+          "note": "Our device, not the court's: the court's press release says nothing about hops. For severe interferences the court requires a \"sufficiently identifiable danger\" to particularly weighty legal interests. A minimum length cannot test that: thirty characters of filler pass this Checkpoint."
         }
       ],
-      "legalBasisNote": "Our abstraction of the BVerfG 2023 ruling's logic, not its text [to verify against the press release before teaching as the court's criteria].",
+      "legalBasisNote": "Karlsruhe mode is our abstraction of the logic of the German Constitutional Court's 2023 ruling on automated data analysis (BVerfG press release 18/2023), not its text and not its criteria. The court addressed the legislature: a statute must set clear limits on the data, the methods of analysis and the purposes. Until Hesse passed new rules, its interim order allowed use only against particularly serious crimes, with a written reason for each use. Each rule's note says what it abstracts and what it leaves out.",
       "discussions": [
         {
           "id": "disc-ice-elite",
@@ -10865,13 +11217,14 @@ window.ontologySeedCatalog = {
           "attachedTo": [
             "oversight.audit"
           ],
-          "summary": "Dutch police have used Palantir software since 2012 inside a platform called the \"Raffinaderij\" (refinery). Its use became public through Open Government Act (Woo) requests by de Volkskrant; about 99% of the released documents were redacted (Buro Jansen & Janssen). The Ministry of Defence plans an alternative within two years.",
+          "summary": "Dutch police have used Palantir software since 2012 inside an investigations data platform called the \"Raffinaderij\" (refinery). Buro Jansen & Janssen first appealed for the documents in 2019, under the law that preceded the Open Government Act (Woo). After a 2023 court ruling they were released with about 99% blacked out, and de Volkskrant reported on them (NL Times, August 2025). Separately, on defence rather than police: Euronews reported in June 2026 that the Dutch defence state secretary told parliament a full alternative to Palantir must be available within two years.",
           "questions": [
             "What does an audit log mean if the public cannot see that the system exists?",
             "Who is the auditor here, and who audits them?"
           ],
           "sources": [
-            "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir"
+            "https://nltimes.nl/2025/08/22/dutch-police-also-use-controversial-ai-intelligence-software-american-palantir",
+            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         },
@@ -10882,13 +11235,14 @@ window.ontologySeedCatalog = {
             "session.roles",
             "build.markings"
           ],
-          "summary": "NHS England awarded the Federated Data Platform contract to Palantir in November 2023, worth up to \u00a3330m over seven years; 137 NHS trusts were using it by April 2026. Palantir says it is not the data controller, a claim that is contested in practice, and in February 2026 the British Medical Association urged doctors to limit their use of the platform.",
+          "summary": "NHS England's Federated Data Platform runs on Palantir software, under a contract worth up to \u00a3330m over at most seven years; it went live in March 2024. In a Westminster Hall debate on 16 April 2026 a health minister, Zubir Ahmed, said 137 NHS trusts were actively using it, and that NHS England and NHS organisations \"retain full control as data controllers\". On the government's account, then, Palantir is not the data controller. In June 2026 Euronews reported a UK parliamentary committee asking for the NHS relationship to end when the contract expires in 2027.",
           "questions": [
             "Does \"not the controller\" survive once the vendor's software decides what each role can see?",
             "Who should define the roles and markings on a health platform: the hospital, the ministry or the vendor?"
           ],
           "sources": [
-            "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform"
+            "https://parallelparliament.co.uk/mp/zubir-ahmed/debate/2026-04-16/commons/westminster-hall/nhs-federated-data-platform",
+            "https://euronews.com/next/2026/06/05/why-are-european-governments-reevaluating-their-agreements-with-us-defence-tech-contractor"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         },
@@ -10899,7 +11253,7 @@ window.ontologySeedCatalog = {
             "build.pipelines",
             "deployment"
           ],
-          "summary": "Danish police use POL-INTEL, a customised version of Gotham. Galis and Karlsson (2025) study it under the title \"Scientification through privatization\". Denmark is now looking for domestic replacements, and other European governments are re-evaluating their agreements with US defence-technology suppliers.",
+          "summary": "Danish police use POL-INTEL, which Galis and Karlsson (2025) describe as a customised version of Palantir's Gotham in their study \"Scientification through privatization\". Defence is a separate matter: Euronews (June 2026) reports a seven-year Danish deal for Maven Smart System and Foundry, and that Denmark will look for local solutions to replace Palantir software; it does not mention POL-INTEL. The same report describes other European governments re-evaluating their agreements with Palantir.",
           "questions": [
             "What is sovereignty when the platform, and its updates, are delivered by the vendor?",
             "Which decisions in a pipeline are technical, and which are policy made by whoever writes the transforms?"
@@ -10923,6 +11277,25 @@ window.ontologySeedCatalog = {
           ],
           "sources": [
             "https://defensescoop.com/2025/05/23/dod-palantir-maven-smart-system-contract-increase/"
+          ],
+          "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
+        },
+        {
+          "id": "disc-data-subjects",
+          "title": "The people in the data: notice, access, correction, erasure",
+          "attachedTo": [
+            "oversight.audit",
+            "inv.actions",
+            "session.roles"
+          ],
+          "summary": "The people in this tool are synthetic, but in a real deployment each of them has rights. Under the GDPR they must be told about the processing (Arts 13\u201314), and can ask for access to their data (Art. 15), have it corrected (Art. 16) and, in some cases, erased (Art. 17). The Law Enforcement Directive gives similar rights against the police: access (Art. 14) and rectification or erasure (Art. 16), which Member States may restrict where necessary and proportionate (Art. 15). This tool has none of them. Nobody is notified, a person merged or flagged by mistake cannot see the record, and correcting a source is not an Action here.",
+          "questions": [
+            "Who would notice an error in a merged person, a watchlist entry or a lead, and how?",
+            "How would the person concerned contest it, if they are never told the record exists?"
+          ],
+          "sources": [
+            "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+            "https://eur-lex.europa.eu/eli/dir/2016/680/oj"
           ],
           "disclaimer": "Discussion material about real institutions and public reporting. Nothing here simulates a real person."
         }
@@ -10989,11 +11362,20 @@ window.ontologySeedCatalog = {
           ]
         },
         "purpose": "public-record",
-        "legalBasis": "Public company register, open by law; illustrative",
+        "legalBasis": "Public company register; illustrative. In WM and Sovim (C-37/20 and C-601/20, 22 November 2022) the CJEU invalidated the AML Directive's rule giving the general public access to beneficial-ownership information, as a serious interference with Charter Arts 7 and 8. The beneficial-owner fields are therefore marked PII.",
         "retentionDays": 3650,
         "inputPurposes": [
           "public-record"
         ],
+        "fieldMarkings": {
+          "beneficial_owner": [
+            "PII"
+          ],
+          "beneficial_owner_dob": [
+            "PII"
+          ]
+        },
+        "fieldNote": "beneficial_owner and beneficial_owner_dob are personal data (PII): since WM and Sovim (CJEU, 22 November 2022) they may not be open to the general public. The rest of the register stays OPEN.",
         "asOf": "2026-04-01"
       },
       {
@@ -11025,7 +11407,7 @@ window.ontologySeedCatalog = {
           ]
         },
         "purpose": "border-security",
-        "legalBasis": "PNR Directive (EU) 2016/681, five-year retention; illustrative",
+        "legalBasis": "PNR Directive (EU) 2016/681, Art. 12 (five years); illustrative. In Ligue des droits humains (C-817/19, 21 June 2022) the CJEU held that keeping every passenger's data beyond the first six months is not strictly necessary without objective evidence of a risk. This dataset still keeps every row for five years.",
         "retentionDays": 1825,
         "inputPurposes": [
           "border-security"
@@ -11123,9 +11505,13 @@ window.ontologySeedCatalog = {
           "source"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "markingProvenance": {
+          "PII": [
+            "clinic_registrations.csv"
+          ],
           "HEALTH": [
             "clinic_registrations.csv"
           ]
@@ -11963,6 +12349,8 @@ window.ontologySeedCatalog = {
       "defaultThreshold": 0.75,
       "minThreshold": 0.3,
       "fixedNote": "Merges made by the pipeline's deterministic rules are fixed in this build \u2014 see each person's resolution record.",
+      "note": "There is no passport-conflict signal. Should two different passports veto a merge? Who decides?",
+      "discussion": "There is no passport-conflict signal. Should two different passports veto a merge? Who decides?",
       "signals": [
         {
           "id": "passport-exact",
@@ -12799,6 +13187,10 @@ window.ontologySeedCatalog = {
           "rawSource": "clinic_registrations.csv",
           "label": "Clinic registration",
           "marking": "HEALTH",
+          "markings": [
+            "PII",
+            "HEALTH"
+          ],
           "weight": 0.5,
           "addressField": "home_address",
           "dateField": "registered_on"
@@ -12808,6 +13200,9 @@ window.ontologySeedCatalog = {
           "rawSource": "mobile_location_pings.jsonl",
           "label": "Mobile location pings",
           "marking": "TELECOM",
+          "markings": [
+            "TELECOM"
+          ],
           "weight": 0.4,
           "addressField": "location_label",
           "dateField": "timestamp"
@@ -12817,6 +13212,9 @@ window.ontologySeedCatalog = {
           "rawSource": "company_registry.csv",
           "label": "Company registry",
           "marking": "OPEN",
+          "markings": [
+            "OPEN"
+          ],
           "weight": 0.3,
           "addressField": "registered_address",
           "dateField": "incorporation_date"
@@ -12835,6 +13233,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 80,
               "decay": 0.8032,
@@ -12851,6 +13253,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -12868,6 +13273,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 285,
               "decay": 0.458,
@@ -12889,6 +13297,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -12905,6 +13314,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 80,
               "decay": 0.8032,
@@ -12921,6 +13334,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -12938,6 +13354,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 542,
               "decay": 0.2265,
@@ -12959,6 +13379,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -12975,6 +13396,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 93,
               "decay": 0.7751,
@@ -12991,6 +13416,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -13008,6 +13436,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 485,
               "decay": 0.2648,
@@ -13029,6 +13460,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13045,6 +13477,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 26,
               "decay": 0.9312,
@@ -13061,6 +13497,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -13080,6 +13519,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13096,6 +13536,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 31,
               "decay": 0.9186,
@@ -13112,6 +13556,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -13131,6 +13578,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13147,6 +13595,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 30,
               "decay": 0.9211,
@@ -13163,6 +13615,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -13182,6 +13637,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13198,6 +13654,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 41,
               "decay": 0.8938,
@@ -13214,6 +13674,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -13233,6 +13696,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13249,6 +13713,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 47,
               "decay": 0.8792,
@@ -13265,6 +13733,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -13284,6 +13755,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13300,6 +13772,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 55,
               "decay": 0.8601,
@@ -13316,6 +13792,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 9,
               "decay": 0.9756,
@@ -13335,6 +13814,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13351,6 +13831,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 78,
               "decay": 0.8076,
@@ -13367,6 +13851,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -13386,6 +13873,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13402,6 +13890,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 99,
               "decay": 0.7624,
@@ -13418,6 +13910,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -13437,6 +13932,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13453,6 +13949,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 271,
               "decay": 0.4759,
@@ -13469,6 +13969,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -13486,6 +13989,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 285,
               "decay": 0.458,
@@ -13507,6 +14014,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13523,6 +14031,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 123,
               "decay": 0.7139,
@@ -13539,6 +14051,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -13558,6 +14073,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13574,6 +14090,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 144,
               "decay": 0.674,
@@ -13590,6 +14110,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -13607,6 +14130,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 989,
               "decay": 0.0666,
@@ -13628,6 +14155,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13644,6 +14172,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 423,
               "decay": 0.3138,
@@ -13660,6 +14192,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -13677,6 +14212,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 156,
               "decay": 0.6522,
@@ -13698,6 +14237,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13714,6 +14254,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 130,
               "decay": 0.7004,
@@ -13730,6 +14274,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -13749,6 +14296,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13765,6 +14313,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 257,
               "decay": 0.4945,
@@ -13781,6 +14333,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -13798,6 +14353,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 446,
               "decay": 0.2947,
@@ -13819,6 +14378,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13835,6 +14395,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 148,
               "decay": 0.6667,
@@ -13851,6 +14415,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -13870,6 +14437,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13886,6 +14454,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 162,
               "decay": 0.6416,
@@ -13902,6 +14474,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -13919,6 +14494,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1502,
               "decay": 0.0163,
@@ -13940,6 +14519,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -13956,6 +14536,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 270,
               "decay": 0.4772,
@@ -13972,6 +14556,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -13989,6 +14576,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 599,
               "decay": 0.1938,
@@ -14010,6 +14601,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14026,6 +14618,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 203,
               "decay": 0.5734,
@@ -14042,6 +14638,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -14061,6 +14660,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14077,6 +14677,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 280,
               "decay": 0.4643,
@@ -14093,6 +14697,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -14110,6 +14717,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 749,
               "decay": 0.1285,
@@ -14131,6 +14741,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14147,6 +14758,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 222,
               "decay": 0.5443,
@@ -14163,6 +14778,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -14182,6 +14800,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14198,6 +14817,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 234,
               "decay": 0.5267,
@@ -14214,6 +14837,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -14233,6 +14859,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14249,6 +14876,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 269,
               "decay": 0.4786,
@@ -14265,6 +14896,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -14282,6 +14916,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1338,
               "decay": 0.0256,
@@ -14303,6 +14940,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14319,6 +14957,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 270,
               "decay": 0.4772,
@@ -14335,6 +14977,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -14354,6 +14999,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14370,6 +15016,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 307,
               "decay": 0.4312,
@@ -14386,6 +15036,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -14403,6 +15056,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 990,
               "decay": 0.0664,
@@ -14424,6 +15080,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14440,6 +15097,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 353,
               "decay": 0.3802,
@@ -14456,6 +15117,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -14473,6 +15137,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 715,
               "decay": 0.141,
@@ -14494,6 +15161,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14510,6 +15178,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 868,
               "decay": 0.0927,
@@ -14526,6 +15198,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -14543,6 +15218,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 176,
               "decay": 0.6174,
@@ -14564,6 +15243,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14580,6 +15260,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1043,
               "decay": 0.0574,
@@ -14596,6 +15280,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -14613,6 +15300,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 156,
               "decay": 0.6522,
@@ -14634,6 +15324,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14650,6 +15341,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 298,
               "decay": 0.442,
@@ -14666,6 +15361,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -14683,6 +15381,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 2149,
               "decay": 0.0028,
@@ -14704,6 +15405,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14720,6 +15422,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 920,
               "decay": 0.0804,
@@ -14736,6 +15442,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -14753,6 +15462,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 189,
               "decay": 0.5958,
@@ -14774,6 +15487,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14790,6 +15504,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 502,
               "decay": 0.2528,
@@ -14806,6 +15524,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -14823,6 +15544,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 446,
               "decay": 0.2947,
@@ -14844,6 +15568,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14860,6 +15585,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 320,
               "decay": 0.4161,
@@ -14876,6 +15605,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 5,
               "decay": 0.9864,
@@ -14895,6 +15627,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14911,6 +15644,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 338,
               "decay": 0.3961,
@@ -14927,6 +15664,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -14946,6 +15686,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -14962,6 +15703,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1043,
               "decay": 0.0574,
@@ -14978,6 +15723,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -14995,6 +15743,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 205,
               "decay": 0.5703,
@@ -15016,6 +15768,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15032,6 +15785,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 341,
               "decay": 0.3929,
@@ -15048,6 +15805,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -15067,6 +15827,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15083,6 +15844,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -15100,6 +15864,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 176,
               "decay": 0.6174,
@@ -15136,6 +15903,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1370,
               "decay": 0.0234,
@@ -15152,6 +15923,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -15169,6 +15943,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 205,
               "decay": 0.5703,
@@ -15190,6 +15967,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15206,6 +15984,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 397,
               "decay": 0.337,
@@ -15222,6 +16004,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -15241,6 +16026,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15257,6 +16043,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 433,
               "decay": 0.3053,
@@ -15273,6 +16063,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -15292,6 +16085,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15308,6 +16102,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 426,
               "decay": 0.3113,
@@ -15324,6 +16122,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -15343,6 +16144,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15359,6 +16161,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 456,
               "decay": 0.2867,
@@ -15375,6 +16181,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -15394,6 +16203,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15410,6 +16220,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 968,
               "decay": 0.0705,
@@ -15426,6 +16240,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -15443,6 +16260,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 383,
               "decay": 0.3502,
@@ -15464,6 +16284,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15480,6 +16301,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 469,
               "decay": 0.2767,
@@ -15496,6 +16321,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -15515,6 +16343,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15531,6 +16360,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1042,
               "decay": 0.0576,
@@ -15547,6 +16380,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -15564,6 +16400,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 383,
               "decay": 0.3502,
@@ -15585,6 +16425,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15601,6 +16442,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -15618,6 +16462,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 316,
               "decay": 0.4207,
@@ -15639,6 +16487,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -15654,6 +16503,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 509,
               "decay": 0.248,
@@ -15670,6 +16523,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -15689,6 +16545,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15705,6 +16562,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 523,
               "decay": 0.2386,
@@ -15721,6 +16582,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -15740,6 +16604,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15756,6 +16621,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 942,
               "decay": 0.0757,
@@ -15772,6 +16641,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -15789,6 +16661,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 485,
               "decay": 0.2648,
@@ -15810,6 +16686,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15826,6 +16703,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 636,
               "decay": 0.1751,
@@ -15842,6 +16723,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -15859,6 +16743,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 939,
               "decay": 0.0763,
@@ -15880,6 +16768,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15896,6 +16785,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 566,
               "decay": 0.2121,
@@ -15912,6 +16805,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -15929,6 +16825,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1436,
               "decay": 0.0196,
@@ -15950,6 +16850,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -15966,6 +16867,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 597,
               "decay": 0.1948,
@@ -15982,6 +16887,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -15999,6 +16907,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1085,
               "decay": 0.0512,
@@ -16020,6 +16932,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16036,6 +16949,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 563,
               "decay": 0.2139,
@@ -16052,6 +16969,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -16071,6 +16991,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16087,6 +17008,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 852,
               "decay": 0.0969,
@@ -16103,6 +17028,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -16120,6 +17048,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 607,
               "decay": 0.1896,
@@ -16141,6 +17072,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16157,6 +17089,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -16174,6 +17109,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 393,
               "decay": 0.3407,
@@ -16195,6 +17134,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -16210,6 +17150,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -16227,6 +17170,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 401,
               "decay": 0.3333,
@@ -16263,6 +17209,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1426,
               "decay": 0.0201,
@@ -16279,6 +17229,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -16296,6 +17249,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 446,
               "decay": 0.2947,
@@ -16317,6 +17273,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16333,6 +17290,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -16350,6 +17310,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 414,
               "decay": 0.3217,
@@ -16386,6 +17349,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 758,
               "decay": 0.1253,
@@ -16402,6 +17369,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -16419,6 +17389,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 814,
               "decay": 0.1075,
@@ -16440,6 +17413,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16456,6 +17430,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1544,
               "decay": 0.0146,
@@ -16472,6 +17450,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -16489,6 +17470,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 446,
               "decay": 0.2947,
@@ -16510,6 +17495,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16526,6 +17512,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 697,
               "decay": 0.1481,
@@ -16542,6 +17532,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -16559,6 +17552,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 997,
               "decay": 0.0651,
@@ -16580,6 +17577,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16596,6 +17594,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1070,
               "decay": 0.0533,
@@ -16612,6 +17614,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -16629,6 +17634,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 586,
               "decay": 0.2008,
@@ -16650,6 +17659,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16666,6 +17676,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 643,
               "decay": 0.1718,
@@ -16682,6 +17696,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -16701,6 +17718,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16717,6 +17735,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1047,
               "decay": 0.0568,
@@ -16733,6 +17755,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -16750,6 +17775,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 634,
               "decay": 0.1761,
@@ -16771,6 +17800,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16787,6 +17817,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 644,
               "decay": 0.1713,
@@ -16803,6 +17837,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 6,
               "decay": 0.9837,
@@ -16822,6 +17859,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16838,6 +17876,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 674,
               "decay": 0.1578,
@@ -16854,6 +17896,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -16873,6 +17918,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -16889,6 +17935,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -16906,6 +17955,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 517,
               "decay": 0.2426,
@@ -16942,6 +17994,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -16959,6 +18014,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 517,
               "decay": 0.2426,
@@ -16980,6 +18039,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -16995,6 +18055,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1433,
               "decay": 0.0197,
@@ -17011,6 +18075,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -17028,6 +18095,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 586,
               "decay": 0.2008,
@@ -17049,6 +18119,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17065,6 +18136,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 911,
               "decay": 0.0824,
@@ -17081,6 +18156,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -17098,6 +18176,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 888,
               "decay": 0.0878,
@@ -17119,6 +18200,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17135,6 +18217,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1002,
               "decay": 0.0642,
@@ -17151,6 +18237,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -17168,6 +18257,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 842,
               "decay": 0.0996,
@@ -17189,6 +18281,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17205,6 +18298,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 782,
               "decay": 0.1174,
@@ -17221,6 +18318,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -17240,6 +18340,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17256,6 +18357,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 825,
               "decay": 0.1043,
@@ -17272,6 +18377,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -17289,6 +18397,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1502,
               "decay": 0.0163,
@@ -17310,6 +18421,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17326,6 +18438,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 6,
               "decay": 0.9837,
@@ -17343,6 +18458,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 599,
               "decay": 0.1938,
@@ -17379,6 +18497,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 836,
               "decay": 0.1012,
@@ -17395,6 +18517,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -17414,6 +18539,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17430,6 +18556,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 829,
               "decay": 0.1032,
@@ -17446,6 +18576,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -17465,6 +18598,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17481,6 +18615,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -17498,6 +18635,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 683,
               "decay": 0.1539,
@@ -17534,6 +18674,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 820,
               "decay": 0.1058,
@@ -17550,6 +18694,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 6,
               "decay": 0.9837,
@@ -17569,6 +18716,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17585,6 +18733,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -17602,6 +18753,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 683,
               "decay": 0.1539,
@@ -17623,6 +18778,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -17638,6 +18794,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 867,
               "decay": 0.093,
@@ -17654,6 +18814,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -17673,6 +18836,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17689,6 +18853,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 903,
               "decay": 0.0842,
@@ -17705,6 +18873,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -17724,6 +18895,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17740,6 +18912,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 923,
               "decay": 0.0798,
@@ -17756,6 +18932,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -17775,6 +18954,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17791,6 +18971,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 943,
               "decay": 0.0755,
@@ -17807,6 +18991,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -17826,6 +19013,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17842,6 +19030,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -17859,6 +19050,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 749,
               "decay": 0.1285,
@@ -17880,6 +19075,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -17895,6 +19091,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 966,
               "decay": 0.0709,
@@ -17911,6 +19111,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -17928,6 +19131,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1694,
               "decay": 0.0096,
@@ -17949,6 +19155,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -17965,6 +19172,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1263,
               "decay": 0.0314,
@@ -17981,6 +19192,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -17998,6 +19212,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 974,
               "decay": 0.0694,
@@ -18019,6 +19237,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18035,6 +19254,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 963,
               "decay": 0.0715,
@@ -18051,6 +19274,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -18070,6 +19296,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18086,6 +19313,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 968,
               "decay": 0.0705,
@@ -18102,6 +19333,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -18121,6 +19355,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18137,6 +19372,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1004,
               "decay": 0.0639,
@@ -18153,6 +19392,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -18172,6 +19414,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18188,6 +19431,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -18205,6 +19451,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 939,
               "decay": 0.0763,
@@ -18241,6 +19490,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 5,
               "decay": 0.9864,
@@ -18258,6 +19510,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 936,
               "decay": 0.077,
@@ -18279,6 +19535,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -18294,6 +19551,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -18311,6 +19571,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 955,
               "decay": 0.0731,
@@ -18332,6 +19596,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -18347,6 +19612,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -18364,6 +19632,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 951,
               "decay": 0.0739,
@@ -18385,6 +19657,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -18400,6 +19673,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1283,
               "decay": 0.0297,
@@ -18416,6 +19693,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -18433,6 +19713,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1604,
               "decay": 0.0123,
@@ -18454,6 +19737,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18470,6 +19754,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1342,
               "decay": 0.0253,
@@ -18486,6 +19774,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -18503,6 +19794,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1519,
               "decay": 0.0156,
@@ -18524,6 +19818,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18540,6 +19835,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1498,
               "decay": 0.0165,
@@ -18556,6 +19855,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -18573,6 +19875,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1414,
               "decay": 0.0208,
@@ -18594,6 +19899,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18610,6 +19916,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1413,
               "decay": 0.0208,
@@ -18626,6 +19936,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -18643,6 +19956,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1962,
               "decay": 0.0046,
@@ -18664,6 +19980,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18680,6 +19997,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1307,
               "decay": 0.0279,
@@ -18696,6 +20017,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -18715,6 +20039,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18731,6 +20056,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1354,
               "decay": 0.0245,
@@ -18747,6 +20076,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -18766,6 +20098,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18782,6 +20115,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1400,
               "decay": 0.0216,
@@ -18798,6 +20135,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -18817,6 +20157,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18833,6 +20174,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1376,
               "decay": 0.0231,
@@ -18849,6 +20194,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -18868,6 +20216,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18884,6 +20233,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1506,
               "decay": 0.0161,
@@ -18900,6 +20253,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -18919,6 +20275,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18935,6 +20292,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1552,
               "decay": 0.0142,
@@ -18951,6 +20312,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -18970,6 +20334,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -18986,6 +20351,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1365,
               "decay": 0.0238,
@@ -19002,6 +20371,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 6,
               "decay": 0.9837,
@@ -19021,6 +20393,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -19037,6 +20410,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1552,
               "decay": 0.0142,
@@ -19053,6 +20430,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -19072,6 +20452,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -19088,6 +20469,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -19105,6 +20489,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1397,
               "decay": 0.0218,
@@ -19126,6 +20514,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -19141,6 +20530,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1460,
               "decay": 0.0183,
@@ -19157,6 +20550,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 5,
               "decay": 0.9864,
@@ -19176,6 +20572,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -19192,6 +20589,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -19209,6 +20609,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1556,
               "decay": 0.0141,
@@ -19245,6 +20648,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1560,
               "decay": 0.0139,
@@ -19261,6 +20668,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 5,
               "decay": 0.9864,
@@ -19280,6 +20690,7 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
+            "PII",
             "TELECOM",
             "HEALTH"
           ]
@@ -19296,6 +20707,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -19313,6 +20727,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1645,
               "decay": 0.011,
@@ -19349,6 +20766,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -19366,6 +20786,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1850,
               "decay": 0.0063,
@@ -19387,6 +20811,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -19402,6 +20827,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -19419,6 +20847,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1817,
               "decay": 0.0069,
@@ -19455,6 +20886,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -19489,6 +20923,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -19523,6 +20960,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -19557,6 +20997,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -19591,6 +21034,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 0,
               "decay": 1.0,
@@ -19625,6 +21071,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -19659,6 +21108,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -19676,6 +21128,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 2104,
               "decay": 0.0031,
@@ -19712,6 +21167,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -19729,6 +21187,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1916,
               "decay": 0.0053,
@@ -19765,6 +21226,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -19799,6 +21263,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -19833,6 +21300,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -19867,6 +21337,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -19901,6 +21374,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -19935,6 +21411,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -19969,6 +21448,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -20003,6 +21485,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -20037,6 +21522,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -20071,6 +21559,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -20105,6 +21596,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -20139,6 +21633,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -20173,6 +21670,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -20207,6 +21707,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -20241,6 +21744,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 1,
               "decay": 0.9973,
@@ -20275,6 +21781,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -20292,6 +21801,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 2353,
               "decay": 0.0016,
@@ -20328,6 +21840,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -20345,6 +21860,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1908,
               "decay": 0.0054,
@@ -20381,6 +21899,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -20415,6 +21936,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -20449,6 +21973,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -20483,6 +22010,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -20517,6 +22047,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -20551,6 +22084,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 2,
               "decay": 0.9945,
@@ -20585,6 +22121,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -20619,6 +22158,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -20653,6 +22195,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -20687,6 +22232,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 3,
               "decay": 0.9918,
@@ -20721,6 +22269,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -20755,6 +22306,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -20789,6 +22343,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -20823,6 +22380,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 4,
               "decay": 0.9891,
@@ -20857,6 +22417,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 6,
               "decay": 0.9837,
@@ -20874,6 +22437,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1882,
               "decay": 0.0058,
@@ -20895,6 +22462,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_mobile_pings",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "TELECOM"
           ]
         },
@@ -20910,6 +22478,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 5,
               "decay": 0.9864,
@@ -20944,6 +22515,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 5,
               "decay": 0.9864,
@@ -20978,6 +22552,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 7,
               "decay": 0.981,
@@ -21012,6 +22589,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 7,
               "decay": 0.981,
@@ -21046,6 +22626,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_mobile_pings",
               "marking": "TELECOM",
+              "markings": [
+                "TELECOM"
+              ],
               "weight": 0.4,
               "ageDays": 7,
               "decay": 0.981,
@@ -21080,6 +22663,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 189,
               "decay": 0.5958,
@@ -21115,6 +22701,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 955,
               "decay": 0.0731,
@@ -21131,6 +22721,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 414,
               "decay": 0.3217,
@@ -21152,6 +22746,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "HEALTH"
           ]
         },
@@ -21167,6 +22762,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 316,
               "decay": 0.4207,
@@ -21202,6 +22800,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 393,
               "decay": 0.3407,
@@ -21237,6 +22838,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 405,
               "decay": 0.3297,
@@ -21272,6 +22876,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 418,
               "decay": 0.3182,
@@ -21307,6 +22914,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 749,
               "decay": 0.1285,
@@ -21323,6 +22934,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1044,
               "decay": 0.0573,
@@ -21344,6 +22958,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "HEALTH"
           ]
         },
@@ -21359,6 +22974,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1465,
               "decay": 0.0181,
@@ -21375,6 +22994,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 525,
               "decay": 0.2373,
@@ -21396,6 +23019,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "HEALTH"
           ]
         },
@@ -21411,6 +23035,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 514,
               "decay": 0.2446,
@@ -21446,6 +23073,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 542,
               "decay": 0.2265,
@@ -21481,6 +23111,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 546,
               "decay": 0.224,
@@ -21501,7 +23135,8 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
-            "OPEN"
+            "OPEN",
+            "PII"
           ]
         },
         {
@@ -21516,6 +23151,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 577,
               "decay": 0.2058,
@@ -21536,7 +23175,8 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
-            "OPEN"
+            "OPEN",
+            "PII"
           ]
         },
         {
@@ -21551,6 +23191,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 634,
               "decay": 0.1761,
@@ -21586,6 +23229,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_clinic_registrations",
               "marking": "HEALTH",
+              "markings": [
+                "PII",
+                "HEALTH"
+              ],
               "weight": 0.5,
               "ageDays": 1023,
               "decay": 0.0606,
@@ -21602,6 +23249,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 941,
               "decay": 0.0759,
@@ -21623,6 +23273,7 @@ window.ontologySeedCatalog = {
           "addressSource": "norm_clinic_registrations",
           "sourceMarkings": [
             "OPEN",
+            "PII",
             "HEALTH"
           ]
         },
@@ -21638,6 +23289,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 662,
               "decay": 0.163,
@@ -21673,6 +23327,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 721,
               "decay": 0.1387,
@@ -21693,7 +23351,8 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
-            "OPEN"
+            "OPEN",
+            "PII"
           ]
         },
         {
@@ -21708,6 +23367,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 888,
               "decay": 0.0878,
@@ -21728,7 +23391,8 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
-            "OPEN"
+            "OPEN",
+            "PII"
           ]
         },
         {
@@ -21743,6 +23407,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1044,
               "decay": 0.0573,
@@ -21763,7 +23431,8 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
-            "OPEN"
+            "OPEN",
+            "PII"
           ]
         },
         {
@@ -21778,6 +23447,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1119,
               "decay": 0.0466,
@@ -21798,7 +23471,8 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
-            "OPEN"
+            "OPEN",
+            "PII"
           ]
         },
         {
@@ -21813,6 +23487,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1206,
               "decay": 0.0367,
@@ -21833,7 +23511,8 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
-            "OPEN"
+            "OPEN",
+            "PII"
           ]
         },
         {
@@ -21848,6 +23527,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1306,
               "decay": 0.0279,
@@ -21883,6 +23565,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1516,
               "decay": 0.0157,
@@ -21903,7 +23589,8 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
-            "OPEN"
+            "OPEN",
+            "PII"
           ]
         },
         {
@@ -21918,6 +23605,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1645,
               "decay": 0.011,
@@ -21938,7 +23629,8 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
-            "OPEN"
+            "OPEN",
+            "PII"
           ]
         },
         {
@@ -21953,6 +23645,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1890,
               "decay": 0.0056,
@@ -21988,6 +23683,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1829,
               "decay": 0.0067,
@@ -22023,6 +23721,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1882,
               "decay": 0.0058,
@@ -22058,6 +23759,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 1943,
               "decay": 0.0049,
@@ -22078,7 +23783,8 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
-            "OPEN"
+            "OPEN",
+            "PII"
           ]
         },
         {
@@ -22093,6 +23799,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 2094,
               "decay": 0.0032,
@@ -22128,6 +23837,10 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN",
+                "PII"
+              ],
               "weight": 0.3,
               "ageDays": 2094,
               "decay": 0.0032,
@@ -22148,7 +23861,8 @@ window.ontologySeedCatalog = {
           "asOf": "2026-04-12",
           "addressSource": "norm_company_registry",
           "sourceMarkings": [
-            "OPEN"
+            "OPEN",
+            "PII"
           ]
         },
         {
@@ -22163,6 +23877,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 1943,
               "decay": 0.0049,
@@ -22198,6 +23915,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 2882,
               "decay": 0.0004,
@@ -22233,6 +23953,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 2351,
               "decay": 0.0016,
@@ -22268,6 +23991,9 @@ window.ontologySeedCatalog = {
             {
               "source": "norm_company_registry",
               "marking": "OPEN",
+              "markings": [
+                "OPEN"
+              ],
               "weight": 0.3,
               "ageDays": 3350,
               "decay": 0.0001,
@@ -22400,7 +24126,7 @@ window.ontologySeedCatalog = {
         "targetType": "Person",
         "targetProperty": "homeAddress, clinicCode",
         "relationType": "",
-        "rule": "Attach to an existing Person by exact name + date of birth only; an unmatched row creates nothing. The latest registration supplies homeAddress and clinicCode (marked HEALTH)."
+        "rule": "Attach to an existing Person by exact name + date of birth only; an unmatched row creates nothing. The latest registration supplies homeAddress and clinicCode (marked PII and HEALTH)."
       },
       {
         "id": "map-clinic-residence",
@@ -22409,7 +24135,7 @@ window.ontologySeedCatalog = {
         "targetType": "Location",
         "targetProperty": "label, locationType (residential), city, country, lat, lon",
         "relationType": "RESIDES_AT",
-        "rule": "Each attached row yields a residential Location (marked HEALTH) and a RESIDES_AT link with asOf = registered_on and source."
+        "rule": "Each attached row yields a residential Location and a RESIDES_AT link (both marked PII and HEALTH) with asOf = registered_on and source."
       },
       {
         "id": "map-source-header-reference",
@@ -54469,10 +56195,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54492,10 +56220,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54515,10 +56245,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54538,10 +56270,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54561,10 +56295,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54584,10 +56320,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54607,10 +56345,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54650,10 +56390,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54673,10 +56415,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54696,10 +56440,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54719,10 +56465,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54742,10 +56490,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54765,10 +56515,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54812,10 +56564,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54835,10 +56589,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54858,10 +56614,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54881,10 +56639,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54904,10 +56664,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54927,10 +56689,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54950,10 +56714,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -54993,10 +56759,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55016,10 +56784,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55039,10 +56809,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55099,10 +56871,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55122,10 +56896,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55145,10 +56921,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55168,10 +56946,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55191,10 +56971,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55214,10 +56996,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55237,10 +57021,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55300,10 +57086,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55323,10 +57111,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55346,10 +57136,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55369,10 +57161,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55392,10 +57186,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55435,10 +57231,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55458,10 +57256,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55481,10 +57281,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55504,10 +57306,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55571,10 +57375,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55594,10 +57400,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55617,10 +57425,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55640,10 +57450,12 @@ window.ontologySeedCatalog = {
           "clinic_registrations.csv"
         ],
         "markings": [
+          "PII",
           "HEALTH"
         ],
         "propertyMarkings": {},
         "sourceMarkings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -55992,9 +57804,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -56074,9 +57888,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -56154,9 +57970,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -56239,9 +58057,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -56288,9 +58108,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -56366,9 +58188,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -56445,9 +58269,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -56517,9 +58343,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -56610,9 +58438,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -56705,9 +58535,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -56790,9 +58622,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -56878,9 +58712,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57001,9 +58837,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57127,9 +58965,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57173,9 +59013,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57258,9 +59100,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57349,9 +59193,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57432,9 +59278,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57478,9 +59326,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57545,9 +59395,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57590,9 +59442,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57681,9 +59535,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57726,9 +59582,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57816,9 +59674,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57908,9 +59768,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -57998,9 +59860,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -58080,9 +59944,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -58171,9 +60037,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -58260,9 +60128,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -58334,9 +60204,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -58424,9 +60296,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -58515,9 +60389,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -58602,9 +60478,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -58680,9 +60558,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -58766,9 +60646,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -58887,9 +60769,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59008,9 +60892,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59094,9 +60980,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59139,9 +61027,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59271,9 +61161,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59366,9 +61258,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59414,9 +61308,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59502,9 +61398,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59615,9 +61513,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59664,9 +61564,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59750,9 +61652,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59830,9 +61734,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -59960,9 +61866,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60005,9 +61913,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60085,9 +61995,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60134,14 +62046,17 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -60179,9 +62094,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60256,9 +62173,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60348,9 +62267,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60442,9 +62363,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60489,9 +62412,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60567,9 +62492,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60660,9 +62587,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60740,9 +62669,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60856,9 +62787,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -60903,9 +62836,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -61035,9 +62970,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -61116,9 +63053,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -61207,9 +63146,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -61286,9 +63227,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -61373,9 +63316,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -61496,9 +63441,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -61582,9 +63529,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -61627,9 +63576,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -61703,9 +63654,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -61787,9 +63740,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -61904,9 +63859,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62005,9 +63962,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62085,9 +64044,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62173,9 +64134,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62247,9 +64210,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62333,9 +64298,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62382,14 +64349,17 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -62429,9 +64399,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62503,9 +64475,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62590,9 +64564,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62639,9 +64615,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62721,9 +64699,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62814,9 +64794,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62895,9 +64877,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -62994,9 +64978,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -63041,9 +65027,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -63125,9 +65113,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -63208,9 +65198,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -63291,9 +65283,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -63375,9 +65369,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -63453,9 +65449,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -63538,9 +65536,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -63623,9 +65623,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -63716,9 +65718,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -63848,9 +65852,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -63924,9 +65930,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -64056,9 +66064,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -64103,9 +66113,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -64196,9 +66208,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -64247,9 +66261,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -64297,9 +66313,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -64400,9 +66418,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -64488,9 +66508,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -64567,9 +66589,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -64729,9 +66753,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -64808,9 +66834,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -64902,9 +66930,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65025,9 +67055,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65073,9 +67105,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65159,9 +67193,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65239,9 +67275,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65329,9 +67367,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65408,9 +67448,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65496,9 +67538,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65579,9 +67623,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65671,9 +67717,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65718,9 +67766,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65795,9 +67845,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65845,9 +67897,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65894,9 +67948,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -65939,9 +67995,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -66066,9 +68124,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -66153,9 +68213,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -66242,9 +68304,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -66339,9 +68403,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -66387,9 +68453,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -66474,9 +68542,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -66570,9 +68640,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -66665,9 +68737,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -66747,9 +68821,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -66830,9 +68906,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -66916,9 +68994,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67008,9 +69088,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67064,9 +69146,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67156,9 +69240,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67246,9 +69332,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67368,9 +69456,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67416,9 +69506,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67498,9 +69590,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67587,9 +69681,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67668,9 +69764,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67749,9 +69847,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67836,9 +69936,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -67927,9 +70029,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68010,9 +70114,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68085,9 +70191,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68237,9 +70345,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68320,9 +70430,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68406,9 +70518,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68494,9 +70608,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68612,9 +70728,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68658,9 +70776,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68753,9 +70873,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68830,9 +70952,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68908,9 +71032,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -68991,9 +71117,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -69107,9 +71235,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -69197,9 +71327,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -69292,9 +71424,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -69416,9 +71550,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -69497,9 +71633,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -69587,9 +71725,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -69681,9 +71821,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -69729,9 +71871,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -69812,9 +71956,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -69898,9 +72044,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -69983,9 +72131,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -70064,9 +72214,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -70151,9 +72303,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -70231,9 +72385,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -70326,9 +72482,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -70498,9 +72656,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -70548,14 +72708,17 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
         "sourceMarkings": [
           "OPEN",
+          "PII",
           "HEALTH"
         ]
       },
@@ -70676,9 +72839,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -70769,9 +72934,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -70849,9 +73016,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -70897,9 +73066,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -70983,9 +73154,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -71071,9 +73244,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -71156,9 +73331,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -71201,9 +73378,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -71284,9 +73463,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -71381,9 +73562,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -71466,9 +73649,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -71595,9 +73780,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -71674,9 +73861,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -71769,9 +73958,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -71895,9 +74086,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -72028,9 +74221,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -72111,9 +74306,11 @@ window.ontologySeedCatalog = {
             "PII"
           ],
           "homeAddress": [
+            "PII",
             "HEALTH"
           ],
           "clinicCode": [
+            "PII",
             "HEALTH"
           ]
         },
@@ -135640,6 +137837,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135654,6 +137852,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135668,6 +137867,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135682,6 +137882,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135696,6 +137897,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135710,6 +137912,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135724,6 +137927,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135738,6 +137942,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135752,6 +137957,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135766,6 +137972,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135780,6 +137987,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135794,6 +138002,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135808,6 +138017,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135822,6 +138032,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135836,6 +138047,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135850,6 +138062,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135864,6 +138077,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135878,6 +138092,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135892,6 +138107,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135906,6 +138122,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135920,6 +138137,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135934,6 +138152,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135948,6 +138167,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135962,6 +138182,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135976,6 +138197,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -135990,6 +138212,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136004,6 +138227,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136018,6 +138242,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136032,6 +138257,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136046,6 +138272,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136060,6 +138287,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136074,6 +138302,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136088,6 +138317,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136102,6 +138332,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136116,6 +138347,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136130,6 +138362,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136144,6 +138377,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136158,6 +138392,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136172,6 +138407,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136186,6 +138422,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136200,6 +138437,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136214,6 +138452,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136228,6 +138467,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136242,6 +138482,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136256,6 +138497,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136270,6 +138512,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136284,6 +138527,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136298,6 +138542,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136312,6 +138557,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136326,6 +138572,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136340,6 +138587,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136354,6 +138602,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136368,6 +138617,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136382,6 +138632,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136396,6 +138647,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136410,6 +138662,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136424,6 +138677,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136438,6 +138692,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136452,6 +138707,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136466,6 +138722,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136480,6 +138737,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136494,6 +138752,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136508,6 +138767,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136522,6 +138782,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136536,6 +138797,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136550,6 +138812,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136564,6 +138827,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136578,6 +138842,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136592,6 +138857,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136606,6 +138872,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136620,6 +138887,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136634,6 +138902,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136648,6 +138917,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136662,6 +138932,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136676,6 +138947,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136690,6 +138962,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136704,6 +138977,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136718,6 +138992,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136732,6 +139007,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136746,6 +139022,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136760,6 +139037,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136774,6 +139052,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136788,6 +139067,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136802,6 +139082,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136816,6 +139097,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136830,6 +139112,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136844,6 +139127,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136858,6 +139142,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136872,6 +139157,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136886,6 +139172,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136900,6 +139187,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136914,6 +139202,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136928,6 +139217,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136942,6 +139232,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136956,6 +139247,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136970,6 +139262,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136984,6 +139277,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -136998,6 +139292,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137012,6 +139307,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137026,6 +139322,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137040,6 +139337,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137054,6 +139352,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137068,6 +139367,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137082,6 +139382,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137096,6 +139397,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137110,6 +139412,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137124,6 +139427,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137138,6 +139442,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137152,6 +139457,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137166,6 +139472,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137180,6 +139487,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137194,6 +139502,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137208,6 +139517,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137222,6 +139532,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137236,6 +139547,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137250,6 +139562,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },
@@ -137264,6 +139577,7 @@ window.ontologySeedCatalog = {
           "source": "clinic-ehr"
         },
         "markings": [
+          "PII",
           "HEALTH"
         ]
       },

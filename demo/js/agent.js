@@ -163,7 +163,7 @@ export function summarizeEntityForCopilot(entity) {
       });
     }
     return {
-      headline: `${entity.label} links ${companies.length} companies, ${accounts.length} accounts, ${flights.length} flights, and ${devices.length} devices.`,
+      headline: `${entity.label} links ${companies.length} companies, ${accounts.length} accounts, ${flights.length} flights, and ${DC.markings && DC.markings.hidesPhoneIds && DC.markings.hidesPhoneIds() ? "devices withheld (marking TELECOM)" : `${devices.length} ${devices.length === 1 ? "device" : "devices"}`}.`,
       evidence: [
         entityProperty(entity, "riskTag") ? `${entity.label} carries risk tag "${entityProperty(entity, "riskTag")}".` : "",
         watchlistRecord ? `${entity.label} maps to watchlist record ${watchlistRecord.label}.` : "",

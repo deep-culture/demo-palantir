@@ -592,7 +592,7 @@ def build_mappings(source_headers: Dict[str, List[str]]) -> List[Dict[str, objec
             "targetType": "Person",
             "targetProperty": "homeAddress, clinicCode",
             "relationType": "",
-            "rule": "Attach to an existing Person by exact name + date of birth only; an unmatched row creates nothing. The latest registration supplies homeAddress and clinicCode (marked HEALTH).",
+            "rule": "Attach to an existing Person by exact name + date of birth only; an unmatched row creates nothing. The latest registration supplies homeAddress and clinicCode (marked PII and HEALTH).",
         },
         {
             "id": "map-clinic-residence",
@@ -601,7 +601,7 @@ def build_mappings(source_headers: Dict[str, List[str]]) -> List[Dict[str, objec
             "targetType": "Location",
             "targetProperty": "label, locationType (residential), city, country, lat, lon",
             "relationType": "RESIDES_AT",
-            "rule": "Each attached row yields a residential Location (marked HEALTH) and a RESIDES_AT link with asOf = registered_on and source.",
+            "rule": "Each attached row yields a residential Location and a RESIDES_AT link (both marked PII and HEALTH) with asOf = registered_on and source.",
         },
         {
             "id": "map-source-header-reference",

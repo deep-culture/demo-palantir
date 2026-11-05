@@ -269,9 +269,9 @@
     <nav class="sidebar" id="sidebar">
       <section>
         <h3>Surfaces</h3>
-        <a href="./demo/" target="_blank">Investigate (Gotham-style) <span class="ext">↗</span></a>
-        <a href="./foundry-demo/" target="_blank">Build (Foundry-style) <span class="ext">↗</span></a>
-        <a href="./audit/" target="_blank">Oversight <span class="ext">↗</span></a>
+        <a href="./demo/" target="_blank" rel="noopener">Investigate (Gotham-style) <span class="ext">↗</span></a>
+        <a href="./foundry-demo/" target="_blank" rel="noopener">Build (Foundry-style) <span class="ext">↗</span></a>
+        <a href="./audit/" target="_blank" rel="noopener">Oversight <span class="ext">↗</span></a>
         <a href="./deployment.html">Deployment: where does it live?</a>
         <a href="./glossary.html">Glossary and honesty labels</a>
       </section>
@@ -317,10 +317,10 @@
           <div class="card">
             <span class="kicker">Session 1 · Start here</span>
             <h3>Investigate</h3>
-            <p>Log in as a patrol officer and notice what is missing; switch to the financial-crime analyst. Trace the risk-tagged operator, hit a Checkpoint, then open Oversight and read your own trail.</p>
+            <p>Log in as a patrol officer and notice what is missing; switch to the financial-crime analyst. Trace the risk-tagged operator and hit a Checkpoint. Then try Oversight: Oversight opens for the data protection officer or auditor; as analyst you'll be refused, and that refusal is logged.</p>
             <p class="meta"><strong>App:</strong> Investigate (Gotham-style) · <strong>Case:</strong> BVerfG 2023 on automated data analysis</p>
             <div class="actions">
-              <a class="btn" href="./demo/" target="_blank">Open Investigate →</a>
+              <a class="btn" href="./demo/" target="_blank" rel="noopener">Open Investigate →</a>
               <a class="btn ghost" href="#STUDENT_STUDY_GUIDE.md">Study guide</a>
             </div>
           </div>
@@ -328,11 +328,11 @@
           <div class="card dark">
             <span class="kicker">Session 2</span>
             <h3>Build and govern</h3>
-            <p>Open the pipeline and find where the ontology was made. Trace the HEALTH marking from the clinic data downstream, then try to remove it: first as the analyst, then as the data protection officer.</p>
+            <p>Open the pipeline and find where the ontology was made. Trace the HEALTH marking from the clinic data downstream, then try to remove it: first as the analyst, then as the data protection officer, who can also restore it.</p>
             <p>Lower the entity-resolution threshold until two Omar Rahmans become one, read the signals that merged them, and unmerge them. Turn on Karlsruhe mode and see which joins the purpose rules forbid.</p>
             <p class="meta"><strong>Apps:</strong> Build (Foundry-style), then Investigate · <strong>Cases:</strong> ICE and Medicaid data; the Dutch police "Raffinaderij"; BVerfG 2023</p>
             <div class="actions">
-              <a class="btn" href="./foundry-demo/" target="_blank">Open Build →</a>
+              <a class="btn" href="./foundry-demo/" target="_blank" rel="noopener">Open Build →</a>
               <a class="btn ghost" href="#FOUNDRY_STUDY_GUIDE.md">Study guide</a>
             </div>
           </div>
@@ -344,16 +344,16 @@
             <p>Open the Leads tab and read the address-confidence formula: watch the score drop when the health record is withheld. Close in Oversight with your own trail, then ask where all of this actually lives.</p>
             <p class="meta"><strong>Apps:</strong> Investigate (Agent and Leads tabs), then Oversight · <strong>Cases:</strong> ICE ELITE, NHS Federated Data Platform, Maven; POL-INTEL and European exits</p>
             <div class="actions">
-              <a class="btn" href="./demo/" target="_blank" title="Open Investigate, then the Agent (simulated AIP) tab">Agent (Investigate) →</a>
-              <a class="btn ghost" href="./demo/" target="_blank" title="Open Investigate, then the Leads tab">Leads (Investigate)</a>
-              <a class="btn ghost" href="./audit/" target="_blank">Oversight</a>
+              <a class="btn" href="./demo/" target="_blank" rel="noopener" title="Open Investigate, then the Agent (simulated AIP) tab">Agent (Investigate) →</a>
+              <a class="btn ghost" href="./demo/" target="_blank" rel="noopener" title="Open Investigate, then the Leads tab">Leads (Investigate)</a>
+              <a class="btn ghost" href="./audit/" target="_blank" rel="noopener">Oversight</a>
               <a class="btn ghost" href="./deployment.html">Where does it live?</a>
             </div>
           </div>
         </div>
 
         <div class="also-row">
-          <a class="also" href="./audit/" target="_blank">
+          <a class="also" href="./audit/" target="_blank" rel="noopener">
             <strong>Oversight ↗</strong>
             <span>The shared audit log and Checkpoint records. Only the data protection officer and the auditor may open it.</span>
           </a>
@@ -418,7 +418,7 @@
           // Open any anchor links inside docs in a new tab if they look external
           docContent.querySelectorAll("a[href]").forEach(a => {
             const href = a.getAttribute("href");
-            if (/^https?:/i.test(href)) a.target = "_blank";
+            if (/^https?:/i.test(href)) { a.target = "_blank"; a.rel = "noopener"; }
           });
         } catch (e) {
           docContent.innerHTML = `<p class="error">Could not load <code>${docName}</code>: ${e.message}</p>`;

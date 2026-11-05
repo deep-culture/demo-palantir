@@ -44,7 +44,7 @@ export function renderEntityTypesTool() {
               </div>
               <div class="field">
                 <label>Description</label>
-                <textarea data-scope="entity-type" data-field="description">${escapeHtml(selected.description || "")}</textarea>
+                <textarea aria-label="Description" data-scope="entity-type" data-field="description">${escapeHtml(selected.description || "")}</textarea>
               </div>
               <div class="inline-actions">
                 <button class="button-danger" data-action="delete-entity-type" data-id="${escapeHtml(selected.id)}">Delete object type</button>

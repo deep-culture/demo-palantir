@@ -46,7 +46,7 @@ export function renderMappingsTool() {
               </div>
               <div class="field">
                 <label>Rule</label>
-                <textarea data-scope="mapping" data-field="rule">${escapeHtml(selected.rule || "")}</textarea>
+                <textarea aria-label="Rule" data-scope="mapping" data-field="rule">${escapeHtml(selected.rule || "")}</textarea>
               </div>
               <div class="inline-actions">
                 <button class="button-danger" data-action="delete-mapping" data-id="${escapeHtml(selected.id)}">Delete mapping</button>

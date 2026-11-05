@@ -58,6 +58,11 @@ Two constraints fix the scale (both are tested):
 
 What the scorer does not use
 ----------------------------
+There is no passport-conflict signal: two different passport numbers do not
+veto a merge (the namesake pair has two).  ``SIGNALS_NOTE`` puts that question
+under the weights table instead of adding the signal, which would split the
+designed case.
+
 Clinic registrations (home addresses) are *not* a signal: they are HEALTH
 data collected for care, and using them to decide identity would be the very
 purpose shift the markings exist to stop.  Explanations never print a phone
@@ -86,6 +91,11 @@ import unicodedata
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Set, Tuple
 
 from pipeline.resolution import PersonResolver, person_observations
+
+# Shown under the weights table (FIXROUND_CONTRACT.md §1).  The signal is
+# deliberately *not* added: a passport-conflict veto would split the designed
+# namesake pair (two passports, merged at 0.55) and remove the lesson.
+SIGNALS_NOTE = "There is no passport-conflict signal. Should two different passports veto a merge? Who decides?"
 
 DEFAULT_THRESHOLD = 0.75
 MIN_THRESHOLD = 0.30
@@ -400,6 +410,10 @@ def resolution_block(
         "minThreshold": MIN_THRESHOLD,
         "fixedNote": ("Merges made by the pipeline's deterministic rules are fixed in this build — "
                       "see each person's resolution record."),
+        # The note on the weights table; ``discussion`` holds the same string
+        # (the contract allows either name).
+        "note": SIGNALS_NOTE,
+        "discussion": SIGNALS_NOTE,
         "signals": [
             {"id": s["id"], "weight": s["weight"], "label": s["label"], "note": s["note"], "markings": list(s["markings"])}
             for s in SIGNALS
